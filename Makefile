@@ -1,5 +1,5 @@
 COMPILER := c++
-COMPILER_FLAGS := -Wall -Wextra -Werror -g
+COMPILER_FLAGS := -Wall -Wextra -Werror -std=c++98 -g
 LIBS := NOTHING
 SRCDIR = srcs
 OBJDIR := obj
