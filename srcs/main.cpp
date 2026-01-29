@@ -1,4 +1,7 @@
 #include <iostream>
+#include <sys/epoll.h>
+#include <fcntl.h>
+#include <cstring>
 
 static int usage( void ) {
 	int ERR_USAGE = 1; /* WILL BE TRANSFORMED TO A MACRO */
@@ -12,8 +15,13 @@ int main( int argc, char** argv ) {
 	if (argc > 2) {
 		return usage();
 	}
-	(void)argv; // to avoid unused variable warning for now
-	std::cout << "WebServer is starting..." << std::endl;
+	int epollFd = epoll_create1(0);
+	if (epollFd == -1) {
+		std::cerr << "Error creating epoll file descriptor\n";
+		return 1;
+	}
+	struct epoll_event s;
+	memset(&s, 0, sizeof(s));
 	return 0;
 }
 
