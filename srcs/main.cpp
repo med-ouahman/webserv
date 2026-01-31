@@ -2,7 +2,13 @@
 /*
     Load configuration from a file and initialize application settings.
 */
+
 #include <iostream>
+
+Config::File parseConfigFile( const char* configFile ) {
+	assert(configFile != NULL || *configFile != '\0');
+	
+}
 
 int main( int argc, char* argv[] ) {
     if (argc < 2) {
@@ -11,7 +17,7 @@ int main( int argc, char* argv[] ) {
     }
     const char* configFile = argv[1];
     if (!configFile) {
-        configFile = "default.conf";
+        configFile = "config/default.conf";
         return 1;
     }
     return 0;
