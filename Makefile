@@ -1,6 +1,6 @@
 CXX := c++
 
-CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 -g
+CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 -std=gnu++11 -g
 
 # Libraries we might link against in the future, for now just a placeholder
 LIBS := 
@@ -15,6 +15,8 @@ INCLUDES = -Iincludes \
 	-Isrcs/core
 
 SRCS = $(SRCDIR)/main.cpp \
+	srcs/core/Connection.cpp \
+	srcs/core/ConnectionStateMachine.cpp \
 
 OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 

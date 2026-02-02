@@ -1,120 +1,218 @@
+Absolutely. Below is the **updated, consolidated `ARCH.md`**, rewritten to accurately reflect **everything we clarified and refined about connections**, without jumping ahead into unrelated areas.
+
+This version is **clean, precise, and reviewer-safe**, and it removes earlier ambiguities around *connection vs request*, *epoll’s role*, and *state behavior*.
+
+---
+
 # ARCH.md — Web Server Architecture (Draft)
 
 ## 1. Architectural Philosophy
 
-This project follows an explicit, event-driven architecture designed for correctness, clarity, and robustness under non-blocking I/O constraints. Architectural decisions are treated as evolving design choices rather than rigid commitments and may be refined as implementation progresses.
+This project follows an explicit, event-driven architecture designed for correctness and clarity under non-blocking I/O constraints. The design prioritizes deterministic behavior, explicit ownership, and strict separation of concerns.
 
-The server avoids hidden global state and relies on explicit ownership and dependency flow to ensure predictable behavior and ease of reasoning.
+Architecture decisions documented here describe the current design intent and may evolve as implementation progresses. No global mutable state is relied upon; all behavior is driven through explicit objects and events.
 
 ---
 
 ## 2. High-Level Architecture and Module Interaction
 
-The server is organized into distinct modules with clear responsibilities and strict dependency boundaries.
+The server is organized into distinct modules with strict responsibility boundaries:
 
-* `main` is responsible only for initialization and startup. It parses configuration, constructs top-level components, and transfers control to the event loop.
-* `core` acts as the orchestration layer, coordinating connection lifecycles, enforcing the connection state machine, and driving request handling decisions.
-* `io` encapsulates all operating system interactions, including socket management and I/O multiplexing. It reports readiness events without interpreting protocol semantics.
-* `http` contains all HTTP protocol logic, including request parsing and response construction, independent of socket operations.
-* `utils` provides stateless helper functionality shared across modules.
+* **`main`**
+  Performs startup tasks only: configuration loading, validation, construction of top-level objects, and transfer of control to the event loop.
 
-Dependencies are intentionally one-directional, with `core` acting as the only module allowed to coordinate between `io` and `http`.
+* **`core`**
+  Owns the server’s orchestration logic. It manages connection lifecycles, enforces the connection state machine, and coordinates request processing.
+
+* **`io`**
+  Encapsulates all operating system interaction, including socket management and I/O multiplexing. It reports readiness events without interpreting protocol semantics.
+
+* **`http`**
+  Contains all HTTP protocol logic, including incremental request parsing and response construction, independent of socket operations.
+
+* **`utils`**
+  Provides stateless helper functionality shared across modules.
+
+Dependencies are one-directional, with `core` acting as the sole coordinator between I/O and protocol logic.
 
 ---
 
 ## 3. Event Loop and I/O Multiplexing
 
-The server employs a single-threaded, non-blocking event loop driven by operating system I/O multiplexing facilities. The event loop waits for socket readiness notifications and dispatches events to connection instances in accordance with their current state.
+The server uses a single-threaded, non-blocking event loop driven by an OS-level I/O multiplexing mechanism (e.g. `epoll`). The event loop waits for socket readiness notifications and dispatches events to the corresponding connection objects.
 
-Socket interest (read or write) is determined strictly by the connection state machine. The event loop performs minimal work per event to ensure fairness and responsiveness across all active connections.
+The event loop does not perform protocol logic or state transitions directly. Its responsibility is limited to:
 
----
-
-## 4. Connection State Machine
-
-Each client connection is governed by a unified state machine defining all permitted behaviors and transitions.
-
-Connections progress through well-defined states covering:
-
-* acceptance
-* reading
-* parsing
-* request processing
-* response writing
-* completion
-* error handling
-* closure
-
-State transitions are driven exclusively by socket readiness events, parser outcomes, handler results, and fatal errors. Read and write phases are strictly separated to prevent interleaving and protocol violations.
+* monitoring file descriptors,
+* translating readiness signals into connection events,
+* executing side effects requested by connection intent.
 
 ---
 
-## 5. HTTP Parsing Strategy
+## 4. Connection Model
 
-HTTP request parsing is implemented as an incremental, stateful process designed for non-blocking I/O. Each connection owns a dedicated HTTP parser instance that consumes raw bytes from a connection-managed read buffer.
+### 4.1 Definition
 
-The parser operates as a finite state machine and reports only factual outcomes: request completion, need for additional data, or parse errors. Parsing never assumes message completeness and preserves unread bytes to support keep-alive and pipelined requests.
+A **Connection** represents the server’s ownership and lifecycle management of a single client TCP communication channel.
 
----
+A connection:
 
-## 6. Response Generation and Write-Side Flow Control
+* is created when the server accepts a TCP connection,
+* owns the socket file descriptor,
+* persists across multiple I/O events,
+* may handle **zero, one, or multiple HTTP requests** during its lifetime.
 
-HTTP responses are generated after successful request parsing and serialized into a connection-owned write buffer prior to transmission.
-
-Response data is written incrementally based on socket readiness events, with explicit tracking of write progress. Only one response is written per connection at a time. Upon completion, the server evaluates connection reuse rules and either resets the connection for subsequent requests or closes it.
-
----
-
-## 7. Configuration and Server Context Model
-
-Server configuration is parsed and fully validated during startup, producing an immutable runtime configuration model.
-
-Configuration data is organized hierarchically into global, server, and location contexts. At request processing time, the server deterministically resolves the applicable context based on connection endpoint and request attributes. Resolved configuration data is shared as read-only input throughout the request lifecycle.
+A connection is **not** a request, not a socket wrapper, and not an HTTP object. It is a coordination entity.
 
 ---
 
-## 8. Request Routing and Handler Dispatch
+### 4.2 Connection vs Request
 
-Routing decisions are performed after request parsing and configuration context resolution. Routing is based solely on request attributes and configuration data and produces exactly one handling outcome per request.
+* A **Connection** is long-lived and transport-level.
+* A **Request** is short-lived and protocol-level.
 
-The server selects between static file handling, CGI execution, or error handling using a deterministic evaluation order. Handlers operate independently of socket I/O and connection state management.
-
----
-
-## 9. Filesystem Interaction and Path Resolution
-
-URL-to-filesystem mapping is performed through a strict resolution process including path normalization, canonicalization, and confinement verification.
-
-All filesystem access is restricted to configured root directories. Directory handling behavior, symbolic link policies, and MIME type resolution are explicitly governed by configuration. Filesystem errors are consistently translated into appropriate HTTP status codes.
+Multiple requests may be processed sequentially over a single connection when keep-alive is enabled. Request objects are created after successful parsing and destroyed after response generation.
 
 ---
 
-## 10. CGI Execution Model
+## 5. Connection State Machine
 
-CGI requests are handled through controlled child process execution with explicit environment setup and strict enforcement of execution limits.
+Each connection is governed by a unified finite state machine. At any time, a connection is in exactly one state.
 
-CGI input and output streams are integrated into the event loop to prevent blocking. Execution timeouts and output size constraints are enforced, and all resources are cleaned up deterministically to prevent leaks and orphaned processes.
+### Connection States
 
----
+* `ACCEPTED`
+* `READING`
+* `PARSING`
+* `PROCESSING`
+* `READY_TO_WRITE`
+* `WRITING`
+* `WRITE_COMPLETE`
+* `ERROR`
+* `CLOSING`
 
-## 11. Error Handling and Error Pages
+State transitions are explicit and deterministic. Illegal transitions are treated as programming errors.
 
-Error handling is centralized and deterministic. Errors are classified into client, server, connection-level, and startup categories.
-
-Recoverable errors are mapped to appropriate HTTP responses, with custom error pages resolved hierarchically. Internal details are never exposed to clients, and unrecoverable connection errors result in immediate cleanup and termination.
-
----
-
-## 12. Timeouts, Limits, and Resource Management
-
-The server enforces strict limits on connection lifetime, request sizes, concurrent resources, and CGI execution to ensure stability under load.
-
-Timeouts and limits are evaluated during event loop execution, and violations result in fast, isolated failure without impacting unrelated connections.
+Read and write phases are strictly separated; a connection is never reading and writing at the same time.
 
 ---
 
-## 13. Graceful Shutdown and Signal Handling
+## 6. Connection Events
 
-The server implements controlled shutdown behavior in response to termination signals. Shutdown proceeds in phases, stopping new connection acceptance, allowing in-flight requests to complete, and finally performing deterministic cleanup.
+Connection behavior is driven exclusively by **events**.
 
-Signal handlers are minimal and communicate shutdown intent through shared state checked by the event loop.
+Events are facts, not decisions.
+
+### External Events (produced by the event loop)
+
+* `SOCKET_READABLE`
+* `SOCKET_WRITABLE`
+* `FATAL_ERROR`
+
+### Internal Events (produced by the connection)
+
+* `READ_SUCCESS`
+* `READ_EOF`
+* `READ_ERROR`
+* `PARSE_NEED_MORE`
+* `PARSE_COMPLETE`
+* `PARSE_ERROR`
+* `PROCESSING_DONE`
+* `WRITE_SUCCESS`
+* `WRITE_ERROR`
+* `CLOSE_REQUESTED`
+
+All state transitions occur as a function of `(current_state, event)`.
+
+---
+
+## 7. State Entry Side Effects
+
+State transitions determine **intent**.
+Side effects execute that intent.
+
+Side effects are associated with **state entry**, not with events directly.
+
+### Summary of State Entry Intent
+
+* **`ACCEPTED`**
+  Initialize connection resources and register interest in read events.
+
+* **`READING`**
+  Register read interest and attempt to receive bytes when permitted.
+
+* **`PARSING`**
+  Consume available bytes using the HTTP parser without performing socket I/O.
+
+* **`PROCESSING`**
+  Resolve configuration context, route the request, and generate a response.
+
+* **`READY_TO_WRITE`**
+  Register write interest.
+
+* **`WRITING`**
+  Attempt to send response bytes incrementally.
+
+* **`WRITE_COMPLETE`**
+  Decide keep-alive behavior and either reset request state or initiate closure.
+
+* **`ERROR`**
+  Attempt to generate an error response if possible, otherwise prepare for closure.
+
+* **`CLOSING`**
+  Unregister the socket, close the file descriptor, and release all resources.
+
+---
+
+## 8. Event Production and Dispatch
+
+Operating system readiness notifications are treated as **permission signals**, not outcomes.
+
+The event loop translates:
+
+* `EPOLLIN` → `SOCKET_READABLE`
+* `EPOLLOUT` → `SOCKET_WRITABLE`
+* `EPOLLERR / EPOLLHUP` → `FATAL_ERROR`
+
+Connections perform the permitted action and then emit internal outcome events based on the result. State transitions occur only through these events.
+
+epoll notifications never directly modify connection state.
+
+---
+
+## 9. Request Lifecycle Within a Connection
+
+A connection may repeatedly execute the following cycle:
+
+```
+READ ↔ PARSE → PROCESS → WRITE
+                ↓
+           keep-alive decision
+                ↓
+         READ or CLOSING
+```
+
+Keep-alive behavior is determined during parsing based on HTTP semantics and server policy. If keep-alive is enabled, request-specific state is reset while the connection persists. Otherwise, the connection transitions to closing.
+
+---
+
+## 10. Error Handling at the Connection Level
+
+Errors may occur at any stage of the connection lifecycle. Depending on severity and timing:
+
+* an HTTP error response may be generated, or
+* the connection may close immediately.
+
+Once a connection enters `ERROR`, normal request processing is aborted.
+
+---
+
+## 11. Graceful Connection Termination
+
+Connections terminate only through the `CLOSING` state. Cleanup is deterministic and includes:
+
+* unregistering from the event loop,
+* closing the socket,
+* releasing all owned resources.
+
+No further state transitions occur after entering `CLOSING`.
