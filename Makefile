@@ -15,6 +15,8 @@ INCLUDES = -Iincludes \
 	-Isrcs/core
 
 SRCS = $(SRCDIR)/main.cpp \
+	srcs/core/Connection.cpp \
+	srcs/core/ConnectionStateMachine.cpp \
 
 OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 
