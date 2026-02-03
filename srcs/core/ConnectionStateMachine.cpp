@@ -10,72 +10,72 @@ ConnectionStateMachine::next_state( ConnectionState currentState,
     switch (currentState) {
 
     // ───────────────────────────────── ACCEPTED ─────────────────────────────
-    case ConnectionState::ACCEPTED:
-        if (event == ConnectionEvent::SOCKET_READABLE)
-            return ConnectionState::READING;
+    case ACCEPTED:
+        if (event == SOCKET_READABLE)
+            return READING;
         break;
 
     // ───────────────────────────────── READING ──────────────────────────────
-    case ConnectionState::READING:
-        if (event == ConnectionEvent::SOCKET_READABLE)
-            return ConnectionState::READING; // allowed, attempt read
-        if (event == ConnectionEvent::READ_SUCCESS)
-            return ConnectionState::PARSING;
-        if (event == ConnectionEvent::READ_EOF)
-            return ConnectionState::CLOSING;
-        if (event == ConnectionEvent::READ_ERROR)
-            return ConnectionState::ERROR;
+    case READING:
+        if (event == SOCKET_READABLE)
+            return READING; // allowed, attempt read
+        if (event == READ_SUCCESS)
+            return PARSING;
+        if (event == READ_EOF)
+            return CLOSING;
+        if (event == READ_ERROR)
+            return ERROR;
         break;
 
     // ───────────────────────────────── PARSING ─────────────────────────────
-    case ConnectionState::PARSING:
-        if (event == ConnectionEvent::PARSE_NEED_MORE)
-            return ConnectionState::READING;
-        if (event == ConnectionEvent::PARSE_COMPLETE)
-            return ConnectionState::PROCESSING;
-        if (event == ConnectionEvent::PARSE_ERROR)
-            return ConnectionState::ERROR;
+    case PARSING:
+        if (event == PARSE_NEED_MORE)
+            return READING;
+        if (event == PARSE_COMPLETE)
+            return PROCESSING;
+        if (event == PARSE_ERROR)
+            return ERROR;
         break;
 
     // ───────────────────────────────── PROCESSING ───────────────────────────
-    case ConnectionState::PROCESSING:
-        if (event == ConnectionEvent::PROCESSING_DONE)
-            return ConnectionState::READY_TO_WRITE;
+    case PROCESSING:
+        if (event == PROCESSING_DONE)
+            return READY_TO_WRITE;
         break;
 
     // ───────────────────────────────── READY_TO_WRITE ───────────────────────
-    case ConnectionState::READY_TO_WRITE:
-        if (event == ConnectionEvent::SOCKET_WRITABLE)
-            return ConnectionState::WRITING;
+    case READY_TO_WRITE:
+        if (event == SOCKET_WRITABLE)
+            return WRITING;
         break;
 
     // ───────────────────────────────── WRITING ──────────────────────────────
-    case ConnectionState::WRITING:
-        if (event == ConnectionEvent::WRITE_SUCCESS)
-            return ConnectionState::WRITE_COMPLETE;
-        if (event == ConnectionEvent::WRITE_ERROR)
-            return ConnectionState::ERROR;
+    case WRITING:
+        if (event == WRITE_SUCCESS)
+            return WRITE_COMPLETE;
+        if (event == WRITE_ERROR)
+            return ERROR;
         break;
 
     // ───────────────────────────────── WRITE_COMPLETE ───────────────────────
-    case ConnectionState::WRITE_COMPLETE:
-        if (event == ConnectionEvent::CLOSE_REQUESTED)
-            return ConnectionState::CLOSING;
-        if (event == ConnectionEvent::SOCKET_READABLE)
-            return ConnectionState::READING; // keep-alive path
+    case WRITE_COMPLETE:
+        if (event == CLOSE_REQUESTED)
+            return CLOSING;
+        if (event == SOCKET_READABLE)
+            return READING; // keep-alive path
         break;
 
     // ───────────────────────────────── ERROR ────────────────────────────────
-    case ConnectionState::ERROR:
-        return ConnectionState::CLOSING;
+    case ERROR:
+        return CLOSING;
 
     // ───────────────────────────────── CLOSING ──────────────────────────────
-    case ConnectionState::CLOSING:
-        return ConnectionState::CLOSING;
+    case CLOSING:
+        return CLOSING;
     }
 
     // Any other (state, event) pair is illegal
-    return ConnectionState::ERROR;
+    return ERROR;
 }
 
-} // namespace core
+}

@@ -15,6 +15,5 @@ namespace core {
         WRITE_SUCCESS,
         WRITE_ERROR,
         CLOSE_REQUESTED,
-        
     };
 }

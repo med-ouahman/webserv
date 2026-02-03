@@ -1,6 +1,6 @@
 CXX := c++
 
-CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 -std=gnu++11 -g
+CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 -g
 
 # Libraries we might link against in the future, for now just a placeholder
 LIBS := 
