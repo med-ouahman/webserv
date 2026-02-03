@@ -2,6 +2,7 @@
 
 #include "ConnectionState.hpp"
 #include "ConnectionEvent.hpp"
+#include "ConnectionAction.hpp"
 #include <unistd.h>
 
 namespace core {
@@ -13,5 +14,7 @@ namespace core {
             explicit Connection( int fd );
             ~Connection();
             void handle_event( ConnectionEvent event );
+            ConnectionAction desired_action() const;
+            void on_event( ConnectionEvent event );
     };   
 }

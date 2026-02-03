@@ -78,4 +78,4 @@ ConnectionStateMachine::next_state( ConnectionState currentState,
     return ERROR;
 }
 
-} // namespace core
+}
