@@ -14,6 +14,7 @@ namespace core {
         if (fd > 0) {
             close(fd);
         }
+        state = CLOSING;
     }
 
     void Connection::handle_event(ConnectionEvent event) {
@@ -40,10 +41,14 @@ namespace core {
             case CLOSING:
                 action.want_close = true;
             default:
-                /**/
+                break;
         }
         
         return action;
+    }
+
+    int Connection::get_fd() const {
+        return fd;
     }
 
     void Connection::on_event( ConnectionEvent event ) {
@@ -65,6 +70,7 @@ namespace core {
                // 
                 break;
             default:
-                /**/
+                break;
+        }
     }
 }
