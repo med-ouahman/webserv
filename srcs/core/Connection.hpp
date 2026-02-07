@@ -13,6 +13,7 @@ namespace core {
         public:
             explicit Connection( int fd );
             ~Connection();
+            int get_fd() const;
             void handle_event( ConnectionEvent event );
             ConnectionAction desired_action() const;
             void on_event( ConnectionEvent event );

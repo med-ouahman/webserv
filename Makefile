@@ -12,11 +12,13 @@ OBJDIR := obj
 NAME = webserv
 
 INCLUDES = -Iincludes \
-	-Isrcs/core
+	-Isrcs/core \
+	-Isrcs/io
 
 SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/Connection.cpp \
 	srcs/core/ConnectionStateMachine.cpp \
+	srcs/io/EventLoop.cpp
 
 OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 
