@@ -10,7 +10,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <asm-generic/socket.h>
-
+#include <sys/un.h>
 #define NDEBUG
 #include <assert.h>
 /*
@@ -41,38 +41,50 @@ int parse_port(const char* port_str) {
 
 int main( int argc, char* argv[] ) {
 
-    if (argc != 3) {
-        fprintf(stderr, "Usage: %s <IP_ADDRESS e.g 127.0.0.1> <PORT>\n", argv[0]);
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <socket_file>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
-
-    int ip = inet_addr(argv[1]);
-    int port = parse_port(argv[2]);
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    /* UNIX-domain socket example */
+    struct sockaddr_un sock_addr;
+    // set everything to zero
+    memset(&sock_addr, 0, sizeof(sock_addr));
+    sock_addr.sun_family = AF_UNIX;
+    // this will create a socket file named "socket_file" in the current directory. The
+    // server should be set up to listen on this socket file for incoming connections.
+    strncpy(sock_addr.sun_path, argv[1], sizeof(sock_addr.sun_path) - 1);
+     int sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sockfd < 0) {
-        perror("socket");
-        exit(EXIT_FAILURE);
+        assert(0 && "Failed to create socket");
     }
-    struct sockaddr_in server_addr;
-    memset(&server_addr, 0, sizeof(server_addr));
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = ip;
-    server_addr.sin_port = htons(port);
-    bind(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr));
-    listen(sockfd, 1);
-    // the loop to accept incoming connections
+    if (bind(sockfd, (struct sockaddr*)&sock_addr, sizeof(sock_addr)) < 0) {
+        assert(0 && strerror(errno));
+    }
+    if (listen(sockfd, 5) < 0) {
+        assert(0 && strerror(errno));
+    }
+    printf("Server is listening on socket file: %s\n", sock_addr.sun_path);
     char buffer[1024];
     while (1) {
-        int client_sockfd = accept(sockfd, NULL, NULL);
-        if (client_sockfd < 0) {
-            perror("accept");
-            exit(EXIT_FAILURE);
+        int clientfd = accept(sockfd, NULL, NULL);
+        if (clientfd < 0) {
+            
+            continue; // continue accepting other connections
         }
-        // handle the client connection (e.g., read/write data)
-        recv(client_sockfd, buffer, sizeof(buffer), 0);
-        printf("Received data: %s\n", buffer);
-        // check if client closed the connection
-        close(client_sockfd);
+        printf("clientfd: %d\n", clientfd);
+        printf("Accepted a connection from a client\n");
+        ssize_t num_read = read(clientfd, buffer, sizeof(buffer) - 1);
+        if (num_read < 0) {
+            assert(0 && "Failed to read from client");
+        }
+        if (num_read == 0) {
+            // client closed the connection
+            close(clientfd);
+            return 0;
+        }
+        buffer[num_read] = '\0'; // null-terminate the string
+        printf("Received message from client: %s\n", buffer);
+        close(clientfd); // close the client socket after handling the request
     }
     return 0;
 }
