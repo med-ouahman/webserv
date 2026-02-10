@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/un.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -13,39 +14,49 @@
 #include <readline/readline.h>
 #define NDEBUG
 #include <assert.h>
+#include <errno.h>
+#include <sys/stat.h>
 
 int main( int argc, char* argv[] ) {
 
-    
-    if (argc != 3) {
-        fprintf(stderr, "Usage: %s <IP_ADDRESS> <PORT>\n", argv[0]);
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <socket_file>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
+    // check if the socket file exists
+    struct stat st;
+    if (stat(argv[1], &st) < 0) {
+        fprintf(stderr, "Socket file %s does not exist\n", argv[1]);
+        exit(EXIT_FAILURE);
+    }
+    /* UNIX-domain socket example */
+    struct sockaddr_un sock_addr;
+    // set everything to zero 
+    memset(&sock_addr, 0, sizeof(sock_addr));
+    sock_addr.sun_family = AF_UNIX;
+    // this will create a socket file named "socket_file" in the current directory. The server should be set up to listen on this socket file for incoming connections.
+    strncpy(sock_addr.sun_path, argv[1], sizeof(sock_addr.sun_path) - 1);
 
-    // create client socket
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    int sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sockfd < 0) {
-        perror("socket");
-        exit(EXIT_FAILURE);
+        assert(0 && "Failed to create socket");
     }
-    // set up server address
-    struct sockaddr_in server_addr;
-    memset(&server_addr, 0, sizeof(server_addr));
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(atoi(argv[2]));
-    if (inet_pton(AF_INET, argv[1], &server_addr.sin_addr) <= 0) {
-        fprintf(stderr, "Invalid IP address: %s\n", argv[1]);
-        exit(EXIT_FAILURE);
+    // bind the socket to the address
+    if (connect(sockfd, (struct sockaddr*)&sock_addr, sizeof(sock_addr)) < 0) {
+        
+        assert(0 && strerror(errno));
     }
-    // connect to server
-    if (connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        perror("connect");
-        exit(EXIT_FAILURE);
+    // read from stdin
+    char buffer[1024];
+    int num_read = read(STDIN_FILENO, buffer, sizeof(buffer) - 1);
+    if (num_read < 0) {
+        assert(0 && "Failed to read from stdin");
     }
-    // send message to server
-    const char* message = readline("Enter message to send: ");
-    if (send(sockfd, message, strlen(message), 0) < 0) {
-        perror("send");
-        exit(EXIT_FAILURE);
+    buffer[num_read] = '\0'; // null-terminate the string
+    // send the message to the server using write (will use send later)
+    if (write(sockfd, buffer, num_read) != num_read) {
+        assert(0 && "failed/partial write to socket");
     }
+    close(sockfd); // server sees EOF when client closes the socket
+    return 0;
 }

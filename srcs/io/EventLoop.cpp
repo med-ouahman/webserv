@@ -1,11 +1,10 @@
 #include "EventLoop.hpp"
 #include "Connection.hpp"
-
+#include <iostream>
 
 namespace io {
 
-    EventLoop::EventLoop(): epollFd(-1), events(MAX_EVENTS) {
-    
+    EventLoop::EventLoop(): epollFd(-1) {
         epollFd = epoll_create1(0);
         assert(epollFd >= 0);
     }
@@ -42,9 +41,9 @@ namespace io {
     }
 
     void EventLoop::run() {
-        
+        int n = 3;
         while (true) {
-            
+            std::cout << "Number of fds ready: " << n <<" \n"; 
             break;
         }
     }
