@@ -17,8 +17,9 @@ namespace io {
 	class EventLoop {
 		private:
 			int epollFd;
+			bool running;
 			std::vector<struct epoll_event> events;
-				/* managed connections, 
+				/* managed connections,
 					connections are contained internally via void* data pointer in epoll_event
 				*/
 			EventLoop(const EventLoop& other); /* non-copyable */
@@ -27,6 +28,11 @@ namespace io {
 			void add_connection(core::Connection* conn);
 			void remove_connection(core::Connection* conn);
 			void apply_connection_actions(core::Connection* conn);
+			void add_fd( int fd, uint32_t events, int _fd );
+			void add_fd( int fd, uint32_t events, void* ptr );
+			void mod_fd( int fd, uint32_t events, int _fd );
+			void mod_fd( int fd, uint32_t events, void* ptr );
+			void del_fd( int fd );
 			EventLoop();
 			~EventLoop();
 			void run(); /* run the event loop */

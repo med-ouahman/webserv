@@ -5,9 +5,10 @@
 
 namespace io {
 
-    EventLoop::EventLoop(): epollFd(-1) {
+    EventLoop::EventLoop(): epollFd(-1), running(false) {
         epollFd = epoll_create1(0);
         assert(epollFd >= 0);
+        running = true;
     }
 
     EventLoop::~EventLoop() {
@@ -41,11 +42,34 @@ namespace io {
         events.push_back(event);
     }
 
+    void handleConnection( struct epoll_event& event, int listenFd ) {
+        core::Connection* conn = (core::Connection* )&event.data;
+        // handle EPOLLIN, EPOLLOUT, EPOLLHUB...
+
+        int fd = conn->get_fd();
+        if ( fd == listenFd ) {
+            // accept a new connection
+        } else {
+            // read, write
+        }
+    }
+
     void EventLoop::run() {
 	    ListeningSocket s;
-	    int fd = s.getFd();
-        while (true) { 
-            
+        
+	    int listenFd = s.getFd();
+        add_fd(listenFd, EPOLLIN, listenFd);
+        int clientFd = -1;
+        while (running) {
+            int n = epoll_wait(epollFd, &events.at(0), events.size(), -1);
+            if (n < 0) {
+                continue;
+            }
+            for ( int i = 0; i < n; i++ ) {
+                
+                handleConnection(events.at(i), listenFd);
+            }
+
             break;
         }
     }
