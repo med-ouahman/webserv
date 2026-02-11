@@ -1,6 +1,8 @@
 #include "EventLoop.hpp"
 #include "Connection.hpp"
 #include <iostream>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 namespace io {
 
@@ -41,9 +43,18 @@ namespace io {
     }
 
     void EventLoop::run() {
-        int n = 3;
+	ListeningSocket s;
+	
+        struct sockaddr_in server_addr;
+        server_addr.sin_addr.s_addr = INADDR_ANY;
+        server_addr.sin_port = 8080;
+        int socketFd = socket(AF_INET, SOCK_STREAM, 0);
+        assert(socketFd >= 0);
+        int r = bind(socketFd, (struct sockaddr *)std::addressof(server_addr), sizeof server_addr);
+        assert(r >= 0);
+        r = listen(socketFd, 5);
         while (true) {
-            std::cout << "Number of fds ready: " << n <<" \n"; 
+
             break;
         }
     }

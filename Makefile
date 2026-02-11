@@ -13,7 +13,7 @@ NAME = webserv
 
 INCLUDES = -Iincludes \
 	-Isrcs/core \
-	-Isrcs/io
+	-Isrcs/io \
 
 SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/Connection.cpp \
