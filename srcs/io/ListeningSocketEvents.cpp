@@ -13,9 +13,10 @@ namespace io {
 
         while (true) {
             int client_fd = accept(server_fd, (struct sockaddr* )&client_addr, &client_addr_len);
-            std::cout << client_fd << '\n';
-            if (client_fd < 0)
+            if (client_fd < 0) {
                 return false;
+            }
+            std::cout << client_fd << '\n';
             loop.add_connection(client_fd);
         }
         return true;

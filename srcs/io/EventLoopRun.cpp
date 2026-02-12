@@ -7,11 +7,6 @@ namespace io {
 
     void EventLoop::run( ListeningSocket& server ) {
         
-        while (true) {
-            int f = accept(server.getFd(), NULL, NULL);
-            printf("%d\n", f);
-            break;
-        }
         add_fd(server.getFd(), EPOLLIN, &server);
         
         while (running) {

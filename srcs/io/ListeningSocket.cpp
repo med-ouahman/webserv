@@ -18,9 +18,8 @@ namespace io {
     ListeningSocket::ListeningSocket( EventLoop& loop ): server_fd(-1), loop(loop) {
         struct sockaddr_in server_addr;
         server_addr.sin_addr.s_addr = INADDR_ANY;
-        server_addr.sin_port = 8080; // later will be Config::port
-        server_fd = socket(AF_INET, SOCK_STREAM , 0);
-        fcntl(server_fd, O_NONBLOCK);
+        server_addr.sin_port = htons(8080); // later will be Config::port
+        server_fd = socket(AF_INET, SOCK_STREAM | O_NONBLOCK, 0);
         assert(server_fd >= 0);
         int r = bind(server_fd, (struct sockaddr *)&server_addr, sizeof server_addr);
         assert(r >= 0);
