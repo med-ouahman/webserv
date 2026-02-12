@@ -8,7 +8,7 @@
 
 namespace core {
     
-    Connection::Connection( int fd ): fd(fd) {}
+    Connection::Connection( int fd ): fd(fd), state(ACCEPTED) {}
 
     Connection::~Connection() {
         if (fd > 0) {
@@ -49,28 +49,5 @@ namespace core {
 
     int Connection::get_fd() const {
         return fd;
-    }
-
-    void Connection::on_event( ConnectionEvent event ) {
-        ConnectionState nextState = ConnectionStateMachine::next_state(state, event);
-        if (nextState == ERROR && state != ERROR) {
-            assert(0 && "Error");
-        }
-        // update state
-        state = nextState;
-        // Based on state, do what is allowed
-        switch (state) {
-            case READING:
-                // perform read operation
-                break;
-            case WRITING:
-                // perform write operation
-                break;
-            case CLOSING:
-               // 
-                break;
-            default:
-                break;
-        }
     }
 }

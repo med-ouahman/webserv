@@ -18,7 +18,9 @@ INCLUDES = -Iincludes \
 SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/Connection.cpp \
 	srcs/core/ConnectionStateMachine.cpp \
-	srcs/io/EventLoop.cpp
+	srcs/io/EventLoop.cpp \
+	srcs/io/EventLoopFds.cpp \
+	srcs/io/EventLoopRun.cpp \
 
 OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 

@@ -2,39 +2,37 @@
 
 #include <sys/epoll.h>
 #include <vector>
-#include <unistd.h> 
 #include <stdexcept>
 #define NDEBUG 0
 #include <cassert>
+#include "ListeningSocket.hpp"
 
-#define MAX_EVENTS 64
+#define MAX_EVENTS 128 // you choose
 
 namespace core {
-	class Connection; /* forward declaration */
+	class Connection;
 }
 
 namespace io {
+	class IOHandler;
+
 	class EventLoop {
 		private:
 			int epollFd;
 			bool running;
-			std::vector<struct epoll_event> events;
-				/* managed connections,
-					connections are contained internally via void* data pointer in epoll_event
-				*/
-			EventLoop(const EventLoop& other); /* non-copyable */
-			EventLoop& operator=(const EventLoop& other); /* non-assignable */
+			struct epoll_event events[MAX_EVENTS];
+			std::vector<core::Connection> conns;
+			EventLoop( const EventLoop& other );
+			EventLoop& operator=( const EventLoop& other );
 		public:
-			void add_connection(core::Connection* conn);
-			void remove_connection(core::Connection* conn);
-			void apply_connection_actions(core::Connection* conn);
-			void add_fd( int fd, uint32_t events, int _fd );
-			void add_fd( int fd, uint32_t events, void* ptr );
-			void mod_fd( int fd, uint32_t events, int _fd );
-			void mod_fd( int fd, uint32_t events, void* ptr );
-			void del_fd( int fd );
+			bool add_connection( int client_fd );
+			// void remove_connection(core::Connection* conn);
+			// void apply_connection_actions(core::Connection* conn);
+			bool add_fd( int fd, uint32_t events, IOHandler* handler );
+			bool mod_fd( int fd, uint32_t events, IOHandler* handler );
+			bool del_fd( int fd );
 			EventLoop();
 			~EventLoop();
-			void run(); /* run the event loop */
+			void run( ListeningSocket& server ); 
 	};
 }
