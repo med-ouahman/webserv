@@ -1,9 +1,7 @@
 #pragma once
 #include <iostream>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <fcntl.h>
 #include "IOHandler.hpp"
+
 #ifndef NDEBUG
 #define NDEBUG 4
 #endif
@@ -11,7 +9,7 @@
 #define BACKLOG 5
 
 namespace io {
-
+	class EventLoop;
 	class ListeningSocket: public IOHandler {
 		private:
 			int server_fd;

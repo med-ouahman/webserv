@@ -10,5 +10,6 @@ namespace io {
         int r = epoll_ctl(epollFd, EPOLL_CTL_ADD, client_fd, &event);
         assert(r != -1);
         conns.push_back(*conn);
+        return r == 0;
     }
 }

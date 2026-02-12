@@ -16,7 +16,6 @@ int main( int argc, char* argv[] ) {
 
     io::EventLoop eventLoop;
     io::ListeningSocket server(eventLoop);
-
     eventLoop.run(server);
     return 0;
 }

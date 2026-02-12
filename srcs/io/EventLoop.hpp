@@ -3,8 +3,6 @@
 #include <sys/epoll.h>
 #include <vector>
 #include <stdexcept>
-#define NDEBUG 0
-#include <cassert>
 #include "ListeningSocket.hpp"
 
 #define MAX_EVENTS 128 // you choose

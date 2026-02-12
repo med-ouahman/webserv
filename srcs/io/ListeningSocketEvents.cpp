@@ -1,7 +1,10 @@
 
 
 #include "ListeningSocket.hpp"
+#include "EventLoop.hpp"
 #include "Connection.hpp"
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 namespace io {
     bool ListeningSocket::accept_clients() {
@@ -10,6 +13,7 @@ namespace io {
 
         while (true) {
             int client_fd = accept(server_fd, (struct sockaddr* )&client_addr, &client_addr_len);
+            std::cout << client_fd << '\n';
             if (client_fd < 0)
                 return false;
             loop.add_connection(client_fd);
@@ -18,6 +22,6 @@ namespace io {
     }
 
     bool ListeningSocket::on_error() {
-        
+        return false;
     }
 }

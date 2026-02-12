@@ -1,9 +1,12 @@
 #include "ListeningSocket.hpp"
 #include "EventLoop.hpp"
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <fcntl.h>
 
 namespace io {
 
-    ListeningSocket::ListeningSocket( const ListeningSocket& socket ): loop(loop) {
+    ListeningSocket::ListeningSocket( const ListeningSocket& socket ): loop(socket.loop) {
 		(void)socket;
 	}
 
@@ -12,17 +15,19 @@ namespace io {
 		return *this;
 	}
 
-    ListeningSocket::ListeningSocket( EventLoop& loop ): fd(-1), loop(loop) {
+    ListeningSocket::ListeningSocket( EventLoop& loop ): server_fd(-1), loop(loop) {
         struct sockaddr_in server_addr;
         server_addr.sin_addr.s_addr = INADDR_ANY;
-        server_addr.sin_port = 8080;
-        fd = socket(AF_INET, SOCK_STREAM | O_NONBLOCK, 0);
-        assert(fd >= 0);
-        int r = bind(fd, (struct sockaddr *)&server_addr, sizeof server_addr);
+        server_addr.sin_port = 8080; // later will be Config::port
+        server_fd = socket(AF_INET, SOCK_STREAM , 0);
+        fcntl(server_fd, O_NONBLOCK);
+        assert(server_fd >= 0);
+        int r = bind(server_fd, (struct sockaddr *)&server_addr, sizeof server_addr);
         assert(r >= 0);
-        r = listen(fd, BACKLOG);
+        r = listen(server_fd, BACKLOG);
         assert(r >= 0);
         (void)r;
+        std::cout << "Server listening on localhost port: " << 8080 << '\n';
 	}
 
     void ListeningSocket::on_event( uint32_t events ) {
