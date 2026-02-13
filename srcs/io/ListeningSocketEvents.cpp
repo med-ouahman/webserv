@@ -16,6 +16,7 @@ namespace io {
             if (client_fd < 0) {
                 return false;
             }
+            
             std::cout << client_fd << '\n';
             loop.add_connection(client_fd);
         }

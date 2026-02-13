@@ -6,6 +6,6 @@
 namespace core {
     class ConnectionStateMachine {
         public:
-            static ConnectionState next_state(ConnectionState currentState, ConnectionEvent event);            
+            static ConnectionState next_state( ConnectionState currentState, ConnectionEvent event );            
     };
 }

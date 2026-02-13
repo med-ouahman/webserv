@@ -19,8 +19,8 @@ namespace io {
 			bool accept_clients();
 			bool on_error();
 		public:
-			int getFd() { return server_fd; }
+			int get_fd() { return server_fd; }
 			ListeningSocket( EventLoop& loop );
-			void on_event( uint32_t events );
+			void on_event( EventType event );
 	};
 }

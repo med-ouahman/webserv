@@ -3,9 +3,9 @@
 #include <iostream>
 
 namespace core {
-    void Connection::on_event( uint32_t events ) {
+    void Connection::on_event( io::EventType event ) {
         // handle connection event
 
-        std::cout << "Connection event: " << events << '\n';
+        std::cout << "Connection event: " << event << '\n';
     }
 }

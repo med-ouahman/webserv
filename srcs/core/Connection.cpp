@@ -1,8 +1,7 @@
 
-#include "Connection.hpp"
 #include "ConnectionStateMachine.hpp"
 #include "Connection.hpp"
-
+#include <unistd.h>
 #define NDEBUG 0
 #include <cassert>
 
@@ -11,19 +10,17 @@ namespace core {
     Connection::Connection( int fd ): fd(fd), state(ACCEPTED) {}
 
     Connection::~Connection() {
-        if (fd > 0) {
+        if (fd >= 0) {
             close(fd);
         }
         state = CLOSING;
     }
 
-    void Connection::handle_event(ConnectionEvent event) {
+    void Connection::handle_event( ConnectionEvent event ) {
         ConnectionState nextState = ConnectionStateMachine::next_state(state, event);
-        #ifdef NDEBUG
         if (nextState == ERROR && state != ERROR) {
             assert(false && "Illegal transition");
         }
-        #endif
         state = nextState;
     }
 
@@ -43,7 +40,6 @@ namespace core {
             default:
                 break;
         }
-        
         return action;
     }
 

@@ -1,10 +1,9 @@
 #pragma once
 
 #include "ConnectionState.hpp"
-#include "ConnectionEvent.hpp"
 #include "ConnectionAction.hpp"
 #include "IOHandler.hpp"
-#include <unistd.h>
+#include "ConnectionEvent.hpp"
 
 namespace core {
     class Connection: public io::IOHandler {
@@ -17,7 +16,6 @@ namespace core {
             int get_fd() const;
             void handle_event( ConnectionEvent event );
             ConnectionAction desired_action() const;
-            // void on_event( ConnectionEvent event );
-            void on_event( uint32_t events );
+            void on_event( io::EventType event );
     };   
 }
