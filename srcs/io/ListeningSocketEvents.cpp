@@ -20,6 +20,7 @@ namespace io {
             std::cout << client_fd << '\n';
             loop.add_connection(client_fd);
         }
+        
         return true;
     }
 
