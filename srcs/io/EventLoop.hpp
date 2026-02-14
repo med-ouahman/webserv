@@ -23,8 +23,8 @@ namespace io {
 			std::vector<core::Connection> conns;
 			EventLoop( const EventLoop& other );
 			EventLoop& operator=( const EventLoop& other );
-			void read_form_socket( core::Connection& conn );
-			void write_to_socket( core::Connection& conn );
+			void read_from_socket( core::Connection& conn );
+            void write_to_socket( core::Connection& conn );
 		public:
 			bool add_connection( int client_fd );
 			bool remove_connection( core::Connection* conn );

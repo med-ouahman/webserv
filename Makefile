@@ -14,11 +14,13 @@ NAME = webserv
 INCLUDES = -Iincludes \
 	-Isrcs/core \
 	-Isrcs/io \
+	-Isrcs/core/parser \
 
 SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/Connection.cpp \
 	srcs/core/ConnectionStateMachine.cpp \
 	srcs/core/ConnectionEventHandler.cpp \
+	srcs/io/HandleConnectionEvent.cpp \
 	srcs/io/EventLoop.cpp \
 	srcs/io/EventLoopFds.cpp \
 	srcs/io/EventLoopRun.cpp \
