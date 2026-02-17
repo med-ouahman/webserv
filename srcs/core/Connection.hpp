@@ -11,13 +11,17 @@ namespace core {
         private:
             int fd;
             ConnectionState state;
-            Parser p;
+            std::string s;
+            http::Parser p;            
         public:
             explicit Connection( int fd );
             ~Connection();
             int get_fd() const;
-            void handle_event( ConnectionEvent event );
+            void on_close( void );
             ConnectionAction desired_action() const;
             void on_event( io::EventType event );
+            void on_bytes( const char* buff );
+            size_t peek_bytes( char* buff, size_t size );
+            void consume_bytes( size_t size );
     };
 }

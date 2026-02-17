@@ -9,12 +9,11 @@
 namespace io {
     bool ListeningSocket::accept_clients() {
         struct sockaddr_in client_addr;
-        socklen_t client_addr_len;
-
+        socklen_t client_addr_len = sizeof(client_addr);
         while (true) {
             int client_fd = accept(server_fd, (struct sockaddr* )&client_addr, &client_addr_len);
             if (client_fd < 0) {
-                return false;
+                break;
             }
             
             std::cout << client_fd << '\n';

@@ -42,4 +42,5 @@
 
 # executables
 
+.vscode
 webserv

@@ -4,6 +4,7 @@
 #include <unistd.h>
 #define NDEBUG 0
 #include <cassert>
+#include <cstring>
 
 namespace core {
     
@@ -14,14 +15,6 @@ namespace core {
             close(fd);
         }
         state = CLOSING;
-    }
-
-    void Connection::handle_event( ConnectionEvent event ) {
-        ConnectionState nextState = ConnectionStateMachine::next_state(state, event);
-        if (nextState == ERROR && state != ERROR) {
-            assert(false && "Illegal transition");
-        }
-        state = nextState;
     }
 
     ConnectionAction Connection::desired_action() const {
@@ -40,10 +33,33 @@ namespace core {
             default:
                 break;
         }
+    
         return action;
     }
 
     int Connection::get_fd() const {
         return fd;
+    }
+
+    void Connection::on_bytes( const char* buff ) {
+        p.consume(buff);
+    }
+    
+    size_t Connection::peek_bytes( char* buff, size_t size ) {
+        
+        strncpy(buff, s.c_str(), size);
+        return size;
+    }
+
+    void Connection::consume_bytes( size_t bytes ) {
+        s = s.erase(0, bytes);
+    }
+
+    void Connection::on_close( void ) {
+        if (fd >= 0) {
+            close(fd);
+            fd = -1;
+        }
+        state = CLOSING;
     }
 }

@@ -28,7 +28,7 @@ ConnectionStateMachine::next_state( ConnectionState currentState,
 
     // ───────────────────────────────── PARSING ─────────────────────────────
     case PARSING:
-        if (event == PARSE_NEED_MORE)
+        if (event == PARSE_NEED_MORE_BYTES)
             return READING;
         if (event == PARSE_COMPLETE)
             return PROCESSING;

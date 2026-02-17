@@ -1,5 +1,6 @@
 #include "ListeningSocket.hpp"
 #include "EventLoop.hpp"
+#include "EventType.hpp"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>

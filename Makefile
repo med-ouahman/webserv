@@ -3,7 +3,7 @@ CXX := c++
 CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 -g
 
 # Libraries we might link against in the future, for now just a placeholder
-LIBS := 
+LIBS := -lbsd
 
 SRCDIR = srcs
 
@@ -14,12 +14,19 @@ NAME = webserv
 INCLUDES = -Iincludes \
 	-Isrcs/core \
 	-Isrcs/io \
-	-Isrcs/core/parser \
+	-Isrcs/http \
+	-Isrcs/http/parser \
+	-Isrcs/utils \
 
 SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/Connection.cpp \
 	srcs/core/ConnectionStateMachine.cpp \
 	srcs/core/ConnectionEventHandler.cpp \
+	srcs/http/parser/Parser.cpp \
+	srcs/http/parser/parse_headers.cpp \
+	srcs/http/parser/parse_request_line.cpp \
+	srcs/http/parser/parse_body.cpp \
+	srcs/http/parser/parser_utils.cpp \
 	srcs/io/HandleConnectionEvent.cpp \
 	srcs/io/EventLoop.cpp \
 	srcs/io/EventLoopFds.cpp \
@@ -34,7 +41,7 @@ all: $(NAME)
 
 $(OBJDIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXX_FLAGS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(CXX_FLAGS) $(INCLUDES) $(LIBS) -c $< -o $@
 
 $(NAME): $(OBJS)
 	$(CXX) $(CXX_FLAGS) $(INCLUDES) $(OBJS) $(LIBS) -o $(NAME)

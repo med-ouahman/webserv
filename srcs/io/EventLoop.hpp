@@ -20,7 +20,7 @@ namespace io {
 			int epollFd;
 			bool running;
 			struct epoll_event events[MAX_EVENTS];
-			std::vector<core::Connection> conns;
+			std::vector<core::Connection*> conns;
 			EventLoop( const EventLoop& other );
 			EventLoop& operator=( const EventLoop& other );
 			void read_from_socket( core::Connection& conn );

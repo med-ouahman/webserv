@@ -8,7 +8,7 @@ namespace core {
         READ_SUCCESS,
         READ_EOF,
         READ_ERROR,
-        PARSE_NEED_MORE,
+        PARSE_NEED_MORE_BYTES,
         PARSE_COMPLETE,
         PARSE_ERROR,
         PROCESSING_DONE,

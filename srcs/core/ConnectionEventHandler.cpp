@@ -1,11 +1,24 @@
 
 #include "Connection.hpp"
-#include <iostream>
+#include "ConnectionStateMachine.hpp"
 
 namespace core {
-    void Connection::on_event( io::EventType event ) {
-        // handle connection event
 
-        std::cout << "Connection event: " << event << '\n';
+    void Connection::on_event( io::EventType event ) {
+        
+        switch (event) {
+            case io::WRITABLE: {
+                state = WRITING;
+                break;
+            }
+            case io::READABLE: {
+                state = READING;
+                break;
+            }
+            case io::ERROR: {
+                state = ERROR;
+                break;
+            }
+        }
     }
 }

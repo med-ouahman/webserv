@@ -9,17 +9,20 @@ namespace io {
     void EventLoop::read_from_socket( core::Connection& conn ) {
         ssize_t bytes;
         char buff[BUFFER_SIZE];
+        int n = 0;
         while ((bytes = read(conn.get_fd(), buff, BUFFER_SIZE - 1)) > 0) {
             buff[bytes] = 0;
-            conn.on_bytes(buff, bytes);
+            n++;
+            std::cout << "Received bytes chunk (" << n  << ")\n" << buff;
+            conn.on_bytes(buff);
         }
     }
 
     void EventLoop::write_to_socket( core::Connection& conn ) {
         char buff[BUFFER_SIZE];
-
-        conn.get_bytes(buff, BUFFER_SIZE - 1);
-        
+        ssize_t bytes;
+        while ((bytes = conn.peek_bytes(buff, BUFFER_SIZE)) > 0) {
+            write(conn.get_fd(), buff, bytes);
+        }
     }
-
 }
