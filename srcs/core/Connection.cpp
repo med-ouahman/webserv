@@ -41,8 +41,12 @@ namespace core {
         return fd;
     }
 
-    void Connection::on_bytes( const char* buff ) {
-        p.consume(buff);
+    bool Connection::on_bytes( char* buff ) {
+        
+        while (http::HTTPParser::NEED_MORE_BYTES == p.consume(buff)) {
+            
+        }
+        return false;
     }
     
     size_t Connection::peek_bytes( char* buff, size_t size ) {

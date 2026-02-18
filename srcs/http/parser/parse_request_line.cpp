@@ -1,15 +1,16 @@
 
-#include "Parser.hpp"
+#include "HTTPParser.hpp"
 #include <sstream>
 
 namespace http {
 
-	Parser::ParseResult Parser::parse_request_line() {
+	HTTPParser::ParseResult HTTPParser::parse_request_line() {
 		size_t line_index = request_buff.find("\r\n");
 		if (line_index == std::string::npos) {
 			return NEED_MORE_BYTES;
 		}
 		std::string req_line = request_buff.substr(0, line_index);
+		request_buff = request_buff.substr(line_index + 2);
 		if (req_line.length() == 0 || req_line == "\r\n") {
 			return PARSE_ERROR;
 		}
@@ -29,12 +30,11 @@ namespace http {
 			return PARSE_ERROR;
 		}
 		request.version = req_line.substr(p2 + 1);
-		if (!Parser::validate_http_version(request.version)) {
-			std::cout << "Mai\n";
+		if (!HTTPParser::validate_http_version(request.version)) {
 			return PARSE_ERROR;
 		}
+		std::cout << "Request line done\n";
 		parse_state = HEADERS;
-		request_buff = request_buff.substr(line_index);
 		return SUCCESS;
 	}
 }

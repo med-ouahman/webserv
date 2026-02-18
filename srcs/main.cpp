@@ -1,7 +1,7 @@
 #include "EventLoop.hpp"
 #include "ListeningSocket.hpp"
 #include <iostream>
-
+#include "HTTPParser.hpp"
 int main( int argc, char* argv[] ) {
     
     if (argc > 3) {

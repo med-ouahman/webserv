@@ -9,12 +9,14 @@ namespace io {
     void EventLoop::read_from_socket( core::Connection& conn ) {
         ssize_t bytes;
         char buff[BUFFER_SIZE];
-        int n = 0;
+        int n(0);
         while ((bytes = read(conn.get_fd(), buff, BUFFER_SIZE - 1)) > 0) {
             buff[bytes] = 0;
             n++;
-            std::cout << "Received bytes chunk (" << n  << ")\n" << buff;
-            conn.on_bytes(buff);
+            std::cout << "Recieved chunk (" << n << ")\n" << buff << std::endl;
+            if (!conn.on_bytes(buff)) {
+                break;
+            }
         }
     }
 

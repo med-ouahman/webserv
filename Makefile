@@ -22,7 +22,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/Connection.cpp \
 	srcs/core/ConnectionStateMachine.cpp \
 	srcs/core/ConnectionEventHandler.cpp \
-	srcs/http/parser/Parser.cpp \
+	srcs/http/parser/HTTPParser.cpp \
 	srcs/http/parser/parse_headers.cpp \
 	srcs/http/parser/parse_request_line.cpp \
 	srcs/http/parser/parse_body.cpp \
@@ -39,6 +39,9 @@ OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 
 all: $(NAME)
 
+a: $(NAME)
+	@clear
+	@./webserv
 $(OBJDIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXX_FLAGS) $(INCLUDES) $(LIBS) -c $< -o $@

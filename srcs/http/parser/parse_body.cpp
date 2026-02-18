@@ -1,8 +1,8 @@
 
-#include "Parser.hpp"
+#include "HTTPParser.hpp"
 
 namespace http {
-    Parser::ParseResult Parser::parse_body( void ) {
+    HTTPParser::ParseResult HTTPParser::parse_body( void ) {
         return SUCCESS;
     }
 }

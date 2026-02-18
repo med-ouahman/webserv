@@ -21,6 +21,7 @@ namespace http {
 		std::string url;
 		std::map<std::string, std::string> headers;
 		std::string body;
+		size_t body_len;
 
 		HTTPMethod get_method( std::string& s ) {
 			if (s == "GET")
