@@ -27,8 +27,10 @@ namespace http {
 			default:
 				break;
 		}
-		if (parse_state == DONE)
+		if (parse_state == DONE) {
+			request = HTTPRequest();
 			return SUCCESS;
+		}
 		if (parse_state == ERROR)
 			return PARSE_ERROR;
 		return NEED_MORE_BYTES;

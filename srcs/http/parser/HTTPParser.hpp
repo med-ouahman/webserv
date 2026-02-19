@@ -8,7 +8,6 @@
 #define BODY_MAX_LENGTH 10 * 1024 * 1024
 
 namespace http {
-    
     class HTTPParser {
         private:
             HTTPRequest request;
