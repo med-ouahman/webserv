@@ -5,6 +5,7 @@
 #include <vector>
 #include <stdexcept>
 #include "ListeningSocket.hpp"
+#include "Config.hpp"
 
 #define MAX_EVENTS 128 // you choose
 
@@ -21,6 +22,7 @@ namespace io {
 			bool running;
 			struct epoll_event events[MAX_EVENTS];
 			std::vector<core::Connection*> conns;
+			const config::Config& conf;
 			EventLoop( const EventLoop& other );
 			EventLoop& operator=( const EventLoop& other );
 			void read_from_socket( core::Connection& conn );
@@ -32,7 +34,7 @@ namespace io {
 			bool add_fd( int fd, uint32_t events, IOHandler* handler );
 			bool mod_fd( int fd, uint32_t events, IOHandler* handler );
 			bool del_fd( int fd );
-			EventLoop();
+			EventLoop( const config::Config& conf );
 			~EventLoop();
 			void run( ListeningSocket& server ); 
 	};

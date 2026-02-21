@@ -5,7 +5,7 @@
 
 namespace io {
 
-    EventLoop::EventLoop(): epollFd(-1), running(false) {
+    EventLoop::EventLoop( const config::Config& conf ): epollFd(-1), running(false), conf(conf) {
         epollFd = epoll_create1(0);
         assert(epollFd >= 0);
     }
@@ -27,7 +27,7 @@ namespace io {
         return *this;
     }
 
-    EventLoop::EventLoop( const EventLoop& other ) {
+    EventLoop::EventLoop( const EventLoop& other ): conf(other.conf) {
         (void)other;
     }
 }

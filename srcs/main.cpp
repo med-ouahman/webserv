@@ -1,7 +1,8 @@
 #include "EventLoop.hpp"
 #include "ListeningSocket.hpp"
 #include <iostream>
-#include "HTTPParser.hpp"
+#include "ConfigParser.hpp"
+
 int main( int argc, char* argv[] ) {
     
     if (argc > 3) {
@@ -14,7 +15,8 @@ int main( int argc, char* argv[] ) {
         configFile = "config/default.conf";
     }
 
-    io::EventLoop eventLoop;
+    config::Config conf = config::ConfigParser::build_default_config();
+    io::EventLoop eventLoop(conf);
     io::ListeningSocket server(eventLoop);
     eventLoop.run(server);
     return 0;

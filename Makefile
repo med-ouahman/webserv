@@ -16,6 +16,7 @@ INCLUDES = -Iincludes \
 	-Isrcs/io \
 	-Isrcs/http \
 	-Isrcs/http/parser \
+	-Isrcs/config \
 	-Isrcs/utils \
 
 SRCS = $(SRCDIR)/main.cpp \
