@@ -3,7 +3,7 @@ CXX := c++
 CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 -g
 
 # Libraries we might link against in the future, for now just a placeholder
-LIBS := -lbsd
+LIBS := 
 
 SRCDIR = srcs
 
@@ -16,6 +16,7 @@ INCLUDES = -Iincludes \
 	-Isrcs/io \
 	-Isrcs/http \
 	-Isrcs/http/parser \
+	-Isrcs/http/response \
 	-Isrcs/config \
 	-Isrcs/utils \
 
@@ -28,6 +29,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/parser/parse_request_line.cpp \
 	srcs/http/parser/parse_body.cpp \
 	srcs/http/parser/parser_utils.cpp \
+	srcs/http/response/HTTPResponseHandler.cpp \
 	srcs/io/HandleConnectionEvent.cpp \
 	srcs/io/EventLoop.cpp \
 	srcs/io/EventLoopFds.cpp \
@@ -35,6 +37,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/io/ListeningSocket.cpp \
 	srcs/io/ListeningSocketEvents.cpp \
 	srcs/io/EventLoopConnections.cpp \
+	srcs/config/ConfigParser.cpp \
 
 OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 

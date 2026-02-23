@@ -10,17 +10,19 @@
 
 namespace io {
 	class EventLoop;
+
 	class ListeningSocket: public IOHandler {
 		private:
-			int server_fd;
+			int socket_fd;
 			EventLoop& loop;
+
 			ListeningSocket( const ListeningSocket& socket );
 			ListeningSocket& operator=( const ListeningSocket& socket );
 			bool accept_clients();
 			bool on_error();
 		public:
-			int get_fd() { return server_fd; }
-			ListeningSocket( EventLoop& loop );
+			int get_fd() { return socket_fd; }
+			explicit ListeningSocket( EventLoop& loop );
 			void on_event( EventType event );
 	};
 }

@@ -41,7 +41,7 @@ namespace http {
 				return false;
 			}
 		}
-		return true;		
+		return true;
 	}
 
 	bool HTTPParser::add_request_header( std::string const& s ) {

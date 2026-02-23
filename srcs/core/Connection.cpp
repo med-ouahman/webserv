@@ -43,20 +43,20 @@ namespace core {
 
     bool Connection::on_bytes( char* buff ) {
         
-        while (http::HTTPParser::NEED_MORE_BYTES != p.consume(buff)) {
-            
+        while (true) {
+            http::HTTPParser::ParseResult result = p.consume(buff);
+            if (result == http::HTTPParser::NEED_MORE_BYTES) {
+                break;
+            } else if (result == http::HTTPParser::PARSE_ERROR) {
+                return false;
+            }
+            http::HTTPRequest req = p.get_request();
+            p.reset();
+            handler.handle_request(req);
+            std::string response_buff = handler.serialize();
+            queue_response(response_buff);
         }
         return true;
-    }
-    
-    size_t Connection::peek_bytes( char* buff, size_t size ) {
-        
-        strncpy(buff, s.c_str(), size);
-        return size;
-    }
-
-    void Connection::consume_bytes( size_t bytes ) {
-        s = s.erase(0, bytes);
     }
 
     void Connection::on_close( void ) {
@@ -65,5 +65,9 @@ namespace core {
             fd = -1;
         }
         state = CLOSING;
+    }
+
+    void Connection::queue_response( std::string const& response_buff ) {
+        (void)response_buff;
     }
 }

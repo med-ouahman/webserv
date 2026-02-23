@@ -10,7 +10,7 @@
 namespace config {
 
     struct ListenEndPoint {
-        std::string host;
+        uint32_t host;
         uint16_t port;
     };
 
@@ -39,6 +39,6 @@ namespace config {
     };
 
     struct Config {
-		std::vector<ServerConfig> servers;
+		ServerConfig server;
 	};
 }

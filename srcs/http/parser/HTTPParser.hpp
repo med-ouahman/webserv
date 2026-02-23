@@ -8,6 +8,7 @@
 #define BODY_MAX_LENGTH 10 * 1024 * 1024
 
 namespace http {
+    
     class HTTPParser {
         private:
             HTTPRequest request;
@@ -29,6 +30,7 @@ namespace http {
             ~HTTPParser();
             ParseResult consume( char* buff );
             HTTPRequest get_request() const;
+            void reset( void );
         private:
             ParseResult parse_request_line( void );
             ParseResult parse_headers( void );

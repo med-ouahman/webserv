@@ -5,15 +5,15 @@
 
 namespace io {
 
-    EventLoop::EventLoop( const config::Config& conf ): epollFd(-1), running(false), conf(conf) {
-        epollFd = epoll_create1(0);
-        assert(epollFd >= 0);
+    EventLoop::EventLoop( const config::Config& conf ): epoll_fd(-1), running(false), conf(conf) {
+        epoll_fd = epoll_create(0);
+        assert(epoll_fd >= 0);
     }
 
     EventLoop::~EventLoop() {
         running = false;
-        if (epollFd != -1) {
-            close(epollFd);
+        if (epoll_fd != -1) {
+            close(epoll_fd);
         }
 
         for ( size_t i = 0; i < conns.size(); ++i ) {

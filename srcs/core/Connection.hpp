@@ -5,14 +5,20 @@
 #include "IOHandler.hpp"
 #include "ConnectionEvent.hpp"
 #include "HTTPParser.hpp"
+#include "HTTPResponseHandler.hpp"
+
+namespace config {
+    struct ServerConfig;
+}
 
 namespace core {
     class Connection: public io::IOHandler {
         private:
             int fd;
             ConnectionState state;
-            std::string s;
-            http::HTTPParser p;            
+            http::HTTPParser p;
+            http::HTTPResponseHandler handler;
+            const config::ServerConfig* server_conf;
         public:
             explicit Connection( int fd );
             ~Connection();
@@ -21,7 +27,6 @@ namespace core {
             ConnectionAction desired_action() const;
             void on_event( io::EventType event );
             bool on_bytes( char* buff );
-            size_t peek_bytes( char* buff, size_t size );
-            void consume_bytes( size_t size );
+            void queue_response( std::string const& response_buff );
     };
 }

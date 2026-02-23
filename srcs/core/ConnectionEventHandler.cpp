@@ -1,6 +1,5 @@
 
 #include "Connection.hpp"
-#include "ConnectionStateMachine.hpp"
 
 namespace core {
 

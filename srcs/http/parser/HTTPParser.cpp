@@ -28,15 +28,20 @@ namespace http {
 				break;
 		}
 		if (parse_state == DONE) {
-			request = HTTPRequest();
 			return SUCCESS;
 		}
-		if (parse_state == ERROR)
+		if (parse_state == ERROR) {
 			return PARSE_ERROR;
+		}
 		return NEED_MORE_BYTES;
 	}
 
 	HTTPRequest HTTPParser::get_request() const {
 		return request;
+	}
+
+	void HTTPParser::reset( void ) {
+		parse_state = REQUEST_LINE;
+		request = HTTPRequest();
 	}
 }

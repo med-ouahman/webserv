@@ -6,7 +6,7 @@ namespace io {
 		epoll_event event;
 		event.events = events;
 		event.data.ptr = handler;
-		if (epoll_ctl(epollFd, EPOLL_CTL_ADD, fd, &event)) {
+		if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd, &event)) {
 			return false;
 		}
 		return true;
@@ -16,7 +16,7 @@ namespace io {
 		epoll_event event;
 		event.events = events;
 		event.data.ptr = handler;
-		if (epoll_ctl(epollFd, EPOLL_CTL_MOD, fd, &event)) {
+		if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, fd, &event)) {
 			return false;
 		}
 		return true;
@@ -24,7 +24,7 @@ namespace io {
 
 	bool EventLoop::del_fd( int fd ) {
 		
-		if (epoll_ctl(epollFd, EPOLL_CTL_DEL, fd, NULL)) {
+		if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL)) {
 			return false;
 		}
 		return true;

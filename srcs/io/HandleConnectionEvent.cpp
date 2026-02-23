@@ -21,10 +21,6 @@ namespace io {
     }
 
     void EventLoop::write_to_socket( core::Connection& conn ) {
-        char buff[BUFFER_SIZE];
-        ssize_t bytes;
-        while ((bytes = conn.peek_bytes(buff, BUFFER_SIZE)) > 0) {
-            write(conn.get_fd(), buff, bytes);
-        }
+        (void)conn;
     }
 }

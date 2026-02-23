@@ -216,3 +216,4 @@ Connections terminate only through the `CLOSING` state. Cleanup is deterministic
 * releasing all owned resources.
 
 No further state transitions occur after entering `CLOSING`.
+
