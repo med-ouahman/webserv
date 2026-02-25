@@ -15,14 +15,15 @@ namespace io {
 		private:
 			int socket_fd;
 			EventLoop& loop;
-
-			ListeningSocket( const ListeningSocket& socket );
 			ListeningSocket& operator=( const ListeningSocket& socket );
 			bool accept_clients();
 			bool on_error();
 		public:
+			ListeningSocket( const ListeningSocket& socket );
 			int get_fd() { return socket_fd; }
-			explicit ListeningSocket( EventLoop& loop );
+			explicit ListeningSocket( EventLoop& loop, int fd );
+			~ListeningSocket();
 			void on_event( EventType event );
+			void close_fd( void );
 	};
 }

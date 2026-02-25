@@ -8,7 +8,7 @@
 
 namespace core {
     
-    Connection::Connection( int fd ): fd(fd), state(ACCEPTED) {}
+    Connection::Connection( int fd, const config::ServerConfig* conf ): fd(fd), state(ACCEPTED), server_conf(conf) {}
 
     Connection::~Connection() {
         if (fd >= 0) {

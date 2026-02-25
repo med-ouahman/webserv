@@ -3,6 +3,10 @@
 
 #include "HTTPResponse.hpp"
 
+namespace config {
+    struct ServerConfig;
+}
+
 namespace http {
 
     struct HTTPRequest;
@@ -10,11 +14,26 @@ namespace http {
     class HTTPResponseHandler {
         private:
             HTTPResponse response;
-        private:
-            enum HTTPResponeAction {
+
+            enum HTTPResponseType {
                 STATIC_FILE,
+                DIRECTORY,
+                CGI,
+                FILE_UPLOAD,
+                FILE_DELETE,
+                REDIRECT,
+                ERROR_RESPONSE
+            };
+            
+            struct ResolutionResult {
+                HTTPResponseType type;
+                int status_code;
+                std::string path;
             };
 
+        private:
+            ResolutionResult resolve( const HTTPRequest& req, const config::ServerConfig& server ) const;
+            static const config::LocationConfig* find_location( const std::string& url, const config::ServerConfig& server );
         public:
             HTTPResponseHandler();
             ~HTTPResponseHandler();

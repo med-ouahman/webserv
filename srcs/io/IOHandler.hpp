@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "EventType.hpp"
+#include <stdio.h>
 
 namespace io {
 

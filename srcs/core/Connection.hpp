@@ -20,7 +20,7 @@ namespace core {
             http::HTTPResponseHandler handler;
             const config::ServerConfig* server_conf;
         public:
-            explicit Connection( int fd );
+            explicit Connection( int fd, const config::ServerConfig* conf );
             ~Connection();
             int get_fd() const;
             void on_close( void );

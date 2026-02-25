@@ -31,6 +31,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/parser/parser_utils.cpp \
 	srcs/http/response/HTTPResponseHandler.cpp \
 	srcs/io/HandleConnectionEvent.cpp \
+	srcs/io/EventLoopCreateSocket.cpp \
 	srcs/io/EventLoop.cpp \
 	srcs/io/EventLoopFds.cpp \
 	srcs/io/EventLoopRun.cpp \

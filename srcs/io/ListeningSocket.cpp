@@ -5,7 +5,7 @@
 namespace io {
 
 	ListeningSocket::ListeningSocket( const ListeningSocket& socket ): loop(socket.loop) {
-		(void)socket;
+		socket_fd = socket.socket_fd;
 	}
 
 	ListeningSocket& ListeningSocket::operator=( const ListeningSocket& socket ) {
@@ -13,8 +13,12 @@ namespace io {
 		return *this;
 	}
 
-	ListeningSocket::ListeningSocket( EventLoop& loop ): socket_fd(-1), loop(loop) {
+	ListeningSocket::ListeningSocket( EventLoop& loop, int fd ): socket_fd(fd), loop(loop) {
 	
+	}
+
+	ListeningSocket::~ListeningSocket() {
+
 	}
 
 	void ListeningSocket::on_event( io::EventType event ) {
@@ -28,4 +32,11 @@ namespace io {
 				break;
 		}
 	};
+
+	void ListeningSocket::close_fd( void ) {
+		if (socket_fd >= 0) {
+			close(socket_fd);
+			socket_fd = -1;
+		}
+	}
 }

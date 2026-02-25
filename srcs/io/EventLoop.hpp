@@ -20,7 +20,7 @@ namespace io {
 		private:
 			int epoll_fd;
 			bool running;
-			struct epoll_event events[MAX_EVENTS];
+			struct epoll_event events[MAX_EVENTS]; // to be relocated;
 			std::vector<core::Connection*> conns;
 			const config::Config& conf;
 			std::vector<ListeningSocket> listeners;
@@ -33,7 +33,7 @@ namespace io {
 			void read_from_socket( core::Connection& conn );
             void write_to_socket( core::Connection& conn );
 			static int create_listening_socket( const config::ListenEndPoint& endpoint );
-		
+			bool start_listeners( void );
 		public:
 			bool add_connection( int client_fd );
 			bool remove_connection( core::Connection* conn );

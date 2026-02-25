@@ -6,7 +6,7 @@
 namespace io {
 
     EventLoop::EventLoop( const config::Config& conf ): epoll_fd(-1), running(false), conf(conf) {
-        epoll_fd = epoll_create(0);
+        epoll_fd = epoll_create1(0);
         assert(epoll_fd >= 0);
     }
 
@@ -20,6 +20,9 @@ namespace io {
             delete conns[i];
         }
         
+        for ( size_t i = 0; i < listeners.size(); i++ ) {
+            listeners[i].close_fd();
+        }
     }
 
     EventLoop& EventLoop::operator=( const EventLoop& other ) { 

@@ -5,7 +5,7 @@
 #include "ConnectionEvent.hpp"
 #include "HTTPRequest.hpp"
 
-#define BODY_MAX_LENGTH 10 * 1024 * 1024
+#define BODY_MAX_LENGTH 10 * 1024 * 1024 // temp value (check config)
 
 namespace http {
     
