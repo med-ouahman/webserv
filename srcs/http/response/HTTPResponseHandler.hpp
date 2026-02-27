@@ -2,9 +2,13 @@
 #pragma once
 
 #include "HTTPResponse.hpp"
+#include "HTTPStatusCode.hpp"
+#include <vector>
+
 
 namespace config {
     struct ServerConfig;
+    struct LocationConfig;
 }
 
 namespace http {
@@ -33,11 +37,12 @@ namespace http {
 
         private:
             ResolutionResult resolve( const HTTPRequest& req, const config::ServerConfig& server ) const;
-            static const config::LocationConfig* find_location( const std::string& url, const config::ServerConfig& server );
+            static const config::LocationConfig* find_location( const std::string& url, const std::vector<config::LocationConfig>& locations );
         public:
             HTTPResponseHandler();
             ~HTTPResponseHandler();
             std::string serialize() const;
+            void build_error_response( HTTPStatusCode code, std::string reason );
             void handle_request( const HTTPRequest& req );
     };
 }

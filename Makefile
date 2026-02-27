@@ -47,6 +47,7 @@ all: $(NAME)
 a: $(NAME)
 	@clear
 	@./webserv
+	
 $(OBJDIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXX_FLAGS) $(INCLUDES) $(LIBS) -c $< -o $@

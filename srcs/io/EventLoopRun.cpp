@@ -5,30 +5,29 @@
 namespace io {
 
     void EventLoop::run( void ) {
-        
-        running = true;
-        start_listeners();
+
+        struct epoll_event events[MAX_EVENTS];        
+        running = start_listeners();
         while (running) {
 
-            uint32_t ev_flags;
             int n = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
        
             for ( int i = 0; i < n; i++ ) {
                 IOHandler* handler = static_cast<IOHandler*>(events[i].data.ptr);
-                std::cout << handler << "\n";
-                ev_flags = events[i].events;
-                if (ev_flags & EPOLLIN) {
+                if (events[i].events & EPOLLIN) {
                     handler->on_event(READABLE);
-                } else if (ev_flags & EPOLLOUT) {
+                } else if (events[i].events & EPOLLOUT) {
                     handler->on_event(WRITABLE);
-                } else if (ev_flags & (EPOLLERR | EPOLLHUP)) {
+                } else if (events[i].events & (EPOLLERR | EPOLLHUP)) {
                     handler->on_event(ERROR);
                 }
             }
 
-            for ( size_t i = 0; i < conns.size(); i++ ) {
+            for ( size_t i = 0; i < conns.size(); ++i ) {
                 apply_connection_actions(conns.at(i));
+                update_epoll_intrest(conns.at(i));
             }
+            remove_connections(); // scans the connections to see those which want to close.
         }
     }
 }

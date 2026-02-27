@@ -17,21 +17,21 @@ namespace io {
 			return -1;
 		}
 		server_addr.sin_port = htons(endpoint.port);
-		int socket_fd = socket(AF_INET, SOCK_STREAM | O_NONBLOCK, 0);
+		int socket_fd = ::socket(AF_INET, SOCK_STREAM | O_NONBLOCK, 0);
 		if (socket_fd < 0) {
-			perror("socket");
+			::perror("socket");
 			return -1;
 		}
 		int yes = 1;
-		if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
+		if (::setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
 			perror("setsockopt");
 			return -1;
 		}
-		if (bind(socket_fd, (struct sockaddr *)&server_addr, sizeof server_addr)){
+		if (::bind(socket_fd, (struct sockaddr *)&server_addr, sizeof server_addr)){
 			perror("bind");
 			return -1;
 		}
-		if (listen(socket_fd, BACKLOG) < 0) {
+		if (::listen(socket_fd, BACKLOG) < 0) {
 			perror("listen");
 			return -1;
 		}
@@ -42,11 +42,16 @@ namespace io {
 	bool EventLoop::start_listeners( void ) {
  		for ( size_t i = 0; i < conf.server.listens.size(); i++ ) {
 			int socket_fd = create_listening_socket(conf.server.listens[i]);
+			
+			if (socket_fd < 0) {
+				return false;
+			}
+
 			listeners.push_back(ListeningSocket(*this, socket_fd));
 		}
 
 		for ( size_t i = 0; i < conf.server.listens.size(); ++i ) {		
-			add_fd(listeners[i].get_fd(), EPOLLIN, &listeners[i]);
+			add_fd(listeners[i].get_fd(), EPOLLIN | EPOLLET, &listeners[i]);
 		}
 		
 		return true;

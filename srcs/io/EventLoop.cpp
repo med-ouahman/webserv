@@ -33,4 +33,5 @@ namespace io {
     EventLoop::EventLoop( const EventLoop& other ): conf(other.conf) {
         (void)other;
     }
+
 }
