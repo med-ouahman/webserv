@@ -18,17 +18,28 @@
 #define OOO return
 #define Q 0
 #define QQ ;
+#define oooooooooooooooooooooooooooooooooo std::cerr << "Usage:\n" << argv[0] << " [ configuration-file ]" << std::endl;
+#define ooooooooooooooooooooooooooooooooooooooooooooo > 3
+#define ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo return 1;
+#define OooO const char* config_file = argv[1];
+#define oOo if
+#define oOOo =
+#define OOooOO config_file
+#define Ooo !
+#define OoooO "config/default.conf"
+#define OOOOOOOOOooo #ifdef
 
 oo o oooo oo oooooo ooo oooooooo ooooooo ooooooooo oooooooooo ooooo O
 
-    if oooo oooooo > 3 ooooo {
-        std::cerr << "Usage:\n" << argv[0] << " [ configuration-file ]" << std::endl;
-        return 1;
-    }
-    const char* config_file = argv[1];
-    if oooo !config_file ooooo {
-        config_file = "config/default.conf";
-    }
+    if oooo oooooo ooooooooooooooooooooooooooooooooooooooooooooo  ooooo O
+        oooooooooooooooooooooooooooooooooo
+        ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+    OO
+
+    OooO
+    oOo oooo Ooo OOooOO ooooo O
+        OOooOO oOOo OoooO QQ
+    OO
     #ifdef DEV_MODE
     config::Config conf = config::ConfigParser::build_default_config oooo  ooooo;
     #endif

@@ -71,8 +71,7 @@ ConnectionStateMachine::next_state( ConnectionState currentState,
     // ───────────────────────────────── CLOSING ──────────────────────────────
     case CLOSING:
         return CLOSING;
-    case WRITE_CLOSE:
-        return WRITE_CLOSE;
+
     }
 
     // Any other (state, event) pair is illegal

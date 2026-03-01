@@ -23,21 +23,27 @@ INCLUDES = -Iincludes \
 SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/Connection.cpp \
 	srcs/core/ConnectionStateMachine.cpp \
-	srcs/core/ConnectionEventHandler.cpp \
+	srcs/core/connection_on_event.cpp \
+	srcs/core/conn_on_bytes.cpp \
+	srcs/core/conn_buff.cpp \
 	srcs/http/parser/HTTPParser.cpp \
 	srcs/http/parser/parse_headers.cpp \
 	srcs/http/parser/parse_request_line.cpp \
 	srcs/http/parser/parse_body.cpp \
 	srcs/http/parser/parser_utils.cpp \
 	srcs/http/response/HTTPResponseHandler.cpp \
-	srcs/io/HandleConnectionEvent.cpp \
-	srcs/io/EventLoopCreateSocket.cpp \
+	srcs/http/response/serialize_response.cpp \
+	srcs/http/response/handle_request.cpp \
+	srcs/http/response/find_location.cpp \
+	srcs/http/response/resolve.cpp \
+	srcs/io/handle_connections.cpp \
+	srcs/io/create_sockets.cpp \
 	srcs/io/EventLoop.cpp \
-	srcs/io/EventLoopFds.cpp \
-	srcs/io/EventLoopRun.cpp \
+	srcs/io/handle_fds.cpp \
+	srcs/io/run.cpp \
 	srcs/io/ListeningSocket.cpp \
-	srcs/io/ListeningSocketEvents.cpp \
-	srcs/io/EventLoopConnections.cpp \
+	srcs/io/socket_events.cpp \
+	srcs/io/handle_connection_event.cpp \
 	srcs/config/ConfigParser.cpp \
 
 OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))

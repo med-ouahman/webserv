@@ -37,7 +37,7 @@ namespace io {
 		private:
 			bool remove_connections( void );
 			void apply_connection_actions( core::Connection* conn );
-			void update_epoll_intrest( core::Connection* conn );
+			void update_epoll_interest( core::Connection* conn );
 		public:
 			bool add_fd( int fd, uint32_t events, IOHandler* handler );
 			bool add_connection( int client_fd );

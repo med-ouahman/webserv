@@ -11,7 +11,6 @@ namespace core {
 		WRITING,
 		WRITE_COMPLETE,
 		ERROR,
-		WRITE_CLOSE,
 		CLOSING,
 	};
 }

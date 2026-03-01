@@ -12,6 +12,7 @@ namespace io {
         if (flags < 0) {
             return false;
         }
+        
         fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
        
         conns.push_back(new core::Connection(client_fd, &conf.server, EPOLLIN | EPOLLET));
@@ -39,6 +40,7 @@ namespace io {
     }
 
     void EventLoop::apply_connection_actions( core::Connection* conn ) {
+        
         core::ConnectionAction action = conn->desired_action();
         
         if (action.want_read) {
@@ -52,7 +54,7 @@ namespace io {
      
     }
 
-    void EventLoop::update_epoll_intrest( core::Connection* conn )  {
+    void EventLoop::update_epoll_interest( core::Connection* conn )  {
         uint32_t new_mask = EPOLLIN | EPOLLET;
         core::ConnectionAction action = conn->desired_action();
         if (action.want_write) {

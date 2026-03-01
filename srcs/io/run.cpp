@@ -10,7 +10,7 @@ namespace io {
         running = start_listeners();
         while (running) {
 
-            int n = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+            int n = ::epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
        
             for ( int i = 0; i < n; i++ ) {
                 IOHandler* handler = static_cast<IOHandler*>(events[i].data.ptr);
@@ -25,8 +25,9 @@ namespace io {
 
             for ( size_t i = 0; i < conns.size(); ++i ) {
                 apply_connection_actions(conns.at(i));
-                update_epoll_intrest(conns.at(i));
+                update_epoll_interest(conns.at(i));
             }
+
             remove_connections(); // scans the connections to see those which want to close.
         }
     }

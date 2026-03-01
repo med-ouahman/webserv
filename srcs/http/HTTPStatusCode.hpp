@@ -7,5 +7,6 @@ namespace http {
 		BAD_REQUEST = 401,
 		FORBIDDEN = 403,
 		NOT_FOUND,
+		VERSION_NOT_SUPPORTED = 501
 	};
 }

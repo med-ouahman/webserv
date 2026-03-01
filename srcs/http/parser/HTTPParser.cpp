@@ -33,6 +33,9 @@ namespace http {
 		if (parse_state == ERROR) {
 			return PARSE_ERROR;
 		}
+		if (request_buff.size() != 0) {
+			return CONTINUE;
+		}
 		return NEED_MORE_BYTES;
 	}
 

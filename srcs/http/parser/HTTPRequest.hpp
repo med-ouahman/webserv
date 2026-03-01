@@ -41,8 +41,24 @@ namespace http {
 			version.clear();
 			url.clear();
 			body.clear();
+			headers.clear();
 			headers_done = false;
 			body_len = 0;
 		}
+
+		bool want_keep_alive( void )  {
+			if (version == "HTTP/1.1") {
+				return headers["connection"] == "keep-alive";
+			} else if (version == "HTTP/1.0") {
+				return headers["connection"] == "close";
+			}
+
+			return false;
+		}
+
+		bool version_supported( void ) {
+			return version == "HTTP/1.0" || version == "HTTP/1.1";
+		}
+		
 	};
 }

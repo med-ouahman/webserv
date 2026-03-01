@@ -3,7 +3,7 @@
 
 namespace http {
 
-    HTTPParser::ParseResult HTTPParser::parse_headers( void ) {
+    void HTTPParser::parse_headers( void ) {
         
         size_t line_index;
     
@@ -16,23 +16,21 @@ namespace http {
             if (!add_request_header(header)) {
                 parse_state = ERROR;
                 std::cout << "Error adding header\n";
-                return PARSE_ERROR;
+                return ;
             }
-            request_buff = request_buff.substr(line_index + 2);
+            /* the next line is fucked up and needs fixing */
+            request_buff = request_buff.substr(line_index + 2); // this is O(N) and very bad. remember to add a variable that accumulates the number of bytes consumed and do it once.
         }
         if (!request.headers_done) {
-            return NEED_MORE_BYTES;
+            return ;
         }
         if (!validate_headers()) {
             parse_state = ERROR;
             std::cout << "Error in validation\n";
-            return PARSE_ERROR;
+            return ;
         }
-        std::cout << "Headers done\n";
-        for ( std::map<std::string, std::string>::iterator it = request.headers.begin(); it != request.headers.end(); ++it ) {
-            std::cout << "key: " << (*it).first << "\nValue: " << (*it).second << "\n";
-        }
+        
         parse_state = BODY;
-        return SUCCESS;
+        std::cout << "Headers done\n";
     }
 }

@@ -13,6 +13,7 @@ namespace http {
         private:
             HTTPRequest request;
             std::string request_buff;
+            size_t bytes_consumed;
             enum ParseState {
                 REQUEST_LINE,
                 HEADERS,
@@ -23,6 +24,7 @@ namespace http {
         public:
             enum ParseResult {
                 SUCCESS,
+                CONTINUE,
                 NEED_MORE_BYTES,
                 PARSE_ERROR
             };
@@ -32,9 +34,9 @@ namespace http {
             HTTPRequest get_request() const;
             void reset( void );
         private:
-            ParseResult parse_request_line( void );
-            ParseResult parse_headers( void );
-            ParseResult parse_body( void );
+            void parse_request_line( void );
+            void parse_headers( void );
+            void parse_body( void );
             bool add_request_header( std::string const& s );
             bool validate_headers( void );
         private:
