@@ -7,8 +7,6 @@
 #include "ListeningSocket.hpp"
 #include "Config.hpp"
 
-#define MAX_EVENTS 128 // you choose
-
 namespace core {
 	class Connection;
 }
@@ -17,6 +15,10 @@ namespace io {
 	class IOHandler;
 
 	class EventLoop {
+		private:
+			const static size_t READ_BUFFER_SIZE = 1024 * 16;
+			const static size_t MAX_EVENTS = 128;
+
 		private:
 			int epoll_fd;
 			bool running;
@@ -38,6 +40,7 @@ namespace io {
 			bool remove_connections( void );
 			void apply_connection_actions( core::Connection* conn );
 			void update_epoll_interest( core::Connection* conn );
+			
 		public:
 			bool add_fd( int fd, uint32_t events, IOHandler* handler );
 			bool add_connection( int client_fd );

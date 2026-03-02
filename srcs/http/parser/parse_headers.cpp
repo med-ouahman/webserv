@@ -29,7 +29,9 @@ namespace http {
             std::cout << "Error in validation\n";
             return ;
         }
-        
+        for (std::map<std::string, std::string>::iterator it = request.headers.begin(); it != request.headers.end(); ++it) {
+            std::cout << "key: " << (*it).first << " - value: " << (*it).second << '\n';
+        }
         parse_state = BODY;
         std::cout << "Headers done\n";
     }

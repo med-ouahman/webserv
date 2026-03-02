@@ -4,7 +4,7 @@
 
 namespace core {
 
-    bool Connection::update_buff( ssize_t sent_bytes ) {
+    bool Connection::has_data( ssize_t sent_bytes ) {
 
         if (sent_bytes < 0) {
             if (errno != EAGAIN) {
@@ -14,13 +14,15 @@ namespace core {
         }
 
         sent_offset += sent_bytes;
-        
-        if (sent_offset >= bytes_in_buff) {
+        bytes_in_buff -= sent_bytes;
+        if (0 == bytes_in_buff) {
             sent_offset = 0;
             if (advance()) {
                 return true;
             }
+            
             state = close_after_write ? CLOSING : READING;
+            return false;
         }
 
         return true;
@@ -30,8 +32,8 @@ namespace core {
         return buff + sent_offset;
     }
 
-    size_t Connection::get_sent_offset( void ) const {
-        return sent_offset;
+    size_t Connection::bytes_remaining( void ) const {
+        return bytes_in_buff;
     }
 
 }

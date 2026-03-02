@@ -6,7 +6,7 @@ namespace io {
 
     void EventLoop::run( void ) {
 
-        struct epoll_event events[MAX_EVENTS];        
+        struct epoll_event events[MAX_EVENTS];
         running = start_listeners();
         while (running) {
 
@@ -27,8 +27,14 @@ namespace io {
                 apply_connection_actions(conns.at(i));
                 update_epoll_interest(conns.at(i));
             }
-
-            remove_connections(); // scans the connections to see those which want to close.
+            
+            /*
+                scans the connections to see those which want to close.
+                we could have done it in the loop above. but that would result in address curroption
+                we mark connections as closed by setting their state to CLOSING.
+            */
+           
+            remove_connections();
         }
     }
 }

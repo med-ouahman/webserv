@@ -3,7 +3,8 @@
 #include "HTTPRequest.hpp"
 
 namespace http {
-    HTTPResponseHandler::ResolutionResult HTTPResponseHandler::resolve( const HTTPRequest& req, const config::ServerConfig& server ) const {
+    
+    HTTPResponseHandler::ResolutionResult HTTPResponseHandler::resolve( const HTTPRequest& req, const config::ServerConfig& server ) {
         ResolutionResult result;
 
         const config::LocationConfig* location = find_location(req.url, server.locations);

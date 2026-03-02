@@ -8,12 +8,12 @@ namespace io {
 
     bool EventLoop::add_connection( int client_fd ) {
 
-        int flags = fcntl(client_fd, F_GETFL);
+        int flags = ::fcntl(client_fd, F_GETFL);
         if (flags < 0) {
             return false;
         }
         
-        fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
+        ::fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
        
         conns.push_back(new core::Connection(client_fd, &conf.server, EPOLLIN | EPOLLET));
 

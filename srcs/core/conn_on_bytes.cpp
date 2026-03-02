@@ -15,27 +15,18 @@ namespace core {
             } else if (result == http::HTTPParser::PARSE_ERROR) {
 
                 handler.build_error_response(http::BAD_REQUEST, "Bad request");
-                response_buff = handler.serialize();
+                handler.serialize();
                 state = WRITING;
                 close_after_write = true;
                 return false;
             }
-
             http::HTTPRequest req = p.get_request();
-            if (!req.version_supported()) {
-                handler.build_error_response(http::VERSION_NOT_SUPPORTED, "Version not supported");
-                response_buff = handler.serialize();
-                state = WRITING;
-                close_after_write = true;
-                return false;
-            }
-
             keep_alive = req.want_keep_alive();
             p.reset();
-            handler.handle_request(req);
-            response_buff = handler.serialize();
+            close_after_write = handler.handle_request(req);
+            keep_alive = keep_alive && handler.allow_presistance();
+            handler.serialize();
             state = WRITING;
-            close_after_write = true;
             return false;
         }
 

@@ -26,16 +26,19 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/connection_on_event.cpp \
 	srcs/core/conn_on_bytes.cpp \
 	srcs/core/conn_buff.cpp \
+	srcs/core/conn_advance.cpp \
 	srcs/http/parser/HTTPParser.cpp \
 	srcs/http/parser/parse_headers.cpp \
 	srcs/http/parser/parse_request_line.cpp \
 	srcs/http/parser/parse_body.cpp \
 	srcs/http/parser/parser_utils.cpp \
+	srcs/http/parser/HTTPRequest.cpp \
 	srcs/http/response/HTTPResponseHandler.cpp \
 	srcs/http/response/serialize_response.cpp \
 	srcs/http/response/handle_request.cpp \
 	srcs/http/response/find_location.cpp \
 	srcs/http/response/resolve.cpp \
+	srcs/http/response/handler_produce.cpp \
 	srcs/io/handle_connections.cpp \
 	srcs/io/create_sockets.cpp \
 	srcs/io/EventLoop.cpp \

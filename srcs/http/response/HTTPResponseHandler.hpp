@@ -18,7 +18,7 @@ namespace http {
     class HTTPResponseHandler {
         private:
             HTTPResponse response;
-
+            bool allow_keep_alive;
             enum HTTPResponseType {
                 STATIC_FILE,
                 DIRECTORY,
@@ -41,16 +41,17 @@ namespace http {
                 DONE
             } serialize_state;
         private:
-            ResolutionResult resolve( const HTTPRequest& req, const config::ServerConfig& server ) const;
+            static ResolutionResult resolve( const HTTPRequest& req, const config::ServerConfig& server );
             static const config::LocationConfig* find_location( const std::string& url,
                 const std::vector<config::LocationConfig>& locations );
         public:
             HTTPResponseHandler();
             ~HTTPResponseHandler();
-            std::string serialize() const;
+            void serialize( void );
             void build_error_response( HTTPStatusCode code, std::string reason );
-            void handle_request( const HTTPRequest& req );
-            void produce( char* buff, size_t max_size );
+            bool handle_request( const HTTPRequest& req );
+            size_t produce( char* buff, size_t max_size );
+            bool allow_presistance() { return allow_keep_alive; };
             
     };
 }

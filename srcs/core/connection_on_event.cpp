@@ -15,7 +15,7 @@ namespace core {
                 break;
             }
             case io::ERROR: {
-                state = ERROR;
+                state = CLOSING;
                 break;
             }
         }

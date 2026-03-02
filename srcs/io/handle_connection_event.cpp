@@ -2,14 +2,12 @@
 #include "Connection.hpp"
 #include "EventLoop.hpp"
 
-#define BUFFER_SIZE 8192
-
 namespace io {
 
     void EventLoop::read_from_socket( core::Connection& conn ) {
         ssize_t bytes;
-        char buff[BUFFER_SIZE];
-        while ((bytes = ::read(conn.get_fd(), buff, BUFFER_SIZE - 1)) > 0) {
+        char buff[READ_BUFFER_SIZE];
+        while ((bytes = ::read(conn.get_fd(), buff, READ_BUFFER_SIZE - 1)) > 0) {
             buff[bytes] = 0;
            
             if (!conn.on_bytes(buff)) {
@@ -20,18 +18,19 @@ namespace io {
 
     void EventLoop::write_to_socket( core::Connection& conn ) {
         
-        ssize_t bytes_sent;
+        ssize_t bytes_sent = 0;
         
         while (true) {
             
-            bytes_sent = ::write(conn.get_fd(),
-                conn.get_write_buff(),
-                core::Connection::SEND_CHUNK_SIZE
-            );
-
-            if (!conn.update_buff(bytes_sent)) {
+             if (!conn.has_data(bytes_sent)) {
                 break;
             }
+
+            bytes_sent = ::write(conn.get_fd(),
+                conn.get_write_buff(),
+                conn.bytes_remaining()
+            );
+            
         }
 
     }

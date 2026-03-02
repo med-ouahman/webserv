@@ -23,7 +23,7 @@ namespace config {
         LocationConfig root, images;
         server.client_max_body_size = 1000000;
         server.listens.push_back( (ListenEndPoint ) {
-           0, 8080
+           0, 8082
         } );
         server.listens.push_back( (ListenEndPoint ) {
             0, 8081

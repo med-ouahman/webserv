@@ -14,7 +14,7 @@ namespace core {
         server_conf(conf),
         keep_alive(false),
         close_after_write(false),
-        response_buff(""),
+        bytes_in_buff(0),
         sent_offset(0) {}
 
     Connection::~Connection() {
