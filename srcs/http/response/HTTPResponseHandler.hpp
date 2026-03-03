@@ -49,9 +49,9 @@ namespace http {
             ~HTTPResponseHandler();
             void serialize( void );
             void build_error_response( HTTPStatusCode code, std::string reason );
-            bool handle_request( const HTTPRequest& req );
+            void handle_request( const HTTPRequest& req );
             size_t produce( char* buff, size_t max_size );
-            bool allow_presistance() { return allow_keep_alive; };
+            bool allow_presistance( bool req_close_after_write ) { return allow_keep_alive && !req_close_after_write; };
             
     };
 }

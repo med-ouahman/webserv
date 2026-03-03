@@ -6,7 +6,7 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>Welcome to, <b>Abbomination</b> webserv</h1>
+    <h1>Welcome to, <b>Webbomination</b> webserv</h1>
     <h2>Creators:</h2>
     <ul>
         <a href="intra.42.fr/users/mouahman" target="_blank">
@@ -20,9 +20,21 @@
         <a href="intra.42.fr/users/oessmiri">
             oessmiri
         </a>
+        <button id="btn">click me</button>
     </ul>
     <script>
-       
+       const btn = document.getElementById("btn");
+       btn.addEventListener('click', () => {
+            fetchData()
+       });
+
+       async function fetchData() {
+            const d = await fetch("http://localhost:8081", {
+                method: "GET"
+            });
+            const data = await d.json();
+            console.log(data);
+       }
     </script>
 </body>
 </html>

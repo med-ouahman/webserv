@@ -33,9 +33,9 @@ namespace io {
 		}
 	};
 
-	void ListeningSocket::close_fd( void ) {
+	void ListeningSocket::close( void ) {
 		if (socket_fd >= 0) {
-			close(socket_fd);
+			::close(socket_fd);
 			socket_fd = -1;
 		}
 	}

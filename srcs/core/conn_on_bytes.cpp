@@ -13,19 +13,21 @@ namespace core {
             if (result == http::HTTPParser::NEED_MORE_BYTES) {
                 return true;
             } else if (result == http::HTTPParser::PARSE_ERROR) {
-
                 handler.build_error_response(http::BAD_REQUEST, "Bad request");
                 handler.serialize();
+                num_requests++;
                 state = WRITING;
                 close_after_write = true;
                 return false;
             }
+
             http::HTTPRequest req = p.get_request();
-            keep_alive = req.want_keep_alive();
             p.reset();
-            close_after_write = handler.handle_request(req);
-            keep_alive = keep_alive && handler.allow_presistance();
+            close_after_write = !req.want_keep_alive();
+            handler.handle_request(req);
+            close_after_write = handler.allow_presistance(close_after_write);
             handler.serialize();
+            num_requests++;
             state = WRITING;
             return false;
         }

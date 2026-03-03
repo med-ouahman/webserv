@@ -39,7 +39,7 @@ namespace http {
 			parse_state = ERROR;
 			return ;
 		}
-		std::cout << "Request line done\n";
+		std::cout << request.get_method(request.method) << " " << request.url << " " << request.version << '\n';
 		parse_state = HEADERS;
 	}
 }

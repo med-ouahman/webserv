@@ -12,8 +12,8 @@ namespace core {
         event_mask(mask),
         state(ACCEPTED),
         server_conf(conf),
-        keep_alive(false),
         close_after_write(false),
+        num_requests(0),
         bytes_in_buff(0),
         sent_offset(0) {}
 

@@ -25,6 +25,7 @@ namespace http {
 		bool headers_done;
 
 		HTTPMethod get_method( std::string& s ) const;
+		std::string get_method( HTTPMethod m ) const;
 		HTTPRequest();
 		bool want_keep_alive( void );
 		bool version_supported( void ) const;

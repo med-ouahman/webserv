@@ -24,6 +24,6 @@ namespace io {
 			explicit ListeningSocket( EventLoop& loop, int fd );
 			~ListeningSocket();
 			void on_event( EventType event );
-			void close_fd( void );
+			void close( void );
 	};
 }

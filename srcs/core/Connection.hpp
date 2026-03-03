@@ -6,6 +6,7 @@
 #include "ConnectionEvent.hpp"
 #include "HTTPParser.hpp"
 #include "HTTPResponseHandler.hpp"
+#include "ConnectionStateMachine.hpp"
 
 namespace config {
     struct ServerConfig;
@@ -14,9 +15,13 @@ namespace config {
 namespace core {
 
     class Connection: public io::IOHandler {
-        
+        public:
+            explicit Connection( int fd, const config::ServerConfig* conf, uint32_t mask );
+            ~Connection();
+
         private:
             const static size_t SEND_CHUNK_SIZE = 1024 * 16;
+            const static size_t MAX_REQUESTS = 100;
         private:
             /* epoll */
             int fd;
@@ -28,22 +33,18 @@ namespace core {
             http::HTTPParser p;
             http::HTTPResponseHandler handler;
             const config::ServerConfig* server_conf;
-            bool keep_alive;
             bool close_after_write;
-
+            size_t num_requests;
+            
         private:
             /* IO, very dangerous */
-            char buff[SEND_CHUNK_SIZE];
+            char output_buff[SEND_CHUNK_SIZE];
             size_t bytes_in_buff;
             size_t sent_offset;
 
         private:
             bool advance( void );
-            
-        public:
-            explicit Connection( int fd, const config::ServerConfig* conf, uint32_t mask );
-            ~Connection();
-
+    
         public:
             int get_fd( void ) const;
             ConnectionAction desired_action() const;

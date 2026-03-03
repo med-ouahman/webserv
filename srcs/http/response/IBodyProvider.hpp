@@ -2,7 +2,7 @@
 
 namespace http {
     /**/
-
+    
     class IBodyProvider {
         public:
             virtual ~IBodyProvider() {}

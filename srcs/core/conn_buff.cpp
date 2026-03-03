@@ -29,7 +29,7 @@ namespace core {
     }
 
     const char* Connection::get_write_buff( void ) const {
-        return buff + sent_offset;
+        return output_buff + sent_offset;
     }
 
     size_t Connection::bytes_remaining( void ) const {

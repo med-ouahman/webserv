@@ -7,7 +7,8 @@
 
 namespace http {
     void HTTPResponseHandler::serialize( void ) {
-        response.body = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: close\r\n";
+
+        response.body = "HTTP/1.0 200 OK\r\nContent-Type: text/html\r\n";
         int f = open("www/index.html", O_RDONLY);
         char buff[8192];
         ssize_t b;

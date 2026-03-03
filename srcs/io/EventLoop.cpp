@@ -21,7 +21,7 @@ namespace io {
         }
         
         for ( size_t i = 0; i < listeners.size(); i++ ) {
-            listeners[i].close_fd();
+            listeners[i].close();
         }
     }
 
