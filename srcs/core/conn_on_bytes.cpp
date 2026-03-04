@@ -4,7 +4,8 @@
 namespace core {
     
     bool Connection::on_bytes( char* buff ) {
-        
+        // std::cout << "handling request: " << num_requests << '\n';
+      
         while (true) {
             http::HTTPParser::ParseResult result = p.consume(buff);
             if (result == http::HTTPParser::CONTINUE) {
@@ -22,12 +23,12 @@ namespace core {
             }
 
             http::HTTPRequest req = p.get_request();
+
             p.reset();
+            num_requests++;
             close_after_write = !req.want_keep_alive();
             handler.handle_request(req);
-            close_after_write = handler.allow_presistance(close_after_write);
-            handler.serialize();
-            num_requests++;
+            close_after_write = !handler.allow_presistance(close_after_write);
             state = WRITING;
             return false;
         }

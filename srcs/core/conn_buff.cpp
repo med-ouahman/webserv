@@ -20,8 +20,11 @@ namespace core {
             if (advance()) {
                 return true;
             }
-            
-            state = close_after_write ? CLOSING : READING;
+            if (close_after_write) {
+                state = CLOSING;
+            } else {
+                state = READING;
+            }
             return false;
         }
 

@@ -28,6 +28,14 @@
 #define Ooo !
 #define OoooO "config/default.conf"
 #define OOOOOOOOOooo #ifdef
+#include <signal.h>
+#include <stdlib.h>
+void clear( int a ) {
+    if ( a== SIGQUIT){
+
+        system("clear");
+    }
+}
 
 oo o oooo oo oooooo ooo oooooooo ooooooo ooooooooo oooooooooo ooooo O
 
@@ -35,7 +43,7 @@ oo o oooo oo oooooo ooo oooooooo ooooooo ooooooooo oooooooooo ooooo O
         oooooooooooooooooooooooooooooooooo
         ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
     OO
-
+    signal(SIGQUIT, clear);
     OooO
     oOo oooo Ooo OOooOO ooooo O
         OOooOO oOOo OoooO QQ
