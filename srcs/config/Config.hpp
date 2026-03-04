@@ -1,44 +1,25 @@
+#ifndef CONFIG_HPP
+#define CONFIG_HPP
 
-#pragma once
-
-#include <stdint.h>
-#include <string>
 #include <vector>
-#include <map>
-#include <set>
 
-namespace config {
+class Location {
+public:
+    std::string path;
+    std::string root;
+    std::set<std::string> methods;
+};
 
-    struct ListenEndPoint {
-        uint32_t host;
-        uint16_t port;
-    };
+class Server {
+public:
+    int port;
+    std::string host;
+    std::vector<Location> locations;
+};
 
-    struct ReturnDirective {
-        int return_code;
-        std::string return_target;
-    };
+class Config {
+public:
+    std::vector<Server> servers;
+};
 
-    struct LocationConfig {
-        std::string path;
-        std::string root;
-        std::vector<std::string> index;
-        std::set<std::string> allowed_methods;
-        ReturnDirective redirect;
-    };
-
-    struct ServerConfig {
-        std::vector<LocationConfig> locations;
-        std::vector<ListenEndPoint> listens;
-        std::vector<std::string> server_names;
-        std::string root;
-        std::vector<std::string> index_files;
-        std::map<int, std::string> error_pages;
-        std::map<std::string, std::string> cgi_pass;
-        size_t client_max_body_size;
-    };
-
-    struct Config {
-		ServerConfig server;
-	};
-}
+#endif
