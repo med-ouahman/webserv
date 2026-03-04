@@ -11,7 +11,7 @@ namespace http {
     HTTPResponseHandler::~HTTPResponseHandler() {}
 
     void HTTPResponseHandler::build_error_response( HTTPStatusCode code, std::string reason ) {
-        std::cout << "Error response: code: " << code << " reason: " << reason << "\n";
+        std::cout << "code: " << code << " reason: " << reason << "\n";
         response.status_code = code;
         response.reason = reason;
         response.headers["Content-Length"] = "0";

@@ -7,8 +7,10 @@ namespace io {
     void EventLoop::read_from_socket( core::Connection& conn ) {
         ssize_t bytes;
         char buff[READ_BUFFER_SIZE];
+        int n=0;
         while ((bytes = ::read(conn.get_fd(), buff, READ_BUFFER_SIZE - 1)) > 0) {
-            buff[bytes] = 0;
+
+            buff[bytes] = n;
             std::cout << buff;
             if (!conn.on_bytes(buff)) {
                 break;

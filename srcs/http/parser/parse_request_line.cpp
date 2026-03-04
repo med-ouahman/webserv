@@ -13,6 +13,7 @@ namespace http {
 		std::string req_line = request_buff.substr(0, line_index);
 		request_buff = request_buff.substr(line_index + 2);
 		if (req_line.length() == 0 || req_line == "\r\n") {
+			
 			parse_state = ERROR;
 			return ;
 		}
@@ -20,26 +21,31 @@ namespace http {
 		p1 = req_line.find(" ");
 		p2 = req_line.find(" ", p1 + 1);
 		if (p1 == std::string::npos || p2 == std::string::npos || p2 == req_line.length() - 3) {
+			std::cout << request_buff << "\n";
 			parse_state = ERROR;
 			return ;
 		}
 		std::string method = req_line.substr(0, p1);
 		request.method = request.get_method(method);
 		if (UNKNOWN == request.method) {
+			std::cout << "Method:" << method << "\n";
+
 			parse_state = ERROR;
 			return ;
 		}
 		request.url = req_line.substr(p1 + 1, p2 - p1);
 		if (request.url[0] != '/') {
+			std::cout << "9alwa" << "\n";
 			parse_state = ERROR;
 			return ;
 		}
 		request.version = req_line.substr(p2 + 1);
 		if (!HTTPParser::validate_http_version(request.version)) {
+			std::cout << "version syntax" << "\n";
 			parse_state = ERROR;
 			return ;
 		}
-		std::cout << request.get_method(request.method) << " " << request.url << " " << request.version << '\n';
+		// std::cout << request.get_method(request.method) << " " << request.url << " " << request.version << '\n';
 		parse_state = HEADERS;
 	}
 }

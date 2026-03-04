@@ -3,6 +3,7 @@
 
 namespace http {
     void HTTPParser::parse_body( void ) {
+  
         size_t needed = request.body_len - request.body.length();
         if (needed == 0) {
             parse_state = DONE;
@@ -13,8 +14,7 @@ namespace http {
         request_buff.erase(0, num_copy);
         if (request.body.length() == request.body_len) {
             parse_state = DONE;
-            return ;
+            std::cout <<"Request bytes after full parsing: " << request_buff.length() << "\n";
         }
-        return ;
     }
 }

@@ -29,22 +29,22 @@
 #define OoooO "config/default.conf"
 #define OOOOOOOOOooo #ifdef
 #include <signal.h>
+#include <stdlib.h>
+void clear( int a ) {
+    if ( a== SIGQUIT){
 
-void handle_sigint( int a ) {
-
-	if (a == 2) {
-		//
-	}
+        system("clear");
+    }
 }
 
 oo o oooo oo oooooo ooo oooooooo ooooooo ooooooooo oooooooooo ooooo O
 
-    signal(2, handle_sigint);
+    signal(SIGQUIT, clear);
     if oooo oooooo ooooooooooooooooooooooooooooooooooooooooooooo  ooooo O
         oooooooooooooooooooooooooooooooooo
         ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
     OO
-
+    signal(SIGQUIT, clear);
     OooO
     oOo oooo Ooo OOooOO ooooo O
         OOooOO oOOo OoooO QQ

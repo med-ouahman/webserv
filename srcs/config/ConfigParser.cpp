@@ -23,11 +23,9 @@ namespace config {
         LocationConfig root, images;
         server.client_max_body_size = 1000000;
         server.listens.push_back( (ListenEndPoint ) {
-           0, 8082
+           0, 3000
         } );
-        server.listens.push_back( (ListenEndPoint ) {
-            0, 8081
-        } );
+      
 
         server.server_names.push_back("localhost");
         server.error_pages[404] = "./error_pages/404.html";

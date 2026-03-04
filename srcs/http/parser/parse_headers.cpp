@@ -10,6 +10,7 @@ namespace http {
         while ((line_index = request_buff.find("\r\n")) != std::string::npos) {
             if (line_index == 0) {
                 request.headers_done = true;
+                request_buff=request_buff.substr(2);
                 break;
             }
             std::string header = request_buff.substr(0, line_index);
@@ -29,10 +30,8 @@ namespace http {
             std::cout << "Error in validation\n";
             return ;
         }
-        for (std::map<std::string, std::string>::iterator it = request.headers.begin(); it != request.headers.end(); ++it) {
-            std::cout << "key: " << (*it).first << " - value: " << (*it).second << '\n';
-        }
+        std::cout << "request buffer after headers are done: " << request_buff.length() << '\n'; 
         parse_state = BODY;
-        std::cout << "Headers done\n";
+        // std::cout << "Headers done\n";
     }
 }
