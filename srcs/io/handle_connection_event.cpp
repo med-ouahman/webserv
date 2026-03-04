@@ -9,7 +9,7 @@ namespace io {
         char buff[READ_BUFFER_SIZE];
         while ((bytes = ::read(conn.get_fd(), buff, READ_BUFFER_SIZE - 1)) > 0) {
             buff[bytes] = 0;
-           
+            std::cout << buff;
             if (!conn.on_bytes(buff)) {
                 break;
             }

@@ -28,9 +28,18 @@
 #define Ooo !
 #define OoooO "config/default.conf"
 #define OOOOOOOOOooo #ifdef
+#include <signal.h>
+
+void handle_sigint( int a ) {
+
+	if (a == 2) {
+		//
+	}
+}
 
 oo o oooo oo oooooo ooo oooooooo ooooooo ooooooooo oooooooooo ooooo O
 
+    signal(2, handle_sigint);
     if oooo oooooo ooooooooooooooooooooooooooooooooooooooooooooo  ooooo O
         oooooooooooooooooooooooooooooooooo
         ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
