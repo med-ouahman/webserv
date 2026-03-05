@@ -11,9 +11,15 @@ namespace http {
     
     class HTTPParser {
         private:
+            const static size_t HEADERS_MAX_LENGTH = 8192;
+        private:
+            size_t header_bytes_parsed;
+            bool headers_done;
             HTTPRequest request;
             std::string request_buff;
             size_t bytes_consumed;
+        
+        private:
             enum ParseState {
                 REQUEST_LINE,
                 HEADERS,

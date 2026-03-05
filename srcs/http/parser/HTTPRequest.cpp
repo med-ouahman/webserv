@@ -32,7 +32,6 @@ namespace http {
 		url.clear();
 		body.clear();
 		headers.clear();
-		headers_done = false;
 		body_len = 0;
 	}
 

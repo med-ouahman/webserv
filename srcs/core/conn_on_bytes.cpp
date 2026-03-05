@@ -21,11 +21,10 @@ namespace core {
                 close_after_write = true;
                 return false;
             }
-
+            std::cout << "connection fd:" << fd << "\nrequests managed: " << num_requests << '\n';
             http::HTTPRequest req = p.get_request();
-
-            p.reset();
             num_requests++;
+            p.reset();
             close_after_write = !req.want_keep_alive();
             handler.handle_request(req);
             close_after_write = !handler.allow_presistance(close_after_write);

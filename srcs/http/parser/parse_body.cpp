@@ -3,7 +3,8 @@
 
 namespace http {
     void HTTPParser::parse_body( void ) {
-  
+        
+        std::cout << "Done\n";
         size_t needed = request.body_len - request.body.length();
         if (needed == 0) {
             parse_state = DONE;
