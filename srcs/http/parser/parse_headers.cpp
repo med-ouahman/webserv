@@ -8,8 +8,10 @@ namespace http {
         size_t offset = 0;
         while (true) {
             size_t pos = request_buff.find("\r\n", offset);
-            if (pos == std::string::npos) break;
+            if (pos == std::string::npos)
+                break;
             if (pos == offset) {
+                // std::cout 
                 offset += 2;
                 headers_done = true;
                 break;
