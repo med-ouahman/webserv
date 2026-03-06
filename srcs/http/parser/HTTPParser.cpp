@@ -34,10 +34,12 @@ namespace http {
 		if (parse_state == ERROR) {
 			return PARSE_ERROR;
 		}
-		/* PS: if size has changed, you can return continue else NEED_MORE_BYTES */
+		
 		if (request_buff.size() != old_size) {
+			old_size = request_buff.size();
 			return CONTINUE;
 		}
+		
 		if (headers_done && request.body_len == 0) {
 			return SUCCESS;
 		}

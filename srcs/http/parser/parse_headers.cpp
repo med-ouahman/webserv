@@ -3,7 +3,7 @@
 
 namespace http {
 
-    void HTTPParser::parse_headers( void ) {
+    HTTPParser::ParseResult HTTPParser::parse_headers( void ) {
         
         size_t offset = 0;
         while (true) {
@@ -21,25 +21,28 @@ namespace http {
             if (header_bytes_parsed > HEADERS_MAX_LENGTH) {
                 parse_state = ERROR;
                 std::cout << "Error: headers exceed maximum size\n";
-                return;
+                return PARSE_ERROR;
             }
             std::string header = request_buff.substr(offset, line_len);
             if (!add_request_header(header)) {
                 parse_state = ERROR;
                 std::cout << "Error adding header\n";
-                return;
+                return PARSE_ERROR;
             }
             offset += line_len + 2;
         }
+
         if (!headers_done) {
             return;
         }
+        
         request_buff.erase(0, offset);
         if (!validate_headers()) {
             parse_state = ERROR;
             std::cout << "Error in validation\n";
-            return;
+            return PARSE_ERROR;
         }
         parse_state = BODY;
+        return CONTINUE;
     }
 }

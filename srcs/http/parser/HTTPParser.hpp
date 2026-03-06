@@ -40,9 +40,9 @@ namespace http {
             HTTPRequest get_request() const;
             void reset( void );
         private:
-            void parse_request_line( void );
-            void parse_headers( void );
-            void parse_body( void );
+            ParseResult parse_request_line( void );
+            ParseResult parse_headers( void );
+            ParseResult parse_body( void );
             bool add_request_header( std::string const& s );
             bool validate_headers( void );
         private:
