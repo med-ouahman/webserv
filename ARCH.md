@@ -1,8 +1,3 @@
-Absolutely. Below is the **updated, consolidated `ARCH.md`**, rewritten to accurately reflect **everything we clarified and refined about connections**, without jumping ahead into unrelated areas.
-
-This version is **clean, precise, and reviewer-safe**, and it removes earlier ambiguities around *connection vs request*, *epoll’s role*, and *state behavior*.
-
----
 
 # ARCH.md — Web Server Architecture (Draft)
 

@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Webbomination</title>
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
 </head>
 <body>
     <h1>Welcome to, <b>Webbomination</b> webserv</h1>
@@ -29,7 +30,7 @@
        });
 
        async function fetchData() {
-            const d = await fetch("http://localhost:8081", {
+            const d = await fetch("http://localhost:3000", {
                 method: "GET"
             });
             const data = await d.json();

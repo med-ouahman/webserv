@@ -47,6 +47,7 @@ namespace http {
 	bool HTTPParser::add_request_header( std::string const& s ) {
 		size_t colon_index = s.find(":");
 		if (colon_index == std::string::npos) {
+			std::cout << "colon not found\n";
 			return false;
 		}
 		size_t start = 0;
@@ -79,6 +80,7 @@ namespace http {
 	bool HTTPParser::validate_headers( void ) {
 		if (request.version == "HTTP/1.1") {
 			if (request.headers["host"].length() == 0) {
+				std::cout << "host not found\n";
 				return false;
 			}
 		}

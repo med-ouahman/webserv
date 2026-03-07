@@ -3,35 +3,46 @@
 
 namespace http {
 
-    void HTTPParser::parse_headers( void ) {
+    HTTPParser::ParseResult HTTPParser::parse_headers( void ) {
         
-        size_t line_index;
-    
-        while ((line_index = request_buff.find("\r\n")) != std::string::npos) {
-            if (line_index == 0) {
-                request.headers_done = true;
-                request_buff=request_buff.substr(2);
+        size_t offset = 0;
+        while (true) {
+            size_t pos = request_buff.find("\r\n", offset);
+            if (pos == std::string::npos)
+                break;
+            if (pos == offset) {
+                // std::cout 
+                offset += 2;
+                headers_done = true;
                 break;
             }
-            std::string header = request_buff.substr(0, line_index);
+            size_t line_len = pos - offset;
+            header_bytes_parsed += line_len + 2; // +2 for \r\n
+            if (header_bytes_parsed > HEADERS_MAX_LENGTH) {
+                parse_state = ERROR;
+                std::cout << "Error: headers exceed maximum size\n";
+                return PARSE_ERROR;
+            }
+            std::string header = request_buff.substr(offset, line_len);
             if (!add_request_header(header)) {
                 parse_state = ERROR;
                 std::cout << "Error adding header\n";
-                return ;
+                return PARSE_ERROR;
             }
-            /* the next line is fucked up and needs fixing */
-            request_buff = request_buff.substr(line_index + 2); // this is O(N) and very bad. remember to add a variable that accumulates the number of bytes consumed and do it once.
+            offset += line_len + 2;
         }
-        if (!request.headers_done) {
-            return ;
+
+        if (!headers_done) {
+            return;
         }
+        
+        request_buff.erase(0, offset);
         if (!validate_headers()) {
             parse_state = ERROR;
             std::cout << "Error in validation\n";
-            return ;
+            return PARSE_ERROR;
         }
-        std::cout << "request buffer after headers are done: " << request_buff.length() << '\n'; 
         parse_state = BODY;
-        // std::cout << "Headers done\n";
+        return CONTINUE;
     }
 }
