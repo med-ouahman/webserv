@@ -1,6 +1,7 @@
 #include "ConfigParser.hpp"
 #include <stdexcept>
 #include <cstdlib>
+#include <iostream>
 
 namespace config {
 
@@ -34,6 +35,7 @@ Config ConfigParser::parse(const char* path)
 
     while (pos < tokens.size())
     {
+        // std::cout << "type : " << tokens[pos].type << " -- value : " << tokens[pos].value << std::endl;
         if (tokens[pos].value == "server")
         {
             pos++;
@@ -41,6 +43,7 @@ Config ConfigParser::parse(const char* path)
         }
         else
             throw std::runtime_error("Expected server block");
+        pos++;
     }
 
     return conf;
