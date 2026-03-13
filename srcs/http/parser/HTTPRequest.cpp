@@ -1,7 +1,9 @@
 
 #include "HTTPRequest.hpp"
+#include <unistd.h>
 
 namespace http {
+
     HTTPMethod HTTPRequest::get_method( std::string& s ) const {
 		if (s == "GET")
 			return GET;
@@ -30,9 +32,13 @@ namespace http {
 		method = UNKNOWN;
 		version.clear();
 		url.clear();
-		body.clear();
+		body_path.clear();
 		headers.clear();
 		body_len = 0;
+	}
+
+	HTTPRequest::~HTTPRequest() {
+		unlink(body_path.c_str());
 	}
 
 	bool HTTPRequest::want_keep_alive( void ) {
@@ -48,4 +54,6 @@ namespace http {
 	bool HTTPRequest::version_supported( void ) const {
 		return version == "HTTP/1.0" || version == "HTTP/1.1";
 	}
+
+
 }

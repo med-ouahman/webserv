@@ -49,7 +49,7 @@ namespace core {
             int get_fd( void ) const;
             ConnectionAction desired_action() const;
             void on_event( io::EventType event );
-            bool on_bytes( char* buff );
+            bool on_bytes( const char* buff, ::size_t size );
             uint32_t get_mask( void ) const { return event_mask; }
             void set_mask( uint32_t new_mask ) { event_mask = new_mask; }
         

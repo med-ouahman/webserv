@@ -4,45 +4,51 @@
 namespace http {
 
     HTTPParser::ParseResult HTTPParser::parse_headers( void ) {
-        
-        size_t offset = 0;
-        while (true) {
-            size_t pos = request_buff.find("\r\n", offset);
-            if (pos == std::string::npos)
-                break;
-            if (pos == offset) {
-                // std::cout 
-                offset += 2;
+
+        while (!headers_done) {
+
+            ParseResult r = scan_line(MAX_HEADER_BLOCK_LEN);
+            if (r != SUCCESS) {
+                return r;
+            }
+
+            if (line_buff.size() == 0) {
                 headers_done = true;
                 break;
             }
-            size_t line_len = pos - offset;
-            header_bytes_parsed += line_len + 2; // +2 for \r\n
-            if (header_bytes_parsed > HEADERS_MAX_LENGTH) {
-                parse_state = ERROR;
-                std::cout << "Error: headers exceed maximum size\n";
-                return PARSE_ERROR;
-            }
-            std::string header = request_buff.substr(offset, line_len);
-            if (!add_request_header(header)) {
-                parse_state = ERROR;
-                std::cout << "Error adding header\n";
-                return PARSE_ERROR;
-            }
-            offset += line_len + 2;
-        }
 
-        if (!headers_done) {
-            return;
-        }
+            ::size_t name_len = 0;
+            ::size_t cursor = 0;
+            while (cursor < line_buff.size() && line_buff[cursor] != ':' && name_len <= MAX_HEADER_NAME_LEN) {
+                ++cursor;
+                ++name_len;
+            }
         
-        request_buff.erase(0, offset);
-        if (!validate_headers()) {
-            parse_state = ERROR;
-            std::cout << "Error in validation\n";
-            return PARSE_ERROR;
+            if (cursor == 0 || name_len > MAX_HEADER_NAME_LEN) {
+                return PARSE_ERROR;
+            }
+        
+            std::string name = line_buff.substr(0, name_len);
+            std::cout << "name len: " << name_len << '\n';
+            if (!validate_header_name(name)) {
+                return PARSE_ERROR;
+            }
+            
+            normalize_header_name(name);
+            ::size_t start = cursor + 1;
+            ::size_t end = line_buff.size() - 1;
+            
+            while (isspace(line_buff[start]) && start < line_buff.size()) ++start;
+            
+            while (isspace(line_buff[end]) && end >= start) --end;
+
+            request.headers[name] = line_buff.substr(start, end - start);
+            line_buff.clear();
         }
+    
+        validate_headers();
+        
         parse_state = BODY;
-        return CONTINUE;
+        return SUCCESS;
     }
 }

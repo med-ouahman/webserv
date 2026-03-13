@@ -12,9 +12,10 @@ namespace io {
 
             buff[bytes] = n;
             
-            if (!conn.on_bytes(buff)) {
+            if (!conn.on_bytes(buff, bytes)) {
                 break;
             }
+            
         }
         
     }

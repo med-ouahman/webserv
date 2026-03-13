@@ -3,14 +3,12 @@
 
 namespace core {
     
-    bool Connection::on_bytes( char* buff ) {
+    bool Connection::on_bytes( const char* buff, ::size_t size ) {
         // std::cout << "handling request: " << num_requests << '\n';
-      
+        
         while (true) {
-            http::HTTPParser::ParseResult result = p.consume(buff);
-            if (result == http::HTTPParser::CONTINUE) {
-                continue;
-            }
+            http::HTTPParser::ParseResult result = p.consume(buff, size);
+            
             if (result == http::HTTPParser::NEED_MORE_BYTES) {
                 return true;
             } else if (result == http::HTTPParser::PARSE_ERROR) {
@@ -21,8 +19,10 @@ namespace core {
                 close_after_write = true;
                 return false;
             }
+            
             std::cout << "connection fd:" << fd << "\nrequests managed: " << num_requests << '\n';
             http::HTTPRequest req = p.get_request();
+            std::cout << "method: '" << req.get_method(req.method) << "'\nuri: '" << req.url << "'\nversion: '" << req.version << "'\n";
             num_requests++;
             p.reset();
             close_after_write = !req.want_keep_alive();

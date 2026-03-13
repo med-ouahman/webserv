@@ -2,48 +2,35 @@
 
 namespace http {
 
-	HTTPParser::HTTPParser(): header_bytes_parsed(0), headers_done(false) {
-		parse_state = REQUEST_LINE;
-	}
+	HTTPParser::HTTPParser()
+		:headers_done(false),
+		header_count(0),
+		bytes_consumed(0),
+		data_(NULL),
+		len_(0),
+		parse_state(REQUEST_LINE) {}
 
-	HTTPParser::~HTTPParser() {
+	HTTPParser::~HTTPParser() {}
 
-	}
-
-	HTTPParser::ParseResult HTTPParser::consume( char* buff ) {
+	HTTPParser::ParseResult HTTPParser::consume( const char* buff, ::size_t size ) {
 		
-		request_buff.append(buff);
-		buff[0] = 0;
-		size_t old_size = request_buff.size();
-		switch (parse_state) {
-			case REQUEST_LINE:
-				parse_request_line();
-				break;
-			case HEADERS:
-				parse_headers();
-				break;
-			case BODY:
-				parse_body();
-				break;
-			default:
-				break;
+		ParseResult r;
+		data_ = (char*)buff;
+		len_ = size;
+		bytes_consumed = 0;
+		if (REQUEST_LINE == parse_state) {
+			r = parse_request_line();
 		}
-		if (parse_state == DONE) {
-			return SUCCESS;
+		if (HEADERS == parse_state) {
+			r = parse_headers();
 		}
-		if (parse_state == ERROR) {
+		if (BODY == parse_state) {
+			r = parse_body();
+		}
+		if (ERROR == parse_state) {
 			return PARSE_ERROR;
 		}
-		
-		if (request_buff.size() != old_size) {
-			old_size = request_buff.size();
-			return CONTINUE;
-		}
-		
-		if (headers_done && request.body_len == 0) {
-			return SUCCESS;
-		}
-		return NEED_MORE_BYTES;
+		return r;
 	}
 
 	HTTPRequest HTTPParser::get_request() const {
@@ -54,4 +41,47 @@ namespace http {
 		parse_state = REQUEST_LINE;
 		request = HTTPRequest();
 	}
+
+	HTTPParser::ParseResult HTTPParser::scan_line( ::size_t max_bytes_allowed ) {
+		::size_t line_offset = line_buff.size();
+		::size_t i = bytes_consumed;
+		bool cr_found = false;
+		bool nl_found = false;
+		if (i == len_) {
+			return NEED_MORE_BYTES;
+		}
+		while (i < len_) {
+			
+			if (line_offset >= max_bytes_allowed) {
+				return PARSE_ERROR;
+			}
+
+			line_offset++;
+
+			if (data_[i] == '\r') {
+				cr_found = true;
+				++i;
+			} else {
+				if (data_[i] == '\n' && cr_found) {
+					++i;
+					nl_found = true;
+					break;
+				}
+				++i;
+			}
+		}
+
+		size_t to_append = i - 2 - bytes_consumed;
+		std::cout << "append: " << to_append << '\n';
+		line_buff.append(data_ + bytes_consumed, to_append); // don't store \r\n
+		bytes_consumed = i;
+
+		if (!nl_found) {
+			return NEED_MORE_BYTES;
+		}
+		
+		return SUCCESS;
+	}
+
 }
+
