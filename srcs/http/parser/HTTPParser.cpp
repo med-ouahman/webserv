@@ -2,34 +2,40 @@
 
 namespace http {
 
-	HTTPParser::HTTPParser()
-		:headers_done(false),
+	
+	HTTPParser::HTTPParser( int connection_fd )
+		:conn_fd(connection_fd),
+		body_dir("./srcs/http/parser/.body_dir"),
+		body_bytes_parsed(0),
+		headers_done(false),
 		header_count(0),
 		bytes_consumed(0),
 		data_(NULL),
 		len_(0),
-		parse_state(REQUEST_LINE) {}
+		parse_state(ParseState::REQUEST_LINE) {}
 
 	HTTPParser::~HTTPParser() {}
 
-	HTTPParser::ParseResult HTTPParser::consume( const char* buff, ::size_t size ) {
+	HTTPParser::ParseResult::Type HTTPParser::consume( const char* buff, ::size_t size ) {
 		
-		ParseResult r;
+		ParseResult::Type r;
 		data_ = (char*)buff;
 		len_ = size;
 		bytes_consumed = 0;
-		if (REQUEST_LINE == parse_state) {
-			r = parse_request_line();
+
+		if (ParseState::REQUEST_LINE == parse_state) {
+			r = parse_request_line(); // can muate parse_state
 		}
-		if (HEADERS == parse_state) {
+		if (ParseState::HEADERS == parse_state) {
 			r = parse_headers();
 		}
-		if (BODY == parse_state) {
+		if (ParseState::BODY == parse_state) {
 			r = parse_body();
 		}
-		if (ERROR == parse_state) {
-			return PARSE_ERROR;
+		if (ParseState::ERROR == parse_state) {
+			return ParseResult::PARSE_ERROR;
 		}
+
 		return r;
 	}
 
@@ -38,22 +44,22 @@ namespace http {
 	}
 
 	void HTTPParser::reset( void ) {
-		parse_state = REQUEST_LINE;
+		parse_state = ParseState::REQUEST_LINE;
 		request = HTTPRequest();
 	}
 
-	HTTPParser::ParseResult HTTPParser::scan_line( ::size_t max_bytes_allowed ) {
+	HTTPParser::ParseResult::Type HTTPParser::scan_line( ::size_t max_bytes_allowed ) {
 		::size_t line_offset = line_buff.size();
 		::size_t i = bytes_consumed;
 		bool cr_found = false;
 		bool nl_found = false;
 		if (i == len_) {
-			return NEED_MORE_BYTES;
+			return ParseResult::NEED_MORE_BYTES;
 		}
 		while (i < len_) {
 			
 			if (line_offset >= max_bytes_allowed) {
-				return PARSE_ERROR;
+				return ParseResult::PARSE_ERROR;
 			}
 
 			line_offset++;
@@ -77,10 +83,10 @@ namespace http {
 		bytes_consumed = i;
 
 		if (!nl_found) {
-			return NEED_MORE_BYTES;
+			return ParseResult::NEED_MORE_BYTES;
 		}
 		
-		return SUCCESS;
+		return ParseResult::SUCCESS;
 	}
 
 }

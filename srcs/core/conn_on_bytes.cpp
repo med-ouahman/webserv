@@ -7,11 +7,11 @@ namespace core {
         // std::cout << "handling request: " << num_requests << '\n';
         
         while (true) {
-            http::HTTPParser::ParseResult result = p.consume(buff, size);
+            http::HTTPParser::ParseResult::Type result = p.consume(buff, size);
             
-            if (result == http::HTTPParser::NEED_MORE_BYTES) {
+            if (result == http::HTTPParser::ParseResult::NEED_MORE_BYTES) {
                 return true;
-            } else if (result == http::HTTPParser::PARSE_ERROR) {
+            } else if (result == http::HTTPParser::ParseResult::PARSE_ERROR) {
                 handler.build_error_response(http::BAD_REQUEST, "Bad request");
                 handler.serialize();
                 num_requests++;

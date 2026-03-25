@@ -19,7 +19,13 @@ namespace http {
             static const std::size_t MAX_HEADER_BLOCK_LEN = 16384;  // 16 KB
             static const std::size_t MAX_BODY_LEN         = 10 * 1024 * 1024;  // 10 MB
             static const std::size_t MAX_CHUNK_SIZE       = 1  * 1024 * 1024;  // 1 MB
-            
+        private:
+            const int conn_fd;
+            const char* body_dir;
+            ::size_t body_bytes_parsed;
+            ::size_t body_len;
+            int body_fd;
+
         private:
             bool headers_done;
             size_t header_count;
@@ -30,34 +36,57 @@ namespace http {
             size_t len_;
 
         private:
-            enum ParseState {
-                REQUEST_LINE,
-                HEADERS,
-                BODY,
-                DONE,
-                ERROR
-            } parse_state;
+            class ParseState {
+                public:
+                    enum Type {
 
-        public:
-            enum ParseResult {
-                SUCCESS,
-                NEED_MORE_BYTES,
-                PARSE_ERROR
+                    REQUEST_LINE,
+                    HEADERS,
+                    BODY,
+                    DONE,
+                    ERROR
+                };
             };
 
-            HTTPParser();
+            ParseState::Type parse_state;
+            
+            class BodyType {
+                public:
+                enum Type {
+                    UNSET,
+                    NONE,
+                    ERROR,
+                    CONTENT_LENGTH,
+                    TRANSFER_ENCODING_CHUNKED,
+                };
+            };
+
+            BodyType::Type body_type;
+
+        public:
+            class ParseResult {
+                public:
+                enum Type {
+
+                    SUCCESS,
+                    NEED_MORE_BYTES,
+                    PARSE_ERROR
+                };
+            };
+
+            explicit HTTPParser( int connection_fd );
             ~HTTPParser();
-            ParseResult consume( const char* buff, ::size_t size );
+            ParseResult::Type consume( const char* buff, ::size_t size );
             HTTPRequest get_request() const;
             void reset( void );
         private:
-            ParseResult parse_request_line( void );
-            ParseResult parse_headers( void );
-            ParseResult parse_body( void );
+            ParseResult::Type parse_request_line( void );
+            ParseResult::Type parse_headers( void );
+            ParseResult::Type parse_body( void );
             bool add_request_header( std::string const& s );
             bool validate_headers( void );
-            ParseResult scan_line( ::size_t max_bytes_allowed );
-
+            ParseResult::Type scan_line( ::size_t max_bytes_allowed );
+            BodyType::Type detect_body_type( void );
         private:
             /* stateless helpers. */
             static bool parse_content_length( std::string const& s, size_t& body_len );

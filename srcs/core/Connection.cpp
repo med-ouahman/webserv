@@ -11,6 +11,7 @@ namespace core {
         :fd(fd),
         event_mask(mask),
         state(ACCEPTED),
+        p(fd),
         server_conf(conf),
         close_after_write(false),
         num_requests(0),

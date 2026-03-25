@@ -33,6 +33,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/parser/parse_body.cpp \
 	srcs/http/parser/parser_utils.cpp \
 	srcs/http/parser/HTTPRequest.cpp \
+	srcs/http/parser/parser_detect_body.cpp \
 	srcs/http/response/HTTPResponseHandler.cpp \
 	srcs/http/response/serialize_response.cpp \
 	srcs/http/response/handle_request.cpp \
