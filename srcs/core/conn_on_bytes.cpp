@@ -20,9 +20,8 @@ namespace core {
                 return false;
             }
             
-            std::cout << "connection fd:" << fd << "\nrequests managed: " << num_requests << '\n';
             http::HTTPRequest req = p.get_request();
-            std::cout << "method: '" << req.get_method(req.method) << "'\nuri: '" << req.url << "'\nversion: '" << req.version << "'\n";
+
             num_requests++;
             p.reset();
             close_after_write = !req.want_keep_alive();

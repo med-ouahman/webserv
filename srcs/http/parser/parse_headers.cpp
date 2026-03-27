@@ -29,7 +29,6 @@ namespace http {
             }
         
             std::string name = line_buff.substr(0, name_len);
-            std::cout << "name len: " << name_len << '\n';
             if (!validate_header_name(name)) {
                 return ParseResult::PARSE_ERROR;
             }
@@ -42,12 +41,16 @@ namespace http {
             
             while (isspace(line_buff[end]) && end >= start) --end;
 
-            request.headers[name] = line_buff.substr(start, end - start);
+            request.headers[name] = line_buff.substr(start, end - start + 1);
+            
             line_buff.clear();
         }
     
         validate_headers();
-        
+        std::cout << "Headers:\n";
+        for (std::map<std::string, std::string>::iterator it = request.headers.begin(); it != request.headers.end(); ++it) {
+            std::cout << (*it).first << ": " << (*it).second << "\n";
+        }
         parse_state = ParseState::BODY;
         return ParseResult::ParseResult::SUCCESS;
     }

@@ -7,12 +7,15 @@ namespace http {
 		:conn_fd(connection_fd),
 		body_dir("./srcs/http/parser/.body_dir"),
 		body_bytes_parsed(0),
+		body_len(0),
+		body_fd(-1),
 		headers_done(false),
 		header_count(0),
 		bytes_consumed(0),
 		data_(NULL),
 		len_(0),
-		parse_state(ParseState::REQUEST_LINE) {}
+		parse_state(ParseState::REQUEST_LINE),
+		body_type(BodyType::UNSET) {}
 
 	HTTPParser::~HTTPParser() {}
 
@@ -24,14 +27,17 @@ namespace http {
 		bytes_consumed = 0;
 
 		if (ParseState::REQUEST_LINE == parse_state) {
-			r = parse_request_line(); // can muate parse_state
+			r = parse_request_line(); // can mutate parse_state
 		}
+
 		if (ParseState::HEADERS == parse_state) {
 			r = parse_headers();
 		}
+
 		if (ParseState::BODY == parse_state) {
 			r = parse_body();
 		}
+
 		if (ParseState::ERROR == parse_state) {
 			return ParseResult::PARSE_ERROR;
 		}
@@ -44,6 +50,12 @@ namespace http {
 	}
 
 	void HTTPParser::reset( void ) {
+		header_count = 0;
+		headers_done = false;
+		body_type = BodyType::UNSET;
+		body_len = 0;
+		body_bytes_parsed = 0;
+		body_fd = -1;
 		parse_state = ParseState::REQUEST_LINE;
 		request = HTTPRequest();
 	}
@@ -78,7 +90,6 @@ namespace http {
 		}
 
 		size_t to_append = i - 2 - bytes_consumed;
-		std::cout << "append: " << to_append << '\n';
 		line_buff.append(data_ + bytes_consumed, to_append); // don't store \r\n
 		bytes_consumed = i;
 

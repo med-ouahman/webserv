@@ -16,7 +16,7 @@ namespace http {
 				return BodyType::ERROR;
 			}
 
-			if (request.body_len == 0) {
+			if (body_len == 0) {
 				return BodyType::NONE;
 			}
 

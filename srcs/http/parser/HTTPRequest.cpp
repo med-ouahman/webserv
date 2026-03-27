@@ -34,11 +34,12 @@ namespace http {
 		url.clear();
 		body_path.clear();
 		headers.clear();
-		body_len = 0;
 	}
 
 	HTTPRequest::~HTTPRequest() {
-		unlink(body_path.c_str());
+		if (body_path.size()) {
+			unlink(body_path.c_str());
+		}
 	}
 
 	bool HTTPRequest::want_keep_alive( void ) {

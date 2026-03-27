@@ -79,6 +79,7 @@ namespace http {
             ParseResult::Type consume( const char* buff, ::size_t size );
             HTTPRequest get_request() const;
             void reset( void );
+            
         private:
             ParseResult::Type parse_request_line( void );
             ParseResult::Type parse_headers( void );
@@ -87,6 +88,7 @@ namespace http {
             bool validate_headers( void );
             ParseResult::Type scan_line( ::size_t max_bytes_allowed );
             BodyType::Type detect_body_type( void );
+
         private:
             /* stateless helpers. */
             static bool parse_content_length( std::string const& s, size_t& body_len );

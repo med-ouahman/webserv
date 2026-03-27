@@ -8,6 +8,7 @@ namespace http {
 	}
 
 	bool HTTPParser::parse_content_length( std::string const& s, size_t& body_len ) {
+		std::cout << body_len << "\n";
 		for ( size_t i = 0; i < s.length(); i++ ) {
 			if (!isdigit(s[i])) {
 				return false;
@@ -17,7 +18,7 @@ namespace http {
 				return false;
 			}
 		}
-		
+		std::cout << "body_len: " << body_len << "\n";
 		return true;
 	}
 
@@ -62,14 +63,6 @@ namespace http {
 			}
 		}
 	
-		std::string content_length = request.headers["content-length"];
-
-		if (content_length.length() != 0) {
-			if (!parse_content_length(content_length, request.body_len)) {
-				return false;
-			}
-		}
-
 		return true;
 	}
 
