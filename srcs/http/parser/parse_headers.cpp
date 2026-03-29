@@ -46,7 +46,10 @@ namespace http {
             line_buff.clear();
         }
     
-        validate_headers();
+        if (!validate_headers()) {
+            return ParseResult::PARSE_ERROR;
+        }
+        
         std::cout << "Headers:\n";
         for (std::map<std::string, std::string>::iterator it = request.headers.begin(); it != request.headers.end(); ++it) {
             std::cout << (*it).first << ": " << (*it).second << "\n";
