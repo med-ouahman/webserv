@@ -19,12 +19,28 @@ namespace http {
             static const std::size_t MAX_HEADER_BLOCK_LEN = 16384;  // 16 KB
             static const std::size_t MAX_BODY_LEN         = 10 * 1024 * 1024;  // 10 MB
             static const std::size_t MAX_CHUNK_SIZE       = 1  * 1024 * 1024;  // 1 MB
+            static const std::string hexas;
+
         private:
             const int conn_fd;
             const char* body_dir;
             ::size_t body_bytes_parsed;
             ::size_t body_len;
+            std::string body_path;
             int body_fd;
+        private:
+            class ChunkState {
+                public:
+                    enum Type {
+                        CHUNK_SIZE,
+                        CHUNK_DATA,
+                        CHUNK_TRAIL,
+                        CHUNK_LAST
+                    };
+            };
+
+            ChunkState::Type chunk_state;
+            size_t chunk_remaining;
 
         private:
             bool headers_done;
@@ -84,6 +100,8 @@ namespace http {
             ParseResult::Type parse_request_line( void );
             ParseResult::Type parse_headers( void );
             ParseResult::Type parse_body( void );
+            ParseResult::Type parse_body_chunked( void );
+            ParseResult::Type parse_body_content_length( void );
             bool add_request_header( std::string const& s );
             bool validate_headers( void );
             ParseResult::Type scan_line( ::size_t max_bytes_allowed );
@@ -95,5 +113,7 @@ namespace http {
             static bool validate_http_version( std::string const& s );
             static void normalize_header_name( std::string& name );
             static bool validate_header_name( const std::string& name );
+            static ::size_t parse_chunk_size( const std::string& line_buff );
+            static bool is_valid_hexa( const char c );
     };
 }

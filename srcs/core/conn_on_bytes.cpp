@@ -3,11 +3,15 @@
 
 namespace core {
     
-    bool Connection::on_bytes( const char* buff, ::size_t size ) {
+    bool Connection::on_bytes( const char* buff, ::size_t bytes ) {
         // std::cout << "handling request: " << num_requests << '\n';
-        
+        if (bytes <= 0) {
+            state = CLOSING;
+            return false;
+        }
+
         while (true) {
-            http::HTTPParser::ParseResult::Type result = p.consume(buff, size);
+            http::HTTPParser::ParseResult::Type result = p.consume(buff, bytes);
             
             if (result == http::HTTPParser::ParseResult::NEED_MORE_BYTES) {
                 return true;

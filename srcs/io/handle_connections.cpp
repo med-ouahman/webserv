@@ -26,7 +26,7 @@ namespace io {
 
     bool EventLoop::remove_connections( void ) {
 
-        for ( size_t i = 0 ; i < conns.size(); ) {
+        for ( ::size_t i = 0 ; i < conns.size(); ) {
            
             if (conns[i]->desired_action().want_close) {
                 delete conns[i];
@@ -44,11 +44,9 @@ namespace io {
         core::ConnectionAction action = conn->desired_action();
         
         if (action.want_read) {
-             
             read_from_socket(*conn);
             action = conn->desired_action();
-        }
-        if (action.want_write) {
+        } if (action.want_write) {
             write_to_socket(*conn);
             action = conn->desired_action();
         }

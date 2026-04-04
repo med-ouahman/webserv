@@ -7,6 +7,8 @@ LIBS :=
 
 SRCDIR = srcs
 
+BODY_DIR = ./srcs/http/parser/.body_dir
+
 OBJDIR := obj
 
 NAME = webserv
@@ -52,7 +54,7 @@ SRCS = $(SRCDIR)/main.cpp \
 
 OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 
-all: $(NAME)
+all: $(NAME) $(BODY_DIR)
 
 a: $(NAME)
 	@clear
@@ -65,11 +67,15 @@ $(OBJDIR)/%.o: %.cpp
 $(NAME): $(OBJS)
 	$(CXX) $(CXX_FLAGS) $(INCLUDES) $(OBJS) $(LIBS) -o $(NAME)
 
+$(BODY_DIR):
+	@mkdir $(BODY_DIR)
+
 clean:
 	rm -fr $(OBJDIR)
 
 fclean: clean
 	rm -f $(NAME)
+	rm -fr $(BODY_DIR)
 
 re: fclean all
 

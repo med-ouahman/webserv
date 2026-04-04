@@ -7,9 +7,8 @@ namespace http {
 		return s == "HTTP/1.1" || s == "HTTP/1.0";
 	}
 
-	bool HTTPParser::parse_content_length( std::string const& s, size_t& body_len ) {
-		std::cout << body_len << "\n";
-		for ( size_t i = 0; i < s.length(); i++ ) {
+	bool HTTPParser::parse_content_length( std::string const& s, ::size_t& body_len ) {
+		for ( ::size_t i = 0; i < s.length(); i++ ) {
 			if (!isdigit(s[i])) {
 				return false;
 			}
@@ -18,7 +17,7 @@ namespace http {
 				return false;
 			}
 		}
-		std::cout << "body_len: " << body_len << "\n";
+
 		return true;
 	}
 
@@ -82,5 +81,36 @@ namespace http {
 			}
 		}
 		return true;
+	}
+
+	::size_t HTTPParser::parse_chunk_size( const std::string& line_buff ) {
+		
+		::size_t chunk_size = 0;
+		
+		for ( ::size_t i(0); i < line_buff.size(); ++i ) {
+
+			char c = ::tolower(line_buff[i]);
+
+			if (c == ';') {
+				break;
+			}
+
+			if (!is_valid_hexa(c)) {
+				return MAX_CHUNK_SIZE + 1;
+			}
+
+			chunk_size = chunk_size * hexas.size() + hexas.find(c);
+
+			if (chunk_size > MAX_CHUNK_SIZE) {
+				/* I will be generous and log errors later */
+				return MAX_CHUNK_SIZE + 1;
+			}
+		}
+
+		return chunk_size;
+	}
+
+	bool HTTPParser::is_valid_hexa( const char c ) {
+		return hexas.find(c) != std::string::npos;
 	}
 }

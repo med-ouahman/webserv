@@ -2,13 +2,17 @@
 
 namespace http {
 
+	const std::string HTTPParser::hexas = "0123456789abcdef";
 	
 	HTTPParser::HTTPParser( int connection_fd )
 		:conn_fd(connection_fd),
 		body_dir("./srcs/http/parser/.body_dir"),
 		body_bytes_parsed(0),
 		body_len(0),
+		body_path(""),
 		body_fd(-1),
+		chunk_state(ChunkState::CHUNK_SIZE),
+		chunk_remaining(0),
 		headers_done(false),
 		header_count(0),
 		bytes_consumed(0),
@@ -88,7 +92,7 @@ namespace http {
 				++i;
 			}
 		}
-
+		// TODO: there is a bug, you don't know that you found \r\n, yet still count for them in the append, make sure they exist then remove them ;)
 		size_t to_append = i - 2 - bytes_consumed;
 		line_buff.append(data_ + bytes_consumed, to_append); // don't store \r\n
 		bytes_consumed = i;
