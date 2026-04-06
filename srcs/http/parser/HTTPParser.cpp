@@ -14,6 +14,7 @@ namespace http {
 		chunk_state(ChunkState::CHUNK_SIZE),
 		chunk_remaining(0),
 		headers_done(false),
+		cr_found(false),
 		header_count(0),
 		bytes_consumed(0),
 		data_(NULL),
@@ -56,6 +57,7 @@ namespace http {
 	void HTTPParser::reset( void ) {
 		header_count = 0;
 		headers_done = false;
+		cr_found = false;
 		body_type = BodyType::UNSET;
 		body_len = 0;
 		body_bytes_parsed = 0;
@@ -67,40 +69,37 @@ namespace http {
 	HTTPParser::ParseResult::Type HTTPParser::scan_line( ::size_t max_bytes_allowed ) {
 		::size_t line_offset = line_buff.size();
 		::size_t i = bytes_consumed;
-		bool cr_found = false;
+		
 		bool nl_found = false;
 		if (i == len_) {
 			return ParseResult::NEED_MORE_BYTES;
 		}
 		while (i < len_) {
-			
 			if (line_offset >= max_bytes_allowed) {
 				return ParseResult::PARSE_ERROR;
 			}
-
 			line_offset++;
-
 			if (data_[i] == '\r') {
 				cr_found = true;
 				++i;
 			} else {
-				if (data_[i] == '\n' && cr_found) {
+				if (data_[i] == '\n' && cr_found && data_[i - 1] == '\r') {
 					++i;
 					nl_found = true;
+					cr_found = false;
 					break;
 				}
 				++i;
 			}
 		}
-		// TODO: there is a bug, you don't know that you found \r\n, yet still count for them in the append, make sure they exist then remove them ;)
-		size_t to_append = i - 2 - bytes_consumed;
-		line_buff.append(data_ + bytes_consumed, to_append); // don't store \r\n
+		size_t to_append = i - bytes_consumed - 1 * nl_found;
+		line_buff.append(data_ + bytes_consumed, to_append);
 		bytes_consumed = i;
 
 		if (!nl_found) {
 			return ParseResult::NEED_MORE_BYTES;
 		}
-		
+		line_buff.erase(line_buff.size() - 1, 1);
 		return ParseResult::SUCCESS;
 	}
 

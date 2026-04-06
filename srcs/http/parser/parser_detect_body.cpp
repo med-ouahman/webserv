@@ -21,7 +21,7 @@ namespace http {
 			}
 
 			return BodyType::CONTENT_LENGTH;
-		} else {
+		} else if (transfer_encoding) {
 			return BodyType::TRANSFER_ENCODING_CHUNKED;
 		}
 		

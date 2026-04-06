@@ -10,7 +10,7 @@
 namespace http {
     
     std::string send_favicon( void ) {
-        std::string body = "HTTP/1.1 200 OK\r\nContent-Type: image/x-icon\r\n";
+        std::string body = "HTTP/1.1 200 OK\r\n\r\n";
 
         int fd = open("www/favicon.ico", O_RDONLY);
         if (fd < 0) {
@@ -44,20 +44,8 @@ namespace http {
             return ;
         }
 
-        response.body = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n";
-        int f = open("www/index.html", O_RDONLY);
-        char buff[8192];
-        ssize_t b;
-        std::string body;
-        while ((b=read(f, buff,8191)) > 0) {
-            buff[b]=0;
-            body.append(buff);
-        }
-        std::stringstream ss;
-        ss << body.size();
-        response.body.append("Content-length: "+ss.str()+"\r\n\r\n");
-        response.body.append(body);
-        ::close(f);
+        response.body = "HTTP/1.1 200 OK\r\n\r\n";
+       
 
         return ;
     }

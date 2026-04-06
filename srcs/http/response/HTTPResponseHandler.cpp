@@ -14,7 +14,6 @@ namespace http {
         std::cout << "code: " << code << " reason: " << reason << "\n";
         response.status_code = code;
         response.reason = reason;
-        response.headers["Content-Length"] = "0";
         response.headers["Connection"] = "close";
     }
 

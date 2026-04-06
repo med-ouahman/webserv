@@ -32,6 +32,7 @@ namespace core {
             handler.handle_request(req);
             close_after_write = !handler.allow_presistance(close_after_write);
             state = WRITING;
+            std::cout << "sending request...\n";
             return false;
         }
 

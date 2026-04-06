@@ -44,6 +44,7 @@ namespace http {
 
         private:
             bool headers_done;
+            bool cr_found;
             size_t header_count;
             HTTPRequest request;
             std::string line_buff;
