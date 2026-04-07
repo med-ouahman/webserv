@@ -43,7 +43,6 @@ def recv_all(s, timeout=2):
 
 def parse_response(raw):
     """Returns (status_code, headers_dict, body_bytes)."""
-    print(raw)
     if b"\r\n\r\n" not in raw:
         return None, {}, b""
     header_part, body = raw.split(b"\r\n\r\n", 1)

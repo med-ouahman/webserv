@@ -49,7 +49,7 @@ namespace http {
     
         return result;
     }
-
+    int n = 0;
     HTTPParser::ParseResult::Type HTTPParser::parse_body_chunked( void ) {
 
         if (chunk_state == ChunkState::CHUNK_SIZE) {
@@ -93,6 +93,7 @@ namespace http {
         bytes_consumed += to_copy;
         
         if (body_bytes_parsed == chunk_remaining) {
+            std::cout << "chunk " << n++ << " done\n";
             body_bytes_parsed = 0;
             line_buff.clear();
             chunk_state = ChunkState::CHUNK_SIZE;

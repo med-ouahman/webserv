@@ -33,7 +33,6 @@ namespace io {
                 we could have done it in the loop above. but that would result in address curroption
                 we mark connections as closed by setting their state to CLOSING.
             */
-           
             remove_connections();
         }
     }

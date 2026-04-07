@@ -4,9 +4,11 @@
 namespace core {
     
     bool Connection::on_bytes( const char* buff, ::size_t bytes ) {
-        // std::cout << "handling request: " << num_requests << '\n';
+
         if (bytes <= 0) {
-            state = CLOSING;
+            if (bytes == 0 || errno != EAGAIN) {
+                state = CLOSING;
+            }
             return false;
         }
 
