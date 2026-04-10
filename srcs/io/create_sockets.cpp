@@ -10,37 +10,48 @@ namespace io {
 
 	int EventLoop::create_listening_socket( const config::ListenEndPoint& endpoint ) {
 		struct sockaddr_in server_addr;
-		memset(&server_addr, 0, sizeof server_addr);
+		::memset(&server_addr, 0, sizeof server_addr);
 		server_addr.sin_family = AF_INET;
-		if (!inet_pton(AF_INET, inet_ntoa((struct in_addr){ .s_addr = endpoint.host }), &server_addr.sin_addr)) {
-			perror("inet_pton");
+		// Error::Result<int> r;
+		if (!::inet_pton(AF_INET, ::inet_ntoa((struct in_addr ){ .s_addr = endpoint.host }), &server_addr.sin_addr)) {
+			// r.ok = false;
+			// r.result = -1;
+			// r.err.message = strerror(errno);
+			// r.err.context = "EventLoop::run::create_listening_socket";
+			// r.err.file = __FILE__;
+			// r.err.line = __LINE__;
+			// r.err.code = 1;
 			return -1;
 		}
-		server_addr.sin_port = htons(endpoint.port);
+
+		server_addr.sin_port = ::htons(endpoint.port);
 		int socket_fd = ::socket(AF_INET, SOCK_STREAM | O_NONBLOCK, 0);
 		if (socket_fd < 0) {
 			::perror("socket");
 			return -1;
 		}
+		
 		int yes = 1;
 		if (::setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
 			perror("setsockopt");
 			return -1;
 		}
+		
 		if (::bind(socket_fd, (struct sockaddr *)&server_addr, sizeof server_addr)){
 			perror("bind");
 			return -1;
 		}
+		
 		if (::listen(socket_fd, BACKLOG) < 0) {
 			perror("listen");
 			return -1;
 		}
-		std::cout << "Server listening on IP: " <<  inet_ntoa((struct in_addr){ .s_addr = endpoint.host }) << " port: "<< endpoint.port << '\n';
+		std::cout << "Server listening on IP: " <<  ::inet_ntoa((struct in_addr){ .s_addr = endpoint.host }) << " port: "<< endpoint.port << '\n';
 		return socket_fd;
 	}
 
 	bool EventLoop::start_listeners( void ) {
- 		for ( size_t i = 0; i < conf.server.listens.size(); i++ ) {
+ 		for ( ::size_t i(0); i < conf.server.listens.size(); ++i ) {
 			int socket_fd = create_listening_socket(conf.server.listens[i]);
 			
 			if (socket_fd < 0) {
@@ -50,7 +61,7 @@ namespace io {
 			listeners.push_back(ListeningSocket(*this, socket_fd));
 		}
 
-		for ( size_t i = 0; i < conf.server.listens.size(); ++i ) {		
+		for ( ::size_t i(0); i < conf.server.listens.size(); ++i ) {		
 			add_fd(listeners[i].get_fd(), EPOLLIN | EPOLLET, &listeners[i]);
 		}
 		

@@ -1,9 +1,10 @@
 
 #include "Connection.hpp"
+#include <cerrno>
 
 namespace core {
     
-    bool Connection::on_bytes( const char* buff, ::size_t bytes ) {
+    bool Connection::on_bytes( const char* buff, ::ssize_t bytes ) {
 
         if (bytes <= 0) {
             if (bytes == 0 || errno != EAGAIN) {
@@ -11,8 +12,9 @@ namespace core {
             }
             return false;
         }
-
+        
         while (true) {
+            
             http::HTTPParser::ParseResult::Type result = p.consume(buff, bytes);
             
             if (result == http::HTTPParser::ParseResult::NEED_MORE_BYTES) {

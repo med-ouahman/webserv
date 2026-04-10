@@ -5,5 +5,6 @@ namespace core {
 		bool want_write;
 		bool want_read;
 		bool want_close;
+		bool want_process;
 	};
 }

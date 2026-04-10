@@ -15,6 +15,7 @@ namespace http {
 		chunk_remaining(0),
 		headers_done(false),
 		cr_found(false),
+		leading_crlf(0),
 		header_count(0),
 		bytes_consumed(0),
 		data_(NULL),
@@ -27,12 +28,13 @@ namespace http {
 	HTTPParser::ParseResult::Type HTTPParser::consume( const char* buff, ::size_t size ) {
 		
 		ParseResult::Type r;
-		data_ = (char*)buff;
-		len_ = size;
-		bytes_consumed = 0;
-
+		if (bytes_consumed == len_) {
+			data_ = (char*)buff;
+			len_ = size;
+			bytes_consumed = 0;
+		}
 		if (ParseState::REQUEST_LINE == parse_state) {
-			r = parse_request_line(); // can mutate parse_state
+			r = parse_request_line();
 		}
 
 		if (ParseState::HEADERS == parse_state) {
@@ -46,7 +48,6 @@ namespace http {
 		if (ParseState::ERROR == parse_state) {
 			return ParseResult::PARSE_ERROR;
 		}
-
 		return r;
 	}
 
@@ -56,6 +57,7 @@ namespace http {
 
 	void HTTPParser::reset( void ) {
 		header_count = 0;
+		leading_crlf = 0;
 		headers_done = false;
 		cr_found = false;
 		body_type = BodyType::UNSET;
@@ -69,7 +71,10 @@ namespace http {
 	HTTPParser::ParseResult::Type HTTPParser::scan_line( ::size_t max_bytes_allowed ) {
 		::size_t line_offset = line_buff.size();
 		::size_t i = bytes_consumed;
-		
+		std::cout << "=====================\n";
+		std::cout << "size: " << len_ << "\n";
+		// std::cout << data_ << "\n";
+		std::cout << "=====================\n";
 		bool nl_found = false;
 		if (i == len_) {
 			return ParseResult::NEED_MORE_BYTES;
@@ -95,7 +100,7 @@ namespace http {
 		size_t to_append = i - bytes_consumed - 1 * nl_found;
 		line_buff.append(data_ + bytes_consumed, to_append);
 		bytes_consumed = i;
-
+		std::cout << (line_buff == "\r\n"?"yes\n":"no\n");
 		if (!nl_found) {
 			return ParseResult::NEED_MORE_BYTES;
 		}

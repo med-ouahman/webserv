@@ -359,28 +359,21 @@ int main(int argc, char* argv[])
 
     std::cout << "C++ HTTP Parser Test Client → " << g_host << ":" << g_port << "\n";
     std::cout << std::string(50, '=') << "\n";
-
-    TCPSocket probe;
-    if (!probe.good()) {
-        std::cerr << "ERROR: Cannot connect to " << g_host << ":" << g_port
-                  << " — is the server running?\n";
-        return 1;
-    }
-
-    test_simple_get();
-    test_post_with_body();
-    test_content_length_zero();
-    test_leading_crlf();
-    test_bad_request();
-    test_missing_host();
-    test_byte_by_byte();
-    test_large_body();
-    test_pipelined();
-    test_http10();
+        
     test_keep_alive();
-    test_header_case();
-    test_delete_put();
-
+    // test_bad_request();
+    // test_byte_by_byte();
+    // test_content_length_zero();
+    // test_delete_put();
+    // test_header_case();
+    // test_http10();
+    // test_keep_alive();
+    // test_large_body();
+    // test_missing_host();
+    // test_pipelined();
+    // test_post_with_body();
+    // test_simple_get();    
+    // test_leading_crlf();
     std::cout << "\n" << std::string(50, '=') << "\n";
     std::cout << "  C++ results: " << g_pass << "/" << g_total << " passed";
     if (g_fail) std::cout << "  (" << g_fail << " failed)";

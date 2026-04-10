@@ -7,8 +7,8 @@
 
 void clear( int a ) {
     if ( a== SIGQUIT){
-
         system("clear");
+
     }
 }
 

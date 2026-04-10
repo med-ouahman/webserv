@@ -1,6 +1,7 @@
 
 #include "HTTPRequest.hpp"
 #include <unistd.h>
+#include <iostream>
 
 namespace http {
 
@@ -44,6 +45,7 @@ namespace http {
 
 	bool HTTPRequest::want_keep_alive( void ) {
 		if (version == "HTTP/1.1") {
+			std::cout << "true\n";
 			return headers["connection"] != "close";
 		} else if (version == "HTTP/1.0") {
 			return headers["connection"] == "keep-alive";

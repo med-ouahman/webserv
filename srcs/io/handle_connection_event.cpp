@@ -3,30 +3,29 @@
 #include "EventLoop.hpp"
 
 namespace io {
-
+    int n = 0;
     void EventLoop::read_from_socket( core::Connection& conn ) {
         ssize_t bytes;
         char buff[READ_BUFFER_SIZE];
-        int n=0;
-        while ((bytes = ::read(conn.get_fd(), buff, READ_BUFFER_SIZE - 1)) > 0) {
+        std::cout << "reading\n";
+        while (true) {
+            bytes = ::read(conn.get_fd(), buff, READ_BUFFER_SIZE);
 
-            buff[bytes] = n;
-            
+            write(1, buff, bytes < 0 ? 0: bytes);
+
             if (!conn.on_bytes(buff, bytes)) {
                 break;
             }
-            
         }
         
     }
 
     void EventLoop::write_to_socket( core::Connection& conn ) {
         
-        ssize_t bytes_sent = 0;
         
+        ssize_t bytes_sent = 0;
         while (true) {
-            
-             if (!conn.has_data(bytes_sent)) {
+            if (!conn.has_data(bytes_sent)) {
                 break;
             }
 
@@ -34,7 +33,6 @@ namespace io {
                 conn.get_write_buff(),
                 conn.bytes_remaining()
             );
-            
         }
 
     }

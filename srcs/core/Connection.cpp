@@ -27,7 +27,7 @@ namespace core {
 
     ConnectionAction Connection::desired_action( void ) const {
 
-        ConnectionAction action = { false, false, false };
+        ConnectionAction action = { false, false, false, false };
         
         switch (state) {
             case READING:

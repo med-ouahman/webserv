@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include "ListeningSocket.hpp"
 #include "Config.hpp"
+#include "Result.hpp"
 
 namespace core {
 	class Connection;

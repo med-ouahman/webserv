@@ -19,6 +19,7 @@ namespace http {
             static const std::size_t MAX_HEADER_BLOCK_LEN = 16384;  // 16 KB
             static const std::size_t MAX_BODY_LEN         = 10 * 1024 * 1024;  // 10 MB
             static const std::size_t MAX_CHUNK_SIZE       = 1  * 1024 * 1024;  // 1 MB
+            static const std::size_t MAX_LEADING_CRLF     = 5;
             static const std::string hexas;
 
         private:
@@ -28,6 +29,7 @@ namespace http {
             ::size_t body_len;
             std::string body_path;
             int body_fd;
+
         private:
             class ChunkState {
                 public:
@@ -45,12 +47,13 @@ namespace http {
         private:
             bool headers_done;
             bool cr_found;
-            size_t header_count;
+            ::size_t leading_crlf;
+            ::size_t header_count;
             HTTPRequest request;
             std::string line_buff;
-            size_t bytes_consumed;
+            ::size_t bytes_consumed;
             char* data_;
-            size_t len_;
+            ::size_t len_;
 
         private:
             class ParseState {
@@ -98,19 +101,19 @@ namespace http {
             void reset( void );
             
         private:
+            ParseResult::Type scan_line( ::size_t max_bytes_allowed );
             ParseResult::Type parse_request_line( void );
             ParseResult::Type parse_headers( void );
             ParseResult::Type parse_body( void );
+            BodyType::Type    detect_body_type( void );
             ParseResult::Type parse_body_chunked( void );
             ParseResult::Type parse_body_content_length( void );
-            bool add_request_header( std::string const& s );
-            bool validate_headers( void );
-            ParseResult::Type scan_line( ::size_t max_bytes_allowed );
-            BodyType::Type detect_body_type( void );
+            bool              add_request_header( std::string const& s );
+            bool              validate_headers( void );
 
         private:
             /* stateless helpers. */
-            static bool parse_content_length( std::string const& s, size_t& body_len );
+            static bool parse_content_length( std::string const& s, ::size_t& body_len );
             static bool validate_http_version( std::string const& s );
             static void normalize_header_name( std::string& name );
             static bool validate_header_name( const std::string& name );

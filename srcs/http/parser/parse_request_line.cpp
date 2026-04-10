@@ -6,9 +6,17 @@ namespace http {
 
 	HTTPParser::ParseResult::Type HTTPParser::parse_request_line( void ) {
 
-		ParseResult::Type scan_res = scan_line(MAX_REQUEST_LINE_LEN);
-		if (scan_res != ParseResult::SUCCESS) {
-			return scan_res;
+		while (true) {
+			ParseResult::Type scan_res = scan_line(MAX_REQUEST_LINE_LEN);
+			if (scan_res != ParseResult::SUCCESS) {
+				return scan_res;
+			}
+			if (line_buff.empty() && leading_crlf < MAX_LEADING_CRLF) {
+				leading_crlf++;
+				continue;
+			} else {
+				break;
+			}
 		}
 
 		::size_t cursor = 0;
@@ -29,14 +37,14 @@ namespace http {
 		if (request.method == UNKNOWN) {
 			return ParseResult::PARSE_ERROR;
 		}
-		++cursor; // skip the white spae
+		++cursor;
 		line_offset = cursor;
 		::size_t uri_len = 0;
 		while (cursor < line_buff.size() && line_buff[cursor] != ' ' && uri_len <= MAX_URI_LEN) {
 			++uri_len;
 			++cursor;
 		}
-		
+
 		if (cursor == line_offset || uri_len > MAX_URI_LEN) {
 			return ParseResult::PARSE_ERROR;
 		}
@@ -59,7 +67,6 @@ namespace http {
 		
 		request.version = line_buff.substr(line_offset, version_len);
 		line_buff.clear();
-
 		parse_state = ParseState::HEADERS;
 		return ParseResult::SUCCESS;
 	}

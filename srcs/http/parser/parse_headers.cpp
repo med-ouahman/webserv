@@ -11,7 +11,6 @@ namespace http {
             if (r != ParseResult::SUCCESS) {
                 return r;
             }
-
             if (line_buff.size() == 0) {
                 headers_done = true;
                 break;
@@ -19,12 +18,14 @@ namespace http {
 
             ::size_t name_len = 0;
             ::size_t cursor = 0;
-            while (cursor < line_buff.size() && line_buff[cursor] != ':' && name_len <= MAX_HEADER_NAME_LEN) {
+            while (cursor < line_buff.size() && line_buff[cursor] != ':') {
                 ++cursor;
                 ++name_len;
+                if (name_len > MAX_HEADER_BLOCK_LEN) {
+                    return ParseResult::PARSE_ERROR;
+                }
             }
-        
-            if (cursor == 0 || name_len > MAX_HEADER_NAME_LEN) {
+            if (cursor == line_buff.size() || line_buff[cursor] != ':') {
                 return ParseResult::PARSE_ERROR;
             }
         
@@ -32,17 +33,22 @@ namespace http {
             if (!validate_header_name(name)) {
                 return ParseResult::PARSE_ERROR;
             }
-            
             normalize_header_name(name);
+            
             ::size_t start = cursor + 1;
             ::size_t end = line_buff.size() - 1;
+            ::size_t __n = 0;
             
-            while (isspace(line_buff[start]) && start < line_buff.size()) ++start;
-            
-            while (isspace(line_buff[end]) && end >= start) --end;
+            while (::isspace(line_buff[start]) && start < line_buff.size()) ++start;
+            while (::isspace(line_buff[end]) && end >= start) --end;
 
-            request.headers[name] = line_buff.substr(start, end - start + 1);
-            
+            if (start == end  && !::isspace(line_buff[start])) {
+                __n = 1;
+            } else {
+                __n = end - start + 1;
+            }
+            request.headers[name] = line_buff.substr(start, __n);
+    
             line_buff.clear();
         }
     
@@ -55,6 +61,6 @@ namespace http {
             std::cout << (*it).first << ": " << (*it).second << "\n";
         }
         parse_state = ParseState::BODY;
-        return ParseResult::ParseResult::SUCCESS;
+        return ParseResult::SUCCESS;
     }
 }
