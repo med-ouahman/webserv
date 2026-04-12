@@ -10,12 +10,12 @@ namespace http {
 
         if (BodyType::UNSET == body_type) {
             body_type = detect_body_type();
-            std::cout << (body_type == BodyType::CONTENT_LENGTH ? "CONTENT-LENGHT\n": "SOME OTHER TYPE!\n");
+            // std::cout << (body_type == BodyType::CONTENT_LENGTH ? "CONTENT-LENGHT\n": "SOME OTHER TYPE!\n");
             if (body_type == BodyType::ERROR) {
                 return ParseResult::PARSE_ERROR;
             }
             if (body_type == BodyType::NONE) {
-                std::cout << "none type\n";
+                // std::cout << "none type\n";
                 return ParseResult::SUCCESS;
             }
             std::stringstream ss;

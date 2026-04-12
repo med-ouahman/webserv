@@ -39,17 +39,20 @@ namespace io {
         return true;
     }
 
-    void EventLoop::apply_connection_actions( core::Connection* conn ) {
+    bool EventLoop::apply_connection_actions( core::Connection* conn ) {
         
         core::ConnectionAction action = conn->desired_action();
         
         if (action.want_read) {
             read_from_socket(*conn);
             action = conn->desired_action();
-        } if (action.want_write) {
-            write_to_socket(*conn);
         }
-     
+        
+        if (action.want_write) {
+            write_to_socket(*conn);
+            action = conn->desired_action();
+        }
+        return action.want_process;
     }
 
     void EventLoop::update_epoll_interest( core::Connection* conn )  {
@@ -57,19 +60,15 @@ namespace io {
         uint32_t new_mask = EPOLLIN | EPOLLET;
         core::ConnectionAction action = conn->desired_action();
         
+        if (action.want_process) {
+            return ;
+        }
         if (action.want_write) {
             new_mask = EPOLLOUT | EPOLLET;
         }
-
         if (action.want_close) {
             return ;
         }
-        
-        if (action.want_process) {
-            conn->on_bytes(NULL, 0);
-            return ;
-        }
-        
         if (new_mask != conn->get_mask()) {
             mod_fd(conn->get_fd(), new_mask, conn);
             conn->set_mask(new_mask);

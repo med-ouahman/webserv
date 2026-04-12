@@ -77,6 +77,9 @@ struct TCPSocket
         ssize_t n;
         while ((n = ::recv(fd, buf, sizeof buf, 0)) > 0)
             result.append(buf, static_cast<size_t>(n));
+        if (n < 0) {
+            std::cerr << "ERROR: " << strerror(errno) << "\n";
+        }
         return result;
     }
 
@@ -283,13 +286,13 @@ void test_http10()
     check("HTTP/1.0 — valid status code", parse_status(resp) > 0);
 }
 
-void test_keep_alive()
+void test_keep_alive( int n )
 {
     suite("Keep-alive: 4 requests on one connection");
     TCPSocket s;
     if (!s.good()) { check("connect", false); return; }
 
-    for (int i = 1; i <= 4; ++i) {
+    for (int i = 1; i <= n; ++i) {
         std::string conn = (i < 4) ? "keep-alive" : "close";
         s.send_all("GET /ka/cpp/" + std::to_string(i) + " HTTP/1.1\r\n"
                    "Host: localhost\r\n"
@@ -297,8 +300,10 @@ void test_keep_alive()
     }
 
     auto resp  = s.recv_all();
+    std::cout << resp << "\n";
     int  count = count_occurrences(resp, "HTTP/1.");
-    check("All 4 keep-alive responses received", count == 4, "got " + std::to_string(count));
+    check("All 4 keep-alive responses received", count == n, "got " + std::to_string(count));
+    
 }
 
 void test_header_case()
@@ -360,7 +365,7 @@ int main(int argc, char* argv[])
     std::cout << "C++ HTTP Parser Test Client → " << g_host << ":" << g_port << "\n";
     std::cout << std::string(50, '=') << "\n";
         
-    test_keep_alive();
+    test_keep_alive(4);
     // test_bad_request();
     // test_byte_by_byte();
     // test_content_length_zero();

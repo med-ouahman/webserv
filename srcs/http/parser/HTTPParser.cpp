@@ -25,14 +25,10 @@ namespace http {
 
 	HTTPParser::~HTTPParser() {}
 
-	HTTPParser::ParseResult::Type HTTPParser::consume( const char* buff, ::size_t size ) {
+	HTTPParser::ParseResult::Type HTTPParser::consume( void ) {
 		
 		ParseResult::Type r;
-		if (bytes_consumed == len_) {
-			data_ = (char*)buff;
-			len_ = size;
-			bytes_consumed = 0;
-		}
+	
 		if (ParseState::REQUEST_LINE == parse_state) {
 			r = parse_request_line();
 		}
@@ -44,7 +40,6 @@ namespace http {
 		if (ParseState::BODY == parse_state) {
 			r = parse_body();
 		}
-
 		if (ParseState::ERROR == parse_state) {
 			return ParseResult::PARSE_ERROR;
 		}
@@ -71,36 +66,33 @@ namespace http {
 	HTTPParser::ParseResult::Type HTTPParser::scan_line( ::size_t max_bytes_allowed ) {
 		::size_t line_offset = line_buff.size();
 		::size_t i = bytes_consumed;
-		std::cout << "=====================\n";
-		std::cout << "size: " << len_ << "\n";
-		// std::cout << data_ << "\n";
-		std::cout << "=====================\n";
 		bool nl_found = false;
+
 		if (i == len_) {
 			return ParseResult::NEED_MORE_BYTES;
 		}
+		
 		while (i < len_) {
 			if (line_offset >= max_bytes_allowed) {
 				return ParseResult::PARSE_ERROR;
 			}
 			line_offset++;
 			if (data_[i] == '\r') {
-				cr_found = true;
 				++i;
+				cr_found = true;
+			} else if (data_[i] == '\n' && cr_found) {
+				nl_found = true;
+				cr_found = false;
+				++i;
+				break;
 			} else {
-				if (data_[i] == '\n' && cr_found && data_[i - 1] == '\r') {
-					++i;
-					nl_found = true;
-					cr_found = false;
-					break;
-				}
+				cr_found = false;
 				++i;
 			}
-		}
-		size_t to_append = i - bytes_consumed - 1 * nl_found;
+		}		
+		::size_t to_append = i - bytes_consumed - 1 * nl_found;
 		line_buff.append(data_ + bytes_consumed, to_append);
 		bytes_consumed = i;
-		std::cout << (line_buff == "\r\n"?"yes\n":"no\n");
 		if (!nl_found) {
 			return ParseResult::NEED_MORE_BYTES;
 		}
@@ -108,5 +100,14 @@ namespace http {
 		return ParseResult::SUCCESS;
 	}
 
+	void HTTPParser::set_data_buff( const char* buff, ::size_t size ) {
+		data_ = (char *)buff;
+		len_ = size;
+		bytes_consumed = 0;
+	}
+
+	std::size_t HTTPParser::get_bytes_consumed( void ) const {
+		return bytes_consumed;
+	}
 }
 

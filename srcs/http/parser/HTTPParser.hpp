@@ -42,7 +42,7 @@ namespace http {
             };
 
             ChunkState::Type chunk_state;
-            size_t chunk_remaining;
+            ::size_t chunk_remaining;
 
         private:
             bool headers_done;
@@ -96,9 +96,11 @@ namespace http {
 
             explicit HTTPParser( int connection_fd );
             ~HTTPParser();
-            ParseResult::Type consume( const char* buff, ::size_t size );
+            ParseResult::Type consume( void );
             HTTPRequest get_request() const;
             void reset( void );
+            void set_data_buff( const char* buff, ::size_t size );
+            ::size_t get_bytes_consumed( void ) const;
             
         private:
             ParseResult::Type scan_line( ::size_t max_bytes_allowed );

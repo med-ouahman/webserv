@@ -1,10 +1,11 @@
 
 #include "Connection.hpp"
 #include <cerrno>
-
+#include <cerrno>
+#include <string.h>
 namespace core {
 
-    bool Connection::has_data( ssize_t sent_bytes ) {
+    bool Connection::has_data( ::ssize_t sent_bytes ) {
 
         if (sent_bytes < 0) {
             if (errno != EAGAIN) {

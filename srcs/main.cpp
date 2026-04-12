@@ -5,6 +5,11 @@
 #include <signal.h>
 #include <stdlib.h>
 
+/*
+
+for tomorrow, please make sure that you reset your buffer data when the parser returns NEED_MORE_BYTES.
+*/
+
 void clear( int a ) {
     if ( a== SIGQUIT){
         system("clear");
@@ -19,6 +24,7 @@ int main( int argc, char** argv ) {
         return 1;
     }
     signal(SIGQUIT, clear);
+    signal(SIGPIPE, SIG_IGN);
     const char* config_file = argv[1];
     if (!config_file) {
         config_file = "./config/default.conf";

@@ -1,6 +1,7 @@
 CXX := c++
 
-CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 -g
+DEBUG := -g3 -O0
+CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 $(DEBUG)
 
 # Libraries we might link against in the future, for now just a placeholder
 LIBS := 

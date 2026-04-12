@@ -6,7 +6,7 @@
 
 namespace http {
 
-    HTTPResponseHandler::HTTPResponseHandler(): allow_keep_alive(true) {}
+    HTTPResponseHandler::HTTPResponseHandler(): allow_keep_alive(true), serialize_state(DONE) {}
 
     HTTPResponseHandler::~HTTPResponseHandler() {}
 

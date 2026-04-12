@@ -35,6 +35,7 @@ namespace http {
 		request.method = request.get_method(method);
 		
 		if (request.method == UNKNOWN) {
+			std::cout << "unknown method\n";
 			return ParseResult::PARSE_ERROR;
 		}
 		++cursor;
@@ -54,14 +55,11 @@ namespace http {
 		++cursor;
 		line_offset = cursor;
 		::size_t version_len = 0;
-
 		while (cursor < line_buff.size() && version_len <= MAX_VERSION_LEN) {
 			++version_len;
 			++cursor;
 		}
-
 		if (cursor == line_offset || version_len > MAX_VERSION_LEN) {
-			
 			return ParseResult::PARSE_ERROR;
 		}
 		

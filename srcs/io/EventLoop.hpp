@@ -17,7 +17,6 @@ namespace io {
 
 	class EventLoop {
 		private:
-			const static size_t READ_BUFFER_SIZE = 1024 * 16;
 			const static size_t MAX_EVENTS = 128;
 
 		private:
@@ -39,7 +38,7 @@ namespace io {
 
 		private:
 			bool remove_connections( void );
-			void apply_connection_actions( core::Connection* conn );
+			bool apply_connection_actions( core::Connection* conn );
 			void update_epoll_interest( core::Connection* conn );
 			
 		public:

@@ -4,10 +4,10 @@
 namespace http {
 
     HTTPParser::ParseResult::Type HTTPParser::parse_headers( void ) {
-
+       
         while (!headers_done) {
-
-            ParseResult::Type r = scan_line(MAX_HEADER_BLOCK_LEN);
+            
+            ParseResult::Type r = scan_line(MAX_HEADER_BLOCK_LEN);   
             if (r != ParseResult::SUCCESS) {
                 return r;
             }
@@ -15,7 +15,6 @@ namespace http {
                 headers_done = true;
                 break;
             }
-
             ::size_t name_len = 0;
             ::size_t cursor = 0;
             while (cursor < line_buff.size() && line_buff[cursor] != ':') {
@@ -56,10 +55,10 @@ namespace http {
             return ParseResult::PARSE_ERROR;
         }
         
-        std::cout << "Headers:\n";
-        for (std::map<std::string, std::string>::iterator it = request.headers.begin(); it != request.headers.end(); ++it) {
-            std::cout << (*it).first << ": " << (*it).second << "\n";
-        }
+        // std::cout << "Headers:\n";
+        // for (std::map<std::string, std::string>::iterator it = request.headers.begin(); it != request.headers.end(); ++it) {
+        //     std::cout << (*it).first << ": " << (*it).second << "\n";
+        // }
         parse_state = ParseState::BODY;
         return ParseResult::SUCCESS;
     }

@@ -44,8 +44,8 @@ namespace http {
             return ;
         }
 
-        response.body = "HTTP/1.1 200 OK\r\n\r\n";
-       
+        response.body.append("HTTP/1.1 200 OK\r\n\r\n");
+    
 
         return ;
     }

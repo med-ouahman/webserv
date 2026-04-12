@@ -9,9 +9,7 @@ namespace io {
         struct epoll_event events[MAX_EVENTS];
         running = start_listeners();
         while (running) {
-
             int n = ::epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
-       
             for ( int i(0); i < n; ++i ) {
                 IOHandler* handler = static_cast<IOHandler*>(events[i].data.ptr);
                 if (events[i].events & EPOLLIN) {
@@ -24,7 +22,7 @@ namespace io {
             }
 
             for ( ::size_t i(0); i < conns.size(); ++i ) {
-                apply_connection_actions(conns.at(i));
+                while (apply_connection_actions(conns.at(i)));
                 update_epoll_interest(conns.at(i));
             }
             
