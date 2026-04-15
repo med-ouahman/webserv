@@ -17,8 +17,9 @@ namespace io {
 
 	class EventLoop {
 		private:
-			const static size_t MAX_EVENTS = 128;
-
+			const static ::size_t MAX_EVENTS = 128;
+			const static ::size_t MAX_TIMEOUT_MS = 10000;
+			
 		private:
 			int epoll_fd;
 			bool running;
@@ -40,6 +41,7 @@ namespace io {
 			bool remove_connections( void );
 			bool apply_connection_actions( core::Connection* conn );
 			void update_epoll_interest( core::Connection* conn );
+			void sweep( void );
 			
 		public:
 			bool add_fd( int fd, uint32_t events, IOHandler* handler );
@@ -48,7 +50,7 @@ namespace io {
 			bool del_fd( int fd );
 			explicit EventLoop( const config::Config& conf );
 			~EventLoop();
-			void run( void ); 
+			int run( void ); 
 
 	};
 }

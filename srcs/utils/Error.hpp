@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Error
+namespace error
 {
 
 struct Error {

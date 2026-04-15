@@ -7,6 +7,7 @@
 #include "HTTPParser.hpp"
 #include "HTTPResponseHandler.hpp"
 #include "ConnectionStateMachine.hpp"
+#include "CGIHandler.hpp"
 
 namespace config {
     struct ServerConfig;
@@ -16,12 +17,14 @@ namespace core {
 
     class Connection: public io::IOHandler {
         public:
-            explicit Connection( int fd, const config::ServerConfig* conf, uint32_t mask );
+            explicit Connection( int fd, const config::ServerConfig* conf, uint32_t mask, const io::EventLoop& loop );
             ~Connection();
             const static std::size_t READ_BUFFER_SIZE = 1024 * 16;
+
         private:
             const static std::size_t SEND_CHUNK_SIZE = 1024 * 16;
             const static std::size_t MAX_REQUESTS = 100;
+        
         private:
             /* epoll */
             int fd;
@@ -39,13 +42,20 @@ namespace core {
         private:
             /* Output */
             char output_buff[SEND_CHUNK_SIZE];
-            ::size_t bytes_in_buff;
+            ::ssize_t bytes_in_buff;
             ::size_t sent_offset;
         private:
             /* input */
             char read_buff[READ_BUFFER_SIZE];
             ::size_t bytes_received;
-            bool buff_drained;
+            bool read_buff_drained;
+
+        private:
+            /* CGI */
+            http::CGIHandler cgi_handler;
+            
+        private:
+            bool progress;
 
         private:
             bool advance( void );

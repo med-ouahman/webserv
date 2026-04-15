@@ -4,12 +4,16 @@
 
 namespace io {
 
-    void EventLoop::run( void ) {
+    int EventLoop::run( void ) {
 
         struct epoll_event events[MAX_EVENTS];
         running = start_listeners();
         while (running) {
-            int n = ::epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+            int n = ::epoll_wait(epoll_fd, events, MAX_EVENTS, MAX_TIMEOUT_MS);
+            if (n < 0) {
+                return 1;
+            }
+
             for ( int i(0); i < n; ++i ) {
                 IOHandler* handler = static_cast<IOHandler*>(events[i].data.ptr);
                 if (events[i].events & EPOLLIN) {
@@ -31,7 +35,9 @@ namespace io {
                 we could have done it in the loop above. but that would result in address curroption
                 we mark connections as closed by setting their state to CLOSING.
             */
+
             remove_connections();
         }
+        return 0;
     }
 }

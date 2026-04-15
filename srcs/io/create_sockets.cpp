@@ -12,7 +12,7 @@ namespace io {
 		struct sockaddr_in server_addr;
 		::memset(&server_addr, 0, sizeof server_addr);
 		server_addr.sin_family = AF_INET;
-		// Error::Result<int> r;
+		// error::Result<int> r;
 		if (!::inet_pton(AF_INET, ::inet_ntoa((struct in_addr ){ .s_addr = endpoint.host }), &server_addr.sin_addr)) {
 			// r.ok = false;
 			// r.result = -1;

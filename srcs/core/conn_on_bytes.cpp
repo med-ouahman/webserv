@@ -8,14 +8,16 @@ namespace core {
         if (CLOSING == state) {
             return false;
         }
+
         if (p.get_bytes_consumed() == 0) {
             p.set_data_buff(read_buff, bytes_received);
         }
+        
         state = READING;
         while (true) {
             http::HTTPParser::ParseResult::Type result = p.consume();
             if (result == http::HTTPParser::ParseResult::NEED_MORE_BYTES) {
-                buff_drained = true;
+                read_buff_drained = true;
                 return true;
             } else if (result == http::HTTPParser::ParseResult::PARSE_ERROR) {
                 handler.build_error_response(http::BAD_REQUEST, "Bad request");
@@ -30,7 +32,7 @@ namespace core {
             close_after_write = !req.want_keep_alive();
             handler.handle_request(req);
             close_after_write = !handler.allow_presistance(close_after_write);
-            buff_drained = p.get_bytes_consumed() == bytes_received;
+            read_buff_drained = p.get_bytes_consumed() == bytes_received;
             state = WRITING;
             return false;
         }

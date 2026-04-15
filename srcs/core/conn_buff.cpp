@@ -8,12 +8,8 @@ namespace core {
     bool Connection::has_data( ::ssize_t sent_bytes ) {
 
         if (sent_bytes < 0) {
-            if (errno != EAGAIN) {
-                state = CLOSING;
-            }
             return false;
         }
-
         sent_offset += sent_bytes;
         bytes_in_buff -= sent_bytes;
         if (0 == bytes_in_buff) {
@@ -23,8 +19,6 @@ namespace core {
             }
             if (close_after_write) {
                 state = CLOSING;
-            } else {
-                state = READING;
             }
             return false;
         }

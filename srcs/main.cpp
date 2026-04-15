@@ -5,10 +5,6 @@
 #include <signal.h>
 #include <stdlib.h>
 
-/*
-
-for tomorrow, please make sure that you reset your buffer data when the parser returns NEED_MORE_BYTES.
-*/
 
 void clear( int a ) {
     if ( a== SIGQUIT){
@@ -20,7 +16,7 @@ void clear( int a ) {
 
 int main( int argc, char** argv ) {
     if (argc > 2) {
-        std::cerr << "Usage:\n./webserv [ configuration file ]";
+        std::cerr << "Usage:\n./webserv [ configuration file ]\n";
         return 1;
     }
     signal(SIGQUIT, clear);
@@ -33,6 +29,5 @@ int main( int argc, char** argv ) {
     config::Config conf = config::ConfigParser::build_default_config();
     #endif
     io::EventLoop event_poop(conf);
-    event_poop.run();
-    return 0x0;
+    return event_poop.run();
 }

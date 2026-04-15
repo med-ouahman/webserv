@@ -26,13 +26,12 @@ namespace io {
 
     bool EventLoop::remove_connections( void ) {
 
-        for ( ::size_t i = 0 ; i < conns.size(); ) {
-           
+        for ( ::size_t i = 0; i < conns.size(); ) {
             if (conns[i]->desired_action().want_close) {
                 delete conns[i];
                 conns.erase(conns.begin() + i);
             } else {
-                i++;
+                ++i;
             }
         }
        
@@ -52,12 +51,13 @@ namespace io {
             write_to_socket(*conn);
             action = conn->desired_action();
         }
+
         return action.want_process;
     }
 
-    void EventLoop::update_epoll_interest( core::Connection* conn )  {
+    void EventLoop::update_epoll_interest( core::Connection* conn ) {
 
-        uint32_t new_mask = EPOLLIN | EPOLLET;
+        ::uint32_t new_mask = EPOLLIN | EPOLLET;
         core::ConnectionAction action = conn->desired_action();
         
         if (action.want_process) {
@@ -69,6 +69,7 @@ namespace io {
         if (action.want_close) {
             return ;
         }
+
         if (new_mask != conn->get_mask()) {
             mod_fd(conn->get_fd(), new_mask, conn);
             conn->set_mask(new_mask);

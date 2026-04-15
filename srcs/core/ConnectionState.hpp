@@ -10,6 +10,7 @@ namespace core {
 		READY_TO_WRITE,
 		WRITING,
 		WRITE_COMPLETE,
+		IDLE,
 		ERROR,
 		CLOSING,
 	};

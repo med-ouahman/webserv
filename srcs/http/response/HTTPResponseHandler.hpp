@@ -34,12 +34,15 @@ namespace http {
                 int status_code;
                 std::string path;
             };
+            ::size_t offset_; /* How much bytes are sent in the response.*/
+            
         public:
             enum SerializeState {
                 HEADERS,
                 BODY,
                 DONE
             } serialize_state;
+
         private:
             static ResolutionResult resolve( const HTTPRequest& req, const config::ServerConfig& server );
             static const config::LocationConfig* find_location( const std::string& url,
@@ -50,7 +53,7 @@ namespace http {
             void serialize( void );
             void build_error_response( HTTPStatusCode code, std::string reason );
             void handle_request( const HTTPRequest& req );
-            size_t produce( char* buff, size_t max_size );
+            ::ssize_t produce( char* buff, size_t max_size );
             bool allow_presistance( bool req_close_after_write ) { return allow_keep_alive && !req_close_after_write; };
             
     };

@@ -7,7 +7,7 @@
 
 namespace core {
     
-    Connection::Connection( int fd, const config::ServerConfig* conf, uint32_t mask )
+    Connection::Connection( int fd, const config::ServerConfig* conf, uint32_t mask, const io::EventLoop& loop )
         :fd(fd),
         event_mask(mask),
         state(ACCEPTED),
@@ -18,7 +18,9 @@ namespace core {
         bytes_in_buff(0),
         sent_offset(0),
         bytes_received(0),
-        buff_drained(true) {}
+        read_buff_drained(true),
+        cgi_handler(loop, *this),
+        progress(false) {}
 
     Connection::~Connection() {
         if (fd >= 0) {
@@ -28,11 +30,12 @@ namespace core {
     }
 
     ConnectionAction Connection::desired_action( void ) const {
-
+        
         ConnectionAction action = { false, false, false, false };
-        if (!buff_drained) {
+        if (!read_buff_drained) {
             action.want_process = true;
         }
+
         switch (state) {
             case READING:
                 action.want_read = true;
@@ -46,7 +49,6 @@ namespace core {
             default:
                 break;
         }
-    
         return action;
     }
 
@@ -56,17 +58,17 @@ namespace core {
 
     bool Connection::set_readbuff( ::ssize_t bytes ) {
         if (bytes <= 0) {
-            if (bytes == 0 || errno != EAGAIN) {
+            if (bytes == 0) {
                 state = CLOSING;
             }
             return false;
         }
         bytes_received = bytes;
-        buff_drained = false;
+        read_buff_drained = false;
         return true;
     }
 
     bool Connection::read_buff_empty() const {
-        return buff_drained;
+        return read_buff_drained;
     }
 }
