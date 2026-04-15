@@ -1,3 +1,4 @@
+# Build rules for the srcs/config example parser
 NAME1 = webserv
 
 CC = c++

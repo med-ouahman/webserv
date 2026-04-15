@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <iostream>
+#include <arpa/inet.h>
 
 namespace config {
 
@@ -23,6 +24,53 @@ Token ConfigParser::expect(TokenType type)
     return tokens[pos++];
 }
 
+static uint16_t parsePort(const std::string& value)
+{
+    char* end = 0;
+    long port = std::strtol(value.c_str(), &end, 10);
+    if (*end != '\0' || port <= 0 || port > 65535)
+        throw std::runtime_error("Invalid port value");
+    return static_cast<uint16_t>(port);
+}
+
+static size_t parseSize(const std::string& value)
+{
+    char* end = 0;
+    unsigned long number = std::strtoul(value.c_str(), &end, 10);
+    if (end == value.c_str())
+        throw std::runtime_error("Invalid size value");
+
+    unsigned long multiplier = 1;
+    if (*end != '\0')
+    {
+        if (end[1] != '\0')
+            throw std::runtime_error("Invalid size suffix");
+
+        switch (*end)
+        {
+            case 'K': case 'k': multiplier = 1024UL; break;
+            case 'M': case 'm': multiplier = 1024UL * 1024UL; break;
+            case 'G': case 'g': multiplier = 1024UL * 1024UL * 1024UL; break;
+            default:
+                throw std::runtime_error("Invalid size suffix");
+        }
+    }
+
+    unsigned long result = number * multiplier;
+    if (multiplier > 1 && result / multiplier != number)
+        throw std::runtime_error("Size value overflow");
+
+    return static_cast<size_t>(result);
+}
+
+static uint32_t parseHost(const std::string& value)
+{
+    struct in_addr addr;
+    if (inet_aton(value.c_str(), &addr) == 0)
+        throw std::runtime_error("Invalid listen address");
+    return addr.s_addr;
+}
+
 Config ConfigParser::parse(const char* path)
 {
     Lexer lexer;
@@ -35,15 +83,13 @@ Config ConfigParser::parse(const char* path)
 
     while (pos < tokens.size())
     {
-        // std::cout << "type : " << tokens[pos].type << " -- value : " << tokens[pos].value << std::endl;
-        if (tokens[pos].value == "server")
+        if (tokens[pos].type == WORD && tokens[pos].value == "server")
         {
             pos++;
             conf.servers.push_back(parseServer());
         }
         else
             throw std::runtime_error("Expected server block");
-        pos++;
     }
 
     return conf;
@@ -81,9 +127,21 @@ void ConfigParser::parseDirective(ServerConfig& server)
 
     if (key == "listen")
     {
+        std::string target = expect(WORD).value;
         ListenEndPoint ep;
-        ep.host = 0;
-        ep.port = atoi(expect(WORD).value.c_str());
+
+        size_t colon = target.find(':');
+        if (colon == std::string::npos)
+        {
+            ep.host = 0;
+            ep.port = parsePort(target);
+        }
+        else
+        {
+            ep.host = parseHost(target.substr(0, colon));
+            ep.port = parsePort(target.substr(colon + 1));
+        }
+
         server.listens.push_back(ep);
     }
 
@@ -108,7 +166,33 @@ void ConfigParser::parseDirective(ServerConfig& server)
 
     else if (key == "client_max_body_size")
     {
-        server.client_max_body_size = atoi(expect(WORD).value.c_str());
+        server.client_max_body_size = parseSize(expect(WORD).value);
+    }
+
+    else if (key == "session_enabled")
+    {
+        std::string value = expect(WORD).value;
+        if (value == "on")
+            server.session_enabled = true;
+        else if (value == "off")
+            server.session_enabled = false;
+        else
+            throw std::runtime_error("Invalid session_enabled value");
+    }
+
+    else if (key == "session_cookie_name")
+    {
+        server.session_cookie_name = expect(WORD).value;
+    }
+
+    else if (key == "session_timeout")
+    {
+        server.session_timeout = parseSize(expect(WORD).value);
+    }
+
+    else if (key == "session_store")
+    {
+        server.session_store = expect(WORD).value;
     }
 
     else if (key == "error_page")
@@ -157,6 +241,54 @@ void ConfigParser::parseLocationDirective(LocationConfig& loc)
     {
         loc.redirect.return_code = atoi(expect(WORD).value.c_str());
         loc.redirect.return_target = expect(WORD).value;
+    }
+
+    else if (key == "autoindex")
+    {
+        std::string value = expect(WORD).value;
+        if (value == "on")
+            loc.autoindex = true;
+        else if (value == "off")
+            loc.autoindex = false;
+        else
+            throw std::runtime_error("Invalid autoindex value");
+    }
+
+    else if (key == "upload_enable")
+    {
+        std::string value = expect(WORD).value;
+        if (value == "on")
+            loc.upload_enabled = true;
+        else if (value == "off")
+            loc.upload_enabled = false;
+        else
+            throw std::runtime_error("Invalid upload_enable value");
+    }
+
+    else if (key == "upload_path" || key == "upload_store")
+    {
+        loc.upload_path = expect(WORD).value;
+    }
+
+    else if (key == "cgi_pass")
+    {
+        std::string extension = expect(WORD).value;
+        std::string executable = expect(WORD).value;
+        loc.cgi_pass[extension] = executable;
+    }
+
+    else if (key == "cgi_extension")
+    {
+        loc.cgi_extension = expect(WORD).value;
+        if (!loc.cgi_path.empty())
+            loc.cgi_pass[loc.cgi_extension] = loc.cgi_path;
+    }
+
+    else if (key == "cgi_path")
+    {
+        loc.cgi_path = expect(WORD).value;
+        if (!loc.cgi_extension.empty())
+            loc.cgi_pass[loc.cgi_extension] = loc.cgi_path;
     }
 
     else

@@ -3,6 +3,7 @@
 
 namespace config {
 
+// Token type representation for config file lexing.
 enum TokenType {
     WORD,
     LBRACE,

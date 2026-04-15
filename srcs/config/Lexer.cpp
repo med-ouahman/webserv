@@ -8,6 +8,8 @@ namespace config {
     
     void Lexer::tokenize(const std::string& path)
     {
+        tokens.clear();
+
         std::ifstream file(path.c_str());
         if (!file)
             throw std::runtime_error("Cannot open config file");
