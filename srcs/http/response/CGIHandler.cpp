@@ -1,4 +1,6 @@
 #include "CGIHandler.hpp"
+#include "Connection.hpp"
+#include "EventLoop.hpp"
 
 namespace http {
 
@@ -11,6 +13,8 @@ namespace http {
     }
 
     void CGIHandler::on_event( io::EventType event ) {
-        
+        if (event == io::ERROR) {
+            
+        }   
     }
 }

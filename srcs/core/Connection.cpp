@@ -7,11 +7,11 @@
 
 namespace core {
     
-    Connection::Connection( int fd, const config::ServerConfig* conf, uint32_t mask, const io::EventLoop& loop )
-        :fd(fd),
+    Connection::Connection( int _fd, const config::ServerConfig* conf, uint32_t mask, const io::EventLoop& loop )
+        :fd(_fd),
         event_mask(mask),
         state(ACCEPTED),
-        p(fd),
+        p(_fd),
         server_conf(conf),
         close_after_write(false),
         num_requests(0),
@@ -19,6 +19,7 @@ namespace core {
         sent_offset(0),
         bytes_received(0),
         read_buff_drained(true),
+        inactivity_ticks(0),
         cgi_handler(loop, *this),
         progress(false) {}
 
@@ -61,8 +62,10 @@ namespace core {
             if (bytes == 0) {
                 state = CLOSING;
             }
+            ++inactivity_ticks;
             return false;
         }
+        inactivity_ticks = 0;
         bytes_received = bytes;
         read_buff_drained = false;
         return true;

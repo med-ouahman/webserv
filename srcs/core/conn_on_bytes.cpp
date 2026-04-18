@@ -12,7 +12,6 @@ namespace core {
         if (p.get_bytes_consumed() == 0) {
             p.set_data_buff(read_buff, bytes_received);
         }
-        
         state = READING;
         while (true) {
             http::HTTPParser::ParseResult::Type result = p.consume();
@@ -24,6 +23,10 @@ namespace core {
                 handler.serialize();
                 state = WRITING;
                 close_after_write = true;
+                return false;
+            } else if (result == http::HTTPParser::ParseResult::TIMEOUT) {
+                std::cout << "Timeout??\n";
+                state = CLOSING;
                 return false;
             }
             ++num_requests;

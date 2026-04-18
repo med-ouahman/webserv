@@ -25,26 +25,6 @@ namespace http {
 
 	HTTPParser::~HTTPParser() {}
 
-	HTTPParser::ParseResult::Type HTTPParser::consume( void ) {
-		
-		ParseResult::Type r;
-	
-		if (ParseState::REQUEST_LINE == parse_state) {
-			r = parse_request_line();
-		}
-
-		if (ParseState::HEADERS == parse_state) {
-			r = parse_headers();
-		}
-
-		if (ParseState::BODY == parse_state) {
-			r = parse_body();
-		}
-		if (ParseState::ERROR == parse_state) {
-			return ParseResult::PARSE_ERROR;
-		}
-		return r;
-	}
 
 	HTTPRequest HTTPParser::get_request() const {
 		return request;
@@ -59,45 +39,10 @@ namespace http {
 		body_len = 0;
 		body_bytes_parsed = 0;
 		body_fd = -1;
+		ticks_since_progress = 0;
+		current_state_tick_limit = 0;
 		parse_state = ParseState::REQUEST_LINE;
 		request = HTTPRequest();
-	}
-
-	HTTPParser::ParseResult::Type HTTPParser::scan_line( ::size_t max_bytes_allowed ) {
-		::size_t line_offset = line_buff.size();
-		::size_t i = bytes_consumed;
-		bool nl_found = false;
-
-		if (i == len_) {
-			return ParseResult::NEED_MORE_BYTES;
-		}
-		
-		while (i < len_) {
-			if (line_offset >= max_bytes_allowed) {
-				return ParseResult::PARSE_ERROR;
-			}
-			line_offset++;
-			if (data_[i] == '\r') {
-				++i;
-				cr_found = true;
-			} else if (data_[i] == '\n' && cr_found) {
-				nl_found = true;
-				cr_found = false;
-				++i;
-				break;
-			} else {
-				cr_found = false;
-				++i;
-			}
-		}		
-		::size_t to_append = i - bytes_consumed - 1 * nl_found;
-		line_buff.append(data_ + bytes_consumed, to_append);
-		bytes_consumed = i;
-		if (!nl_found) {
-			return ParseResult::NEED_MORE_BYTES;
-		}
-		line_buff.erase(line_buff.size() - 1, 1);
-		return ParseResult::SUCCESS;
 	}
 
 	void HTTPParser::set_data_buff( const char* buff, ::size_t size ) {

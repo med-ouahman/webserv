@@ -24,11 +24,14 @@ namespace core {
         private:
             const static std::size_t SEND_CHUNK_SIZE = 1024 * 16;
             const static std::size_t MAX_REQUESTS = 100;
-        
+            const static std::size_t MAX_INACTIVITY_LIMIT = 2000;
+            const static std::size_t MAX_CGI_WAIT = 2000;
+            const static std::size_t MAX_IDLE = 500;
+
         private:
             /* epoll */
             int fd;
-            ::uint32_t event_mask;
+            uint32_t event_mask;
 
         private:
             /* config + parsing + response generation */
@@ -44,11 +47,16 @@ namespace core {
             char output_buff[SEND_CHUNK_SIZE];
             ::ssize_t bytes_in_buff;
             ::size_t sent_offset;
+            
         private:
             /* input */
             char read_buff[READ_BUFFER_SIZE];
             ::size_t bytes_received;
             bool read_buff_drained;
+        
+        private:
+            /* timeout */
+            uint64_t inactivity_ticks;
 
         private:
             /* CGI */

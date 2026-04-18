@@ -15,7 +15,7 @@ namespace io {
         
         ::fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
        
-        conns.push_back(new core::Connection(client_fd, &conf.server, EPOLLIN | EPOLLET));
+        conns.push_back(new core::Connection(client_fd, &conf.server, EPOLLIN | EPOLLET, *this));
 
         if (!add_fd(client_fd, EPOLLIN | EPOLLET, conns.back())) {
             conns.pop_back();

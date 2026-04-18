@@ -9,21 +9,20 @@ namespace http {
     HTTPParser::ParseResult::Type HTTPParser::parse_body( void ) {
 
         if (BodyType::UNSET == body_type) {
+
             body_type = detect_body_type();
-            // std::cout << (body_type == BodyType::CONTENT_LENGTH ? "CONTENT-LENGHT\n": "SOME OTHER TYPE!\n");
+
             if (body_type == BodyType::ERROR) {
                 return ParseResult::PARSE_ERROR;
-            }
-            if (body_type == BodyType::NONE) {
-                // std::cout << "none type\n";
+            } else if (body_type == BodyType::NONE) {
                 return ParseResult::SUCCESS;
             }
+
             std::stringstream ss;
             ss << conn_fd;
             body_path = body_dir + std::string("/tmp_body_") + ss.str();
             body_fd = open(body_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
             if (body_fd < 0) {
-                std::cout << "file already exists??\n";
                 return ParseResult::PARSE_ERROR;
             }
         }
@@ -64,8 +63,13 @@ namespace http {
                 return ParseResult::PARSE_ERROR;
             }
 
+            if (chunk_remaining >= MIN_BODY_CHUNK) {
+                ticks_since_progress = 0;
+            }
+            
             line_buff.clear();
             if (chunk_remaining == 0) {
+                ticks_since_progress = 0;
                 chunk_state = ChunkState::CHUNK_LAST;
             } else {
                 chunk_state = ChunkState::CHUNK_DATA;
@@ -78,7 +82,7 @@ namespace http {
             if (res != ParseResult::SUCCESS) {
                 return res;
             }
-            
+
             if (line_buff.size() != 0) {
                 return ParseResult::PARSE_ERROR;
             }
@@ -105,7 +109,13 @@ namespace http {
     HTTPParser::ParseResult::Type HTTPParser::parse_body_content_length( void ) {
     
         ::size_t remaining = body_len - body_bytes_parsed;
-        ::size_t to_copy = std::min(remaining, len_ - bytes_consumed);
+        ::size_t available = len_ - bytes_consumed;
+        
+        if (available >= MIN_BODY_CHUNK) {
+            ticks_since_progress = 0;
+        }
+
+        ::size_t to_copy = std::min(remaining, available);
 
         ::write(body_fd, data_ + bytes_consumed, to_copy);
         
@@ -113,10 +123,9 @@ namespace http {
         bytes_consumed += to_copy;
 
         if (body_bytes_parsed == body_len) {
-
+            ticks_since_progress = 0;
             return ParseResult::SUCCESS;
         }
-        
         return ParseResult::NEED_MORE_BYTES;
     }
 }

@@ -6,11 +6,11 @@ namespace http {
     HTTPParser::ParseResult::Type HTTPParser::parse_headers( void ) {
        
         while (!headers_done) {
-            
             ParseResult::Type r = scan_line(MAX_HEADER_BLOCK_LEN);   
             if (r != ParseResult::SUCCESS) {
                 return r;
             }
+            ticks_since_progress = 0;
             if (line_buff.size() == 0) {
                 headers_done = true;
                 break;

@@ -1,7 +1,7 @@
 #pragma once
 #include "Error.hpp"
 
-namespace Error {
+namespace error {
 
 template <typename T> struct Result {
         bool ok;

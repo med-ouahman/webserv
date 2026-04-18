@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <stdint.h>
 #include "ConnectionState.hpp"
 #include "ConnectionEvent.hpp"
 #include "HTTPRequest.hpp"
@@ -20,6 +21,12 @@ namespace http {
             static const std::size_t MAX_BODY_LEN         = 10 * 1024 * 1024;  // 10 MB
             static const std::size_t MAX_CHUNK_SIZE       = 1  * 1024 * 1024;  // 1 MB
             static const std::size_t MAX_LEADING_CRLF     = 5;
+            
+            const static std::size_t MIN_BODY_CHUNK       = 4096;
+            const static std::size_t REQUEST_LINE_LIMIT_TICKS   = 100;
+            const static std::size_t HEADERS_LIMIT_TICKS  = 500;
+            const static std::size_t BODY_LIMIT_TICKS     = 1000;
+
             static const std::string hexas;
 
         private:
@@ -41,9 +48,10 @@ namespace http {
                     };
             };
 
+
             ChunkState::Type chunk_state;
             ::size_t chunk_remaining;
-
+    
         private:
             bool headers_done;
             bool cr_found;
@@ -59,19 +67,17 @@ namespace http {
             class ParseState {
                 public:
                     enum Type {
-
-                    REQUEST_LINE,
-                    HEADERS,
-                    BODY,
-                    DONE,
-                    ERROR
-                };
+                        REQUEST_LINE,
+                        HEADERS,
+                        BODY,
+                        DONE,
+                        ERROR
+                    };
             };
 
             ParseState::Type parse_state;
             
-            class BodyType {
-                public:
+            struct BodyType {
                 enum Type {
                     UNSET,
                     NONE,
@@ -80,8 +86,11 @@ namespace http {
                     TRANSFER_ENCODING_CHUNKED,
                 };
             };
-
             BodyType::Type body_type;
+
+        private:
+            uint64_t ticks_since_progress;
+            uint64_t current_state_tick_limit;
 
         public:
             class ParseResult {
@@ -90,7 +99,8 @@ namespace http {
 
                     SUCCESS,
                     NEED_MORE_BYTES,
-                    PARSE_ERROR
+                    PARSE_ERROR,
+                    TIMEOUT
                 };
             };
 

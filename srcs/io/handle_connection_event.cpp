@@ -25,6 +25,7 @@ namespace io {
     void EventLoop::write_to_socket( core::Connection& conn ) {
         
         ssize_t bytes_sent = 0;
+        
         while (true) {
             if (!conn.has_data(bytes_sent)) {
                 break;

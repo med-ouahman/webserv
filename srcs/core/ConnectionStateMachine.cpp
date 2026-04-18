@@ -71,6 +71,8 @@ ConnectionStateMachine::next_state( ConnectionState currentState,
     // ───────────────────────────────── CLOSING ──────────────────────────────
     case CLOSING:
         return CLOSING;
+    case IDLE:
+        return CLOSING;
 
     }
 

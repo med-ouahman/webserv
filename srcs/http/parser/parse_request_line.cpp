@@ -5,12 +5,13 @@
 namespace http {
 
 	HTTPParser::ParseResult::Type HTTPParser::parse_request_line( void ) {
-
+				
 		while (true) {
 			ParseResult::Type scan_res = scan_line(MAX_REQUEST_LINE_LEN);
 			if (scan_res != ParseResult::SUCCESS) {
 				return scan_res;
 			}
+			ticks_since_progress = 0;
 			if (line_buff.empty() && leading_crlf < MAX_LEADING_CRLF) {
 				leading_crlf++;
 				continue;

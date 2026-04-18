@@ -36,6 +36,8 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/parser/parse_body.cpp \
 	srcs/http/parser/parser_utils.cpp \
 	srcs/http/parser/HTTPRequest.cpp \
+	srcs/http/parser/parser_scan_line.cpp \
+	srcs/http/parser/parser_consume.cpp \
 	srcs/http/parser/parser_detect_body.cpp \
 	srcs/http/response/HTTPResponseHandler.cpp \
 	srcs/http/response/serialize_response.cpp \
@@ -43,6 +45,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/response/find_location.cpp \
 	srcs/http/response/resolve.cpp \
 	srcs/http/response/handler_produce.cpp \
+	srcs/http/response/CGIHandler.cpp \
 	srcs/io/handle_connections.cpp \
 	srcs/io/create_sockets.cpp \
 	srcs/io/EventLoop.cpp \

@@ -1,8 +1,14 @@
 #pragma once
 
 #include "IOHandler.hpp"
-#include "EventLoop.hpp"
-#include "Connection.hpp"
+
+namespace io {
+	class EventLoop;
+}
+
+namespace core {
+	class Connection;
+}
 
 namespace http {
 	
