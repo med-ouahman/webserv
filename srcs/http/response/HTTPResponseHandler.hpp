@@ -34,6 +34,7 @@ namespace http {
                 int status_code;
                 std::string path;
             };
+            
             ::size_t offset_; /* How much bytes are sent in the response.*/
             
         public:
@@ -53,7 +54,7 @@ namespace http {
             void serialize( void );
             void build_error_response( HTTPStatusCode code, std::string reason );
             void handle_request( const HTTPRequest& req );
-            ::ssize_t produce( char* buff, size_t max_size );
+            ::ssize_t produce( char* buff, ::size_t max_size );
             bool allow_presistance( bool req_close_after_write ) { return allow_keep_alive && !req_close_after_write; };
             
     };

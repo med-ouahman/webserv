@@ -28,7 +28,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/ConnectionStateMachine.cpp \
 	srcs/core/connection_on_event.cpp \
 	srcs/core/conn_on_bytes.cpp \
-	srcs/core/conn_buff.cpp \
+	srcs/core/conn_on_write.cpp \
 	srcs/core/conn_advance.cpp \
 	srcs/http/parser/HTTPParser.cpp \
 	srcs/http/parser/parse_headers.cpp \

@@ -9,7 +9,7 @@ namespace io {
         struct epoll_event events[MAX_EVENTS];
         running = start_listeners();
         while (running) {
-            int n = ::epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+            int n = ::epoll_wait(epoll_fd, events, MAX_EVENTS, MAX_TIMEOUT_MS);
             if (n < 0) {
                 return 1;
             }

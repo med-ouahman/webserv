@@ -6,7 +6,12 @@ namespace http {
     HTTPParser::ParseResult::Type HTTPParser::parse_headers( void ) {
        
         while (!headers_done) {
-            ParseResult::Type r = scan_line(MAX_HEADER_BLOCK_LEN);   
+            
+            if (header_count > MAX_HEADER_COUNT) {
+                return ParseResult::PARSE_ERROR;
+            }
+
+            ParseResult::Type r = scan_line(MAX_HEADER_BLOCK_LEN);
             if (r != ParseResult::SUCCESS) {
                 return r;
             }
@@ -47,7 +52,7 @@ namespace http {
                 __n = end - start + 1;
             }
             request.headers[name] = line_buff.substr(start, __n);
-    
+            ++header_count;
             line_buff.clear();
         }
     

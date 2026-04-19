@@ -2,16 +2,15 @@
 #pragma once
 
 namespace core {
-	enum ConnectionState {
-		ACCEPTED,
-		READING,
-		PARSING,
-		PROCESSING,
-		READY_TO_WRITE,
-		WRITING,
-		WRITE_COMPLETE,
-		IDLE,
-		ERROR,
-		CLOSING,
+	class ConnectionState {
+		public:
+			enum Type {
+				IDLE,
+				READING,
+				PROCESSING,
+				WRITING,
+				ERROR,
+				CLOSING,
+			};
 	};
 }

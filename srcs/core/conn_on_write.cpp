@@ -6,16 +6,15 @@
 
 namespace core {
 
-    bool Connection::has_data( ::ssize_t sent_bytes ) {
-
+    bool Connection::on_write( ::ssize_t sent_bytes ) {
+        
         if (sent_bytes < 0) {
             return false;
         }
-        ++inactivity_ticks;
+        
         if (sent_bytes > 0) {
             inactivity_ticks = 0;
         }
-
         sent_offset += sent_bytes;
         bytes_in_buff -= sent_bytes;
         if (0 == bytes_in_buff) {
@@ -24,7 +23,7 @@ namespace core {
                 return true;
             }
             if (close_after_write) {
-                state = CLOSING;
+                state = ConnectionState::CLOSING;
             }
             return false;
         }

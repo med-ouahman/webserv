@@ -11,10 +11,11 @@ namespace io {
         while (true) {
             if (conn.read_buff_empty()) {
                 bytes = ::read(conn.get_fd(), conn.get_read_buff(), core::Connection::READ_BUFFER_SIZE);
-                if (!conn.set_readbuff(bytes)) {
+                if (!conn.on_read(bytes)) {
                     break;
                 }
             }
+            
             if (!conn.on_bytes()) {
                 break;
             }
@@ -24,10 +25,10 @@ namespace io {
 
     void EventLoop::write_to_socket( core::Connection& conn ) {
         
-        ssize_t bytes_sent = 0;
+        ::ssize_t bytes_sent = 0;
         
         while (true) {
-            if (!conn.has_data(bytes_sent)) {
+            if (!conn.on_write(bytes_sent)) {
                 break;
             }
 

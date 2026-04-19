@@ -55,6 +55,7 @@ namespace http {
 	}
 
 	bool HTTPParser::validate_headers( void ) {
+		
 		if (request.version == "HTTP/1.1") {
 			if (request.headers["host"].length() == 0) {
 				std::cout << "host not found\n";

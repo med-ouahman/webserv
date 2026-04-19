@@ -15,7 +15,7 @@ namespace io {
         
         ::fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
        
-        conns.push_back(new core::Connection(client_fd, &conf.server, EPOLLIN | EPOLLET, *this));
+        conns.push_back(new core::Connection(client_fd, conf, EPOLLIN | EPOLLET, *this));
 
         if (!add_fd(client_fd, EPOLLIN | EPOLLET, conns.back())) {
             conns.pop_back();
@@ -28,6 +28,7 @@ namespace io {
 
         for ( ::size_t i = 0; i < conns.size(); ) {
             if (conns[i]->desired_action().want_close) {
+                del_fd(conns[i]->get_fd());
                 delete conns[i];
                 conns.erase(conns.begin() + i);
             } else {
@@ -40,8 +41,8 @@ namespace io {
 
     bool EventLoop::apply_connection_actions( core::Connection* conn ) {
         
+        conn->tick();
         core::ConnectionAction action = conn->desired_action();
-        
         if (action.want_read) {
             read_from_socket(*conn);
             action = conn->desired_action();
@@ -51,8 +52,8 @@ namespace io {
             write_to_socket(*conn);
             action = conn->desired_action();
         }
-
-        return action.want_process;
+        
+        return action.want_process && !action.want_close;
     }
 
     void EventLoop::update_epoll_interest( core::Connection* conn ) {
@@ -63,9 +64,11 @@ namespace io {
         if (action.want_process) {
             return ;
         }
+
         if (action.want_write) {
             new_mask = EPOLLOUT | EPOLLET;
         }
+        
         if (action.want_close) {
             return ;
         }

@@ -24,11 +24,15 @@ namespace http {
 		if (ParseState::ERROR == parse_state) {
 			return ParseResult::PARSE_ERROR;
 		}
-
+		
+		if (ParseResult::NEED_MORE_BYTES == r) {
+			bytes_consumed = 0;
+		}
+		
 		if (ticks_since_progress > current_state_tick_limit) {
+			std::cout << "ticks: " << ticks_since_progress << "\n";
 			return ParseResult::TIMEOUT;
 		}
-
 		return r;
 	}
 }

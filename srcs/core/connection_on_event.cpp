@@ -7,15 +7,15 @@ namespace core {
         
         switch (event) {
             case io::WRITABLE: {
-                state = WRITING;
+                state = ConnectionState::WRITING;
                 break;
             }
             case io::READABLE: {
-                state = READING;
+                state = ConnectionState::READING;
                 break;
             }
             case io::ERROR: {
-                state = CLOSING;
+                state = ConnectionState::CLOSING;
                 break;
             }
         }

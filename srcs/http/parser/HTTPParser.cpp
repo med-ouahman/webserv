@@ -4,7 +4,7 @@ namespace http {
 
 	const std::string HTTPParser::hexas = "0123456789abcdef";
 	
-	HTTPParser::HTTPParser( int connection_fd )
+	HTTPParser::HTTPParser( int connection_fd, const config::Config& conf )
 		:conn_fd(connection_fd),
 		body_dir("./srcs/http/parser/.body_dir"),
 		body_bytes_parsed(0),
@@ -21,7 +21,10 @@ namespace http {
 		data_(NULL),
 		len_(0),
 		parse_state(ParseState::REQUEST_LINE),
-		body_type(BodyType::UNSET) {}
+		body_type(BodyType::UNSET), 
+		config(conf),
+		ticks_since_progress(0),
+		current_state_tick_limit(REQUEST_LINE_LIMIT_TICKS) {}
 
 	HTTPParser::~HTTPParser() {}
 

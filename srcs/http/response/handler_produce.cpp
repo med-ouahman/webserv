@@ -1,6 +1,7 @@
 #include "HTTPResponseHandler.hpp"
 #include <cstring>
 #include <iostream>
+
 namespace http {
 
 	::ssize_t HTTPResponseHandler::produce( char* buff, size_t max_size ) {

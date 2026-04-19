@@ -5,6 +5,7 @@
 #include "ConnectionState.hpp"
 #include "ConnectionEvent.hpp"
 #include "HTTPRequest.hpp"
+#include "Config.hpp"
 
 namespace http {
     
@@ -48,7 +49,6 @@ namespace http {
                     };
             };
 
-
             ChunkState::Type chunk_state;
             ::size_t chunk_remaining;
     
@@ -86,7 +86,10 @@ namespace http {
                     TRANSFER_ENCODING_CHUNKED,
                 };
             };
+
             BodyType::Type body_type;
+        private:
+            const config::Config& config;
 
         private:
             uint64_t ticks_since_progress;
@@ -104,7 +107,7 @@ namespace http {
                 };
             };
 
-            explicit HTTPParser( int connection_fd );
+            explicit HTTPParser( int connection_fd, const config::Config& conf );
             ~HTTPParser();
             ParseResult::Type consume( void );
             HTTPRequest get_request() const;

@@ -3,17 +3,16 @@
 
 namespace core {
 
-
 	bool Connection::advance( void ) {
 		bytes_in_buff = handler.produce(output_buff, SEND_CHUNK_SIZE);
 		if (bytes_in_buff < 0) {
-			state = CLOSING;
+			state = ConnectionState::CLOSING;
 			return false;
 		} else if (bytes_in_buff == 0) {
-			if (read_buff_drained) {
-				state = IDLE;
+			if (bytes_received == 0) {
+				state = ConnectionState::IDLE;
 			} else {
-				state = READING;
+				state = ConnectionState::READING;
 			}
 			return false;
 		}

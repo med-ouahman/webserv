@@ -355,6 +355,29 @@ void test_delete_put()
     }
 }
 
+void test_slow_client() {
+    TCPSocket s;
+    if (!s.good()) {
+        return ;
+    }
+    size_t i;
+    std::string req = "GET / HTTP/1.1\r\n";
+    while (true) {
+        
+        std::string a;
+        if (i < req.length()) {
+
+            i++;
+            
+            a = &req[i];
+        } else {
+            a = "g";
+        }
+        s.send_all(a);
+        sleep(1);
+    }
+}
+
 // ── main ──────────────────────────────────────────────────────────────────────
 
 int main(int argc, char* argv[])
@@ -365,7 +388,8 @@ int main(int argc, char* argv[])
     std::cout << "C++ HTTP Parser Test Client → " << g_host << ":" << g_port << "\n";
     std::cout << std::string(50, '=') << "\n";
         
-    test_keep_alive(4);
+    test_slow_client();
+    // test_keep_alive(4);
     // test_bad_request();
     // test_byte_by_byte();
     // test_content_length_zero();
