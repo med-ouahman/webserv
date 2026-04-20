@@ -22,11 +22,7 @@ namespace http {
             static const std::size_t MAX_BODY_LEN         = 10 * 1024 * 1024;  // 10 MB
             static const std::size_t MAX_CHUNK_SIZE       = 1  * 1024 * 1024;  // 1 MB
             static const std::size_t MAX_LEADING_CRLF     = 5;
-            
-            const static std::size_t MIN_BODY_CHUNK       = 4096;
-            const static std::size_t REQUEST_LINE_LIMIT_TICKS   = 100;
-            const static std::size_t HEADERS_LIMIT_TICKS  = 500;
-            const static std::size_t BODY_LIMIT_TICKS     = 1000;
+
 
             static const std::string hexas;
 
@@ -55,7 +51,7 @@ namespace http {
         private:
             bool headers_done;
             bool cr_found;
-            ::size_t leading_crlf;
+            ::size_t leading_crlf_count;
             ::size_t header_count;
             HTTPRequest request;
             std::string line_buff;
@@ -63,7 +59,7 @@ namespace http {
             char* data_;
             ::size_t len_;
 
-        private:
+        public:
             class ParseState {
                 public:
                     enum Type {
@@ -75,6 +71,7 @@ namespace http {
                     };
             };
 
+        private:
             ParseState::Type parse_state;
             
             struct BodyType {
@@ -91,10 +88,6 @@ namespace http {
         private:
             const config::Config& config;
 
-        private:
-            uint64_t ticks_since_progress;
-            uint64_t current_state_tick_limit;
-
         public:
             class ParseResult {
                 public:
@@ -103,7 +96,6 @@ namespace http {
                     SUCCESS,
                     NEED_MORE_BYTES,
                     PARSE_ERROR,
-                    TIMEOUT
                 };
             };
 
@@ -114,6 +106,8 @@ namespace http {
             void reset( void );
             void set_data_buff( const char* buff, ::size_t size );
             ::size_t get_bytes_consumed( void ) const;
+            ParseState::Type  get_parser_state( void ) const;
+            ::size_t get_body_bytes_consumed( void ) const;
             
         private:
             ParseResult::Type scan_line( ::size_t max_bytes_allowed );

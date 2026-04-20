@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 #include <set>
-
+#define DEV_MODE 0
 namespace config {
 
 struct ListenEndPoint {
@@ -81,6 +81,7 @@ struct ServerConfig {
 
 struct Config {
     std::vector<ServerConfig> servers;
+    ServerConfig server;
 
     Config()
         : servers()

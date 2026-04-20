@@ -48,7 +48,7 @@ namespace http {
     
         return result;
     }
-    int n = 0;
+    
     HTTPParser::ParseResult::Type HTTPParser::parse_body_chunked( void ) {
 
         if (chunk_state == ChunkState::CHUNK_SIZE) {
@@ -57,24 +57,20 @@ namespace http {
             if (r != ParseResult::SUCCESS) {
                 return r;
             }
+
+            ticks_since_progress = 0;
             
             chunk_remaining = parse_chunk_size(line_buff);
             if (chunk_remaining > MAX_CHUNK_SIZE) {
                 return ParseResult::PARSE_ERROR;
             }
-
-            if (chunk_remaining >= MIN_BODY_CHUNK) {
-                ticks_since_progress = 0;
-            }
-            
             line_buff.clear();
+            
             if (chunk_remaining == 0) {
-                ticks_since_progress = 0;
                 chunk_state = ChunkState::CHUNK_LAST;
             } else {
                 chunk_state = ChunkState::CHUNK_DATA;
             }
-
         }
 
         if (chunk_state == ChunkState::CHUNK_LAST) {
@@ -82,7 +78,7 @@ namespace http {
             if (res != ParseResult::SUCCESS) {
                 return res;
             }
-
+            ticks_since_progress = 0;
             if (line_buff.size() != 0) {
                 return ParseResult::PARSE_ERROR;
             }
@@ -97,7 +93,6 @@ namespace http {
         bytes_consumed += to_copy;
         
         if (body_bytes_parsed == chunk_remaining) {
-            std::cout << "chunk " << n++ << " done\n";
             body_bytes_parsed = 0;
             line_buff.clear();
             chunk_state = ChunkState::CHUNK_SIZE;

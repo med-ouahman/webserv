@@ -28,6 +28,7 @@ namespace http {
 		private:
 			const io::EventLoop& loop;
 			const core::Connection& conn;
+			// const config::Config& config;
 	};
 
 }

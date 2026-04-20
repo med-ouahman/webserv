@@ -17,10 +17,6 @@ bool ConfigParser::match(TokenType type)
     return false;
 }
 
-ConfigParser::~ConfigParser() {
-
-}
-
 
 #ifdef DEV_MODE
 Config ConfigParser::build_default_config() {

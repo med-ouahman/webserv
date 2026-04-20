@@ -19,6 +19,8 @@ namespace core {
         sent_offset(0),
         bytes_received(0),
         inactivity_ticks(0),
+        current_state_ticks(0),
+        current_state_tick_limit(0),
         cgi_handler(loop, *this) {}
 
     Connection::~Connection() {
@@ -71,12 +73,14 @@ namespace core {
     }
 
     bool Connection::read_buff_empty() const {
-        return bytes_received == 0;
+        return p.get_bytes_consumed() == 0;
     }
 
     void Connection::tick( void ) {
         ++inactivity_ticks;
-        if (inactivity_ticks > MAX_INACTIVITY_LIMIT) {
+        std::cout << (state == ConnectionState::IDLE ? "IDLE\n": "ACTIVE\n");
+        ::size_t threshold = state == ConnectionState::IDLE ? MAX_IDLE_TICKS: MAX_INACTIVITY_LIMIT;
+        if (inactivity_ticks > threshold || current_state_ticks > current_state_tick_limit) {
             state = ConnectionState::CLOSING;
         }
     }

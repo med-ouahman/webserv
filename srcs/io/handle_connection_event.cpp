@@ -16,7 +16,7 @@ namespace io {
                 }
             }
             
-            if (!conn.on_bytes()) {
+            if (!conn.process_incoming_data()) {
                 break;
             }
         }

@@ -55,7 +55,7 @@ namespace http {
             void build_error_response( HTTPStatusCode code, std::string reason );
             void handle_request( const HTTPRequest& req );
             ::ssize_t produce( char* buff, ::size_t max_size );
-            bool allow_presistance( bool req_close_after_write ) { return allow_keep_alive && !req_close_after_write; };
+            bool allow_presistance( void ) { return allow_keep_alive; };
             
     };
 }

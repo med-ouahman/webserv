@@ -24,10 +24,15 @@ namespace core {
         private:
             const static std::size_t SEND_CHUNK_SIZE = 1024 * 16;
             const static std::size_t MAX_REQUESTS = 100;
-            const static std::size_t MAX_INACTIVITY_LIMIT = 10;
+            const static std::size_t MAX_INACTIVITY_LIMIT = 100;
             const static std::size_t MAX_CGI_WAIT = 2000;
-            const static std::size_t MAX_IDLE = 500;
-
+            const static std::size_t MAX_IDLE_TICKS = 500;
+            const static std::size_t MIN_PROGRESS_BYTES = 1024 * 4; /* how many bytes are considered progress */
+            const static std::size_t MIN_BODY_CHUNK       = 4096;
+            const static std::size_t REQUEST_LINE_LIMIT_TICKS   = 100;
+            const static std::size_t HEADERS_LIMIT_TICKS  = 500;
+            const static std::size_t BODY_LIMIT_TICKS     = 1000;
+            
         private:
             /* epoll */
             int fd;
@@ -55,7 +60,10 @@ namespace core {
         
         private:
             /* timeout */
-            uint64_t inactivity_ticks;
+            ::size_t bytes_parsed_since_progress; /**/
+            uint64_t inactivity_ticks; /* if socket's alive read > 0 or write > 0 */
+            uint64_t current_state_ticks; /* if a connection is trapped */
+            uint64_t current_state_tick_limit;
 
         private:
             /* CGI */
@@ -68,7 +76,7 @@ namespace core {
             int get_fd( void ) const;
             ConnectionAction desired_action() const;
             void on_event( io::EventType event );
-            bool on_bytes( void);
+            bool process_incoming_data( void );
             ::uint32_t get_mask( void ) const { return event_mask; }
             void set_mask( uint32_t new_mask ) { event_mask = new_mask; }
         

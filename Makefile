@@ -27,7 +27,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/Connection.cpp \
 	srcs/core/ConnectionStateMachine.cpp \
 	srcs/core/connection_on_event.cpp \
-	srcs/core/conn_on_bytes.cpp \
+	srcs/core/process_incoming_data.cpp \
 	srcs/core/conn_on_write.cpp \
 	srcs/core/conn_advance.cpp \
 	srcs/http/parser/HTTPParser.cpp \
@@ -55,6 +55,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/io/socket_events.cpp \
 	srcs/io/handle_connection_event.cpp \
 	srcs/config/ConfigParser.cpp \
+	srcs/config/Lexer.cpp \
 
 OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 

@@ -15,16 +15,14 @@ namespace http {
 		chunk_remaining(0),
 		headers_done(false),
 		cr_found(false),
-		leading_crlf(0),
+		leading_crlf_count(0),
 		header_count(0),
 		bytes_consumed(0),
 		data_(NULL),
 		len_(0),
 		parse_state(ParseState::REQUEST_LINE),
 		body_type(BodyType::UNSET), 
-		config(conf),
-		ticks_since_progress(0),
-		current_state_tick_limit(REQUEST_LINE_LIMIT_TICKS) {}
+		config(conf) {}
 
 	HTTPParser::~HTTPParser() {}
 
@@ -35,27 +33,35 @@ namespace http {
 
 	void HTTPParser::reset( void ) {
 		header_count = 0;
-		leading_crlf = 0;
+		leading_crlf_count = 0;
 		headers_done = false;
 		cr_found = false;
 		body_type = BodyType::UNSET;
 		body_len = 0;
 		body_bytes_parsed = 0;
 		body_fd = -1;
-		ticks_since_progress = 0;
-		current_state_tick_limit = 0;
 		parse_state = ParseState::REQUEST_LINE;
 		request = HTTPRequest();
 	}
 
 	void HTTPParser::set_data_buff( const char* buff, ::size_t size ) {
-		data_ = (char *)buff;
-		len_ = size;
-		bytes_consumed = 0;
+		if (bytes_consumed == len_) {
+			data_ = (char *)buff;
+			len_ = size;
+			bytes_consumed = 0;
+		}
 	}
 
 	std::size_t HTTPParser::get_bytes_consumed( void ) const {
 		return bytes_consumed;
+	}
+
+	HTTPParser::ParseState::Type HTTPParser::get_parser_state( void ) const {
+		return parse_state;
+	}
+
+	::size_t HTTPParser::get_body_bytes_consumed( void ) const {
+		return body_bytes_parsed;
 	}
 }
 

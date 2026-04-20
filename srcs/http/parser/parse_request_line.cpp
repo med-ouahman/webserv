@@ -12,8 +12,8 @@ namespace http {
 				return scan_res;
 			}
 			ticks_since_progress = 0;
-			if (line_buff.empty() && leading_crlf < MAX_LEADING_CRLF) {
-				leading_crlf++;
+			if (line_buff.empty() && leading_crlf_count < MAX_LEADING_CRLF) {
+				leading_crlf_count++;
 				continue;
 			} else {
 				break;

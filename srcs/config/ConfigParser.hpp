@@ -23,6 +23,9 @@ private:
 
 public:
 
+    #ifdef DEV_MODE
+    static Config build_default_config(); 
+    #endif
     Config parse(const char* path);
 };
 
