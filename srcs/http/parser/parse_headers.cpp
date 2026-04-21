@@ -15,7 +15,7 @@ namespace http {
             if (r != ParseResult::SUCCESS) {
                 return r;
             }
-            ticks_since_progress = 0;
+
             if (line_buff.size() == 0) {
                 headers_done = true;
                 break;

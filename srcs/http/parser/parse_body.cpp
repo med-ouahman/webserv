@@ -57,8 +57,6 @@ namespace http {
             if (r != ParseResult::SUCCESS) {
                 return r;
             }
-
-            ticks_since_progress = 0;
             
             chunk_remaining = parse_chunk_size(line_buff);
             if (chunk_remaining > MAX_CHUNK_SIZE) {
@@ -78,7 +76,6 @@ namespace http {
             if (res != ParseResult::SUCCESS) {
                 return res;
             }
-            ticks_since_progress = 0;
             if (line_buff.size() != 0) {
                 return ParseResult::PARSE_ERROR;
             }
@@ -107,7 +104,6 @@ namespace http {
         ::size_t available = len_ - bytes_consumed;
         
         if (available >= MIN_BODY_CHUNK) {
-            ticks_since_progress = 0;
         }
 
         ::size_t to_copy = std::min(remaining, available);
@@ -118,7 +114,6 @@ namespace http {
         bytes_consumed += to_copy;
 
         if (body_bytes_parsed == body_len) {
-            ticks_since_progress = 0;
             return ParseResult::SUCCESS;
         }
         return ParseResult::NEED_MORE_BYTES;

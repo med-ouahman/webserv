@@ -73,7 +73,7 @@ namespace core {
     }
 
     bool Connection::read_buff_empty() const {
-        return p.get_bytes_consumed() == 0;
+        return p.get_bytes_consumed() == bytes_received;
     }
 
     void Connection::tick( void ) {

@@ -11,7 +11,6 @@ namespace http {
 			if (scan_res != ParseResult::SUCCESS) {
 				return scan_res;
 			}
-			ticks_since_progress = 0;
 			if (line_buff.empty() && leading_crlf_count < MAX_LEADING_CRLF) {
 				leading_crlf_count++;
 				continue;

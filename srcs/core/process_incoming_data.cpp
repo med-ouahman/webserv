@@ -1,15 +1,18 @@
 
 #include "Connection.hpp"
 
+typedef http::HTTPParser::ParseState::Type ParseState;
+typedef http::HTTPParser::ParseResult::Type ParseResult;
+
 namespace core {
     
     bool Connection::process_incoming_data( void ) {        
         
         p.set_data_buff(read_buff, bytes_received);
 
-        http::HTTPParser::ParseState::Type prev_state = p.get_parser_state();
-        http::HTTPParser::ParseResult::Type result = p.consume();
-        http::HTTPParser::ParseState::Type parse_state = p.get_parser_state();
+        ParseState prev_state = p.get_parser_state();
+        ParseResult result = p.consume();
+        ParseState parse_state = p.get_parser_state();
 
         if (parse_state == prev_state) {
             current_state_ticks++;
