@@ -103,9 +103,6 @@ namespace http {
         ::size_t remaining = body_len - body_bytes_parsed;
         ::size_t available = len_ - bytes_consumed;
         
-        if (available >= MIN_BODY_CHUNK) {
-        }
-
         ::size_t to_copy = std::min(remaining, available);
 
         ::write(body_fd, data_ + bytes_consumed, to_copy);
@@ -116,6 +113,7 @@ namespace http {
         if (body_bytes_parsed == body_len) {
             return ParseResult::SUCCESS;
         }
+        
         return ParseResult::NEED_MORE_BYTES;
     }
 }

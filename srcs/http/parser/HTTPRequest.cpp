@@ -10,6 +10,9 @@ namespace http {
 			return GET;
 		if (s == "POST")
 			return POST;
+		if (s == "PUT") {
+			return PUT;
+		}
 		if (s == "PATCH")
 			return PATCH;
 		if (s == "DELETE")
@@ -22,6 +25,8 @@ namespace http {
 			return "GET";
 		if (m == POST)
 			return "POST";
+		if (m == PUT)
+			return "PUT";
 		if (m == PATCH)
 			return "PATCH";
 		if (m == DELETE)

@@ -9,25 +9,28 @@
 void clear( int a ) {
     if ( a== SIGQUIT){
         system("clear");
-
     }
 }
 
 
 int main( int argc, char** argv ) {
+
     if (argc > 2) {
         std::cerr << "Usage:\n./webserv [ configuration file ]\n";
         return 1;
     }
+
     signal(SIGQUIT, clear);
     signal(SIGPIPE, SIG_IGN);
+    
     const char* config_file = argv[1];
     if (!config_file) {
         config_file = "./config/default.conf";
     }
+    
     #ifdef DEV_MODE
     config::Config conf = config::ConfigParser::build_default_config();
     #endif
-    io::EventLoop event_poop(conf);
-    return event_poop.run();
+    io::EventLoop loop(conf);
+    return loop.run();
 }

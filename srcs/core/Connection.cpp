@@ -12,16 +12,15 @@ namespace core {
         event_mask(mask),
         state(ConnectionState::IDLE),
         p(_fd, conf),
+        handler(conf),
         config(conf),
         close_after_write(false),
         num_requests(0),
         bytes_in_buff(0),
         sent_offset(0),
         bytes_received(0),
-        inactivity_ticks(0),
-        current_state_ticks(0),
-        current_state_tick_limit(0),
-        cgi_handler(loop, *this) {}
+        cgi_handler(loop, *this),
+        ms_(0) {}
 
     Connection::~Connection() {
         if (fd >= 0) {
@@ -34,7 +33,7 @@ namespace core {
         
         ConnectionAction action = { false, false, false, false };
         
-        if (bytes_received > 0) {
+        if (p.get_bytes_consumed() < bytes_received) {
             action.want_process = true;
         }
 
@@ -67,7 +66,7 @@ namespace core {
             }
             return false;
         }
-        inactivity_ticks = 0;
+        
         bytes_received = bytes;
         return true;
     }
@@ -77,10 +76,14 @@ namespace core {
     }
 
     void Connection::tick( void ) {
-        ++inactivity_ticks;
-        std::cout << (state == ConnectionState::IDLE ? "IDLE\n": "ACTIVE\n");
-        ::size_t threshold = state == ConnectionState::IDLE ? MAX_IDLE_TICKS: MAX_INACTIVITY_LIMIT;
-        if (inactivity_ticks > threshold || current_state_ticks > current_state_tick_limit) {
+        
+        if (ConnectionState::IDLE == state) {
+            ms_ += 0;
+        } else {
+            ms_ = 0;
+        }
+
+        if (ms_ > MAX_IDLE_TIMEOUT) {
             state = ConnectionState::CLOSING;
         }
     }

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <stdio.h>
+#include <cstring>
+#include <cerrno>
 #include <unistd.h>
 #include <sys/epoll.h>
 #include <vector>
@@ -18,7 +21,6 @@ namespace io {
 	class EventLoop {
 		private:
 			const static ::size_t MAX_EVENTS = 128;
-			const static ::size_t MAX_TIMEOUT_MS = 10000;
 			
 		private:
 			int epoll_fd;
@@ -34,7 +36,7 @@ namespace io {
 		private:
 			void read_from_socket( core::Connection& conn );
             void write_to_socket( core::Connection& conn );
-			static int create_listening_socket( const config::ListenEndPoint& endpoint );
+			error::Result<int> create_listening_socket( const config::ListenEndPoint& endpoint );
 			bool start_listeners( void );
 
 		private:
@@ -44,6 +46,7 @@ namespace io {
 			void sweep( void );
 			
 		public:
+			static const int MAX_TIMEOUT_MS = 60;
 			bool add_fd( int fd, uint32_t events, IOHandler* handler );
 			bool add_connection( int client_fd );
 			bool mod_fd( int fd, uint32_t events, IOHandler* handler );

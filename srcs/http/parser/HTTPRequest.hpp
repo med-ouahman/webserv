@@ -9,6 +9,7 @@ namespace http {
 	enum HTTPMethod {
 		GET,
 		POST,
+		PUT,
 		PATCH,
 		DELETE,
 		UNKNOWN

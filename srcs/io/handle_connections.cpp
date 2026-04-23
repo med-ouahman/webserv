@@ -9,18 +9,17 @@ namespace io {
     bool EventLoop::add_connection( int client_fd ) {
 
         int flags = ::fcntl(client_fd, F_GETFL);
-        if (flags < 0) {
+        if (flags < 0 || ::fcntl(client_fd, F_SETFL, flags | O_NONBLOCK)) {
+            LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::add_connection::fcntl()"));
             return false;
         }
         
-        ::fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
-       
         conns.push_back(new core::Connection(client_fd, conf, EPOLLIN | EPOLLET, *this));
-
         if (!add_fd(client_fd, EPOLLIN | EPOLLET, conns.back())) {
             conns.pop_back();
             return false;
         }
+
         return true;
     }
 
@@ -43,14 +42,12 @@ namespace io {
         
         conn->tick();
         core::ConnectionAction action = conn->desired_action();
+
         if (action.want_read) {
             read_from_socket(*conn);
-            action = conn->desired_action();
-        }
-        
-        if (action.want_write) {
+
+        } else if (action.want_write) {
             write_to_socket(*conn);
-            action = conn->desired_action();
         }
         
         return action.want_process && !action.want_close;

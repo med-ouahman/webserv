@@ -13,6 +13,7 @@ namespace http {
 
             ParseResult::Type r = scan_line(MAX_HEADER_BLOCK_LEN);
             if (r != ParseResult::SUCCESS) {
+                std::cout << "Why!\n";
                 return r;
             }
 

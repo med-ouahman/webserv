@@ -6,7 +6,11 @@
 
 namespace http {
 
-    HTTPResponseHandler::HTTPResponseHandler(): allow_keep_alive(true), serialize_state(DONE) {}
+    HTTPResponseHandler::HTTPResponseHandler( const config::Config& conf )
+        :allow_keep_alive(true),
+        config(conf),
+        serialize_state(DONE)
+         {}
 
     HTTPResponseHandler::~HTTPResponseHandler() {}
 

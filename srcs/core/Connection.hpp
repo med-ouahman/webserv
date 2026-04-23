@@ -26,7 +26,7 @@ namespace core {
             const static std::size_t MAX_REQUESTS = 100;
             const static std::size_t MAX_INACTIVITY_LIMIT = 100;
             const static std::size_t MAX_CGI_WAIT = 2000;
-            const static std::size_t MAX_IDLE_TICKS = 500;
+            const static std::size_t MAX_IDLE_TIMEOUT = 500;
             const static std::size_t MIN_PROGRESS_BYTES = 1024 * 4; /* how many bytes are considered progress */
             const static std::size_t MIN_BODY_CHUNK       = 4096;
             const static std::size_t REQUEST_LINE_LIMIT_TICKS   = 100;
@@ -57,17 +57,13 @@ namespace core {
             /* input */
             char read_buff[READ_BUFFER_SIZE];
             ::size_t bytes_received;
-        
-        private:
-            /* timeout */
-            ::size_t bytes_parsed_since_progress; /**/
-            uint64_t inactivity_ticks; /* if socket's alive read > 0 or write > 0 */
-            uint64_t current_state_ticks; /* if a connection is trapped */
-            uint64_t current_state_tick_limit;
-
+            
         private:
             /* CGI */
             http::CGIHandler cgi_handler;
+        
+        private:
+            uint64_t ms_;
 
         private:
             bool advance( void );

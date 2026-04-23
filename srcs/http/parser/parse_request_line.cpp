@@ -8,9 +8,11 @@ namespace http {
 				
 		while (true) {
 			ParseResult::Type scan_res = scan_line(MAX_REQUEST_LINE_LEN);
+			
 			if (scan_res != ParseResult::SUCCESS) {
 				return scan_res;
 			}
+
 			if (line_buff.empty() && leading_crlf_count < MAX_LEADING_CRLF) {
 				leading_crlf_count++;
 				continue;

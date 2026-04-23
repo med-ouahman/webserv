@@ -11,6 +11,7 @@ namespace io {
         while (running) {
             int n = ::epoll_wait(epoll_fd, events, MAX_EVENTS, MAX_TIMEOUT_MS);
             if (n < 0) {
+                LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::run()"));
                 return 1;
             }
 
@@ -38,6 +39,6 @@ namespace io {
 
             remove_connections();
         }
-        return 0;
+        return !running;
     }
 }

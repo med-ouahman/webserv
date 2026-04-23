@@ -21,10 +21,6 @@ namespace http {
 			return ParseResult::PARSE_ERROR;
 		}
 		
-		if (ParseResult::NEED_MORE_BYTES == r) {
-			bytes_consumed = 0;
-		}
-		
 		return r;
 	}
 }

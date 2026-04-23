@@ -145,8 +145,8 @@ public:
     virtual ~IBodyProvider() {}
 
     // Fill buff with up to max_size bytes.
-    // Returns bytes written, 0 if finished, (size_t)-1 on error.
-    virtual size_t read(char* buff, size_t max_size) = 0;
+    // Returns bytes written, 0 if finished, -1 on error.
+    virtual ssize_t read(char* buff, size_t max_size) = 0;
 
     // True once all bytes have been produced.
     virtual bool finished() const = 0;
