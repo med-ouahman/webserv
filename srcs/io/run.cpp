@@ -39,6 +39,7 @@ namespace io {
 
             remove_connections();
         }
-        return !running;
+        
+        return int(!running);
     }
 }

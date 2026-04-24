@@ -11,10 +11,7 @@ namespace core {
         if (sent_bytes < 0) {
             return false;
         }
-        
-        if (sent_bytes > 0) {
-            inactivity_ticks = 0;
-        }
+    
         sent_offset += sent_bytes;
         bytes_in_buff -= sent_bytes;
         if (0 == bytes_in_buff) {

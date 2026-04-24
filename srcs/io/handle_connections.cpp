@@ -9,6 +9,7 @@ namespace io {
     bool EventLoop::add_connection( int client_fd ) {
 
         int flags = ::fcntl(client_fd, F_GETFL);
+
         if (flags < 0 || ::fcntl(client_fd, F_SETFL, flags | O_NONBLOCK)) {
             LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::add_connection::fcntl()"));
             return false;
@@ -25,7 +26,7 @@ namespace io {
 
     bool EventLoop::remove_connections( void ) {
 
-        for ( ::size_t i = 0; i < conns.size(); ) {
+        for ( ::size_t i(0); i < conns.size(); ) {
             if (conns[i]->desired_action().want_close) {
                 del_fd(conns[i]->get_fd());
                 delete conns[i];
@@ -58,16 +59,12 @@ namespace io {
         ::uint32_t new_mask = EPOLLIN | EPOLLET;
         core::ConnectionAction action = conn->desired_action();
         
-        if (action.want_process) {
+        if (action.want_process || action.want_close) {
             return ;
         }
 
         if (action.want_write) {
             new_mask = EPOLLOUT | EPOLLET;
-        }
-        
-        if (action.want_close) {
-            return ;
         }
 
         if (new_mask != conn->get_mask()) {

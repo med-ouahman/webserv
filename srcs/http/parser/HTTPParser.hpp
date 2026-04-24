@@ -78,9 +78,9 @@ namespace http {
                 enum Type {
                     UNSET,
                     NONE,
-                    ERROR,
                     CONTENT_LENGTH,
                     TRANSFER_ENCODING_CHUNKED,
+                    ERROR,
                 };
             };
 

@@ -4,7 +4,7 @@
 #include "HTTPResponse.hpp"
 #include "HTTPStatusCode.hpp"
 #include <vector>
-
+#include <iostream>
 
 namespace config {
     struct ServerConfig;
@@ -63,8 +63,10 @@ namespace http {
             std::string extract_path( const std::string& url );
             static bool file_exists( const char* filename );
 
-        private:
-                std::string generate_directory_list( const char* dir );
+        public:
+            std::string generate_directory_list( const char* dir );
+            std::string generate_anchor( const char* name );
+
         public:
             HTTPResponseHandler( const config::Config& conf );
             ~HTTPResponseHandler();

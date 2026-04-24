@@ -22,6 +22,7 @@ namespace core {
         ++num_requests;
         http::HTTPRequest req = p.get_request();
         p.reset();
+        handler.generate_directory_list(".");
         close_after_write = !req.want_keep_alive();
         handler.handle_request(req);
         state = ConnectionState::WRITING;

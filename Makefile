@@ -46,13 +46,14 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/response/resolve.cpp \
 	srcs/http/response/handler_produce.cpp \
 	srcs/http/response/CGIHandler.cpp \
-	srcs/io/handle_connections.cpp \
+	srcs/http/response/generate_directory_listing.cpp \
 	srcs/io/create_sockets.cpp \
 	srcs/io/EventLoop.cpp \
 	srcs/io/handle_fds.cpp \
 	srcs/io/run.cpp \
 	srcs/io/ListeningSocket.cpp \
 	srcs/io/socket_events.cpp \
+	srcs/io/handle_connections.cpp \
 	srcs/io/handle_connection_event.cpp \
 	srcs/config/ConfigParser.cpp \
 	srcs/config/Lexer.cpp \
