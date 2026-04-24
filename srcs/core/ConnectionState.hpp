@@ -8,6 +8,7 @@ namespace core {
 				IDLE,
 				READING,
 				PROCESSING,
+				CGI,
 				WRITING,
 				ERROR,
 				CLOSING,

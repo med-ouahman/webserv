@@ -49,6 +49,8 @@ namespace io {
 
         } else if (action.want_write) {
             write_to_socket(*conn);
+        } else if (action.want_cgi) {
+            // ??
         }
         
         return action.want_process && !action.want_close;

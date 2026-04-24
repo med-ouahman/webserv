@@ -1,20 +1,20 @@
 
 #include "HTTPRequest.hpp"
-#include "HTTPResponseHandler.hpp"
+#include "HTTPDispatcher.hpp"
 #include "Config.hpp"
 #include <iostream>
 
 namespace http {
 
-    HTTPResponseHandler::HTTPResponseHandler( const config::Config& conf )
+    HTTPDispatcher::HTTPDispatcher( const config::Config& conf )
         :allow_keep_alive(true),
         config(conf),
         serialize_state(DONE)
          {}
 
-    HTTPResponseHandler::~HTTPResponseHandler() {}
+    HTTPDispatcher::~HTTPDispatcher() {}
 
-    void HTTPResponseHandler::build_error_response( HTTPStatusCode code, std::string reason ) {
+    void HTTPDispatcher::build_error_response( HTTPStatusCode code, std::string reason ) {
         std::cout << "code: " << code << " reason: " << reason << "\n";
         response.status_code = code;
         response.reason = reason;

@@ -11,7 +11,7 @@ webserver/
 │   ├── connection_components.txt
 │   │   Connection
 │   │       ├── HTTPParser
-│   │       └── HTTPResponseHandler
+│   │       └── HTTPDispatcher
 │   │
 │   └── response_trigger.txt
 │       Response generation should start inside:
@@ -206,7 +206,7 @@ webserver/
 ├── response/
 │   │
 │   ├── handler.txt
-│   │   HTTPResponseHandler
+│   │   HTTPDispatcher
 │   │       builds HTTP response
 │   │       based on HTTPRequest
 │   │

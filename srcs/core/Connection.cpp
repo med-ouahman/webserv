@@ -31,7 +31,7 @@ namespace core {
 
     ConnectionAction Connection::desired_action( void ) const {
         
-        ConnectionAction action = { false, false, false, false };
+        ConnectionAction action = { false, false, false, false, false };
         
         if (p.get_bytes_consumed() < bytes_received) {
             action.want_process = true;
@@ -46,6 +46,9 @@ namespace core {
                 break;
             case ConnectionState::CLOSING:
                 action.want_close = true;
+                break;
+            case ConnectionState::CGI:
+                action.want_cgi = true;
                 break;
             default:
                 break;

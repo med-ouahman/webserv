@@ -16,7 +16,7 @@ namespace http {
 
     struct HTTPRequest;
 
-    class HTTPResponseHandler {
+    class HTTPDispatcher {
         private:
             HTTPResponse response;
             bool allow_keep_alive;
@@ -68,8 +68,8 @@ namespace http {
             std::string generate_anchor( const char* name );
 
         public:
-            HTTPResponseHandler( const config::Config& conf );
-            ~HTTPResponseHandler();
+            HTTPDispatcher( const config::Config& conf );
+            ~HTTPDispatcher();
             void serialize( void );
             void build_error_response( HTTPStatusCode code, std::string reason );
             void handle_request( const HTTPRequest& req );

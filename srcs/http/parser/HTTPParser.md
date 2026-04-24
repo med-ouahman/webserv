@@ -438,7 +438,7 @@ The parser is strictly responsible for structural parsing only. The following ar
 | Content-Type interpretation                  | Handler                        |
 | URI decoding and normalization               | Handler / Router               |
 | Routing                                      | Router                         |
-| Response generation                          | `HTTPResponseHandler`          |
+| Response generation                          | `HTTPDispatcher`          |
 | Socket I/O                                   | `Connection` / `EventLoop`     |
 | Keep-alive decision                          | `Connection`                   |
 | Request counting                             | `Connection`                   |

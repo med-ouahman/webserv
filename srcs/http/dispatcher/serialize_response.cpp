@@ -1,9 +1,9 @@
 
-#include "HTTPResponseHandler.hpp"
+#include "HTTPDispatcher.hpp"
 #include <sstream>
 
 namespace http {
-    void HTTPResponseHandler::serialize( void ) {
+    void HTTPDispatcher::serialize( void ) {
         response.body = "HTTP\1.1 ";
         std::stringstream ss;
         ss << response.status_code;

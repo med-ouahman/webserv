@@ -1,4 +1,4 @@
-#include "HTTPResponseHandler.hpp"
+#include "HTTPDispatcher.hpp"
 #include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -6,12 +6,12 @@
 
 namespace http {
     
-    std::string HTTPResponseHandler::generate_anchor( const char* name ) {
+    std::string HTTPDispatcher::generate_anchor( const char* name ) {
         std::string s = std::string(name);
         return std::string("<li><a href=\"") + s + std::string("\">") + s + std::string("</a></li>");
     }
 
-    std::string HTTPResponseHandler::generate_directory_list( const char* dirname ) {
+    std::string HTTPDispatcher::generate_directory_list( const char* dirname ) {
         DIR* dir = ::opendir(dirname);
      
         if (!dir) {

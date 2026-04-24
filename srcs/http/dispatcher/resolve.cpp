@@ -1,15 +1,15 @@
-#include "HTTPResponseHandler.hpp"
+#include "HTTPDispatcher.hpp"
 #include "Config.hpp"
 #include "HTTPRequest.hpp"
 #include <sys/stat.h>
 
 namespace http {
     
-    std::string HTTPResponseHandler::extract_path( const std::string& url ) {
+    std::string HTTPDispatcher::extract_path( const std::string& url ) {
         return url;
     }
 
-    bool HTTPResponseHandler::file_exists( const char* filename ) {
+    bool HTTPDispatcher::file_exists( const char* filename ) {
         struct stat buf;
         
         if (stat(filename, &buf)) {
@@ -19,7 +19,7 @@ namespace http {
         return true;
     }
 
-    HTTPResponseHandler::ResolutionResult HTTPResponseHandler::resolve( const HTTPRequest& req, const config::ServerConfig& server ) {
+    HTTPDispatcher::ResolutionResult HTTPDispatcher::resolve( const HTTPRequest& req, const config::ServerConfig& server ) {
         ResolutionResult result;
 
         const config::LocationConfig* location = find_location(req.url, server.locations);

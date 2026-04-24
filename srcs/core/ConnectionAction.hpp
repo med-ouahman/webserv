@@ -6,5 +6,6 @@ namespace core {
 		bool want_read;
 		bool want_close;
 		bool want_process;
+		bool want_cgi;
 	};
 }

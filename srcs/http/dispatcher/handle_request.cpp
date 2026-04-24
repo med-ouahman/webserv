@@ -1,4 +1,4 @@
-#include "HTTPResponseHandler.hpp"
+#include "HTTPDispatcher.hpp"
 #include "HTTPRequest.hpp"
 #include <fcntl.h>
 #include <fcntl.h>
@@ -11,7 +11,7 @@
 namespace http {
 
 
-    void HTTPResponseHandler::handle_request( const HTTPRequest& req ) {
+    void HTTPDispatcher::handle_request( const HTTPRequest& req ) {
         // ResolutionResult result = resolve(req, config.server);
         // send dummy response.
         (void)req;

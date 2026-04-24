@@ -1,9 +1,9 @@
 #include "Config.hpp"
-#include "HTTPResponseHandler.hpp"
+#include "HTTPDispatcher.hpp"
 
 namespace http {
 
-    const config::LocationConfig* HTTPResponseHandler::find_location( const std::string& url, const std::vector<config::LocationConfig>& locations ) {
+    const config::LocationConfig* HTTPDispatcher::find_location( const std::string& url, const std::vector<config::LocationConfig>& locations ) {
     
         config::LocationConfig* location = NULL;
         ::size_t best_prefix_length = 0;

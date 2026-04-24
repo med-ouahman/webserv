@@ -5,7 +5,7 @@
 #include "IOHandler.hpp"
 #include "ConnectionEvent.hpp"
 #include "HTTPParser.hpp"
-#include "HTTPResponseHandler.hpp"
+#include "HTTPDispatcher.hpp"
 #include "ConnectionStateMachine.hpp"
 #include "CGIHandler.hpp"
 
@@ -42,7 +42,7 @@ namespace core {
             /* config + parsing + response generation */
             ConnectionState::Type state;
             http::HTTPParser p;
-            http::HTTPResponseHandler handler;
+            http::HTTPDispatcher handler;
             const config::Config& config;
             bool close_after_write;
             ::size_t num_requests;
@@ -63,6 +63,7 @@ namespace core {
             http::CGIHandler cgi_handler;
         
         private:
+            /* timeout */
             uint64_t ms_;
 
         private:

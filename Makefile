@@ -19,7 +19,7 @@ INCLUDES = -Iincludes \
 	-Isrcs/io \
 	-Isrcs/http \
 	-Isrcs/http/parser \
-	-Isrcs/http/response \
+	-Isrcs/http/dispatcher \
 	-Isrcs/config \
 	-Isrcs/utils \
 
@@ -39,14 +39,14 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/parser/parser_scan_line.cpp \
 	srcs/http/parser/parser_consume.cpp \
 	srcs/http/parser/parser_detect_body.cpp \
-	srcs/http/response/HTTPResponseHandler.cpp \
-	srcs/http/response/serialize_response.cpp \
-	srcs/http/response/handle_request.cpp \
-	srcs/http/response/find_location.cpp \
-	srcs/http/response/resolve.cpp \
-	srcs/http/response/handler_produce.cpp \
-	srcs/http/response/CGIHandler.cpp \
-	srcs/http/response/generate_directory_listing.cpp \
+	srcs/http/dispatcher/HTTPDispatcher.cpp \
+	srcs/http/dispatcher/serialize_response.cpp \
+	srcs/http/dispatcher/handle_request.cpp \
+	srcs/http/dispatcher/find_location.cpp \
+	srcs/http/dispatcher/resolve.cpp \
+	srcs/http/dispatcher/handler_produce.cpp \
+	srcs/http/dispatcher/CGIHandler.cpp \
+	srcs/http/dispatcher/generate_directory_listing.cpp \
 	srcs/io/create_sockets.cpp \
 	srcs/io/EventLoop.cpp \
 	srcs/io/handle_fds.cpp \
