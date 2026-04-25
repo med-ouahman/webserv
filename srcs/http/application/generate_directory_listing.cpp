@@ -47,6 +47,7 @@ namespace http {
         }
         ::closedir(dir);
         buff.append("</body></html>" + div);
+        inFile << buff;
         return index;
     }
 }

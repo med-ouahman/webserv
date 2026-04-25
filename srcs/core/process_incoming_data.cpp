@@ -13,8 +13,7 @@ namespace core {
         if (result == http::HTTPParser::ParseResult::NEED_MORE_BYTES) {
             return true;
         } else if (result == http::HTTPParser::ParseResult::PARSE_ERROR) {
-            handler.build_error_response(http::BAD_REQUEST, "Bad request");
-            handler.serialize();
+            dispatcher.build_error_response(http::BAD_REQUEST, "Bad request");
             state = ConnectionState::WRITING;
             close_after_write = true;
             return false;
@@ -23,7 +22,7 @@ namespace core {
         http::HTTPRequest req = p.get_request();
         p.reset();
         close_after_write = !req.want_keep_alive();
-        handler.handle_request(req);
+        dispatcher.handle_request(req);
         state = ConnectionState::WRITING;
         return false;
     }

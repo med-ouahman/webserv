@@ -19,7 +19,11 @@ INCLUDES = -Iincludes \
 	-Isrcs/io \
 	-Isrcs/http \
 	-Isrcs/http/parser \
-	-Isrcs/http/dispatcher \
+	-Isrcs/http/application \
+	-Isrcs/http/application/body \
+	-Isrcs/http/application/cgi \
+	-Isrcs/http/application/dispatcher \
+	-Isrcs/http/application/response_builder \
 	-Isrcs/config \
 	-Isrcs/utils \
 
@@ -39,14 +43,14 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/parser/parser_scan_line.cpp \
 	srcs/http/parser/parser_consume.cpp \
 	srcs/http/parser/parser_detect_body.cpp \
-	srcs/http/dispatcher/HTTPDispatcher.cpp \
-	srcs/http/dispatcher/serialize_response.cpp \
-	srcs/http/dispatcher/handle_request.cpp \
-	srcs/http/dispatcher/find_location.cpp \
-	srcs/http/dispatcher/resolve.cpp \
-	srcs/http/dispatcher/handler_produce.cpp \
-	srcs/http/dispatcher/CGIHandler.cpp \
-	srcs/http/dispatcher/generate_directory_listing.cpp \
+	srcs/http/application/dispatcher/HTTPDispatcher.cpp \
+	srcs/http/application/dispatcher/serialize_response.cpp \
+	srcs/http/application/dispatcher/handle_request.cpp \
+	srcs/http/application/dispatcher/find_location.cpp \
+	srcs/http/application/dispatcher/resolve.cpp \
+	srcs/http/application/handler_produce.cpp \
+	srcs/http/application/cgi/CGIHandler.cpp \
+	srcs/http/application/generate_directory_listing.cpp \
 	srcs/io/create_sockets.cpp \
 	srcs/io/EventLoop.cpp \
 	srcs/io/handle_fds.cpp \

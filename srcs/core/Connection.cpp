@@ -12,15 +12,15 @@ namespace core {
         event_mask(mask),
         state(ConnectionState::IDLE),
         p(_fd, conf),
-        handler(conf),
+        dispatcher(conf),
         config(conf),
         close_after_write(false),
         num_requests(0),
         bytes_in_buff(0),
         sent_offset(0),
         bytes_received(0),
-        cgi_handler(loop, *this),
-        ms_(0) {}
+        ms_(0),
+        cgi_handler(NULL) {(void)loop;}
 
     Connection::~Connection() {
         if (fd >= 0) {

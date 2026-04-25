@@ -5,6 +5,7 @@
 #include "HTTPStatusCode.hpp"
 #include <vector>
 #include <iostream>
+#include "CGIContext.hpp"
 
 namespace config {
     struct ServerConfig;
@@ -20,41 +21,55 @@ namespace http {
         private:
             HTTPResponse response;
             bool allow_keep_alive;
+            static const char* CRLF;
+            static const size_t CRLF_SIZE = 2;
+            static const char* COLON;
 
-            class HTTPResponseType {
+            class HTTPResponseType
+            {
                 public:
-                enum Type {
-
-                    STATIC_FILE,
-                    DIRECTORY,
-                    CGI,
-                    FILE_UPLOAD,
-                    FILE_DELETE,
-                    REDIRECT,
-                    ERROR_RESPONSE
-                };
+                    enum Type
+                    {
+                        STATIC_FILE,
+                        DIRECTORY,
+                        CGI,
+                        FILE_UPLOAD,
+                        FILE_DELETE,
+                        REDIRECT,
+                        ERROR_RESPONSE
+                    };
             };
             
             const config::Config& config;
-            struct ResolutionResult {
+            struct ResolutionResult
+            {
                 HTTPResponseType::Type type;
-                int status_code;
+                HTTPStatusCode status_code;
                 std::string path;
                 std::string reason;
                 
-                ResolutionResult(): status_code(0) {}
-                ResolutionResult( int code, std::string r )
+                ResolutionResult(): status_code(NONE) {}
+                ResolutionResult( HTTPStatusCode code, std::string r )
                     : status_code(code), reason(r) {}
             };
-            
-            ::size_t offset_; /* How much bytes are sent in the response.*/
-            
+
+        private:
+            std::map<std::string, std::string>::iterator current_header; /* track the current header */
+            std::string line_buff;
+
         public:
-            enum SerializeState {
+            enum SerializeState
+            {
+                RESPONSE_LINE,
                 HEADERS,
                 BODY,
                 DONE
             } serialize_state;
+
+            struct HandlerResult {
+                HTTPResponseType::Type response_type;
+                CGIContext cgi_ctx;
+            };
 
         private:
             ResolutionResult resolve( const HTTPRequest& req, const config::ServerConfig& server );
@@ -62,6 +77,10 @@ namespace http {
                 const std::vector<config::LocationConfig>& locations );
             std::string extract_path( const std::string& url );
             static bool file_exists( const char* filename );
+        
+        private:
+            ::size_t serialize_headers( char* buff, ::size_t max_size );
+            void serialize_current_header( void );
 
         public:
             std::string generate_directory_list( const char* dir );
@@ -70,9 +89,8 @@ namespace http {
         public:
             HTTPDispatcher( const config::Config& conf );
             ~HTTPDispatcher();
-            void serialize( void );
             void build_error_response( HTTPStatusCode code, std::string reason );
-            void handle_request( const HTTPRequest& req );
+            HandlerResult handle_request( const HTTPRequest& req );
             ::ssize_t produce( char* buff, ::size_t max_size );
             bool allow_presistance( void ) { return allow_keep_alive; };
             

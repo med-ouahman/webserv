@@ -7,7 +7,7 @@ server_design/
 │   ├─ Each event cycle:
 │   │     attempt bounded progress
 │   │     yield back to epoll
-│   └─ Never busy-loop inside event dispatch
+│   └─ Never busy-loop inside event handle_request
 │
 ├─ epoll_rules
 │   ├─ Sockets must be non-blocking
@@ -21,7 +21,7 @@ server_design/
 │   ├─ map kernel events → internal events
 │   │     EPOLLIN  → READABLE
 │   │     EPOLLOUT → WRITABLE
-│   ├─ dispatch to Connection
+│   ├─ handle_request to Connection
 │   ├─ attempt progress
 │   │     drain reads
 │   │     process requests
@@ -79,7 +79,7 @@ server_design/
 │   │     req = parser.get_request()
 │   │     validate
 │   │     handler.handle_request(req)
-│   │     response_buffer = handler.serialize()
+│   │     response_buffer = handler.serialize_current_header()
 │   │     state = WRITING
 │   └─ parser.reset()
 │

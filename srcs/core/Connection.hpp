@@ -8,6 +8,7 @@
 #include "HTTPDispatcher.hpp"
 #include "ConnectionStateMachine.hpp"
 #include "CGIHandler.hpp"
+#include "CGIContext.hpp"
 
 namespace config {
     struct ServerConfig;
@@ -42,7 +43,7 @@ namespace core {
             /* config + parsing + response generation */
             ConnectionState::Type state;
             http::HTTPParser p;
-            http::HTTPDispatcher handler;
+            http::HTTPDispatcher dispatcher;
             const config::Config& config;
             bool close_after_write;
             ::size_t num_requests;
@@ -57,15 +58,16 @@ namespace core {
             /* input */
             char read_buff[READ_BUFFER_SIZE];
             ::size_t bytes_received;
-            
-        private:
-            /* CGI */
-            http::CGIHandler cgi_handler;
-        
+
         private:
             /* timeout */
             uint64_t ms_;
 
+        private:
+            http::CGIHandler* cgi_handler;
+            void enter_cgi( void );
+            void exit_cgi( void );
+            
         private:
             bool advance( void );
     

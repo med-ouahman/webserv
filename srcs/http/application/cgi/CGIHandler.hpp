@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IOHandler.hpp"
+#include <unistd.h>
 
 namespace io {
 	class EventLoop;

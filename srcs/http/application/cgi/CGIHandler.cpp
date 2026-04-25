@@ -1,6 +1,6 @@
 #include "CGIHandler.hpp"
-#include "Connection.hpp"
 #include "EventLoop.hpp"
+#include "Connection.hpp"
 
 namespace http {
 

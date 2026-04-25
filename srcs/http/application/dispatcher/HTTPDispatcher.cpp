@@ -5,7 +5,9 @@
 #include <iostream>
 
 namespace http {
-
+    const char* HTTPDispatcher::CRLF = "\r\n";
+    const char* HTTPDispatcher::COLON = ": ";
+    
     HTTPDispatcher::HTTPDispatcher( const config::Config& conf )
         :allow_keep_alive(true),
         config(conf),

@@ -27,14 +27,14 @@ namespace http {
         bool method_allowed = true;
         
         if (!location) {
-            result.status_code = 500;
+            result.status_code = INTERNAL_SERVER_ERROR;
             result.type = HTTPResponseType::ERROR_RESPONSE;
             result.path = "";
             return result;
         }
         
         if (location->redirect.return_code) {
-            return ResolutionResult(location->redirect.return_code, "Redirect");
+            return ResolutionResult(static_cast<HTTPStatusCode>(location->redirect.return_code), "Redirect");
         }
 
         if (location->allowed_methods.find(req.get_method(req.method)) == location->allowed_methods.end()) {
@@ -43,7 +43,7 @@ namespace http {
 
         if (req.method == DELETE) {
             if (!method_allowed) {
-                return ResolutionResult(405, "Method Not Allowed");
+                return ResolutionResult(METHOD_NOT_ALLOWED, "Method Not Allowed");
             }
 
             if (file_exists(path.c_str())) {
