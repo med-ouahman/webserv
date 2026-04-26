@@ -15,9 +15,9 @@ OBJDIR := obj
 NAME = webserv
 
 INCLUDES = -Iincludes \
-	-Isrcs/core \
-	-Isrcs/io \
-	-Isrcs/http \
+	-Isrcs/core/ \
+	-Isrcs/io/ \
+	-Isrcs/http/ \
 	-Isrcs/http/parser \
 	-Isrcs/http/application \
 	-Isrcs/http/application/body \
@@ -48,9 +48,11 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/application/dispatcher/handle_request.cpp \
 	srcs/http/application/dispatcher/find_location.cpp \
 	srcs/http/application/dispatcher/resolve.cpp \
+	srcs/http/application/dispatcher/get_cgi_context.cpp \
 	srcs/http/application/handler_produce.cpp \
 	srcs/http/application/cgi/CGIHandler.cpp \
-	srcs/http/application/generate_directory_listing.cpp \
+	srcs/http/application/response_builder/generate_directory_listing.cpp \
+	srcs/http/application/response_builder/MimeType.cpp \
 	srcs/io/create_sockets.cpp \
 	srcs/io/EventLoop.cpp \
 	srcs/io/handle_fds.cpp \

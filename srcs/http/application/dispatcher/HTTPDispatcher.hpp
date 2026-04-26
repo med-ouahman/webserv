@@ -25,24 +25,8 @@ namespace http {
             static const size_t CRLF_SIZE = 2;
             static const char* COLON;
 
-            class HTTPResponseType
-            {
-                public:
-                    enum Type
-                    {
-                        STATIC_FILE,
-                        DIRECTORY,
-                        CGI,
-                        FILE_UPLOAD,
-                        FILE_DELETE,
-                        REDIRECT,
-                        ERROR_RESPONSE
-                    };
-            };
-            
             const config::Config& config;
-            struct ResolutionResult
-            {
+            struct ResolutionResult {
                 HTTPResponseType::Type type;
                 HTTPStatusCode status_code;
                 std::string path;
@@ -58,8 +42,7 @@ namespace http {
             std::string line_buff;
 
         public:
-            enum SerializeState
-            {
+            enum SerializeState {
                 RESPONSE_LINE,
                 HEADERS,
                 BODY,
@@ -77,6 +60,7 @@ namespace http {
                 const std::vector<config::LocationConfig>& locations );
             std::string extract_path( const std::string& url );
             static bool file_exists( const char* filename );
+            CGIContext get_cgi_context( const HTTPRequest& req, const ResolutionResult& result );
         
         private:
             ::size_t serialize_headers( char* buff, ::size_t max_size );

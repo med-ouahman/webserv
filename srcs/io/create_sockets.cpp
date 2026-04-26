@@ -18,7 +18,7 @@ namespace io {
 		}
 
 		server_addr.sin_port = ::htons(endpoint.port);
-		int socket_fd = ::socket(AF_INET, SOCK_STREAM | O_NONBLOCK, 0);
+		int socket_fd = ::socket(AF_INET, SOCK_STREAM | O_NONBLOCK | SOCK_CLOEXEC, 0);
 		if (socket_fd < 0) {
 			return MAKE_ERRNO_ERROR("EventLoop::create_listening_socket::socket()");
 		}

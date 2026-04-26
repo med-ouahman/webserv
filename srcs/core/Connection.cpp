@@ -7,9 +7,10 @@
 
 namespace core {
     
-    Connection::Connection( int _fd, const config::Config& conf, uint32_t mask, const io::EventLoop& loop )
+    Connection::Connection( int _fd, const config::Config& conf, uint32_t mask, const io::EventLoop& l )
         :fd(_fd),
         event_mask(mask),
+        loop(l),
         state(ConnectionState::IDLE),
         p(_fd, conf),
         dispatcher(conf),
@@ -20,7 +21,7 @@ namespace core {
         sent_offset(0),
         bytes_received(0),
         ms_(0),
-        cgi_handler(NULL) {(void)loop;}
+        cgi_handler(NULL) {}
 
     Connection::~Connection() {
         if (fd >= 0) {

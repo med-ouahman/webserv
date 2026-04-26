@@ -11,7 +11,7 @@
 namespace http {
     /* t*/
 
-    HandlerResult HTTPDispatcher::handle_request( const HTTPRequest& req, CGIContext* cgi_context ) {
+    HTTPDispatcher::HandlerResult HTTPDispatcher::handle_request( const HTTPRequest& req ) {
         ResolutionResult result = resolve(req, config.server);
         HandlerResult handler_result;
 
@@ -33,11 +33,12 @@ namespace http {
                 /* upload file handler */
                 break;
             case HTTPResponseType::CGI:
-                handler_result.cgi_ctx = get_cgi_context(result, req);
+                handler_result.cgi_ctx = get_cgi_context(req, result);
                 break;
             default:
                 break;
         }
+        
         return handler_result;
     }
 }

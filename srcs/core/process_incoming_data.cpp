@@ -5,7 +5,8 @@ typedef http::HTTPParser::ParseState::Type ParseState;
 typedef http::HTTPParser::ParseResult::Type ParseResult;
 
 namespace core {
-    bool Connection::process_incoming_data( void ) {        
+    
+    bool Connection::process_incoming_data( void ) {
         
         p.set_data_buff(read_buff, bytes_received);
         ParseResult result = p.consume();
@@ -22,8 +23,13 @@ namespace core {
         http::HTTPRequest req = p.get_request();
         p.reset();
         close_after_write = !req.want_keep_alive();
-        dispatcher.handle_request(req);
-        state = ConnectionState::WRITING;
+        http::HTTPDispatcher::HandlerResult res = dispatcher.handle_request(req);
+        if (res.response_type == http::HTTPResponseType::CGI) {
+            state = ConnectionState::CGI;
+            enter_cgi(res.cgi_ctx);
+        } else {
+            state = ConnectionState::WRITING;
+        }
         return false;
     }
 }
