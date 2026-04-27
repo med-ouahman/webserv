@@ -213,24 +213,24 @@ The auto-index HTML is generated in full as a string, written to a temp file via
 
 ## 7. CGI Architecture
 
-CGI is the only response type that involves a child process. It uses the existing `IOHandler` polymorphism — the same interface the EventLoop uses for client sockets.
+CGI is the only response type that involves a child process. It uses the existing `IIOHandler` polymorphism — the same interface the EventLoop uses for client sockets.
 
-### `IOHandler` interface
+### `IIOHandler` interface
 
 ```cpp
 namespace io {
-class IOHandler {
+class IIOHandler {
 public:
     virtual void on_event(EventType event) = 0;
-    virtual ~IOHandler() {}
+    virtual ~IIOHandler() {}
 };
 }
 ```
 
-The EventLoop maps `fd → IOHandler*` and dispatches blindly:
+The EventLoop maps `fd → IIOHandler*` and dispatches blindly:
 
 ```cpp
-IOHandler* handler = static_cast<IOHandler*>(events[i].data.ptr);
+IIOHandler* handler = static_cast<IIOHandler*>(events[i].data.ptr);
 if (events[i].events & EPOLLIN)       handler->on_event(READABLE);
 else if (events[i].events & EPOLLOUT) handler->on_event(WRITABLE);
 else if (events[i].events & (EPOLLERR | EPOLLHUP)) handler->on_event(ERROR);
@@ -238,7 +238,7 @@ else if (events[i].events & (EPOLLERR | EPOLLHUP)) handler->on_event(ERROR);
 
 ### `CGIHandler`
 
-A derived `IOHandler` registered with epoll on the CGI process's stdout pipe fd.
+A derived `IIOHandler` registered with epoll on the CGI process's stdout pipe fd.
 
 **Members:**
 - `int _pipe_fd` — non-blocking stdout pipe from CGI process

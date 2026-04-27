@@ -2,7 +2,7 @@
 
 #include "ConnectionState.hpp"
 #include "ConnectionAction.hpp"
-#include "IOHandler.hpp"
+#include "IIOHandler.hpp"
 #include "ConnectionEvent.hpp"
 #include "HTTPParser.hpp"
 #include "ConnectionStateMachine.hpp"
@@ -16,7 +16,7 @@ namespace config {
 
 namespace core {
 
-    class Connection: public io::IOHandler {
+    class Connection: public io::IIOHandler {
         public:
             explicit Connection( int fd, const config::Config& conf, uint32_t mask, const io::EventLoop& loop );
             ~Connection();
@@ -88,6 +88,7 @@ namespace core {
             bool on_read( ::ssize_t bytes );
             bool read_buff_empty() const;
             char* get_read_buff( void ) const { return (char* )read_buff; }
+            
             http::CGIHandler* get_cgi_handler( void ) const { return cgi_handler; }
             void tick( void );
     };

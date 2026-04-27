@@ -5,18 +5,13 @@
 namespace http {
 
     CGIHandler::CGIHandler( const io::EventLoop& l, const core::Connection& con )
-        :loop(l),
+        : cgi_state(SPAWN),
+        loop(l),
         conn(con),
         cgi_pid(-1),
-        pipe_stdin(-1),
-        pipe_stdout(-1),
-        pipe_stderr(-1) {}
+        stdin_ch(pipe_guard.stdin_pipe[1], this, Stream::STDIN, EPOLLOUT | EPOLLET),
+        stdout_ch(pipe_guard.stdout_pipe[0], this, Stream::STDOUT, EPOLLIN | EPOLLET),
+        stderr_ch(pipe_guard.stderr_pipe[0], this, Stream::STDERR, EPOLLIN | EPOLLET) {}
 
     CGIHandler::~CGIHandler() {}
-
-    void CGIHandler::on_event( io::EventType event ) {
-        if (event == io::ERROR) {
-            
-        }  
-    }
 }

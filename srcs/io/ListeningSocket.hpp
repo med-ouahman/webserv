@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include "IOHandler.hpp"
+#include "IIOHandler.hpp"
 
 #ifndef NDEBUG
 #define NDEBUG 4
@@ -11,7 +11,7 @@
 namespace io {
 	class EventLoop;
 
-	class ListeningSocket: public IOHandler {
+	class ListeningSocket: public IIOHandler {
 		private:
 			int socket_fd;
 			EventLoop& loop;

@@ -16,7 +16,7 @@ namespace core {
 }
 
 namespace io {
-	class IOHandler;
+	class IIOHandler;
 
 	class EventLoop {
 		private:
@@ -28,6 +28,7 @@ namespace io {
 			std::vector<core::Connection*> conns;
 			const config::Config& conf;
 			std::vector<ListeningSocket> listeners;
+			std::vector<io::IIOHandler*> pending_handlers;
 
 		private:
 			EventLoop( const EventLoop& other );
@@ -47,10 +48,13 @@ namespace io {
 			
 		public:
 			static const int MAX_TIMEOUT_MS = 60;
-			bool add_fd( int fd, uint32_t events, IOHandler* handler );
+			void register_handler( IIOHandler* new_handler );
+
+			bool add_fd( int fd, uint32_t events, IIOHandler* handler );
 			bool add_connection( int client_fd );
-			bool mod_fd( int fd, uint32_t events, IOHandler* handler );
+			bool mod_fd( int fd, uint32_t events, IIOHandler* handler );
 			bool del_fd( int fd );
+			
 			explicit EventLoop( const config::Config& conf );
 			~EventLoop();
 			int run( void ); 

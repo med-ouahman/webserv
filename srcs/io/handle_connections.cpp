@@ -51,23 +51,10 @@ namespace io {
         conn->tick();
         core::ConnectionAction action = conn->desired_action();
 
-
         if (action.want_read) {
             read_from_socket(*conn);
         } else if (action.want_write) {
             write_to_socket(*conn);
-        } else if (action.want_cgi) {
-            http::CGIHandler* cgi_handler = conn->get_cgi_handler();
-            
-            ReadFd stderr_fd = cgi_handler->get_stderr_pipe();
-            add_fd(stderr_fd.fd, EPOLLIN | EPOLLET, cgi_handler);
-            
-            ReadFd stdout_fd = cgi_handler->get_stdout_pipe();
-            add_fd(stdout_fd.fd, EPOLLIN | EPOLLET, cgi_handler);
-            
-            WriteFd stdin_fd = cgi_handler->get_stdin_pipe();
-            add_fd(stderr_fd.fd, EPOLLOUT | EPOLLET, cgi_handler);
-            return true;
         }
         
         return action.want_process && !action.want_close;

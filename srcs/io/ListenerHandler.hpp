@@ -1,10 +1,10 @@
 #pragma once
 
-#include "IOHandler.hpp"
+#include "IIOHandler.hpp"
 
 namespace io {
 
-    class ListenerHandler: public IOHandler {
+    class ListenerHandler: public IIOHandler {
         public:
             void on_event( uint32_t event );
         private:

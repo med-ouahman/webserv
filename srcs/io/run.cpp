@@ -16,7 +16,7 @@ namespace io {
             }
 
             for ( int i(0); i < n; ++i ) {
-                IOHandler* handler = static_cast<IOHandler*>(events[i].data.ptr);
+                IIOHandler* handler = static_cast<IIOHandler*>(events[i].data.ptr);
                 if (events[i].events & EPOLLIN) {
                     handler->on_event(READABLE);
                 } else if (events[i].events & EPOLLOUT) {

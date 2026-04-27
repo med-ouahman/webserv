@@ -1,8 +1,8 @@
 #include "EventLoop.hpp"
-#include "IOHandler.hpp"
+#include "IIOHandler.hpp"
 
 namespace io {
-	bool EventLoop::add_fd( int fd, uint32_t events, IOHandler* handler ) {
+	bool EventLoop::add_fd( int fd, uint32_t events, IIOHandler* handler ) {
 		epoll_event event;
 		event.events = events;
 		event.data.ptr = handler;
@@ -15,7 +15,7 @@ namespace io {
 		return true;
 	}
 
-	bool EventLoop::mod_fd( int fd, uint32_t events, IOHandler* handler ) {
+	bool EventLoop::mod_fd( int fd, uint32_t events, IIOHandler* handler ) {
 		epoll_event event;
 		event.events = events;
 		event.data.ptr = handler;

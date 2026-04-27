@@ -51,6 +51,8 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/application/dispatcher/get_cgi_context.cpp \
 	srcs/http/application/handler_produce.cpp \
 	srcs/http/application/cgi/CGIHandler.cpp \
+	srcs/http/application/cgi/spawn.cpp \
+	srcs/http/application/cgi/IOChannel.cpp \
 	srcs/http/application/response_builder/generate_directory_listing.cpp \
 	srcs/http/application/response_builder/MimeType.cpp \
 	srcs/io/create_sockets.cpp \
