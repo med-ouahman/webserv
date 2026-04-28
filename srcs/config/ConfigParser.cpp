@@ -63,6 +63,15 @@ static size_t parseSize(const std::string& value)
     return static_cast<size_t>(result);
 }
 
+static size_t parseNumber(const std::string& value)
+{
+    char* end = 0;
+    unsigned long number = std::strtoul(value.c_str(), &end, 10);
+    if (*end != '\0')
+        throw std::runtime_error("Invalid numeric value");
+    return static_cast<size_t>(number);
+}
+
 static uint32_t parseHost(const std::string& value)
 {
     struct in_addr addr;
@@ -289,6 +298,16 @@ void ConfigParser::parseLocationDirective(LocationConfig& loc)
         loc.cgi_path = expect(WORD).value;
         if (!loc.cgi_extension.empty())
             loc.cgi_pass[loc.cgi_extension] = loc.cgi_path;
+    }
+
+    else if (key == "cgi_dir")
+    {
+        loc.cgi_dir = expect(WORD).value;
+    }
+
+    else if (key == "cgi_timeout")
+    {
+        loc.cgi_timeout = parseNumber(expect(WORD).value);
     }
 
     else

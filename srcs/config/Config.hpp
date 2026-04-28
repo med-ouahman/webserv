@@ -35,6 +35,8 @@ struct LocationConfig {
     std::string cgi_extension;
     std::string cgi_path;
     std::map<std::string, std::string> cgi_pass;
+    std::string cgi_dir;
+    size_t cgi_timeout;
 
     LocationConfig()
         : path(),
@@ -47,7 +49,9 @@ struct LocationConfig {
           upload_path(),
           cgi_extension(),
           cgi_path(),
-          cgi_pass()
+          cgi_pass(),
+          cgi_dir(),
+          cgi_timeout(0)
     {}
 };
 
