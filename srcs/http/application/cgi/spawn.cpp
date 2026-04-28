@@ -35,8 +35,16 @@ namespace http {
             return ;
         }
 
-        loop.register_handler(&stdin_ch);
-        loop.register_handler(&stdout_ch);
-        loop.register_handler(&stderr_ch);
+        loop.register_io_handler(&stdin_ch);
+        loop.register_io_handler(&stdout_ch);
+        loop.register_io_handler(&stderr_ch);
+    }
+
+    void CGIHandler::handle_event( io::EventType event, Stream::Type stream ) {
+        if (event == io::EventType::ERROR) {
+            cgi_state = ERROR;
+            return ;
+        }
+
     }
 }

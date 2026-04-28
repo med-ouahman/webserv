@@ -25,6 +25,7 @@ namespace http {
 			explicit CGIHandler( const io::EventLoop& loop, const core::Connection& con );
 			~CGIHandler();
 			void spawn( const CGIContext& context );
+			void handle_event( io::EventType event_type, Stream::Type stream );
 
 		private:
 			enum CGIState {

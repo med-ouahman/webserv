@@ -20,7 +20,9 @@ namespace io {
 
 	class EventLoop {
 		private:
-			const static ::size_t MAX_EVENTS = 128;
+			const static ::size_t MAX_EVENTS			= 128;
+			const static ::size_t MAX_CONCURRENT_CGI	= 100;
+			static const int 	  MAX_TIMEOUT_MS		= 60;
 			
 		private:
 			int epoll_fd;
@@ -29,6 +31,7 @@ namespace io {
 			const config::Config& conf;
 			std::vector<ListeningSocket> listeners;
 			std::vector<io::IIOHandler*> pending_handlers;
+			std::vector<http::CGIHandler*> cgi_handlers;
 
 		private:
 			EventLoop( const EventLoop& other );
@@ -47,17 +50,17 @@ namespace io {
 			void sweep( void );
 			
 		public:
-			static const int MAX_TIMEOUT_MS = 60;
-			void register_handler( IIOHandler* new_handler );
-
-			bool add_fd( int fd, uint32_t events, IIOHandler* handler );
-			bool add_connection( int client_fd );
-			bool mod_fd( int fd, uint32_t events, IIOHandler* handler );
-			bool del_fd( int fd );
-			
+			void register_io_handler( IIOHandler* io_handler );
+			void register_cgi_handler( http::CGIHandler* cgi_handler );
 			explicit EventLoop( const config::Config& conf );
 			~EventLoop();
 			int run( void ); 
 
+		private:
+			bool add_fd( int fd, uint32_t events, IIOHandler* handler );
+			bool add_connection( int client_fd );
+			bool mod_fd( int fd, uint32_t events, IIOHandler* handler );
+			bool del_fd( int fd );
+		
 	};
 }

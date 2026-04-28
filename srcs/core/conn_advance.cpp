@@ -4,11 +4,11 @@
 namespace core {
 
 	bool Connection::advance( void ) {
-		bytes_in_buff = dispatcher.produce(output_buff, SEND_CHUNK_SIZE);
-		if (bytes_in_buff < 0) {
+		bytes_in = dispatcher.produce(writebuff, SEND_CHUNK_SIZE);
+		if (bytes_in < 0) {
 			state = ConnectionState::CLOSING;
 			return false;
-		} else if (bytes_in_buff == 0) {
+		} else if (bytes_in == 0) {
 			if (bytes_received == 0) {
 				state = ConnectionState::IDLE;
 			} else {

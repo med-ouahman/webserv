@@ -2,13 +2,12 @@
 
 #include "ConnectionState.hpp"
 #include "ConnectionAction.hpp"
-#include "IIOHandler.hpp"
 #include "ConnectionEvent.hpp"
 #include "HTTPParser.hpp"
-#include "ConnectionStateMachine.hpp"
 #include "CGIHandler.hpp"
 #include "CGIContext.hpp"
-#include "application/dispatcher/HTTPDispatcher.hpp"
+#include "HTTPDispatcher.hpp"
+#include "Stream.hpp"
 
 namespace config {
     struct ServerConfig;
@@ -16,17 +15,15 @@ namespace config {
 
 namespace core {
 
-    class Connection: public io::IIOHandler {
+    class Connection: public io::Stream {
         public:
             explicit Connection( int fd, const config::Config& conf, uint32_t mask, const io::EventLoop& loop );
             ~Connection();
-            const static std::size_t READ_BUFFER_SIZE = 1024 * 16;
 
         private:
             const static std::size_t SEND_CHUNK_SIZE = 1024 * 16;
             const static std::size_t MAX_REQUESTS = 100;
             const static std::size_t MAX_INACTIVITY_LIMIT = 100;
-            const static std::size_t MAX_CGI_WAIT = 2000;
             const static std::size_t MAX_IDLE_TIMEOUT = 500;
             const static std::size_t MIN_PROGRESS_BYTES = 1024 * 4;
             const static std::size_t MIN_BODY_CHUNK       = 4096;
@@ -48,17 +45,6 @@ namespace core {
             const config::Config& config;
             bool close_after_write;
             ::size_t num_requests;
-            
-        private:
-            /* Output */
-            char output_buff[SEND_CHUNK_SIZE];
-            ::ssize_t bytes_in_buff;
-            ::size_t sent_offset;
-            
-        private:
-            /* input */
-            char read_buff[READ_BUFFER_SIZE];
-            ::size_t bytes_received;
 
         private:
             /* timeout */
@@ -71,25 +57,20 @@ namespace core {
             void exit_cgi( void );
             
         private:
+            void process( void );
+            void error( void );
             bool advance( void );
     
         public:
             int get_fd( void ) const;
-            void on_event( io::EventType event );
             ConnectionAction desired_action() const;
             void set_mask( uint32_t new_mask ) { event_mask = new_mask; }
             uint32_t get_mask( void ) const { return event_mask; }
             
         public:
-            bool process_incoming_data( void );
-            bool on_write( ::ssize_t sent_bytes );
-            const char* get_write_buff( void ) const;
-            ::size_t bytes_remaining( void ) const;
-            bool on_read( ::ssize_t bytes );
-            bool read_buff_empty() const;
-            char* get_read_buff( void ) const { return (char* )read_buff; }
-            
-            http::CGIHandler* get_cgi_handler( void ) const { return cgi_handler; }
+            bool process_incoming_data( void ); // soon be private.
+            bool on_write( void );
+            bool on_read( void );
             void tick( void );
     };
 }

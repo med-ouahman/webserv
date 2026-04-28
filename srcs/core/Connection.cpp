@@ -17,9 +17,6 @@ namespace core {
         config(conf),
         close_after_write(false),
         num_requests(0),
-        bytes_in_buff(0),
-        sent_offset(0),
-        bytes_received(0),
         ms_(0),
         cgi_handler(NULL) {}
 
@@ -59,22 +56,18 @@ namespace core {
         return fd;
     }
 
-    bool Connection::on_read( ::ssize_t bytes ) {
-   
-        if (bytes <= 0) {
-            if (bytes == 0) {
+    bool Connection::on_read( void ) {
+        
+        if (bytes_received <= 0) {
+            if (bytes_received == 0) {
                 state = ConnectionState::CLOSING;
             }
             return false;
         }
-        
-        bytes_received = bytes;
+    
         return true;
     }
 
-    bool Connection::read_buff_empty() const {
-        return p.get_bytes_consumed() == bytes_received;
-    }
 
     void Connection::tick( void ) {
         

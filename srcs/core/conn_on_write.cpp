@@ -6,15 +6,15 @@
 
 namespace core {
 
-    bool Connection::on_write( ::ssize_t sent_bytes ) {
+    bool Connection::on_write( void ) {
         
         if (sent_bytes < 0) {
             return false;
         }
     
         sent_offset += sent_bytes;
-        bytes_in_buff -= sent_bytes;
-        if (0 == bytes_in_buff) {
+        bytes_in -= sent_bytes;
+        if (0 == bytes_in) {
             sent_offset = 0;
             if (advance()) {
                 return true;
@@ -26,14 +26,6 @@ namespace core {
         }
 
         return true;
-    }
-
-    const char* Connection::get_write_buff( void ) const {
-        return output_buff + sent_offset;
-    }
-
-    ::size_t Connection::bytes_remaining( void ) const {
-        return bytes_in_buff;
     }
 
 }

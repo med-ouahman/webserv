@@ -16,7 +16,11 @@ namespace http {
     }
 
     void IOChannel::on_event( io::EventType type ) {
-        /* map event to stream type */
+        
+        switch (type) {
+            case io::EventType::READABLE:
+            
+        }
     }
 
     int IOChannel::get_fd( void ) const {

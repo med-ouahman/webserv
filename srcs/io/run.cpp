@@ -27,7 +27,6 @@ namespace io {
             }
 
             for ( ::size_t i(0); i < conns.size(); ++i ) {
-                while (apply_connection_actions(conns.at(i)));
                 update_epoll_interest(conns.at(i));
             }
             

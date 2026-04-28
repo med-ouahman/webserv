@@ -16,8 +16,9 @@ namespace io {
 			int socket_fd;
 			EventLoop& loop;
 			ListeningSocket& operator=( const ListeningSocket& socket );
-			bool accept_clients();
-			bool on_error();
+			bool accept_clients( void );
+			bool on_error( void );
+			
 		public:
 			ListeningSocket( const ListeningSocket& socket );
 			int get_fd() { return socket_fd; }
