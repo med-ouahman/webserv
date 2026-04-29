@@ -30,10 +30,13 @@ INCLUDES = -Iincludes \
 SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/Connection.cpp \
 	srcs/core/ConnectionStateMachine.cpp \
-	srcs/core/connection_on_event.cpp \
 	srcs/core/process_incoming_data.cpp \
 	srcs/core/conn_on_write.cpp \
 	srcs/core/conn_advance.cpp \
+	srcs/core/conn_cgi.cpp \
+	srcs/core/conn_error.cpp \
+	srcs/core/conn_process.cpp \
+	srcs/core/conn_handle_event.cpp \
 	srcs/http/parser/HTTPParser.cpp \
 	srcs/http/parser/parse_headers.cpp \
 	srcs/http/parser/parse_request_line.cpp \
@@ -53,6 +56,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/application/cgi/CGIHandler.cpp \
 	srcs/http/application/cgi/spawn.cpp \
 	srcs/http/application/cgi/IOChannel.cpp \
+	srcs/http/application/cgi/io_channel_handle_event.cpp \
 	srcs/http/application/response_builder/generate_directory_listing.cpp \
 	srcs/http/application/response_builder/MimeType.cpp \
 	srcs/io/create_sockets.cpp \
@@ -62,7 +66,11 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/io/ListeningSocket.cpp \
 	srcs/io/socket_events.cpp \
 	srcs/io/handle_connections.cpp \
-	srcs/io/handle_connection_event.cpp \
+	srcs/io/register_handlers.cpp \
+	srcs/io/Stream.cpp \
+	srcs/io/stream_read.cpp \
+	srcs/io/stream_write.cpp \
+	srcs/io/stream_on_event.cpp \
 	srcs/config/ConfigParser.cpp \
 	srcs/config/Lexer.cpp \
 

@@ -15,6 +15,10 @@ namespace io {
             LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_create()"));
             running = false;
         }
+
+        if (running) {
+            running = start_listeners();
+        }
     }
 
     EventLoop::~EventLoop() {
@@ -27,9 +31,6 @@ namespace io {
             delete conns[i];
         }
         
-        for ( ::size_t i = 0; i < listeners.size(); i++ ) {
-            listeners[i].close();
-        }
     }
 
     EventLoop& EventLoop::operator=( const EventLoop& other ) { 

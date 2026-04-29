@@ -43,7 +43,7 @@ namespace http {
         }
 
         private:
-            PipeGuard( const PipeGuard& ) = delete;
-            PipeGuard& operator=( const PipeGuard& ) = delete;
+            PipeGuard( const PipeGuard& ) {};
+            PipeGuard& operator=( const PipeGuard& ) { return *this; };
     };
 }

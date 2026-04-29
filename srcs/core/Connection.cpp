@@ -8,7 +8,8 @@
 namespace core {
     
     Connection::Connection( int _fd, const config::Config& conf, uint32_t mask, const io::EventLoop& l )
-        :fd(_fd),
+        :Stream(_fd),
+        processing(true),
         event_mask(mask),
         loop(l),
         state(ConnectionState::IDLE),
@@ -21,20 +22,14 @@ namespace core {
         cgi_handler(NULL) {}
 
     Connection::~Connection() {
-        if (fd >= 0) {
-            ::close(fd);
-        }
+    
         state = ConnectionState::CLOSING;
     }
 
     ConnectionAction Connection::desired_action( void ) const {
         
         ConnectionAction action = { false, false, false, false };
-        
-        if (p.get_bytes_consumed() < bytes_received) {
-            action.want_process = true;
-        }
-
+    
         switch (state) {
             case ConnectionState::READING:
                 action.want_read = true;
@@ -56,17 +51,7 @@ namespace core {
         return fd;
     }
 
-    bool Connection::on_read( void ) {
-        
-        if (bytes_received <= 0) {
-            if (bytes_received == 0) {
-                state = ConnectionState::CLOSING;
-            }
-            return false;
-        }
     
-        return true;
-    }
 
 
     void Connection::tick( void ) {

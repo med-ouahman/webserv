@@ -15,6 +15,10 @@ namespace core {
 	class Connection;
 }
 
+namespace http {
+	class CGIHandler;
+}
+
 namespace io {
 	class IIOHandler;
 
@@ -28,7 +32,6 @@ namespace io {
 			int epoll_fd;
 			bool running;
 			std::vector<core::Connection*> conns;
-			const config::Config& conf;
 			std::vector<ListeningSocket> listeners;
 			std::vector<io::IIOHandler*> pending_handlers;
 			std::vector<http::CGIHandler*> cgi_handlers;
@@ -38,27 +41,24 @@ namespace io {
 			EventLoop& operator=( const EventLoop& other );
 		
 		private:
-			void read_from_socket( core::Connection& conn );
-            void write_to_socket( core::Connection& conn );
 			error::Result<int> create_listening_socket( const config::ListenEndPoint& endpoint );
 			bool start_listeners( void );
 
 		private:
 			bool remove_connections( void );
-			bool apply_connection_actions( core::Connection* conn );
 			void update_epoll_interest( core::Connection* conn );
 			void sweep( void );
 			
 		public:
-			void register_io_handler( IIOHandler* io_handler );
 			void register_cgi_handler( http::CGIHandler* cgi_handler );
 			explicit EventLoop( const config::Config& conf );
 			~EventLoop();
 			int run( void ); 
+			const config::Config& conf;
+			bool add_connection( int client_fd );
 
 		private:
 			bool add_fd( int fd, uint32_t events, IIOHandler* handler );
-			bool add_connection( int client_fd );
 			bool mod_fd( int fd, uint32_t events, IIOHandler* handler );
 			bool del_fd( int fd );
 		

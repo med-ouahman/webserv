@@ -50,13 +50,13 @@ The body is handled by an `IBodyProvider` instance which maintains its own inter
 
 ---
 
-## 3. The `advance()` / `on_write()` Layer
+## 3. The `advance()` / `on_writeable()` Layer
 
 `produce()` is never called directly by the EventLoop. The call chain is:
 
 ```
 EventLoop::write_to_socket()
-    → Connection::on_write(ssize_t sent_bytes)
+    → Connection::on_writeable(ssize_t bytes_sent)
         → Connection::advance()
             → handler::produce(buffer, SEND_CHUNK_SIZE)
 ```
@@ -77,19 +77,19 @@ bool Connection::advance(void) {
 
 `advance()` is the sole owner of the `-1` case from `produce()`. It sets `state = CLOSING` and returns `false`. It never touches `bytes_in_buff` on error, preventing the `-1` from being cast to a large `size_t`.
 
-### `on_write()`
+### `on_writeable()`
 
 ```cpp
-bool Connection::on_write(ssize_t sent_bytes) {
+bool Connection::on_writeable(ssize_t bytes_sent) {
     if (state == CLOSING) {
         close_after_write = true;
         return false;
     }
-    if (sent_bytes < 0) {
+    if (bytes_sent < 0) {
         return false;           // write() returned -1, yield to epoll
     }
-    sent_offset   += sent_bytes;
-    bytes_in_buff -= sent_bytes;
+    sent_offset   += bytes_sent;
+    bytes_in_buff -= bytes_sent;
     if (bytes_in_buff == 0) {
         sent_offset = 0;
         if (advance()) {
@@ -106,7 +106,7 @@ bool Connection::on_write(ssize_t sent_bytes) {
 }
 ```
 
-`on_write()` is called after every `write()` in the EventLoop, including the very first call where `sent_bytes = 0`. Since `bytes_in_buff` is zero at the READING → WRITING transition, the first call always triggers `advance()` to fill the buffer, requiring no special initialization flag.
+`on_writeable()` is called after every `write()` in the EventLoop, including the very first call where `bytes_sent = 0`. Since `bytes_in_buff` is zero at the READING → WRITING transition, the first call always triggers `advance()` to fill the buffer, requiring no special initialization flag.
 
 ### EventLoop write loop
 
@@ -114,7 +114,7 @@ bool Connection::on_write(ssize_t sent_bytes) {
 void EventLoop::write_to_socket(Connection& conn) {
     ssize_t bytes_sent = 0;
     while (true) {
-        if (!conn.on_write(bytes_sent))
+        if (!conn.on_writeable(bytes_sent))
             break;
         bytes_sent = ::write(conn.get_fd(),
                              conn.get_write_buff(),
@@ -324,7 +324,7 @@ When the parser signals a complete request, the connection transitions from `REA
 - `bytes_in_buff`
 - `sent_offset`
 
-The zero value of `bytes_in_buff` is the trigger that causes the first `on_write(0)` call in the write loop to immediately invoke `advance()`, which calls `produce()` for the first time and fills the buffer. No initialization flag is needed.
+The zero value of `bytes_in_buff` is the trigger that causes the first `on_writeable(0)` call in the write loop to immediately invoke `advance()`, which calls `produce()` for the first time and fills the buffer. No initialization flag is needed.
 
 ---
 
@@ -332,7 +332,7 @@ The zero value of `bytes_in_buff` is the trigger that causes the first `on_write
 
 - `produce()` is the only caller of `IBodyProvider::read()`
 - `advance()` is the only caller of `produce()`
-- `on_write()` is the only caller of `advance()`
+- `on_writeable()` is the only caller of `advance()`
 - `EventLoop` is the only entity that calls `epoll_ctl`
 - `CGIHandler` communicates with `Connection` only through `EventLoop` fd registration
 - `errno` is never checked after any I/O operation

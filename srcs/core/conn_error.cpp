@@ -3,6 +3,6 @@
 namespace core {
 
     void Connection::error( void ) {
-        state = ConnectionState::CLOSING;   
+        state = ConnectionState::CLOSING;
     }
 }

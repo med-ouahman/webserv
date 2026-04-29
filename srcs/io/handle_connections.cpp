@@ -46,20 +46,6 @@ namespace io {
         return true;
     }
 
-    bool EventLoop::apply_connection_actions( core::Connection* conn ) {
-        
-        conn->tick();
-        core::ConnectionAction action = conn->desired_action();
-
-        if (action.want_read) {
-            read_from_socket(*conn);
-        } else if (action.want_write) {
-            write_to_socket(*conn);
-        }
-        
-        return action.want_process && !action.want_close;
-    }
-
     void EventLoop::update_epoll_interest( core::Connection* conn ) {
 
         ::uint32_t new_mask = EPOLLIN | EPOLLET;

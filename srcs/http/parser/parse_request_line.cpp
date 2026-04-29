@@ -15,6 +15,7 @@ namespace http {
 
 			if (line_buff.empty() && leading_crlf_count < MAX_LEADING_CRLF) {
 				leading_crlf_count++;
+				std::cout << "leadingcrlf\n";
 				continue;
 			} else {
 				break;

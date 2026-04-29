@@ -11,7 +11,7 @@ namespace io {
         socklen_t client_addr_len = sizeof(client_addr);
         while (true) {
             
-            int client_fd = ::accept(socket_fd, (struct sockaddr* )&client_addr, &client_addr_len);
+            int client_fd = ::accept(fd, (struct sockaddr* )&client_addr, &client_addr_len);
             if (client_fd < 0) {
                 if (errno != EAGAIN)
                     LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::accept()"));

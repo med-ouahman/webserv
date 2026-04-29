@@ -6,6 +6,8 @@ namespace http {
 
 	::ssize_t HTTPDispatcher::produce( char* buff, ::size_t size ) {
 		
+		::memcpy(buff, response.body.c_str(), response.body.size());
+		return response.body.size();
 		::size_t bytes = 0;
 
 		if (HEADERS == serialize_state || RESPONSE_LINE == serialize_state) {

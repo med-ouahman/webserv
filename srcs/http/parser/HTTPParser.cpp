@@ -44,7 +44,7 @@ namespace http {
 		request = HTTPRequest();
 	}
 
-	void HTTPParser::set_data_buff( const char* buff, ::size_t size ) {
+	void HTTPParser::feed( const char* buff, ::size_t size ) {
 		if (bytes_consumed == len_) {
 			data_ = (char *)buff;
 			len_ = size;

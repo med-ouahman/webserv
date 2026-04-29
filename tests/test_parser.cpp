@@ -388,15 +388,15 @@ int main(int argc, char* argv[])
     std::cout << "C++ HTTP Parser Test Client → " << g_host << ":" << g_port << "\n";
     std::cout << std::string(50, '=') << "\n";
         
-    test_slow_client();
-    // test_keep_alive(4);
+    // test_slow_client();
+    test_keep_alive(4);
     // test_bad_request();
     // test_byte_by_byte();
     // test_content_length_zero();
     // test_delete_put();
     // test_header_case();
     // test_http10();
-    // test_keep_alive();
+    // test_keep_alive(4);
     // test_large_body();
     // test_missing_host();
     // test_pipelined();

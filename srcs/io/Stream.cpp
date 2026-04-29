@@ -1,35 +1,13 @@
 #include "Stream.hpp"
-#include <unistd.h>
 
 namespace io {
     
-    Stream::Stream()
-        :bytes_in(0),
-        bytes_received(0) {}
-
-    void Stream::read( void ) {
-
-        while (true) {
-            if (bytes_received == 0) {
-                bytes_received = ::read(fd, readbuf, READ_BUFFER_SIZE);
-                if (bytes_received < 0) {
-                    break;
-                }
-            }
-            process();
-        }
-    }
-    
-    void Stream::write( void ) {
-        while (true) {
-            if (bytes_in == sent_bytes) {
-                bytes_in = ::write(fd, writebuff, SEND_CHUNK_SIZE);
-                if (bytes_in < 0) {
-                    break;
-                }
-            }
-            process();
-        }
-    }
-
+    Stream::Stream( int fd )
+        : IIOHandler(fd),
+        bytes_r(0),
+        bytes_received(0),
+        bytes_consumed(0),
+        bytes_to_write(0),
+        bytes_sent(0),
+        sent_offset(0) {}
 }

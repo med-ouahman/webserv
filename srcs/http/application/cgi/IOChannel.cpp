@@ -4,24 +4,14 @@
 
 namespace http {
 
-    IOChannel::IOChannel( int fd_, const CGIHandler* h, Stream::Type stream_type, uint32_t event_mask )
-        : fd(fd_),
+    IOChannel::IOChannel( int fd_, const CGIHandler* h, STDStream::Type stream_type, uint32_t event_mask )
+        : Stream(fd_),
         cgi_handler(h),
         stream(stream_type),
         event(event_mask) {}
 
-    IOChannel::~IOChannel() {
-        ::close(fd);
-        fd = -1;
-    }
+    IOChannel::~IOChannel() {}
 
-    void IOChannel::on_event( io::EventType type ) {
-        
-        switch (type) {
-            case io::EventType::READABLE:
-            
-        }
-    }
 
     int IOChannel::get_fd( void ) const {
         return fd;
@@ -29,5 +19,14 @@ namespace http {
 
     uint32_t IOChannel::get_event( void ) const {
         return event;
+    }
+
+    bool IOChannel::process( void ) {
+        std::cout << "IOChannel?\n";
+        return true;
+    }
+
+    void IOChannel::error( void ) {
+        
     }
 }

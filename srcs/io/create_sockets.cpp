@@ -49,7 +49,9 @@ namespace io {
 				return false;
 			}
 
-			listeners.push_back(ListeningSocket(*this, result.result));
+			ListeningSocket so(*this, result.result);
+			listeners.push_back(so);
+			so.release();
 		}
 
 		/*

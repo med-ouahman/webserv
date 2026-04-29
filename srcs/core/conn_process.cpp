@@ -2,23 +2,21 @@
 
 namespace core {
 
-    void Connection::process( void ) {
+    bool Connection::process( void ) {
 
-        if (event_type == io::READABLE) {
-            state = ConnectionState::READING;
-        } else if (event_type == io::WRITABLE) {
-            state = ConnectionState::WRITING;
+        while (processing) {
+
+            if (state == ConnectionState::READING) {
+                on_readable();
+                process_incoming_data();
+            }
+            
+            if (state == ConnectionState::WRITING) {
+                on_writeable();
+                process_outgoing_data();
+            }
         }
-
-        switch (state) {
-            case ConnectionState::READING:
-                on_read();
-                break;
-            case ConnectionState::WRITING:
-                on_write();
-                break;
-        }
-
+        
+        return processing;
     }
-    
 }

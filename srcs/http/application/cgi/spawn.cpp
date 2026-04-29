@@ -20,8 +20,8 @@ namespace http {
             ::dup2(pipe_guard.stderr_pipe[1], STDERR_FILENO);
     
             pipe_guard.close_pipes();
-
-            ::execve(context.interpreter_path.c_str(), NULL, __environ);
+            char* argv[] = {NULL};
+            ::execve(context.interpreter_path.c_str(), argv, __environ);
             ::perror("execve");
             ::exit(EXIT_FAILURE);
         }
@@ -34,17 +34,16 @@ namespace http {
             cgi_state = ERROR;
             return ;
         }
-
-        loop.register_io_handler(&stdin_ch);
-        loop.register_io_handler(&stdout_ch);
-        loop.register_io_handler(&stderr_ch);
     }
 
-    void CGIHandler::handle_event( io::EventType event, Stream::Type stream ) {
-        if (event == io::EventType::ERROR) {
+    void CGIHandler::handle_event( io::EventType event, STDStream::Type stream ) {
+        if (event == io::ERROR) {
             cgi_state = ERROR;
+            stream = STDStream::STDIN;
             return ;
         }
+        if (stream == STDStream::STDERR) {
 
+        }
     }
 }

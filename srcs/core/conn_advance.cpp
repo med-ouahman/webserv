@@ -4,18 +4,16 @@
 namespace core {
 
 	bool Connection::advance( void ) {
-		bytes_in = dispatcher.produce(writebuff, SEND_CHUNK_SIZE);
-		if (bytes_in < 0) {
+		
+		ssize_t p_bytes = dispatcher.produce(writebuff, SEND_CHUNK_SIZE);
+
+		if (p_bytes < 0) {
 			state = ConnectionState::CLOSING;
 			return false;
-		} else if (bytes_in == 0) {
-			if (bytes_received == 0) {
-				state = ConnectionState::IDLE;
-			} else {
-				state = ConnectionState::READING;
-			}
-			return false;
 		}
+		
+		bytes_to_write = p_bytes;
+		std::cout << "TO WRITE: " << bytes_to_write << "\n";
 		return true;
 	}
 }

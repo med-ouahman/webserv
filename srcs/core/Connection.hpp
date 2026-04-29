@@ -15,7 +15,7 @@ namespace config {
 
 namespace core {
 
-    class Connection: public io::Stream {
+class Connection: public io::Stream {
         public:
             explicit Connection( int fd, const config::Config& conf, uint32_t mask, const io::EventLoop& loop );
             ~Connection();
@@ -31,9 +31,9 @@ namespace core {
             const static std::size_t HEADERS_LIMIT_TICKS  = 500;
             const static std::size_t BODY_LIMIT_TICKS     = 1000;
             
+            bool processing;
         private:
             /* epoll */
-            int fd;
             uint32_t event_mask;
             const io::EventLoop& loop;
             
@@ -57,20 +57,23 @@ namespace core {
             void exit_cgi( void );
             
         private:
-            void process( void );
-            void error( void );
+            bool process( void ); // to be removed
+            void error( void ); // to be removed
             bool advance( void );
+            bool readbuf_drained( void ) { return bytes_received == p.get_bytes_consumed(); }
     
         public:
             int get_fd( void ) const;
             ConnectionAction desired_action() const;
             void set_mask( uint32_t new_mask ) { event_mask = new_mask; }
             uint32_t get_mask( void ) const { return event_mask; }
-            
-        public:
-            bool process_incoming_data( void ); // soon be private.
-            bool on_write( void );
-            bool on_read( void );
             void tick( void );
+            
+        private:
+            bool process_outgoing_data( void );
+            bool process_incoming_data( void );
+            void handle_event( void );
+            void on_writeable( void );
+            void on_readable( void );
     };
 }

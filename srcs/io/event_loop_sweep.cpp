@@ -2,8 +2,6 @@
 
 namespace io {
 
-    void EventLoop::sweep( void ) {
-        for 
-    }
+
 
 }

@@ -104,7 +104,7 @@ namespace http {
             ParseResult::Type consume( void );
             HTTPRequest get_request() const;
             void reset( void );
-            void set_data_buff( const char* buff, ::size_t size );
+            void feed( const char* buff, ::size_t size );
             ::size_t get_bytes_consumed( void ) const;
             ParseState::Type  get_parser_state( void ) const;
             ::size_t get_body_bytes_consumed( void ) const;

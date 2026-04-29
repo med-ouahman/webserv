@@ -8,7 +8,7 @@ namespace io {
 		event.data.ptr = handler;
 
 		if (::epoll_ctl(epoll_fd, EPOLL_CTL_ADD, fd, &event)) {
-			LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_ctl()"));
+			LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_ctl(EPOLL_CTL_ADD)"));
 			return false;
 		}
 
@@ -21,7 +21,7 @@ namespace io {
 		event.data.ptr = handler;
 
 		if (::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, fd, &event)) {
-			LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_ctl()"));
+			LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_ctl(EPOLL_CTL_MOD)"));
 			return false;
 		}
 		
@@ -31,7 +31,7 @@ namespace io {
 	bool EventLoop::del_fd( int fd ) {
 		
 		if (::epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL)) {
-			LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_ctl()"));
+			LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_ctl(EPOLL_CTL_DEL)"));
 			return false;
 		}
 		

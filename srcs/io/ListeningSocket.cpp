@@ -4,16 +4,17 @@
 
 namespace io {
 
-	ListeningSocket::ListeningSocket( const ListeningSocket& socket ): loop(socket.loop) {
-		socket_fd = socket.socket_fd;
+	ListeningSocket::ListeningSocket( const ListeningSocket& socket ): IIOHandler(socket.fd), loop(socket.loop) {
+		
 	}
 
 	ListeningSocket& ListeningSocket::operator=( const ListeningSocket& socket ) {
 		(void)socket;
+		
 		return *this;
 	}
 
-	ListeningSocket::ListeningSocket( EventLoop& loop, int fd ): socket_fd(fd), loop(loop) {
+	ListeningSocket::ListeningSocket( EventLoop& loop, int fd ): IIOHandler(fd), loop(loop) {
 	
 	}
 
@@ -33,10 +34,7 @@ namespace io {
 		}
 	};
 
-	void ListeningSocket::close( void ) {
-		if (socket_fd >= 0) {
-			::close(socket_fd);
-			socket_fd = -1;
-		}
+	void ListeningSocket::release( void ) {
+		fd = -1;
 	}
 }

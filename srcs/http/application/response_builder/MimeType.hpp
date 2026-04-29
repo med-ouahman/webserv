@@ -16,6 +16,6 @@ namespace http {
 			const static std::string default_mime_type;
 
 		public:
-			const static std::string get( const std::string& ext );
+			const static std::string get( std::string& ext );
 	};
 }

@@ -13,7 +13,6 @@ namespace io {
 
 	class ListeningSocket: public IIOHandler {
 		private:
-			int socket_fd;
 			EventLoop& loop;
 			ListeningSocket& operator=( const ListeningSocket& socket );
 			bool accept_clients( void );
@@ -21,10 +20,10 @@ namespace io {
 			
 		public:
 			ListeningSocket( const ListeningSocket& socket );
-			int get_fd() { return socket_fd; }
+			int get_fd() { return fd; }
 			explicit ListeningSocket( EventLoop& loop, int fd );
 			~ListeningSocket();
 			void on_event( EventType event );
-			void close( void );
+			void release( void );
 	};
 }
