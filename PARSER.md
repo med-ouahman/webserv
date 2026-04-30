@@ -15,7 +15,7 @@ webserver/
 │   │
 │   └── response_trigger.txt
 │       Response generation should start inside:
-│           Connection::on_bytes()
+│           Connection::process_incoming_data()
 │       when:
 │           parser.consume(...) == SUCCESS
 │

@@ -13,9 +13,12 @@ namespace io {
             
             int client_fd = ::accept(socket_fd, (struct sockaddr* )&client_addr, &client_addr_len);
             if (client_fd < 0) {
+                if (errno != EAGAIN)
+                    LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::accept()"));
                 break;
             }
-            std::cout << "Client fd: " << client_fd << "\n";
+
+            std::cout << "connection fd: " << client_fd << "\n";
             loop.add_connection(client_fd);
         }
         

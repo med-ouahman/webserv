@@ -3,9 +3,19 @@
 
 namespace core {
 
-
 	bool Connection::advance( void ) {
 		bytes_in_buff = handler.produce(output_buff, SEND_CHUNK_SIZE);
-		return bytes_in_buff > 0;
+		if (bytes_in_buff < 0) {
+			state = ConnectionState::CLOSING;
+			return false;
+		} else if (bytes_in_buff == 0) {
+			if (bytes_received == 0) {
+				state = ConnectionState::IDLE;
+			} else {
+				state = ConnectionState::READING;
+			}
+			return false;
+		}
+		return true;
 	}
 }

@@ -1,12 +1,18 @@
 
 #include "HTTPRequest.hpp"
+#include <unistd.h>
+#include <iostream>
 
 namespace http {
+
     HTTPMethod HTTPRequest::get_method( std::string& s ) const {
 		if (s == "GET")
 			return GET;
 		if (s == "POST")
 			return POST;
+		if (s == "PUT") {
+			return PUT;
+		}
 		if (s == "PATCH")
 			return PATCH;
 		if (s == "DELETE")
@@ -19,6 +25,8 @@ namespace http {
 			return "GET";
 		if (m == POST)
 			return "POST";
+		if (m == PUT)
+			return "PUT";
 		if (m == PATCH)
 			return "PATCH";
 		if (m == DELETE)
@@ -30,9 +38,14 @@ namespace http {
 		method = UNKNOWN;
 		version.clear();
 		url.clear();
-		body.clear();
+		body_path.clear();
 		headers.clear();
-		body_len = 0;
+	}
+
+	HTTPRequest::~HTTPRequest() {
+		if (body_path.size()) {
+			unlink(body_path.c_str());
+		}
 	}
 
 	bool HTTPRequest::want_keep_alive( void ) {
@@ -48,4 +61,6 @@ namespace http {
 	bool HTTPRequest::version_supported( void ) const {
 		return version == "HTTP/1.0" || version == "HTTP/1.1";
 	}
+
+
 }

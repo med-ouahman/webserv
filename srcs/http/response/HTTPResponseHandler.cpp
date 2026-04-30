@@ -6,7 +6,11 @@
 
 namespace http {
 
-    HTTPResponseHandler::HTTPResponseHandler(): allow_keep_alive(true) {}
+    HTTPResponseHandler::HTTPResponseHandler( const config::Config& conf )
+        :allow_keep_alive(true),
+        config(conf),
+        serialize_state(DONE)
+         {}
 
     HTTPResponseHandler::~HTTPResponseHandler() {}
 
@@ -14,7 +18,6 @@ namespace http {
         std::cout << "code: " << code << " reason: " << reason << "\n";
         response.status_code = code;
         response.reason = reason;
-        response.headers["Content-Length"] = "0";
         response.headers["Connection"] = "close";
     }
 

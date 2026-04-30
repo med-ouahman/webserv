@@ -29,6 +29,7 @@
             fetchData()
        });
 
+
        async function fetchData() {
             const d = await fetch("http://localhost:3000", {
                 method: "GET"
@@ -36,6 +37,7 @@
             const data = await d.json();
             console.log(data);
        }
+       
     </script>
 </body>
 </html>

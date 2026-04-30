@@ -4,42 +4,71 @@
 
 namespace http {
 
-	HTTPParser::ParseResult HTTPParser::parse_request_line( void ) {
-		size_t line_index = request_buff.find("\r\n");
-		if (line_index == std::string::npos) {
-			return NEED_MORE_BYTES;
+	HTTPParser::ParseResult::Type HTTPParser::parse_request_line( void ) {
+				
+		while (true) {
+			ParseResult::Type scan_res = scan_line(MAX_REQUEST_LINE_LEN);
+			
+			if (scan_res != ParseResult::SUCCESS) {
+				return scan_res;
+			}
+
+			if (line_buff.empty() && leading_crlf_count < MAX_LEADING_CRLF) {
+				leading_crlf_count++;
+				continue;
+			} else {
+				break;
+			}
 		}
-		std::string req_line = request_buff.substr(0, line_index);
-		std::cout << req_line << "\n";
-		request_buff = request_buff.substr(line_index + 2);
-		if (req_line.length() == 0 || req_line == "\r\n") {
-			parse_state = ERROR;
-			return PARSE_ERROR;
+
+		::size_t cursor = 0;
+		::size_t line_offset = 0;
+		::size_t method_len = 0;
+		while (cursor < line_buff.size() && line_buff[cursor] != ' ' && method_len <= MAX_METHOD_LEN) {
+			++method_len;
+			++cursor;
 		}
-		size_t p1, p2;
-		p1 = req_line.find(" ");
-		p2 = req_line.find(" ", p1 + 1);
-		if (p1 == std::string::npos || p2 == std::string::npos || p2 == req_line.length() - 3) {
-			parse_state = ERROR;
-			return PARSE_ERROR;
+		
+		if (cursor == 0 || method_len > MAX_METHOD_LEN) {
+			return ParseResult::PARSE_ERROR;
 		}
-		std::string method = req_line.substr(0, p1);
+
+		std::string method = line_buff.substr(line_offset, method_len);
 		request.method = request.get_method(method);
-		if (UNKNOWN == request.method) {
-			parse_state = ERROR;
-			return PARSE_ERROR;
+		
+		if (request.method == UNKNOWN) {
+			std::cout << "unknown method\n";
+			return ParseResult::PARSE_ERROR;
 		}
-		request.url = req_line.substr(p1 + 1, p2 - p1 - 1);
-		if (request.url[0] != '/') {
-			parse_state = ERROR;
-			return PARSE_ERROR;
+		++cursor;
+		line_offset = cursor;
+		::size_t uri_len = 0;
+		while (cursor < line_buff.size() && line_buff[cursor] != ' ' && uri_len <= MAX_URI_LEN) {
+			++uri_len;
+			++cursor;
 		}
-		request.version = req_line.substr(p2 + 1);
-		if (!HTTPParser::validate_http_version(request.version)) {
-			parse_state = ERROR;
-			return PARSE_ERROR;
+
+		if (cursor == line_offset || uri_len > MAX_URI_LEN) {
+			return ParseResult::PARSE_ERROR;
 		}
-		parse_state = HEADERS;
-		return CONTINUE;
+
+		request.url = line_buff.substr(line_offset, uri_len);
+	
+		++cursor;
+		line_offset = cursor;
+		::size_t version_len = 0;
+		while (cursor < line_buff.size() && version_len <= MAX_VERSION_LEN) {
+			++version_len;
+			++cursor;
+		}
+		if (cursor == line_offset || version_len > MAX_VERSION_LEN) {
+			return ParseResult::PARSE_ERROR;
+		}
+		
+		request.version = line_buff.substr(line_offset, version_len);
+		line_buff.clear();
+		parse_state = ParseState::HEADERS;
+		return ParseResult::SUCCESS;
 	}
+	
 }

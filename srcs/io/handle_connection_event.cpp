@@ -1,17 +1,22 @@
 
 #include "Connection.hpp"
 #include "EventLoop.hpp"
+#include <string.h>
+#include <cerrno>
 
 namespace io {
-
     void EventLoop::read_from_socket( core::Connection& conn ) {
-        ssize_t bytes;
-        char buff[READ_BUFFER_SIZE];
-        int n=0;
-        while ((bytes = ::read(conn.get_fd(), buff, READ_BUFFER_SIZE - 1)) > 0) {
-            buff[bytes] = n;
+        ::ssize_t bytes;
+
+        while (true) {
+            if (conn.read_buff_empty()) {
+                bytes = ::read(conn.get_fd(), conn.get_read_buff(), core::Connection::READ_BUFFER_SIZE);
+                if (!conn.on_read(bytes)) {
+                    break;
+                }
+            }
             
-            if (!conn.on_bytes(buff)) {
+            if (!conn.process_incoming_data()) {
                 break;
             }
         }
@@ -20,11 +25,10 @@ namespace io {
 
     void EventLoop::write_to_socket( core::Connection& conn ) {
         
-        ssize_t bytes_sent = 0;
+        ::ssize_t bytes_sent = 0;
         
         while (true) {
-            
-             if (!conn.has_data(bytes_sent)) {
+            if (!conn.on_write(bytes_sent)) {
                 break;
             }
 
@@ -32,8 +36,6 @@ namespace io {
                 conn.get_write_buff(),
                 conn.bytes_remaining()
             );
-            
         }
-
     }
 }
