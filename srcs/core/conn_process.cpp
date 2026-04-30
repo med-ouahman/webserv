@@ -4,16 +4,14 @@ namespace core {
 
     bool Connection::process( void ) {
 
+        processing = true;
+        
         while (processing) {
 
             if (state == ConnectionState::READING) {
                 on_readable();
-                process_incoming_data();
-            }
-            
-            if (state == ConnectionState::WRITING) {
+            } else if (state == ConnectionState::WRITING) {
                 on_writeable();
-                process_outgoing_data();
             }
         }
         

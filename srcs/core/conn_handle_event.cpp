@@ -7,10 +7,12 @@ namespace core {
 			case io::NONE:
 				break;
 			case io::READABLE:
+				std::cout << "READING EVENT!\n";
 				state = ConnectionState::READING;
 				break;
 			case io::WRITABLE:
-				state = ConnectionState::READING;
+				std::cout << "WRITING EVENT\n";
+				state = ConnectionState::WRITING;
 				break;
 			case io::ERROR:
 				state = ConnectionState::CLOSING;

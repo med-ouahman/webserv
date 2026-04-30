@@ -14,11 +14,11 @@ namespace core {
   
     bool Connection::process_incoming_data( void ) {
         
-        /* Parsing logic */
+        
         p.feed(readbuf, bytes_received);
 
         ParseResult result = p.consume();
-     
+        
         if (result == http::HTTPParser::ParseResult::NEED_MORE_BYTES) {
             return true;
         } else if (result == http::HTTPParser::ParseResult::PARSE_ERROR) {
@@ -30,6 +30,7 @@ namespace core {
         
         /* Response logic... */
         ++num_requests;
+        std::cout << "REQUESTS: " << num_requests << "\n";
         http::HTTPRequest req = p.get_request();
         p.reset();
         close_after_write = !req.want_keep_alive();
@@ -40,10 +41,8 @@ namespace core {
             state = ConnectionState::CGI;
             enter_cgi(res.cgi_ctx);
         } else {
-            std::cout << "writing\n";
             state = ConnectionState::WRITING;
         }
-
         return false;
     }
 
@@ -51,30 +50,25 @@ namespace core {
     bool Connection::process_outgoing_data( void ) {
 
         if (sent_offset == bytes_to_write) {
-            
+    
             sent_offset = 0;
-            if (!advance()) {
+            ssize_t to_write = dispatcher.produce(writebuff, SEND_CHUNK_SIZE);
+            
+            if (to_write < 0 || (to_write == 0 && close_after_write)) {
                 processing = false;
+                state = ConnectionState::CLOSING;
                 return false;
             }
+            
+            bytes_to_write = to_write;
 
             if (bytes_to_write == 0) {
-                if (close_after_write) {
-                    state = ConnectionState::CLOSING;
-                    processing = false;
-                } else if (readbuf_drained()) {
-                    state = ConnectionState::IDLE;
-                    processing = false;
-                } else {
-                    std::cout << "Back to reading...\n";
-                    state = ConnectionState::READING;
-                    processing = true;
-                }
+                state = readbuf_drained() ? ConnectionState::IDLE: ConnectionState::READING;
             }
-
+            
+            processing = (state == ConnectionState::READING) || (state == ConnectionState::WRITING);
             return false;
         }
-
         return true;
     }
 

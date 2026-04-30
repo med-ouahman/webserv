@@ -4,7 +4,7 @@
 #include <iostream>
 #include "IIOHandler.hpp"
 #include <unistd.h>
-
+#include "Result.hpp"
 namespace io {
 
 	class IOState {

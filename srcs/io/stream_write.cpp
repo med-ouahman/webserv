@@ -1,19 +1,12 @@
 #include "Stream.hpp"
-
+#include <string.h>
 namespace io {
       
     void Stream::write( void ) {
-        
-        while (true) {
-
-            if (sent_offset < bytes_to_write) {
-                size_t remaining = bytes_to_write - sent_offset;
-                bytes_r = ::write(fd, writebuff + sent_offset, remaining);
-            }
-
-            if (!process()) {
-                break;
-            }
+        size_t remaining = bytes_to_write - sent_offset;
+        bytes_r = ::write(fd, writebuff + sent_offset, remaining);
+        if (bytes_r < 0) {
+            LOG_ERROR(MAKE_ERRNO_ERROR("Stream::write()"));
         }
     }
 }

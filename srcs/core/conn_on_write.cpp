@@ -7,12 +7,37 @@
 namespace core {
 
     void Connection::on_readable( void ) {
-        read();
-        /* handle the logic here >> */
+
+        if (readbuf_drained()) {
+
+            read(); 
+            
+            if (bytes_r <= 0) {
+                if (bytes_r == 0) {
+                    state = ConnectionState::CLOSING;
+                }
+                processing = false;
+                return ;
+            }
+            bytes_received = bytes_r;
+        }
+
+        processing = process_incoming_data();
     }
 
     void Connection::on_writeable( void ) {
-        write();
-        /* naa */
+        
+        process_outgoing_data();
+        
+        if (sent_offset < bytes_to_write) {
+
+            write();
+            if (bytes_r < 0) {
+                processing = false;
+                return ;
+            }
+
+            sent_offset += bytes_r;
+        }
     }
 }

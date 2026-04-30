@@ -13,7 +13,7 @@ namespace core {
 		}
 		
 		bytes_to_write = p_bytes;
-		std::cout << "TO WRITE: " << bytes_to_write << "\n";
+		
 		return true;
 	}
 }

@@ -35,6 +35,7 @@ namespace http {
 			return ParseResult::NEED_MORE_BYTES;
 		}
 		line_buff.erase(line_buff.size() - 1, 1);
+		
 		return ParseResult::SUCCESS;
 	}
 }
