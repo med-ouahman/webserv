@@ -12,6 +12,7 @@ void clear( int a ) {
     }
 }
 
+config::Config conf;
 
 int main( int argc, char** argv ) {
 

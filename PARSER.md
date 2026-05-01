@@ -17,7 +17,7 @@ webserver/
 │       Response generation should start inside:
 │           Connection::process_incoming_data()
 │       when:
-│           parser.consume(...) == SUCCESS
+│           parser.parse(...) == SUCCESS
 │
 │
 ├── parser/
@@ -41,7 +41,7 @@ webserver/
 │   │       ERROR
 │   │
 │   │   Parser exposes only:
-│   │       consume(bytes)
+│   │       parse(bytes)
 │   │       get_request()
 │   │
 │   ├── parser_state_machine.txt

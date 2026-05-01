@@ -4,13 +4,15 @@ namespace core {
 
     bool Connection::process( void ) {
 
-        processing = true;
+        processing = state != ConnectionState::CLOSING;
         
         while (processing) {
 
             if (state == ConnectionState::READING) {
                 on_readable();
-            } else if (state == ConnectionState::WRITING) {
+            }
+            
+            if (state == ConnectionState::WRITING) {
                 on_writeable();
             }
         }

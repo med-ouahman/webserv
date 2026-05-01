@@ -8,19 +8,7 @@ namespace io {
 
     bool EventLoop::add_connection( int client_fd ) {
 
-        int flags = ::fcntl(client_fd, F_GETFL);
 
-        if (flags < 0 || ::fcntl(client_fd, F_SETFL, flags | O_NONBLOCK)) {
-            LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::add_connection::fcntl()"));
-            return false;
-        }
-
-        flags = ::fcntl(client_fd, F_GETFD);
-
-        if (flags < 0 || ::fcntl(client_fd, F_SETFD, flags | O_CLOEXEC)) {
-            LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::add_connection::fcntl()"));
-            return false;
-        }
         
         conns.push_back(new core::Connection(client_fd, conf, EPOLLIN | EPOLLET, *this));
         if (!add_fd(client_fd, EPOLLIN | EPOLLET, conns.back())) {
@@ -60,6 +48,7 @@ namespace io {
         }
 
         if (new_mask != conn->get_mask()) {
+            std::cout << "WANTS WRITE\n";
             mod_fd(conn->get_fd(), new_mask, conn);
             conn->set_mask(new_mask);
         }

@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include "PipeGuard.hpp"
+#include "IDataListener.hpp"
 
 namespace io {
 	class EventLoop;
@@ -19,21 +20,21 @@ namespace http {
 	
 	struct CGIContext;
 
-	class CGIHandler {
+	class CGIHandler: public io::IDataListener {
 		
 		public:
-			explicit CGIHandler( const core::Connection& con );
+			explicit CGIHandler( const core::Connection& conn, const io::EventLoop& l );
 			~CGIHandler();
 			void spawn( const CGIContext& context );
-			void handle_event( io::EventType event_type, STDStream::Type stream );
 
 		private:
-			enum CGIState {
+			enum CGIState
+			{
 				SPAWN,
 				ACTIVE,
 				ERROR,
 				IDLE,
-			} cgi_state;
+			}	cgi_state;
 
 			pid_t	cgi_pid;
 			int		cgi_status;
@@ -43,7 +44,14 @@ namespace http {
 			IOChannel stdout_ch;
 			IOChannel stderr_ch;
 	
-			const 	core::Connection& conn;
+			const core::Connection& conn;
+			const io::EventLoop& loop;
+		
+		public:
+			void on_input_ready( char* buff, size_t size );
+			void produce_output( char* buff, size_t size );
+			void on_error();
+			/**/
 
 	};
 

@@ -4,9 +4,9 @@
 
 namespace http {
 
-    IOChannel::IOChannel( int fd_, const CGIHandler* h, STDStream::Type stream_type, uint32_t event_mask )
+    IOChannel::IOChannel( int fd_, CGIHandler* h, STDStream::Type stream_type, uint32_t event_mask )
         : Stream(fd_),
-        cgi_handler(h),
+        listener(h),
         stream(stream_type),
         event(event_mask) {}
 
@@ -22,11 +22,12 @@ namespace http {
     }
 
     bool IOChannel::process( void ) {
-        std::cout << "IOChannel?\n";
+    
         return true;
     }
 
-    void IOChannel::error( void ) {
-        
+    bool IOChannel::readbuf_drained() {
+        return true;
     }
+    
 }

@@ -22,6 +22,9 @@ namespace http {
     HTTPDispatcher::ResolutionResult HTTPDispatcher::resolve( const HTTPRequest& req, const config::ServerConfig& server ) {
         ResolutionResult result;
 
+        result.type = HTTPResponseType::CGI;
+        return result;
+
         const config::LocationConfig* location = find_location(req.url, server.locations);
         const std::string path = extract_path(req.url);
         bool method_allowed = true;

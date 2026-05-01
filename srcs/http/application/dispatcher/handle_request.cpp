@@ -9,14 +9,13 @@
 #include "Config.hpp"
 
 namespace http {
-    /* t*/
+
 
     HTTPDispatcher::HandlerResult HTTPDispatcher::handle_request( const HTTPRequest& req ) {
+        
         ResolutionResult result = resolve(req, config.server);
         HandlerResult handler_result;
 
-        response.body = "HTTP/1.0 200 OK\r\n\r\n";
-        return handler_result;
         handler_result.response_type = result.type;
         switch (result.type) {
             case HTTPResponseType::ERROR_RESPONSE:

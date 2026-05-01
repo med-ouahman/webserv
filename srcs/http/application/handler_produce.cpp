@@ -1,15 +1,15 @@
-#include "HTTPDispatcher.hpp"
+#include "HTTPResponse.hpp"
 #include <cstring>
 #include <iostream>
 
 namespace http {
 
-	::ssize_t HTTPDispatcher::produce( char* buff, ::size_t size ) {
+	::ssize_t HTTPResponse::produce( char* buff, ::size_t size ) {
 		
-		::memcpy(buff, response.body.c_str(), response.body.size());
+		::memcpy(buff, body.c_str(), body.size());
 
-		::size_t bytes = response.body.size();
-		response.body.clear();
+		::size_t bytes = body.size();
+		body.clear();
 		return bytes;
 		
 		if (HEADERS == serialize_state || RESPONSE_LINE == serialize_state) {
@@ -17,7 +17,7 @@ namespace http {
 		}
 
 		if (BODY == serialize_state) {
-			::ssize_t b = response.body_provider->read(buff, size - bytes);
+			::ssize_t b = body_provider->read(buff, size - bytes);
 			return b;
 			
 		}

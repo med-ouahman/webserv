@@ -69,16 +69,16 @@ The entire project, including the parser, is written in **C++98**. This means:
 The parser exposes a single method for consuming data:
 
 ```cpp
-ParseResult consume(const char* data, std::size_t len);
+ParseResult parse(const char* data, std::size_t len);
 ```
 
-The caller passes a pointer to the start of its read buffer and the number of bytes available. The parser advances an internal cursor through the data. After the call, the caller reads `bytes_consumed()` and erases exactly that many bytes from its buffer. This is done once per `consume()` call — not inside the parser, not mid-parse.
+The caller passes a pointer to the start of its read buffer and the number of bytes available. The parser advances an internal cursor through the data. After the call, the caller reads `bytes_consumed()` and erases exactly that many bytes from its buffer. This is done once per `parse()` call — not inside the parser, not mid-parse.
 
 The parser never allocates memory from the caller's buffer. It never modifies the caller's buffer. It takes a read-only view of the data for the duration of the call.
 
 `ParseResult` has exactly three values:
 
-- `PARSE_NEED_MORE` — the data received so far is structurally valid but incomplete. The caller should wait for more bytes and call `consume()` again with the updated buffer.
+- `PARSE_NEED_MORE` — the data received so far is structurally valid but incomplete. The caller should wait for more bytes and call `parse()` again with the updated buffer.
 - `PARSE_COMPLETE` — a full, structurally valid HTTP request has been parsed. The caller may retrieve it via `get_request()`.
 - `PARSE_ERROR` — the data is structurally invalid and the connection should be closed after sending a 400 Bad Request response. The error is unrecoverable. No further parsing is possible on this parser instance until `reset()` is called.
 
@@ -95,7 +95,7 @@ public:
     HTTPParser(const std::string& tmp_dir, int connection_fd);
     ~HTTPParser();
 
-    ParseResult            consume(const char* data, std::size_t len);
+    ParseResult            parse(const char* data, std::size_t len);
 
     std::size_t            bytes_consumed() const;
     ParseError             get_error()      const;
@@ -179,7 +179,7 @@ DONE                     (terminal — caller calls reset())            —
 ERROR                    (terminal)                                    —
 ```
 
-`STATE_ERROR` is reachable from every state. Once entered, no further transitions occur and `consume()` immediately returns `PARSE_ERROR` on any subsequent call.
+`STATE_ERROR` is reachable from every state. Once entered, no further transitions occur and `parse()` immediately returns `PARSE_ERROR` on any subsequent call.
 
 ---
 
@@ -191,7 +191,7 @@ This is the correct granularity for HTTP. There is nothing useful the parser can
 
 `scan_line()` implements this:
 
-- Reads bytes one at a time from the current consume window.
+- Reads bytes one at a time from the current parse window.
 - Skips `\r` (CR) — they are consumed but not stored.
 - On `\n` (LF): a complete line is ready in `line_buf_`. Returns `true`.
 - On any other byte: appends to `line_buf_` after checking the line length limit.
@@ -281,7 +281,7 @@ The temp file path is constructed from two values injected at parser constructio
 
 Path: `tmp_dir + "/body_" + connection_fd`
 
-The parser opens this file when it first needs to write body bytes, writes incrementally as bytes arrive across multiple `consume()` calls, and closes the file descriptor when the body is complete. The path is stored in `req_.body_path`.
+The parser opens this file when it first needs to write body bytes, writes incrementally as bytes arrive across multiple `parse()` calls, and closes the file descriptor when the body is complete. The path is stored in `req_.body_path`.
 
 The parser does not delete the temp file. Lifetime management is handled by `HTTPRequest`'s destructor.
 
@@ -292,7 +292,7 @@ The parser does not delete the temp file. Lifetime management is handled by `HTT
 In `STATE_BODY_IDENTITY`, the parser reads exactly `req_.body_len` bytes and writes them to the temp file:
 
 - `body_received_` tracks how many bytes have been written so far.
-- On each `consume()` call, the parser writes `min(body_len - body_received_, available_bytes)` bytes to the file.
+- On each `parse()` call, the parser writes `min(body_len - body_received_, available_bytes)` bytes to the file.
 - When `body_received_ == body_len`, the body is complete. The file is closed, `state_` transitions to `STATE_DONE`, and `PARSE_COMPLETE` is returned.
 - Bytes beyond `Content-Length` are not consumed — `bytes_consumed()` stops exactly at the end of the body. Remaining bytes in the caller's buffer belong to the next request.
 
@@ -310,7 +310,7 @@ Uses `scan_line()` to read the chunk size line. The line must contain only hexad
 
 **`STATE_CHUNK_DATA`**
 
-Reads exactly `chunk_remaining_` bytes and writes them to the temp file. Uses the same cursor approach as identity body — reads `min(chunk_remaining_, available)` bytes per `consume()` call, advances `chunk_remaining_`. When `chunk_remaining_` reaches zero, transitions to `STATE_CHUNK_TRAIL`.
+Reads exactly `chunk_remaining_` bytes and writes them to the temp file. Uses the same cursor approach as identity body — reads `min(chunk_remaining_, available)` bytes per `parse()` call, advances `chunk_remaining_`. When `chunk_remaining_` reaches zero, transitions to `STATE_CHUNK_TRAIL`.
 
 **`STATE_CHUNK_TRAIL`**
 
@@ -361,7 +361,7 @@ ParseResult HTTPParser::emit_error(ParseError e)
 }
 ```
 
-Once in `STATE_ERROR`, any subsequent call to `consume()` returns `PARSE_ERROR` immediately without processing any bytes.
+Once in `STATE_ERROR`, any subsequent call to `parse()` returns `PARSE_ERROR` immediately without processing any bytes.
 
 `ParseError` values are for internal use — logging and debugging only:
 
@@ -489,5 +489,5 @@ This section enumerates every category of input the parser rejects, as a referen
 - Empty header values (`field-name:` with nothing after the colon).
 - `Content-Length: 0` (no body, treated as immediate completion).
 - Arbitrarily fragmented delivery — any state may receive partial data and return `PARSE_NEED_MORE` an arbitrary number of times.
-- Multiple `consume()` calls to complete a single line or body segment.
-- Bodies written across many `consume()` calls as data arrives incrementally.
+- Multiple `parse()` calls to complete a single line or body segment.
+- Bodies written across many `parse()` calls as data arrives incrementally.

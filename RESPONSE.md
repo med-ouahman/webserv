@@ -37,7 +37,7 @@ epoll gives bytes
     ↓
 Connection.recv()
     ↓
-Parser.consume()
+Parser.parse()
     ↓
 REQUEST_COMPLETE
     ↓

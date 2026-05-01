@@ -1,16 +1,42 @@
 #include "IOChannel.hpp"
+#include "CGIHandler.hpp"
 
 namespace http {
+
 	void IOChannel::handle_event( void ) {
-		/* do someshit ! */
+		
+		switch (io_event) {
+			case io::NONE:
+				break;
+			case io::READABLE:
+				on_readable();
+				break;
+			case io::WRITABLE:
+				on_writeable();
+				break;
+			case io::ERROR:
+				on_error();
+				break;
+		}
 	}
 
 	void IOChannel::on_writeable( void ) {
-
-		/* try this */
+		listener->produce_output(writebuff, SEND_CHUNK_SIZE);
+		write();
 	}
 
 	void IOChannel::on_readable( void ) {
-		/* Jesus Christ */
+		read();
+
+		if (bytes_r < 0) // let epoll notify
+			return ;
+		
+		bytes_received = bytes_r;
+		
+		listener->on_input_ready(readbuf, bytes_received);
+	}
+
+	void IOChannel::on_error() {
+		listener->on_error();
 	}
 }

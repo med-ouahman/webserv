@@ -18,14 +18,11 @@ namespace http {
     struct HTTPRequest;
 
     class HTTPDispatcher {
-        private:
-            HTTPResponse response;
-            bool allow_keep_alive;
-            static const char* CRLF;
-            static const size_t CRLF_SIZE = 2;
-            static const char* COLON;
 
+        private:
             const config::Config& config;
+            bool allow_keep_alive;
+
             struct ResolutionResult {
                 HTTPResponseType::Type type;
                 HTTPStatusCode status_code;
@@ -37,18 +34,7 @@ namespace http {
                     : status_code(code), reason(r) {}
             };
 
-        private:
-            std::map<std::string, std::string>::iterator current_header; /* track the current header */
-            std::string line_buff;
-
         public:
-            enum SerializeState {
-                RESPONSE_LINE,
-                HEADERS,
-                BODY,
-                DONE
-            } serialize_state;
-
             struct HandlerResult {
                 HTTPResponseType::Type response_type;
                 CGIContext cgi_ctx;
@@ -61,21 +47,16 @@ namespace http {
             std::string extract_path( const std::string& url );
             static bool file_exists( const char* filename );
             CGIContext get_cgi_context( const HTTPRequest& req, const ResolutionResult& result );
-        
-        private:
-            ::size_t serialize_headers( char* buff, ::size_t max_size );
-            void serialize_current_header( void );
 
         public:
             std::string generate_directory_list( const char* dir );
             std::string generate_anchor( const char* name );
+            void build_error_response( HTTPStatusCode code, std::string reason );
 
         public:
             HTTPDispatcher( const config::Config& conf );
             ~HTTPDispatcher();
-            void build_error_response( HTTPStatusCode code, std::string reason );
             HandlerResult handle_request( const HTTPRequest& req );
-            ::ssize_t produce( char* buff, ::size_t max_size );
             bool allow_presistance( void ) { return allow_keep_alive; };
             
     };

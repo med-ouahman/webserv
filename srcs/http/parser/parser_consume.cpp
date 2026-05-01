@@ -1,7 +1,7 @@
 #include "HTTPParser.hpp"
 
 namespace http {
-    HTTPParser::ParseResult::Type HTTPParser::consume( void ) {
+    HTTPParser::ParseResult::Type HTTPParser::parse( void ) {
 		
 		ParseResult::Type r;
 	

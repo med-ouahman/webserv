@@ -34,9 +34,9 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/conn_on_write.cpp \
 	srcs/core/conn_advance.cpp \
 	srcs/core/conn_cgi.cpp \
-	srcs/core/conn_error.cpp \
 	srcs/core/conn_process.cpp \
 	srcs/core/conn_handle_event.cpp \
+	srcs/core/dispatch_parser_result.cpp \
 	srcs/http/parser/HTTPParser.cpp \
 	srcs/http/parser/parse_headers.cpp \
 	srcs/http/parser/parse_request_line.cpp \

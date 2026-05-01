@@ -5,6 +5,7 @@
 #include "IIOHandler.hpp"
 #include <unistd.h>
 #include "Result.hpp"
+
 namespace io {
 
 	class IOState {
@@ -29,7 +30,6 @@ namespace io {
 		
 		protected:
 			virtual bool process( void ) = 0;
-			virtual void error( void ) = 0;
 			virtual bool readbuf_drained() = 0;
 			virtual void handle_event( void ) = 0;
 			EventType io_event;

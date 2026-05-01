@@ -1,8 +1,8 @@
 
 #include "Connection.hpp"
 
-typedef http::HTTPParser::ParseState::Type ParseState;
-typedef http::HTTPParser::ParseResult::Type ParseResult;
+typedef http::HTTPParser::ParseState ParseState;
+typedef http::HTTPParser::ParseResult ParseResult;
 
 namespace core {
     
@@ -13,63 +13,56 @@ namespace core {
     */
   
     bool Connection::process_incoming_data( void ) {
-        
-        
+    
         p.feed(readbuf, bytes_received);
 
-        ParseResult result = p.consume();
+        ParseResult::Type result = p.parse();
         
-        if (result == http::HTTPParser::ParseResult::NEED_MORE_BYTES) {
-            return true;
-        } else if (result == http::HTTPParser::ParseResult::PARSE_ERROR) {
-            dispatcher.build_error_response(http::BAD_REQUEST, "Bad request");
-            state = ConnectionState::WRITING;
-            close_after_write = true;
-            return false;
+        switch (result) {
+            case ParseResult::NEED_MORE_BYTES:
+                return true;
+            case ParseResult::PARSE_ERROR:
+               on_client_error();
+               return false;
+               break;
+            case ParseResult::SUCCESS:
+                on_request_ready();
+                return false;
+            default:
+                break;
         }
-        
-        /* Response logic... */
-        ++num_requests;
-        std::cout << "REQUESTS: " << num_requests << "\n";
-        http::HTTPRequest req = p.get_request();
-        p.reset();
-        close_after_write = !req.want_keep_alive();
-    
-        http::HTTPDispatcher::HandlerResult res = dispatcher.handle_request(req);
 
-        if (res.response_type == http::HTTPResponseType::CGI) {
-            state = ConnectionState::CGI;
-            enter_cgi(res.cgi_ctx);
-        } else {
-            state = ConnectionState::WRITING;
-        }
         return false;
     }
 
 
-    bool Connection::process_outgoing_data( void ) {
+    void Connection::process_outgoing_data( void ) {
 
-        if (sent_offset == bytes_to_write) {
+        if (sent_offset < bytes_to_write)
+            return ;
     
-            sent_offset = 0;
-            ssize_t to_write = dispatcher.produce(writebuff, SEND_CHUNK_SIZE);
-            
-            if (to_write < 0 || (to_write == 0 && close_after_write)) {
-                processing = false;
-                state = ConnectionState::CLOSING;
-                return false;
-            }
-            
-            bytes_to_write = to_write;
+        bytes_to_write = 0;
+        sent_offset = 0;
 
-            if (bytes_to_write == 0) {
-                state = readbuf_drained() ? ConnectionState::IDLE: ConnectionState::READING;
-            }
-            
-            processing = (state == ConnectionState::READING) || (state == ConnectionState::WRITING);
-            return false;
+        ssize_t produced = response.produce(writebuff, SEND_CHUNK_SIZE);
+        
+        if (produced < 0 || (produced == 0 && close_after_write)) {
+            processing = false;
+            state = ConnectionState::CLOSING;
+            return ;
         }
-        return true;
+        
+        bytes_to_write = produced;
+
+        if (bytes_to_write == 0) {
+            state = readbuf_drained() ?
+                ConnectionState::IDLE
+                : ConnectionState::READING;
+        }
+        
+        processing = (state == ConnectionState::READING)
+            || (state == ConnectionState::WRITING);
+        
     }
 
 }

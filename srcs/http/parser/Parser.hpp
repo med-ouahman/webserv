@@ -26,7 +26,7 @@ namespace http {
             };
             HTTPParser();
             ~HTTPParser();
-            ParseResult consume( char* buff );
+            ParseResult parse( char* buff );
             HTTPRequest get_request() const;
         private:
             ParseResult parse_request_line( void );

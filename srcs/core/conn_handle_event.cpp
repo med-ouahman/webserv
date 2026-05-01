@@ -15,6 +15,7 @@ namespace core {
 				state = ConnectionState::WRITING;
 				break;
 			case io::ERROR:
+				std::cout << "ERROR EVENT\n";
 				state = ConnectionState::CLOSING;
 				break;
 			default:

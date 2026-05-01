@@ -101,7 +101,7 @@ namespace http {
 
             explicit HTTPParser( int connection_fd, const config::Config& conf );
             ~HTTPParser();
-            ParseResult::Type consume( void );
+            ParseResult::Type parse( void );
             HTTPRequest get_request() const;
             void reset( void );
             void feed( const char* buff, ::size_t size );

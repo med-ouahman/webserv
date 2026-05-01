@@ -1,11 +1,11 @@
 
-#include "EventLoop.hpp"
-#include "CGIHandler.hpp"
+// #include "EventLoop.hpp"
+// #include "CGIHandler.hpp"
 
-namespace io {
+// namespace io {
 
-    void EventLoop::register_cgi_handler( http::CGIHandler* cgi_handler ) {
-        cgi_handlers.push_back(cgi_handler);
-    }
+//     void EventLoop::register_cgi_handler( http::CGIHandler* cgi_handler ) {
+//         cgi_handlers.push_back(cgi_handler);
+//     }
     
-}
+// }

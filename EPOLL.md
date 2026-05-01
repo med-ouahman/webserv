@@ -69,7 +69,7 @@ server_design/
 │        single authority for connection lifetime
 │
 ├─ request_processing
-│   ├─ parser.consume(buffer)
+│   ├─ parser.parse(buffer)
 │   ├─ outcomes
 │   │     CONTINUE
 │   │     NEED_MORE_BYTES

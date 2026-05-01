@@ -30,7 +30,7 @@ namespace core {
         process_outgoing_data();
         
         if (sent_offset < bytes_to_write) {
-
+            
             write();
             if (bytes_r < 0) {
                 processing = false;

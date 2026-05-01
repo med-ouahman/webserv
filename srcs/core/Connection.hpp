@@ -7,6 +7,7 @@
 #include "CGIHandler.hpp"
 #include "CGIContext.hpp"
 #include "HTTPDispatcher.hpp"
+#include "HTTPResponse.hpp"
 #include "Stream.hpp"
 
 namespace config {
@@ -39,12 +40,17 @@ class Connection: public io::Stream {
             
         private:
             /* config + parsing + response generation */
+
+            void on_client_error();
+            void on_request_ready();
+
             ConnectionState::Type state;
             http::HTTPParser p;
             http::HTTPDispatcher dispatcher;
             const config::Config& config;
             bool close_after_write;
             ::size_t num_requests;
+            http::HTTPResponse response;
 
         private:
             /* timeout */
@@ -57,8 +63,7 @@ class Connection: public io::Stream {
             void exit_cgi( void );
             
         private:
-            bool process( void ); // to be removed
-            void error( void ); // to be removed
+            bool process( void );
             bool advance( void );
             bool readbuf_drained( void ) { return bytes_received == p.get_bytes_consumed(); }
     
@@ -70,10 +75,11 @@ class Connection: public io::Stream {
             void tick( void );
             
         private:
-            bool process_outgoing_data( void );
+            void process_outgoing_data( void );
             bool process_incoming_data( void );
             void handle_event( void );
             void on_writeable( void );
             void on_readable( void );
+
     };
 }
