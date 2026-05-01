@@ -19,7 +19,7 @@ namespace http {
             use OutpuState to track progress across multiple calls
             use line_buff to store incomplete headers
             
-            for the body, you allocate the body provider and just pass it the buffer and size
+            after detecting the body, you allocate the body provider and just pass it the buffer and size
         */
 
         HTTPResponse& response = conn.get_response();
