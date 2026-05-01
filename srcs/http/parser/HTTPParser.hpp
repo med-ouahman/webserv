@@ -6,9 +6,21 @@
 #include "ConnectionEvent.hpp"
 #include "HTTPRequest.hpp"
 #include "Config.hpp"
+#include "LineScanner.hpp"
 
 namespace http {
-    
+     
+    class ParseState {
+        public:
+            enum Type {
+                REQUEST_LINE,
+                HEADERS,
+                BODY,
+                DONE,
+                ERROR
+            };
+    };
+
     class HTTPParser {
         private:
             static const std::size_t MAX_METHOD_LEN       = 16;
@@ -22,70 +34,16 @@ namespace http {
             static const std::size_t MAX_BODY_LEN         = 10 * 1024 * 1024;  // 10 MB
             static const std::size_t MAX_CHUNK_SIZE       = 1  * 1024 * 1024;  // 1 MB
             static const std::size_t MAX_LEADING_CRLF     = 5;
-
-
-            static const std::string hexas;
-
-        private:
-            const int conn_fd;
-            const char* body_dir;
-            ::size_t body_bytes_parsed;
-            ::size_t body_len;
-            std::string body_path;
-            int body_fd;
-
-        private:
-            class ChunkState {
-                public:
-                    enum Type {
-                        CHUNK_SIZE,
-                        CHUNK_DATA,
-                        CHUNK_TRAIL,
-                        CHUNK_LAST
-                    };
-            };
-
-            ChunkState::Type chunk_state;
-            ::size_t chunk_remaining;
     
         private:
-            bool headers_done;
-            bool cr_found;
-            ::size_t leading_crlf_count;
-            ::size_t header_count;
+            bool headers_done;    
+            size_t leading_crlf_count;
+            size_t header_count;
             HTTPRequest request;
-            std::string line_buff;
-            ::size_t bytes_consumed;
-            char* data_;
-            ::size_t len_;
-
-        public:
-            class ParseState {
-                public:
-                    enum Type {
-                        REQUEST_LINE,
-                        HEADERS,
-                        BODY,
-                        DONE,
-                        ERROR
-                    };
-            };
+            LineScanner line_c;
 
         private:
             ParseState::Type parse_state;
-            
-            struct BodyType {
-                enum Type {
-                    UNSET,
-                    NONE,
-                    CONTENT_LENGTH,
-                    TRANSFER_ENCODING_CHUNKED,
-                    ERROR,
-                };
-            };
-
-            BodyType::Type body_type;
-        private:
             const config::Config& config;
 
         public:
@@ -99,26 +57,20 @@ namespace http {
                 };
             };
 
-            explicit HTTPParser( int connection_fd, const config::Config& conf );
+            explicit HTTPParser( const config::Config& conf );
             ~HTTPParser();
-            ParseResult::Type parse( void );
+            ScanResult parse();
             HTTPRequest get_request() const;
-            void reset( void );
-            void feed( const char* buff, ::size_t size );
-            ::size_t get_bytes_consumed( void ) const;
-            ParseState::Type  get_parser_state( void ) const;
-            ::size_t get_body_bytes_consumed( void ) const;
+            void reset();
+            void set_data_view( char* buff, ::size_t size );
+            ParseState::Type  get_parser_state() const;
             
         private:
-            ParseResult::Type scan_line( ::size_t max_bytes_allowed );
-            ParseResult::Type parse_request_line( void );
-            ParseResult::Type parse_headers( void );
-            ParseResult::Type parse_body( void );
-            BodyType::Type    detect_body_type( void );
-            ParseResult::Type parse_body_chunked( void );
-            ParseResult::Type parse_body_content_length( void );
-            bool              add_request_header( std::string const& s );
-            bool              validate_headers( void );
+           
+            ScanResult parse_request_line();
+            ScanResult parse_headers();
+            bool add_request_header( std::string const& s );
+            bool validate_headers();
 
         private:
             /* stateless helpers. */
@@ -126,7 +78,5 @@ namespace http {
             static bool validate_http_version( std::string const& s );
             static void normalize_header_name( std::string& name );
             static bool validate_header_name( const std::string& name );
-            static ::size_t parse_chunk_size( const std::string& line_buff );
-            static bool is_valid_hexa( const char c );
     };
 }

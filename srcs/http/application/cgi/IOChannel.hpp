@@ -30,11 +30,11 @@ namespace http {
             ~IOChannel();
         
         private:
-            bool process( void );
-            void on_writeable( void );
-            void on_readable( void );
+            bool process();
+            void on_writeable();
+            void on_readable();
             void on_error();
-            bool readbuf_drained( void );
-            void handle_event( void );
+            bool readbuf_drained();
+            void handle_event();
     };
 }

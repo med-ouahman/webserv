@@ -1,21 +1,23 @@
 
-#include "HTTPParser.hpp"
+#include "BodyParser.hpp"
 #include <sstream>
 #include <fcntl.h>
 #include <unistd.h>
 
 namespace http {
-
-    HTTPParser::ParseResult::Type HTTPParser::parse_body( void ) {
+    
+    bool BodyParser::is_valid_hexa( const char c ) {
+		return hexas.find(c) != std::string::npos;
+	}
+    
+   ScanResult BodyParser::parse_body() {
 
         if (BodyType::UNSET == body_type) {
 
-            body_type = detect_body_type();
-
             if (body_type == BodyType::ERROR) {
-                return ParseResult::PARSE_ERROR;
+                return ERROR;
             } else if (body_type == BodyType::NONE) {
-                return ParseResult::SUCCESS;
+                return SUCCESS;
             }
 
             std::stringstream ss;
@@ -23,11 +25,11 @@ namespace http {
             body_path = body_dir + std::string("/tmp_body_") + ss.str();
             body_fd = open(body_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
             if (body_fd < 0) {
-                return ParseResult::PARSE_ERROR;
+                return ERROR;
             }
         }
 
-        ParseResult::Type result;
+        ScanResult result;
         switch (body_type) {
             case BodyType::CONTENT_LENGTH:
                 result = parse_body_content_length();
@@ -36,33 +38,33 @@ namespace http {
                 result = parse_body_chunked();
                 break;
             default:
-                result = ParseResult::NEED_MORE_BYTES;
+                result = NEED_MORE;
         }
 
-        if (result == ParseResult::SUCCESS) {
-            parse_state = ParseState::DONE;
+        if (result == SUCCESS) {
             ::close(body_fd);
             body_fd = -1;
-            request.body_path = body_path;
         }
     
         return result;
     }
     
-    HTTPParser::ParseResult::Type HTTPParser::parse_body_chunked( void ) {
+    ScanResult BodyParser::parse_body_chunked() {
 
         if (chunk_state == ChunkState::CHUNK_SIZE) {
 
-            ParseResult::Type r = scan_line(MAX_HEADER_BLOCK_LEN);
-            if (r != ParseResult::SUCCESS) {
+            ScanResult r = sc.scan(MAX_HEADER_BLOCK_LEN);
+
+            if (r != SUCCESS) {
                 return r;
             }
             
-            chunk_remaining = parse_chunk_size(line_buff);
+            chunk_remaining = parse_chunk_size(sc.line());
             if (chunk_remaining > MAX_CHUNK_SIZE) {
-                return ParseResult::PARSE_ERROR;
+                return ERROR;
             }
-            line_buff.clear();
+            
+            sc.reset();
             
             if (chunk_remaining == 0) {
                 chunk_state = ChunkState::CHUNK_LAST;
@@ -72,15 +74,15 @@ namespace http {
         }
 
         if (chunk_state == ChunkState::CHUNK_LAST) {
-            ParseResult::Type res = scan_line(MAX_HEADER_BLOCK_LEN);
-            if (res != ParseResult::SUCCESS) {
+            ScanResult res = sc.scan(MAX_HEADER_BLOCK_LEN);
+            if (res != SUCCESS) {
                 return res;
             }
-            if (line_buff.size() != 0) {
-                return ParseResult::PARSE_ERROR;
+            if (sc.line().size() != 0) {
+                return ERROR;
             }
 
-            return ParseResult::SUCCESS;
+            return SUCCESS;
         }
 
         ::size_t remaining = chunk_remaining - body_bytes_parsed;
@@ -91,14 +93,14 @@ namespace http {
         
         if (body_bytes_parsed == chunk_remaining) {
             body_bytes_parsed = 0;
-            line_buff.clear();
+            sc.reset();
             chunk_state = ChunkState::CHUNK_SIZE;
         }
 
-        return ParseResult::NEED_MORE_BYTES;
+        return NEED_MORE;
     }
 
-    HTTPParser::ParseResult::Type HTTPParser::parse_body_content_length( void ) {
+    ScanResult BodyParser::parse_body_content_length() {
     
         ::size_t remaining = body_len - body_bytes_parsed;
         ::size_t available = len_ - bytes_consumed;
@@ -111,9 +113,9 @@ namespace http {
         bytes_consumed += to_copy;
 
         if (body_bytes_parsed == body_len) {
-            return ParseResult::SUCCESS;
+            return SUCCESS;
         }
         
-        return ParseResult::NEED_MORE_BYTES;
+        return NEED_MORE;
     }
 }

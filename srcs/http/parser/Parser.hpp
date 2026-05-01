@@ -29,9 +29,9 @@ namespace http {
             ParseResult parse( char* buff );
             HTTPRequest get_request() const;
         private:
-            ParseResult parse_request_line( void );
-            ParseResult parse_headers( void );
-            ParseResult parse_body( void );
+            ParseResult parse_request_line();
+            ParseResult parse_headers();
+            ParseResult parse_body();
             bool add_request_header( std::string const& s );
         private:
             /* stateless helpers. */

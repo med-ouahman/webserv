@@ -20,11 +20,27 @@ namespace http {
             use line_buff to store incomplete headers
             
             after detecting the body, you allocate the body provider and just pass it the buffer and size
-        */
 
+            The LineScanner is a utility that helps detect CRLF line.
+            LineScanner::scan(size), scans the given buffer for the pair \r\n, if found it is put in the lienebuff and access via LineScanner::line()
+            the LineScanner::scan returns 3 values, SUCCESS a line was fully parsed, NEED_MORE: more data is needed or ERROR is case of error (size>max_size)
+
+
+        */
+        // EXAMPLE:
+
+        ScanResult r = scanner.scan(1000);
+        if (r ==SUCCESS) {
+            // parse header here
+        } else {
+            // handle case here
+        }
+        
         HTTPResponse& response = conn.get_response();
 
         response.headers["key"] = "value";
+
+        buff[size - size] = buff[size * 0];
 
     }
 

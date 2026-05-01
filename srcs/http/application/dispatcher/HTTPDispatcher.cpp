@@ -5,19 +5,18 @@
 #include <iostream>
 
 namespace http {
-    const char* HTTPDispatcher::CRLF = "\r\n";
-    const char* HTTPDispatcher::COLON = ": ";
+    
     
     HTTPDispatcher::HTTPDispatcher( const config::Config& conf )
-        :allow_keep_alive(true),
-        config(conf),
-        serialize_state(DONE)
+        :config(conf),
+        allow_keep_alive(true)
          {}
 
     HTTPDispatcher::~HTTPDispatcher() {}
 
     void HTTPDispatcher::build_error_response( HTTPStatusCode code, std::string reason ) {
         std::cout << "code: " << code << " reason: " << reason << "\n";
+        HTTPResponse response;
         response.status_code = code;
         response.reason = reason;
         response.headers["Connection"] = "close";

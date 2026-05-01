@@ -8,8 +8,12 @@ namespace http {
 
     CGIHandler::CGIHandler( core::Connection& con, const io::EventLoop& l )
         : cgi_state(SPAWN),
+        output_state(STATUS_LINE),
+        line_buff(),
+        bytes_consumed(0),
         cgi_pid(-1),
         cgi_status(0),
+
         pipe_guard(),
         stdin_ch(pipe_guard.stdin_pipe[1], this, STDStream::STDIN, EPOLLOUT | EPOLLET),
         stdout_ch(pipe_guard.stdout_pipe[0], this, STDStream::STDOUT, EPOLLIN | EPOLLET),

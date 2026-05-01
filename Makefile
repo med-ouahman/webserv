@@ -43,9 +43,12 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/parser/parse_body.cpp \
 	srcs/http/parser/parser_utils.cpp \
 	srcs/http/parser/HTTPRequest.cpp \
-	srcs/http/parser/parser_scan_line.cpp \
 	srcs/http/parser/parser_consume.cpp \
 	srcs/http/parser/parser_detect_body.cpp \
+	srcs/http/parser/parse_content_length.cpp \
+	srcs/http/parser/parse_chunk_size.cpp \
+	srcs/http/parser/LineScanner.cpp \
+	srcs/http/parser/BodyParser.cpp \
 	srcs/http/application/dispatcher/HTTPDispatcher.cpp \
 	srcs/http/application/dispatcher/serialize_response.cpp \
 	srcs/http/application/dispatcher/handle_request.cpp \
@@ -56,6 +59,9 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/application/cgi/CGIHandler.cpp \
 	srcs/http/application/cgi/spawn.cpp \
 	srcs/http/application/cgi/IOChannel.cpp \
+	srcs/http/application/cgi/cgi_input.cpp \
+	srcs/http/application/cgi/cgi_on_error.cpp \
+	srcs/http/application/cgi/cgi_output.cpp \
 	srcs/http/application/cgi/io_channel_handle_event.cpp \
 	srcs/http/application/response_builder/generate_directory_listing.cpp \
 	srcs/http/application/response_builder/MimeType.cpp \

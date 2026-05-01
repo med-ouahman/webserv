@@ -3,7 +3,7 @@
 
 namespace http {
 
-	void IOChannel::handle_event( void ) {
+	void IOChannel::handle_event() {
 		
 		switch (io_event) {
 			case io::NONE:
@@ -20,12 +20,12 @@ namespace http {
 		}
 	}
 
-	void IOChannel::on_writeable( void ) {
+	void IOChannel::on_writeable() {
 		listener->produce_output(writebuff, SEND_CHUNK_SIZE);
 		write();
 	}
 
-	void IOChannel::on_readable( void ) {
+	void IOChannel::on_readable() {
 		read();
 
 		if (bytes_r < 0) // let epoll notify
@@ -34,6 +34,7 @@ namespace http {
 		bytes_received = bytes_r;
 		
 		listener->on_input_ready(readbuf, bytes_received);
+		
 	}
 
 	void IOChannel::on_error() {

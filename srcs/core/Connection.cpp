@@ -13,7 +13,7 @@ namespace core {
         event_mask(mask),
         loop(l),
         state(ConnectionState::IDLE),
-        p(_fd, conf),
+        p(conf),
         dispatcher(conf),
         config(conf),
         close_after_write(false),
@@ -26,7 +26,7 @@ namespace core {
         state = ConnectionState::CLOSING;
     }
 
-    ConnectionAction Connection::desired_action( void ) const {
+    ConnectionAction Connection::desired_action() const {
         
         ConnectionAction action = { false, false, false, false };
     
@@ -47,14 +47,14 @@ namespace core {
         return action;
     }
 
-    int Connection::get_fd( void ) const {
+    int Connection::get_fd() const {
         return fd;
     }
 
     
 
 
-    void Connection::tick( void ) {
+    void Connection::tick() {
         
         if (ConnectionState::IDLE == state) {
             ms_ += 0;

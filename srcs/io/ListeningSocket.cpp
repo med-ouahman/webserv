@@ -34,7 +34,7 @@ namespace io {
 		}
 	};
 
-	void ListeningSocket::release( void ) {
+	void ListeningSocket::release() {
 		fd = -1;
 	}
 }

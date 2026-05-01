@@ -60,7 +60,7 @@ void handle_connection(int client_fd) {
     close(htmlfd);
 }
 
-int main( void ) {
+int main() {
 
     struct sockaddr_in sock_addr = {
         .sin_family = AF_INET, // IPv4

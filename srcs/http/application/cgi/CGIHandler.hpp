@@ -41,7 +41,7 @@ namespace http {
 				BODY,
 			} output_state;
 
-			std::string line_buff; // stores leftover bytes
+			
 
 			pid_t	cgi_pid;
 			int		cgi_status;
@@ -53,10 +53,12 @@ namespace http {
 	
 			core::Connection& conn;
 			const io::EventLoop& loop;
+			LineScanner scanner;
 		
 		public:
 			void on_input_ready( char* buff, size_t size );
 			void produce_output( char* buff, size_t size );
+			size_t consumed_data() { return scanner.get_bytes_consumed(); };
 			void on_error();
 			/**/
 

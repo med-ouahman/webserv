@@ -3,7 +3,7 @@
 
 namespace io {
 
-    void Stream::read( void ) {
+    void Stream::read() {
         bytes_r = ::read(fd, readbuf, READ_BUFFER_SIZE);
     }
     

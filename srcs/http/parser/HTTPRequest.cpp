@@ -48,7 +48,7 @@ namespace http {
 		}
 	}
 
-	bool HTTPRequest::want_keep_alive( void ) {
+	bool HTTPRequest::want_keep_alive() {
 		if (version == "HTTP/1.1") {
 			return headers["connection"] != "close";
 		} else if (version == "HTTP/1.0") {
@@ -58,7 +58,7 @@ namespace http {
 		return false;
 	}
 
-	bool HTTPRequest::version_supported( void ) const {
+	bool HTTPRequest::version_supported() const {
 		return version == "HTTP/1.0" || version == "HTTP/1.1";
 	}
 

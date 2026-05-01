@@ -40,7 +40,7 @@ namespace io {
 		return error::Result<int>(socket_fd);
 	}
 
-	bool EventLoop::start_listeners( void ) {
+	bool EventLoop::start_listeners() {
  		for ( ::size_t i(0); i < conf.server.listens.size(); ++i ) {
 			error::Result<int> result = create_listening_socket(conf.server.listens[i]);
 			

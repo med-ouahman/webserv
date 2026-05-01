@@ -57,7 +57,7 @@ namespace http {
             HTTPDispatcher( const config::Config& conf );
             ~HTTPDispatcher();
             HandlerResult handle_request( const HTTPRequest& req );
-            bool allow_presistance( void ) { return allow_keep_alive; };
+            bool allow_presistance() { return allow_keep_alive; };
             
     };
 }

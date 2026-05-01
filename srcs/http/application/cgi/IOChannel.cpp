@@ -13,21 +13,21 @@ namespace http {
     IOChannel::~IOChannel() {}
 
 
-    int IOChannel::get_fd( void ) const {
+    int IOChannel::get_fd() const {
         return fd;
     }
 
-    uint32_t IOChannel::get_event( void ) const {
+    uint32_t IOChannel::get_event() const {
         return event;
     }
 
-    bool IOChannel::process( void ) {
+    bool IOChannel::process() {
     
         return true;
     }
 
     bool IOChannel::readbuf_drained() {
-        return true;
+        return bytes_received == listener->consumed_data();
     }
     
 }

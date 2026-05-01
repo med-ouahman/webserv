@@ -32,9 +32,9 @@ class Connection: public io::Stream {
             const static std::size_t HEADERS_LIMIT_TICKS  = 500;
             const static std::size_t BODY_LIMIT_TICKS     = 1000;
             
-            bool processing;
         private:
             /* epoll */
+            bool processing;
             uint32_t event_mask;
             const io::EventLoop& loop;
             
@@ -61,27 +61,27 @@ class Connection: public io::Stream {
             /* CGI */
             http::CGIHandler* cgi_handler;
             void enter_cgi( const http::CGIContext& cgi_ctx );
-            void exit_cgi( void );
+            void exit_cgi();
             
         private:
-            bool process( void );
-            bool advance( void );
-            bool readbuf_drained( void ) { return bytes_received == p.get_bytes_consumed(); }
+            bool process();
+            bool advance();
+            bool readbuf_drained() { return true; }
     
         public:
-            int get_fd( void ) const;
+            int get_fd() const;
             ConnectionAction desired_action() const;
             void set_mask( uint32_t new_mask ) { event_mask = new_mask; }
-            uint32_t get_mask( void ) const { return event_mask; }
-            http::HTTPResponse& get_response( void ) { return response; }
-            void tick( void );
+            uint32_t get_mask() const { return event_mask; }
+            http::HTTPResponse& get_response() { return response; }
+            void tick();
             
         private:
-            void process_outgoing_data( void );
-            bool process_incoming_data( void );
-            void handle_event( void );
-            void on_writeable( void );
-            void on_readable( void );
+            void process_outgoing_data();
+            bool process_incoming_data();
+            void handle_event();
+            void on_writeable();
+            void on_readable();
 
     };
 }

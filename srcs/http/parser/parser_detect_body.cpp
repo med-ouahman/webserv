@@ -1,30 +1,33 @@
-#include "HTTPParser.hpp"
+#include "BodyParser.hpp"
 
 namespace http {
 
-	HTTPParser::BodyType::Type HTTPParser::detect_body_type( void )  {
+	void BodyParser::detect_body_type( std::map<std::string, std::string> & headers )  {
 		
-		bool content_length = request.headers["content-length"].size() != 0;
-		bool transfer_encoding = request.headers["transfer-encoding"].size() != 0;
+		bool content_length = headers["content-length"].size() != 0;
+		bool transfer_encoding = headers["transfer-encoding"].size() != 0;
 
 		if (content_length && transfer_encoding) {
-			return BodyType::ERROR;
+			body_type = BodyType::ERROR;
 		}
 
 		if (content_length) {
-			if (!parse_content_length(request.headers["content-length"], body_len)) {
-				return BodyType::ERROR;
+			if (!parse_content_length(headers["content-length"])) {
+				body_type = BodyType::ERROR;
 			}
 
 			if (body_len == 0) {
-				return BodyType::NONE;
-			}
+				body_type = BodyType::NONE;
+			} else {
 
-			return BodyType::CONTENT_LENGTH;
+				body_type = BodyType::CONTENT_LENGTH;
+			}
 		} else if (transfer_encoding) {
-			return BodyType::TRANSFER_ENCODING_CHUNKED;
+			body_type = BodyType::TRANSFER_ENCODING_CHUNKED;
+		} else {
+
+			body_type = BodyType::NONE;
 		}
 		
-		return BodyType::NONE;
 	}
 }

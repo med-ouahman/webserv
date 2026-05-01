@@ -19,7 +19,7 @@ namespace io {
         return true;
     }
 
-    bool EventLoop::remove_connections( void ) {
+    bool EventLoop::remove_connections() {
 
         for ( ::size_t i(0); i < conns.size(); ) {
             if (conns[i]->desired_action().want_close) {

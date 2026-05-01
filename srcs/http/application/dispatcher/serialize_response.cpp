@@ -2,9 +2,13 @@
 #include "HTTPResponse.hpp"
 #include <sstream>
 #include <cstring>
+
 namespace http {
 
-    void HTTPResponse::serialize_current_header( void ) {
+    const char* HTTPResponse::COLON = ":";
+    const char* HTTPResponse::CRLF = "\r\n";
+    
+    void HTTPResponse::serialize_current_header() {
 
         line_buff = (*current_header).first + COLON + (*current_header).second + CRLF;
     }

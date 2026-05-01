@@ -29,9 +29,9 @@ namespace io {
 			void on_event( EventType type );
 		
 		protected:
-			virtual bool process( void ) = 0;
+			virtual bool process() = 0;
 			virtual bool readbuf_drained() = 0;
-			virtual void handle_event( void ) = 0;
+			virtual void handle_event() = 0;
 			EventType io_event;
 			ssize_t bytes_r; /* whatever read/write returned */
 			
@@ -48,9 +48,9 @@ namespace io {
 			size_t sent_offset;
 
 		protected:
-			void read( void );
-			void write( void );
-			virtual void on_readable( void ) = 0;
-			virtual void on_writeable( void ) = 0;
+			void read();
+			void write();
+			virtual void on_readable() = 0;
+			virtual void on_writeable() = 0;
 	};
 }

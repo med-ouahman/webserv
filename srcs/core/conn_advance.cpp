@@ -3,9 +3,9 @@
 
 namespace core {
 
-	bool Connection::advance( void ) {
+	bool Connection::advance() {
 		
-		ssize_t p_bytes = dispatcher.produce(writebuff, SEND_CHUNK_SIZE);
+		ssize_t p_bytes = response.produce(writebuff, SEND_CHUNK_SIZE);
 
 		if (p_bytes < 0) {
 			state = ConnectionState::CLOSING;

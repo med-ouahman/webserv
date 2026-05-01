@@ -19,7 +19,7 @@ namespace core {
 
     }
 
-    void Connection::exit_cgi( void ) {
+    void Connection::exit_cgi() {
         delete cgi_handler;
         cgi_handler = NULL;
     }

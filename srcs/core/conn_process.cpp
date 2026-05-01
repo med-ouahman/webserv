@@ -2,7 +2,7 @@
 
 namespace core {
 
-    bool Connection::process( void ) {
+    bool Connection::process() {
 
         processing = state != ConnectionState::CLOSING;
         

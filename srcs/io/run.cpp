@@ -4,7 +4,7 @@
 
 namespace io {
 
-    int EventLoop::run( void ) {
+    int EventLoop::run() {
 
         struct epoll_event events[MAX_EVENTS];
         while (running) {

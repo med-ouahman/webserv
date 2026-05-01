@@ -6,7 +6,7 @@
 
 namespace core {
 
-    void Connection::on_readable( void ) {
+    void Connection::on_readable() {
 
         if (readbuf_drained()) {
 
@@ -25,7 +25,7 @@ namespace core {
         processing = process_incoming_data();
     }
 
-    void Connection::on_writeable( void ) {
+    void Connection::on_writeable() {
         
         process_outgoing_data();
         

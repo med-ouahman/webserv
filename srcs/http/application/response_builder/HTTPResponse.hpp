@@ -39,7 +39,7 @@ namespace http {
         
         public:
             ::size_t serialize_headers( char* buff, ::size_t max_size );
-            void serialize_current_header( void );
+            void serialize_current_header();
             ::ssize_t produce( char* buff, ::size_t max_size );
         public:
             enum SerializeState {

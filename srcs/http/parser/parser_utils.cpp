@@ -12,6 +12,7 @@ namespace http {
 			if (!isdigit(s[i])) {
 				return false;
 			}
+
 			body_len = body_len * 10 + s[i] - 48;
 			if (body_len > 101010) {
 				return false;
@@ -54,7 +55,7 @@ namespace http {
 		return true;
 	}
 
-	bool HTTPParser::validate_headers( void ) {
+	bool HTTPParser::validate_headers() {
 		
 		if (request.version == "HTTP/1.1") {
 			if (request.headers["host"].length() == 0) {
@@ -84,34 +85,5 @@ namespace http {
 		return true;
 	}
 
-	::size_t HTTPParser::parse_chunk_size( const std::string& line_buff ) {
-		
-		::size_t chunk_size = 0;
-		
-		for ( ::size_t i(0); i < line_buff.size(); ++i ) {
 
-			char c = ::tolower(line_buff[i]);
-
-			if (c == ';') {
-				break;
-			}
-
-			if (!is_valid_hexa(c)) {
-				return MAX_CHUNK_SIZE + 1;
-			}
-
-			chunk_size = chunk_size * hexas.size() + hexas.find(c);
-
-			if (chunk_size > MAX_CHUNK_SIZE) {
-				/* I will be generous and log errors later */
-				return MAX_CHUNK_SIZE + 1;
-			}
-		}
-
-		return chunk_size;
-	}
-
-	bool HTTPParser::is_valid_hexa( const char c ) {
-		return hexas.find(c) != std::string::npos;
-	}
 }

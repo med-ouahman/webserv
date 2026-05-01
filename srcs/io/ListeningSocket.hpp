@@ -15,8 +15,8 @@ namespace io {
 		private:
 			EventLoop& loop;
 			ListeningSocket& operator=( const ListeningSocket& socket );
-			bool accept_clients( void );
-			bool on_error( void );
+			bool accept_clients();
+			bool on_error();
 			
 		public:
 			ListeningSocket( const ListeningSocket& socket );
@@ -24,6 +24,6 @@ namespace io {
 			explicit ListeningSocket( EventLoop& loop, int fd );
 			~ListeningSocket();
 			void on_event( EventType event );
-			void release( void );
+			void release();
 	};
 }

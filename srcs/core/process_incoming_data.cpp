@@ -1,8 +1,6 @@
 
 #include "Connection.hpp"
-
-typedef http::HTTPParser::ParseState ParseState;
-typedef http::HTTPParser::ParseResult ParseResult;
+#include "LineScanner.hpp"
 
 namespace core {
     
@@ -12,20 +10,20 @@ namespace core {
         this is C++
     */
   
-    bool Connection::process_incoming_data( void ) {
+    bool Connection::process_incoming_data() {
     
-        p.feed(readbuf, bytes_received);
+        p.set_data_view(readbuf, bytes_received);
 
-        ParseResult::Type result = p.parse();
+        http::ScanResult result = p.parse();
         
         switch (result) {
-            case ParseResult::NEED_MORE_BYTES:
+            case http::NEED_MORE:
                 return true;
-            case ParseResult::PARSE_ERROR:
+            case http::ERROR:
                on_client_error();
                return false;
                break;
-            case ParseResult::SUCCESS:
+            case http::SUCCESS:
                 on_request_ready();
                 return false;
             default:
@@ -36,7 +34,7 @@ namespace core {
     }
 
 
-    void Connection::process_outgoing_data( void ) {
+    void Connection::process_outgoing_data() {
 
         if (sent_offset < bytes_to_write)
             return ;

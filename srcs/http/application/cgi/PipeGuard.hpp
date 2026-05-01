@@ -30,7 +30,7 @@ namespace http {
             close_pipes();
         }
 
-        void close_pipes( void ) {
+        void close_pipes() {
 
             CLOSE_FD(stdin_pipe[0]);
             CLOSE_FD(stdin_pipe[1]);

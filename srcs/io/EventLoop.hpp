@@ -41,16 +41,16 @@ namespace io {
 		
 		private:
 			error::Result<int> create_listening_socket( const config::ListenEndPoint& endpoint );
-			bool start_listeners( void );
+			bool start_listeners();
 
 		private:
-			bool remove_connections( void );
+			bool remove_connections();
 			void update_epoll_interest( core::Connection* conn );
 			
 		public:
 			explicit EventLoop( const config::Config& conf );
 			~EventLoop();
-			int run( void ); 
+			int run(); 
 			const config::Config& conf;
 			bool add_connection( int client_fd );
 
