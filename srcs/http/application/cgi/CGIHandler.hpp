@@ -23,18 +23,25 @@ namespace http {
 	class CGIHandler: public io::IDataListener {
 		
 		public:
-			explicit CGIHandler( const core::Connection& conn, const io::EventLoop& l );
+			explicit CGIHandler( core::Connection& conn, const io::EventLoop& l );
 			~CGIHandler();
 			void spawn( const CGIContext& context );
 
 		private:
-			enum CGIState
-			{
+			enum CGIState {
 				SPAWN,
 				ACTIVE,
-				ERROR,
 				IDLE,
+				ERROR,
 			}	cgi_state;
+
+			enum CGIParseState {
+				STATUS_LINE,
+				HEADERS,
+				BODY,
+			} output_state;
+
+			std::string line_buff; // stores leftover bytes
 
 			pid_t	cgi_pid;
 			int		cgi_status;
@@ -44,7 +51,7 @@ namespace http {
 			IOChannel stdout_ch;
 			IOChannel stderr_ch;
 	
-			const core::Connection& conn;
+			core::Connection& conn;
 			const io::EventLoop& loop;
 		
 		public:

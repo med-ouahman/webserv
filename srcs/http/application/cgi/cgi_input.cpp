@@ -1,5 +1,6 @@
 #include "CGIHandler.hpp"
-
+#include "Connection.hpp"
+#include "HTTPResponse.hpp"
 
 namespace http {
 
@@ -14,7 +15,16 @@ namespace http {
             parse the status line, headers from the CGI output, make them HTTP compliant, search for CGI output and how it works.
             add the headers to the response through response->add_header(key, val);
             for body, the CGIBodyProvider will be used, if no content-length header, use transfer-encoding: chunked
+            
+            use OutpuState to track progress across multiple calls
+            use line_buff to store incomplete headers
+            
+            for the body, you allocate the body provider and just pass it the buffer and size
         */
+
+        HTTPResponse& response = conn.get_response();
+
+        response.headers["key"] = "value";
 
     }
 

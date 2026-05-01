@@ -6,7 +6,7 @@
 
 namespace http {
 
-    CGIHandler::CGIHandler( const core::Connection& con, const io::EventLoop& l )
+    CGIHandler::CGIHandler( core::Connection& con, const io::EventLoop& l )
         : cgi_state(SPAWN),
         cgi_pid(-1),
         cgi_status(0),

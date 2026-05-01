@@ -50,6 +50,7 @@ class Connection: public io::Stream {
             const config::Config& config;
             bool close_after_write;
             ::size_t num_requests;
+
             http::HTTPResponse response;
 
         private:
@@ -72,6 +73,7 @@ class Connection: public io::Stream {
             ConnectionAction desired_action() const;
             void set_mask( uint32_t new_mask ) { event_mask = new_mask; }
             uint32_t get_mask( void ) const { return event_mask; }
+            http::HTTPResponse& get_response( void ) { return response; }
             void tick( void );
             
         private:
