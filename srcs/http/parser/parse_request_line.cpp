@@ -65,10 +65,14 @@ namespace http {
 		if (cursor == line_offset || version_len > MAX_VERSION_LEN) {
 			return ERROR;
 		}
-		
+
 		request.version = line_c.line().substr(line_offset, version_len);
+		if (!validate_http_version(request.version))
+			return ERROR;
+			
 		line_c.reset();
 		parse_state = ParseState::HEADERS;
+		std::cout << "HEADERS\n";
 		return SUCCESS;
 	}
 	

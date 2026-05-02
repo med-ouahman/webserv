@@ -13,7 +13,7 @@ namespace http {
 	HTTPParser::~HTTPParser() {}
 
 
-	HTTPRequest HTTPParser::get_request() const {
+ 	HTTPRequest& HTTPParser::get_request() {
 		return request;
 	}
 
@@ -25,12 +25,9 @@ namespace http {
 		request = HTTPRequest();
 	}
 
-	void HTTPParser::set_data_view( char* buff, ::size_t size ) {
+	void HTTPParser::set_data_view( core::DataView* view ) {
 
-		if (line_c.empty()) {
-			line_c.get_view().data = buff;
-			line_c.get_view().len_ = size;
-		}
+		line_c.set_data_view(view);
 	}
 
 	ParseState::Type HTTPParser::get_parser_state() const {

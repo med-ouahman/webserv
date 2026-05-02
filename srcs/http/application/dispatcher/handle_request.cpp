@@ -17,6 +17,7 @@ namespace http {
         HandlerResult handler_result;
 
         handler_result.response_type = result.type;
+        
         switch (result.type) {
             case HTTPResponseType::ERROR_RESPONSE:
                 build_error_response(result.status_code, result.reason);

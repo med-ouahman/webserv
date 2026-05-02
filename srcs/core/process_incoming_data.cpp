@@ -11,10 +11,18 @@ namespace core {
     */
   
     bool Connection::process_incoming_data() {
-    
-        p.set_data_view(readbuf, bytes_received);
 
-        http::ScanResult result = p.parse();
+        http::ScanResult result;
+        
+        p.set_data_view(&view);
+        result = p.parse();
+
+        if (p.get_parser_state() == http::ParseState::BODY) {
+        
+            body_p.detect_body_type(p.get_request().headers);
+            body_p.set_data_view(&view);
+            result = body_p.parse_body();
+        }
         
         switch (result) {
             case http::NEED_MORE:

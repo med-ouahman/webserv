@@ -19,7 +19,6 @@ namespace http {
 		if (BODY == serialize_state) {
 			::ssize_t b = body_provider->read(buff, size - bytes);
 			return b;
-			
 		}
 
 		return 0;

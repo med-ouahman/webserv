@@ -10,7 +10,7 @@ namespace core {
 
         if (readbuf_drained()) {
 
-            read(); 
+            read();
             
             if (bytes_r <= 0) {
                 if (bytes_r == 0) {
@@ -19,6 +19,9 @@ namespace core {
                 processing = false;
                 return ;
             }
+            view.data_ptr_ = readbuf;
+            view.bytes_consumed = 0;
+            view.len_ = bytes_r;
             bytes_received = bytes_r;
         }
 

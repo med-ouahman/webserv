@@ -20,7 +20,7 @@ namespace http {
             std::stringstream ss;
             ss << status_code;
         
-            line_buff = "HTTP\\1.1 " + ss.str() + " " + reason + CRLF;
+            line_buff = "HTTP/1.1 " + ss.str() + " " + reason + CRLF;
             ::memcpy(buff, line_buff.c_str(), line_buff.size());
             bytes += line_buff.size();
             serialize_state = HEADERS;

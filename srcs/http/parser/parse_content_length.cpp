@@ -1,7 +1,6 @@
 
 #include "BodyParser.hpp"
 
-
 namespace http {
 
     bool BodyParser::parse_content_length( std::string const& s ) {

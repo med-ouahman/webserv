@@ -49,6 +49,8 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/parser/parse_chunk_size.cpp \
 	srcs/http/parser/LineScanner.cpp \
 	srcs/http/parser/BodyParser.cpp \
+	srcs/http/parser/parse_body_chunked.cpp \
+	srcs/http/parser/parse_body_content_length.cpp \
 	srcs/http/application/dispatcher/HTTPDispatcher.cpp \
 	srcs/http/application/dispatcher/serialize_response.cpp \
 	srcs/http/application/dispatcher/handle_request.cpp \

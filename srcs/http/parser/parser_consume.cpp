@@ -6,6 +6,9 @@ namespace http {
 		
 		ScanResult r;
 	
+		if (headers_done)
+			return SUCCESS;
+	
 		if (ParseState::REQUEST_LINE == parse_state) {
 			r = parse_request_line();
 		}

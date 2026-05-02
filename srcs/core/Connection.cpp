@@ -8,12 +8,13 @@
 namespace core {
     
     Connection::Connection( int _fd, const config::Config& conf, uint32_t mask, const io::EventLoop& l )
-        :Stream(_fd),
+        : Stream(_fd),
         processing(true),
         event_mask(mask),
         loop(l),
         state(ConnectionState::IDLE),
         p(conf),
+        body_p(_fd),
         dispatcher(conf),
         config(conf),
         close_after_write(false),
@@ -24,6 +25,7 @@ namespace core {
     Connection::~Connection() {
     
         state = ConnectionState::CLOSING;
+        exit_cgi();
     }
 
     ConnectionAction Connection::desired_action() const {

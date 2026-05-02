@@ -26,14 +26,20 @@ namespace http {
 	}
 
 	void IOChannel::on_readable() {
-		read();
+		
+		while (true) {
 
-		if (bytes_r < 0) // let epoll notify
-			return ;
-		
-		bytes_received = bytes_r;
-		
-		listener->on_input_ready(readbuf, bytes_received);
+			if (readbuf_drained()) {
+				
+				read();
+				
+				if (bytes_r < 0)
+					return ;
+				bytes_received = bytes_r;
+			}
+			
+			listener->on_input_ready(readbuf, bytes_received);
+		}
 		
 	}
 

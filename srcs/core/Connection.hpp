@@ -9,6 +9,8 @@
 #include "HTTPDispatcher.hpp"
 #include "HTTPResponse.hpp"
 #include "Stream.hpp"
+#include "BodyParser.hpp"
+#include "DataView.hpp"
 
 namespace config {
     struct ServerConfig;
@@ -16,7 +18,7 @@ namespace config {
 
 namespace core {
 
-class Connection: public io::Stream {
+    class Connection: public io::Stream {
         public:
             explicit Connection( int fd, const config::Config& conf, uint32_t mask, const io::EventLoop& loop );
             ~Connection();
@@ -44,13 +46,14 @@ class Connection: public io::Stream {
             void on_client_error();
             void on_request_ready();
 
+            DataView view;
             ConnectionState::Type state;
             http::HTTPParser p;
+            http::BodyParser body_p;
             http::HTTPDispatcher dispatcher;
             const config::Config& config;
             bool close_after_write;
             ::size_t num_requests;
-
             http::HTTPResponse response;
 
         private:
@@ -66,7 +69,7 @@ class Connection: public io::Stream {
         private:
             bool process();
             bool advance();
-            bool readbuf_drained() { return true; }
+            bool readbuf_drained() { return view.len_ == view.bytes_consumed; }
     
         public:
             int get_fd() const;

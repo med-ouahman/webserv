@@ -7,9 +7,10 @@
 #include "HTTPRequest.hpp"
 #include "Config.hpp"
 #include "LineScanner.hpp"
+#include "DataView.hpp"
 
 namespace http {
-     
+    
     class ParseState {
         public:
             enum Type {
@@ -60,10 +61,11 @@ namespace http {
             explicit HTTPParser( const config::Config& conf );
             ~HTTPParser();
             ScanResult parse();
-            HTTPRequest get_request() const;
+            HTTPRequest& get_request();
             void reset();
-            void set_data_view( char* buff, ::size_t size );
+            void set_data_view( core::DataView* DataView );
             ParseState::Type  get_parser_state() const;
+            bool finished() { return headers_done; }
             
         private:
            

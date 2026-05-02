@@ -9,8 +9,7 @@ namespace http {
     CGIHandler::CGIHandler( core::Connection& con, const io::EventLoop& l )
         : cgi_state(SPAWN),
         output_state(STATUS_LINE),
-        line_buff(),
-        bytes_consumed(0),
+      
         cgi_pid(-1),
         cgi_status(0),
 
@@ -19,10 +18,12 @@ namespace http {
         stdout_ch(pipe_guard.stdout_pipe[0], this, STDStream::STDOUT, EPOLLIN | EPOLLET),
         stderr_ch(pipe_guard.stderr_pipe[0], this, STDStream::STDERR, EPOLLIN | EPOLLET),
         conn(con),
-        loop(l) {}
+        loop(l),
+        bytes_consumed(0) {}
 
     CGIHandler::~CGIHandler() {
         kill(cgi_pid, SIGKILL);
         waitpid(cgi_pid, &cgi_status, WNOHANG);
+        
     }
 }
