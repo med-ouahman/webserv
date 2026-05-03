@@ -61,7 +61,7 @@ namespace core {
 
             http::HTTPRequest req = p.get_request();
             p.reset();
-            handler.handle_request(req);
+            handler.handle_request(req, *server_conf);
             response_buff = handler.serialize();
             queue_response();
         }

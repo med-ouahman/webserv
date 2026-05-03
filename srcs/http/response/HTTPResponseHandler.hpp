@@ -43,6 +43,6 @@ namespace http {
             ~HTTPResponseHandler();
             std::string serialize() const;
             void build_error_response( HTTPStatusCode code, std::string reason );
-            void handle_request( const HTTPRequest& req );
+            void handle_request( const HTTPRequest& req, const config::ServerConfig& server );
     };
 }
