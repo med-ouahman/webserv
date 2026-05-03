@@ -34,7 +34,6 @@ namespace http {
                 int status_code;
                 std::string path;
             };
-
         private:
             ResolutionResult resolve( const HTTPRequest& req, const config::ServerConfig& server ) const;
             static const config::LocationConfig* find_location( const std::string& url, const std::vector<config::LocationConfig>& locations );

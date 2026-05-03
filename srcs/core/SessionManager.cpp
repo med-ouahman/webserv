@@ -65,5 +65,4 @@ void SessionManager::cleanup() {
         }
     }
 }
-
 }

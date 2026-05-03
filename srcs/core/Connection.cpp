@@ -70,7 +70,7 @@ namespace core {
     }
 
     void Connection::queue_response( void ) {
-        // (void)response_buff;
+        // (void) response_buff;
     }
 
     void Connection::update_buff( size_t sent_bytes ) {

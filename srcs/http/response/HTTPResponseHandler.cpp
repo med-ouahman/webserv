@@ -18,7 +18,6 @@ namespace http {
     }
 
     void HTTPResponseHandler::handle_request( const HTTPRequest& req, const config::ServerConfig& server ) {
-        // simple default body
         response.body = "OK";
         std::ostringstream __len_ss;
         __len_ss << response.body.size();
