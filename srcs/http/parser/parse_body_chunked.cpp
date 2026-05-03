@@ -1,9 +1,9 @@
-#include "BodyParser.hpp"
+#include "BodyHandler.hpp"
 #include <unistd.h>
 
 namespace http {
 
-    ScanResult BodyParser::parse_body_chunked() {
+    ScanResult BodyHandler::parse_body_chunked() {
 
         if (chunk_state == ChunkState::CHUNK_SIZE) {
 

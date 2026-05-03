@@ -22,7 +22,7 @@ private:
     void parseLocationDirective(LocationConfig& loc);
 
 public:
-
+    
     #ifdef DEV_MODE
     static Config build_default_config(); 
     #endif

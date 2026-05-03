@@ -1,4 +1,4 @@
-#include "BodyParser.hpp"
+#include "BodyHandler.hpp"
 #include <unistd.h>
 #include <fcntl.h>
 #include <sstream>
@@ -8,9 +8,9 @@
 
 namespace http {
 	
-	const std::string BodyParser::hexas = "0123456789abcdef";
+	const std::string BodyHandler::hexas = "0123456789abcdef";
 	
-	BodyParser::BodyParser( int fd )
+	BodyHandler::BodyHandler( int fd )
 		: body_storage(BodyStorage::NONE),
 		body_state(BodyState::PREPARING),
 		conn_fd(fd),
@@ -24,14 +24,14 @@ namespace http {
 		chunk_state(ChunkState::CHUNK_SIZE),
 		chunk_remaining(0) {}
 
-	BodyParser::~BodyParser() {
+	BodyHandler::~BodyHandler() {
 
 		if (body_fd >= 0) ::close(body_fd);
 
 		::unlink(body_path.c_str());
 	}
 
-	ssize_t BodyParser::produce_body_chunk( char* buff, size_t size ) {
+	ssize_t BodyHandler::produce_body_chunk( char* buff, size_t size ) {
 		
 		if (body_storage == BodyStorage::FILE) {
 
@@ -51,12 +51,12 @@ namespace http {
 		return to_copy;
 	}
 
-	void BodyParser::set_data_view( core::DataView* v ) {
-		view = v;
+	void BodyHandler::set_data_view( core::DataView* v ) {
+		data_view = v;
 		sc.set_data_view(v);
 	}
 
-	void BodyParser::prepare_body() {
+	void BodyHandler::prepare_body() {
 
 		if (body_storage != BodyStorage::NONE)
 			return ;

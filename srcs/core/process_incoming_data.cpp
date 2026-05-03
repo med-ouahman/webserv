@@ -10,35 +10,34 @@ namespace core {
         this is C++
     */
   
-    bool Connection::process_incoming_data() {
+    void Connection::process_incoming_data() {
 
         http::ScanResult result;
         
-        p.set_data_view(&view);
+        p.set_data_view(&data_view);
         result = p.parse();
 
         if (p.get_parser_state() == http::ParseState::BODY) {
         
             body_p.detect_body_type(p.get_request().headers);
-            body_p.set_data_view(&view);
+            body_p.set_data_view(&data_view);
             result = body_p.parse_body();
         }
         
         switch (result) {
             case http::NEED_MORE:
-                return true;
+                processing = true;
+                break;
             case http::ERROR:
                on_client_error();
-               return false;
+               processing = false;
                break;
             case http::SUCCESS:
                 on_request_ready();
-                return false;
+                processing = false;
             default:
                 break;
         }
-
-        return false;
     }
 
 
@@ -52,7 +51,7 @@ namespace core {
 
         ssize_t produced = response.produce(writebuff, SEND_CHUNK_SIZE);
         
-        if (produced < 0 || (produced == 0 && close_after_write)) {
+        if (produced < 0) {
             processing = false;
             state = ConnectionState::CLOSING;
             return ;
@@ -61,14 +60,18 @@ namespace core {
         bytes_to_write = produced;
 
         if (bytes_to_write == 0) {
-            state = readbuf_drained() ?
-                ConnectionState::IDLE
-                : ConnectionState::READING;
+            if (!readbuf_drained()) state = ConnectionState::READING;
+            else if (close_after_write) state = ConnectionState::CLOSING;
+            else state = ConnectionState::IDLE;
         }
         
         processing = (state == ConnectionState::READING)
             || (state == ConnectionState::WRITING);
-        
+    }
+
+
+    void Connection::on_write_complete() {
+        /// nothing for now, the code above handles it??
     }
 
 }

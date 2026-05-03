@@ -74,7 +74,7 @@ ParseResult parse(const char* data, std::size_t len);
 
 The caller passes a pointer to the start of its read buffer and the number of bytes available. The parser advances an internal cursor through the data. After the call, the caller reads `bytes_consumed()` and erases exactly that many bytes from its buffer. This is done once per `parse()` call — not inside the parser, not mid-parse.
 
-The parser never allocates memory from the caller's buffer. It never modifies the caller's buffer. It takes a read-only view of the data for the duration of the call.
+The parser never allocates memory from the caller's buffer. It never modifies the caller's buffer. It takes a read-only data_view of the data for the duration of the call.
 
 `ParseResult` has exactly three values:
 

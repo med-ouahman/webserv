@@ -2,6 +2,7 @@
 
 #include "Stream.hpp"
 #include "IDataListener.hpp"
+#include "DataView.hpp"
 
 namespace http {
 
@@ -22,7 +23,8 @@ namespace http {
             io::IDataListener* listener;
             STDStream::Type stream;
             uint32_t event;
-        
+            core::DataView data_view;
+            
         public:
             explicit IOChannel( int fd, CGIHandler* h, STDStream::Type stream_type, uint32_t event_mask );
             int get_fd() const;
@@ -31,10 +33,11 @@ namespace http {
         
         private:
             bool process();
-            void on_writeable();
-            void on_readable();
-            void on_error();
             bool readbuf_drained();
             void handle_event();
+            void on_read_eof();
+			void process_incoming_data();
+			void process_outgoing_data();
+            void on_write_complete();
     };
 }

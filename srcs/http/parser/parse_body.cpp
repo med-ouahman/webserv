@@ -1,5 +1,5 @@
 
-#include "BodyParser.hpp"
+#include "BodyHandler.hpp"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -7,11 +7,11 @@
 
 namespace http {
     
-    bool BodyParser::is_valid_hexa( const char c ) {
+    bool BodyHandler::is_valid_hexa( const char c ) {
 		return hexas.find(c) != std::string::npos;
 	}
     
-   ScanResult BodyParser::parse_body() {
+   ScanResult BodyHandler::parse_body() {
 
         if (!body_set) prepare_body();
 
@@ -39,7 +39,7 @@ namespace http {
         return result;
     }
 
-    void BodyParser::reset() {
+    void BodyHandler::reset() {
 
         if (body_fd >= 0) {
             ::close(body_fd);

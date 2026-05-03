@@ -19,4 +19,10 @@ namespace core {
         
         return processing;
     }
+
+    void Connection::on_read_eof() {
+        state = ConnectionState::CLOSING;
+        processing = false;
+    }
+
 }

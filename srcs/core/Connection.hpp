@@ -9,7 +9,7 @@
 #include "HTTPDispatcher.hpp"
 #include "HTTPResponse.hpp"
 #include "Stream.hpp"
-#include "BodyParser.hpp"
+#include "BodyHandler.hpp"
 #include "DataView.hpp"
 
 namespace config {
@@ -36,20 +36,14 @@ namespace core {
             
         private:
             /* epoll */
-            bool processing;
             uint32_t event_mask;
             const io::EventLoop& loop;
             
         private:
             /* config + parsing + response generation */
-
-            void on_client_error();
-            void on_request_ready();
-
-            DataView view;
             ConnectionState::Type state;
             http::HTTPParser p;
-            http::BodyParser body_p;
+            http::BodyHandler body_p;
             http::HTTPDispatcher dispatcher;
             const config::Config& config;
             bool close_after_write;
@@ -69,7 +63,9 @@ namespace core {
         private:
             bool process();
             bool advance();
-            bool readbuf_drained() { return view.len_ == view.bytes_consumed; }
+            bool readbuf_drained() { return data_view.len_ == data_view.bytes_consumed; }
+            void on_client_error();
+            void on_request_ready();
     
         public:
             int get_fd() const;
@@ -78,13 +74,14 @@ namespace core {
             uint32_t get_mask() const { return event_mask; }
             http::HTTPResponse& get_response() { return response; }
             void tick();
+            void on_cgi_finished();
             
         private:
             void process_outgoing_data();
-            bool process_incoming_data();
+            void process_incoming_data();
             void handle_event();
-            void on_writeable();
-            void on_readable();
+            void on_read_eof();
+            void on_write_complete();
 
     };
 }

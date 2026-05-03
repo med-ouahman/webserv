@@ -25,7 +25,7 @@ namespace io {
                 }
             }
 
-            for ( ::size_t i(0); i < conns.size(); ++i ) {
+            for ( size_t i(0); i < conns.size(); ++i ) {
                 update_epoll_interest(conns.at(i));
             }
         

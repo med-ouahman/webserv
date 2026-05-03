@@ -4,6 +4,7 @@ namespace io {
     
     Stream::Stream( int fd )
         : IIOHandler(fd),
+        processing(false),
         bytes_r(0),
         bytes_received(0),
         bytes_consumed(0),

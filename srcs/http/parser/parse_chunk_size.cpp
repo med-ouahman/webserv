@@ -1,8 +1,8 @@
-#include "BodyParser.hpp"
+#include "BodyHandler.hpp"
 
 namespace http {
 
-    ::size_t BodyParser::parse_chunk_size( const std::string& line_buff ) {
+    ::size_t BodyHandler::parse_chunk_size( const std::string& line_buff ) {
 		
 		::size_t chunk_size = 0;
 	

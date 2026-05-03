@@ -4,7 +4,7 @@
 
 namespace http {
 
-    void CGIHandler::on_input_ready( char* buff, size_t size ) {
+    void CGIHandler::on_input_ready( core::DataView* data_view ) {
 
         /*
             parisng and stuff done here.
@@ -35,12 +35,10 @@ namespace http {
         } else {
             // handle case here
         }
-        
+        data_view->data_ptr_[0]=data_view->data_ptr_[0];
         HTTPResponse& response = conn.get_response();
 
         response.headers["key"] = "value";
-
-        buff[size - size] = buff[size * 0];
 
     }
 

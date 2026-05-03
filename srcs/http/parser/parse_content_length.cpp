@@ -1,9 +1,9 @@
 
-#include "BodyParser.hpp"
+#include "BodyHandler.hpp"
 
 namespace http {
 
-    bool BodyParser::parse_content_length( std::string const& s ) {
+    bool BodyHandler::parse_content_length( std::string const& s ) {
 		for ( ::size_t i = 0; i < s.length(); i++ ) {
 			if (!isdigit(s[i])) {
 				return false;

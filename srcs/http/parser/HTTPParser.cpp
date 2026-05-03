@@ -25,9 +25,9 @@ namespace http {
 		request = HTTPRequest();
 	}
 
-	void HTTPParser::set_data_view( core::DataView* view ) {
+	void HTTPParser::set_data_view( core::DataView* data_view ) {
 
-		line_c.set_data_view(view);
+		line_c.set_data_view(data_view);
 	}
 
 	ParseState::Type HTTPParser::get_parser_state() const {

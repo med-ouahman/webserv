@@ -46,7 +46,7 @@ namespace http {
         };
     };
 
-	class BodyParser {
+	class BodyHandler {
 
         private:
             static const std::size_t MAX_HEADER_BLOCK_LEN = 16384;
@@ -56,18 +56,18 @@ namespace http {
             static const std::string hexas;
 
 		public:
-			explicit BodyParser( int fd );
-			~BodyParser();
+			explicit BodyHandler( int fd );
+			~BodyHandler();
 			ssize_t produce_body_chunk( char* buff, size_t size );
 			void detect_body_type( std::map<std::string, std::string>& headers );
             ScanResult parse_body();
-            void set_data_view( core::DataView* view );
+            void set_data_view( core::DataView* data_view );
 
 		private:
             BodyStorage::Type body_storage;
             BodyState::Type body_state;
 
-            core::DataView* view;
+            core::DataView* data_view;
             std::string body_buff;
  			const int conn_fd;
             const char* body_dir;

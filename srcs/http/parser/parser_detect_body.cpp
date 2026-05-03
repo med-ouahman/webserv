@@ -1,9 +1,9 @@
-#include "BodyParser.hpp"
+#include "BodyHandler.hpp"
 #include <iostream>
 
 namespace http {
 
-	void BodyParser::detect_body_type( std::map<std::string, std::string> & headers )  {
+	void BodyHandler::detect_body_type( std::map<std::string, std::string> & headers )  {
 		
 		if (body_set)
 			return ;

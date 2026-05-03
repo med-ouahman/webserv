@@ -9,6 +9,7 @@ namespace core {
 				READING,
 				PROCESSING,
 				CGI,
+				CGI_FINISH,
 				WRITING,
 				ERROR,
 				CLOSING,

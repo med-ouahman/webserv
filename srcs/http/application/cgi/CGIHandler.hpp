@@ -57,10 +57,12 @@ namespace http {
 			size_t bytes_consumed;
 		
 		public:
-			void on_input_ready( char* buff, size_t size );
+			void on_channel_closed();
+			void on_input_ready( core::DataView* data_view );
 			ssize_t produce_output( char* buff, size_t size );
 			size_t consumed_data() { return bytes_consumed; };
 			void on_error();
+			void terminate_process();
 			/**/
 
 	};

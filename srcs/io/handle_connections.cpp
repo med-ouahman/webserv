@@ -8,8 +8,6 @@ namespace io {
 
     bool EventLoop::add_connection( int client_fd ) {
 
-
-        
         conns.push_back(new core::Connection(client_fd, conf, EPOLLIN | EPOLLET, *this));
         if (!add_fd(client_fd, EPOLLIN | EPOLLET, conns.back())) {
             conns.pop_back();
@@ -21,7 +19,7 @@ namespace io {
 
     bool EventLoop::remove_connections() {
 
-        for ( ::size_t i(0); i < conns.size(); ) {
+        for ( size_t i(0); i < conns.size(); ) {
             if (conns[i]->desired_action().want_close) {
                 del_fd(conns[i]->get_fd());
                 delete conns[i];
@@ -36,7 +34,7 @@ namespace io {
 
     void EventLoop::update_epoll_interest( core::Connection* conn ) {
 
-        ::uint32_t new_mask = EPOLLIN | EPOLLET;
+        uint32_t new_mask = EPOLLIN | EPOLLET;
         core::ConnectionAction action = conn->desired_action();
         
         if (action.want_process || action.want_close) {
@@ -48,7 +46,6 @@ namespace io {
         }
 
         if (new_mask != conn->get_mask()) {
-            std::cout << "WANTS WRITE\n";
             mod_fd(conn->get_fd(), new_mask, conn);
             conn->set_mask(new_mask);
         }

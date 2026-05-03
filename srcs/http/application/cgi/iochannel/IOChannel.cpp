@@ -21,11 +21,6 @@ namespace http {
         return event;
     }
 
-    bool IOChannel::process() {
-    
-        return true;
-    }
-
     bool IOChannel::readbuf_drained() {
         return bytes_received == listener->consumed_data();
     }
