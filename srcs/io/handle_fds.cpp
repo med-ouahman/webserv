@@ -25,6 +25,9 @@ namespace io {
 			return false;
 		}
 
+		#ifdef DEBUG
+			std::cout << "REGISTERED FD: " << fd << "\n";
+		#endif
 		return true;
 	}
 

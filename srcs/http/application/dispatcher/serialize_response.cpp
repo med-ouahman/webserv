@@ -8,13 +8,8 @@ namespace http {
     const char* HTTPResponse::COLON = ":";
     const char* HTTPResponse::CRLF = "\r\n";
     
-    void HTTPResponse::serialize_current_header() {
-
-        line_buff = (*current_header).first + COLON + (*current_header).second + CRLF;
-    }
-
-    ::size_t HTTPResponse::serialize_headers( char* buff, ::size_t size ) {
-        ::size_t bytes = 0;
+    size_t HTTPResponse::serialize_headers( char* buff, size_t size ) {
+        size_t bytes = 0;
         
         if (serialize_state == RESPONSE_LINE) {
             std::stringstream ss;
@@ -36,14 +31,14 @@ namespace http {
                 serialize_state = BODY;
             }
 
-            for ( ; current_header != headers.end(); ) {
+            while (current_header != headers.end()) {
                 
                 if (line_buff.size() == 0) {
                     line_buff = (*current_header).first + COLON + (*current_header).second + CRLF;
                 }
                 
-                ::size_t available = size > bytes ? size - bytes: 0;
-                ::size_t remaining = std::min(available, line_buff.size());
+                size_t available = size > bytes ? size - bytes: 0;
+                size_t remaining = std::min(available, line_buff.size());
                 ::memcpy(buff, line_buff.c_str(), remaining);
                 bytes += remaining;
                 line_buff.erase(remaining);

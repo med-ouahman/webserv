@@ -3,10 +3,14 @@
 namespace http {
     
     void IOChannel::process_incoming_data() {
+        
         listener->on_input_ready(&data_view);
+        processing = false;
+        
     }
 
     void IOChannel::process_outgoing_data() {
+        
         if (sent_offset < bytes_to_write)
             return ;
 
@@ -23,12 +27,17 @@ namespace http {
     }
 
     void IOChannel::on_read_eof() {
+        std::cout << "CHannel done fr\n";
         listener->on_channel_closed();
         processing = false;
     }
 
     void IOChannel::on_write_complete() {
         close(fd);
+    }
+
+    void IOChannel::on_write_error() {
+        // 
     }
 
 }

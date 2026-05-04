@@ -21,7 +21,5 @@ namespace core {
 			default:
 				break;
 		}
-
-		process();
 	}
 }

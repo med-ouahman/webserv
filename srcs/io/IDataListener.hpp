@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdio.h>
+#include "LineScanner.hpp"
 
 namespace core {
 	struct DataView;
@@ -16,7 +17,7 @@ namespace io {
 		public:
 			IDataListener() {};
 			virtual ~IDataListener() {};
-			virtual void on_input_ready( core::DataView* ) = 0;
+			virtual http::ScanResult on_input_ready( core::DataView* ) = 0;
 			virtual ssize_t produce_output( char* buff, size_t size ) = 0;
 			virtual size_t consumed_data() = 0;
 			virtual void on_error() = 0;

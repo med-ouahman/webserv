@@ -27,7 +27,8 @@ namespace http {
 			explicit CGIHandler( core::Connection& conn, const io::EventLoop& l );
 			~CGIHandler();
 			void spawn( const CGIContext& context );
-
+			const static std::size_t MAX_BLOCK_LEN = 1024 * 16;
+			
 		private:
 			enum CGIState {
 				SPAWN,
@@ -36,11 +37,18 @@ namespace http {
 				ERROR,
 			}	cgi_state;
 
-			enum CGIParseState {
+			enum CGIOutputState {
 				STATUS_LINE,
 				HEADERS,
 				BODY,
 			} output_state;
+
+			enum CGIError {
+				NONE,
+				TIMEOUT,
+				CRASH,
+				PIPE_FAIL,
+			} cgi_error;
 
 			pid_t	cgi_pid;
 			int		cgi_status;
@@ -58,11 +66,11 @@ namespace http {
 		
 		public:
 			void on_channel_closed();
-			void on_input_ready( core::DataView* data_view );
+			ScanResult on_input_ready( core::DataView* data_view );
 			ssize_t produce_output( char* buff, size_t size );
 			size_t consumed_data() { return bytes_consumed; };
 			void on_error();
-			void terminate_process();
+		
 			/**/
 
 	};

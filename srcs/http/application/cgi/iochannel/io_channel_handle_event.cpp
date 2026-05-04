@@ -3,18 +3,33 @@
 
 namespace http {
 
+	std::string channel_type( STDStream::Type S ) {
+
+		switch (S) {
+			case STDStream::STDERR:
+				return "STDERR";
+			case STDStream::STDIN:
+				return "STDIN";
+			case STDStream::STDOUT:
+				return "STDOUT";
+		}
+		return "ERROR TYPE";
+	}
+
 	void IOChannel::handle_event() {
 		
+		std::string c = channel_type(stream);
 		switch (io_event) {
 			case io::NONE:
 				break;
 			case io::READABLE:
-				on_readable();
+				processing = true;
 				break;
 			case io::WRITABLE:
-				on_writeable();
+				processing = true;
 				break;
 			case io::ERROR:
+				
 				listener->on_error();
 				break;
 		}

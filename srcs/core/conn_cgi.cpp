@@ -16,7 +16,6 @@ namespace core {
             close_after_write = true;
         }
 
-
     }
 
     void Connection::exit_cgi() {

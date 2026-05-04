@@ -13,8 +13,14 @@ namespace http {
 
     HTTPDispatcher::HandlerResult HTTPDispatcher::handle_request( const HTTPRequest& req ) {
         
-        ResolutionResult result = resolve(req, config.server);
+
         HandlerResult handler_result;
+        ResolutionResult result = resolve(req, config.server);
+        handler_result.cgi_ctx = get_cgi_context(req, result);
+        handler_result.response_type = HTTPResponseType::CGI;
+
+        return handler_result;
+        
 
         handler_result.response_type = result.type;
         

@@ -23,7 +23,6 @@ namespace http {
             io::IDataListener* listener;
             STDStream::Type stream;
             uint32_t event;
-            core::DataView data_view;
             
         public:
             explicit IOChannel( int fd, CGIHandler* h, STDStream::Type stream_type, uint32_t event_mask );
@@ -39,5 +38,6 @@ namespace http {
 			void process_incoming_data();
 			void process_outgoing_data();
             void on_write_complete();
+            void on_write_error();
     };
 }

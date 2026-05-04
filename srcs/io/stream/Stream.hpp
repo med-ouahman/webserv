@@ -41,9 +41,6 @@ namespace io {
 		protected:
 			/* input */
 			char readbuf[READ_BUFFER_SIZE];
-			size_t bytes_received;
-			size_t bytes_consumed;
-
 			/* output */
 			char writebuff[SEND_CHUNK_SIZE];
 			size_t bytes_to_write;
@@ -63,6 +60,7 @@ namespace io {
 			virtual void process_incoming_data() = 0;
 			virtual void process_outgoing_data() = 0;
 			virtual void on_write_complete() = 0;
+			virtual void on_write_error() = 0;
 
 	};
 }

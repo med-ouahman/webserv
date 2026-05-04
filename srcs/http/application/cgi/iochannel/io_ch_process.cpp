@@ -4,7 +4,6 @@ namespace http {
     
     bool IOChannel::process() {
 
-        processing = true;
 
         while (processing) {
             

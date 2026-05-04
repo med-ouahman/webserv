@@ -47,8 +47,9 @@ namespace core {
             http::HTTPDispatcher dispatcher;
             const config::Config& config;
             bool close_after_write;
-            ::size_t num_requests;
+            size_t num_requests;
             http::HTTPResponse response;
+            ConnectionAction::Type action;
 
         private:
             /* timeout */
@@ -69,7 +70,7 @@ namespace core {
     
         public:
             int get_fd() const;
-            ConnectionAction desired_action() const;
+            ConnectionAction::Type desired_action() const;
             void set_mask( uint32_t new_mask ) { event_mask = new_mask; }
             uint32_t get_mask() const { return event_mask; }
             http::HTTPResponse& get_response() { return response; }
@@ -82,6 +83,6 @@ namespace core {
             void handle_event();
             void on_read_eof();
             void on_write_complete();
-
+            void on_write_error();
     };
 }

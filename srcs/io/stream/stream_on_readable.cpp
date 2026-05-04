@@ -18,7 +18,6 @@ namespace io {
                 return ;
             }
             
-            bytes_received = bytes_r;
             data_view.data_ptr_ = readbuf;
             data_view.bytes_consumed = 0;
             data_view.len_ = bytes_r;

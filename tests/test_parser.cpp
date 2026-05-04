@@ -75,11 +75,19 @@ struct TCPSocket
         std::string result;
         char buf[4096];
         ssize_t n;
-        while ((n = ::recv(fd, buf, sizeof buf, 0)) > 0)
-            result.append(buf, static_cast<size_t>(n));
-        if (n < 0) {
-            std::cerr << "ERROR: " << strerror(errno) << "\n";
+        while (true) {
+
+            n = ::recv(fd, buf, sizeof buf, 0);
+            if (n > 0)
+                result.append(buf, static_cast<size_t>(n));
+            else if (n < 0) {
+                if (n == EAGAIN) exit(1);
+                std::cerr << "ERROR: " << strerror(errno) << "\r";
+            } else if (n == 0) {
+                break;
+            }
         }
+        
         return result;
     }
 
@@ -378,12 +386,30 @@ void test_slow_client() {
     }
 }
 
+int test_cgi() {
+    TCPSocket s;
+
+    if (s.good()==false) return 1;
+
+    s.send_all("GET / HTTP/1.1\r\nhost: you\r\n\r\n");
+
+    s.recv_all();
+    return 0;
+}
+
 // ── main ──────────────────────────────────────────────────────────────────────
 
 int main(int argc, char* argv[])
 {
-    if (argc > 1) g_host = argv[1];
-    if (argc > 2) g_port = std::stoi(argv[2]);
+    char s[] = "127.0.0.1";
+    char b[] = "3000";
+    argv[0] = s;
+    argv[1] = b;
+    g_host = argv[0];
+    g_port = std::stoi(argv[1]);
+
+
+    return test_cgi();
 
     std::cout << "C++ HTTP Parser Test Client → " << g_host << ":" << g_port << "\n";
     std::cout << std::string(50, '=') << "\n";

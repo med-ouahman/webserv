@@ -3,12 +3,6 @@
 #include "LineScanner.hpp"
 
 namespace core {
-    
-    /*
-        !!!!! Too much for this function  ngl, try to deduce the imeprative lines
-        make it more declarative, the assignments make the good look ugly and hard to read, it's like reading ASM
-        this is C++
-    */
   
     void Connection::process_incoming_data() {
 
@@ -45,7 +39,7 @@ namespace core {
 
         if (sent_offset < bytes_to_write)
             return ;
-    
+
         bytes_to_write = 0;
         sent_offset = 0;
 
@@ -58,7 +52,7 @@ namespace core {
         }
         
         bytes_to_write = produced;
-
+        /* He means this, we producer returns 0. it means that there is nothing else to write */
         if (bytes_to_write == 0) {
             if (!readbuf_drained()) state = ConnectionState::READING;
             else if (close_after_write) state = ConnectionState::CLOSING;
@@ -74,4 +68,8 @@ namespace core {
         /// nothing for now, the code above handles it??
     }
 
+    void Connection::on_write_error() {
+        action = ConnectionAction::DISABLE_WRITE;
+        processing = false;
+    }
 }

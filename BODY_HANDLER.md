@@ -1,5 +1,6 @@
 # BodyHandler — Response Body Architecture
 
+
 ## 1. Overview
 
 This document describes the design of the response body pipeline, from the `produce()` call that serializes the HTTP response into a send buffer, down to the concrete body providers that stream different content types. Everything here was designed around three hard constraints from the project specification:

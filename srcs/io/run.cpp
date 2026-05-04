@@ -2,13 +2,30 @@
 #include "EventLoop.hpp"
 #include "Connection.hpp"
 
+class Heap {
+
+    private:
+        std::vector<core::Connection*> heap;
+    public:
+        int min() {
+
+            if (heap.size() == 1)
+                return -1;
+            return 100; // later;
+        };
+};
+
+
 namespace io {
 
     int EventLoop::run() {
-
+       
         struct epoll_event events[MAX_EVENTS];
+
+        Heap heap;
+        
         while (running) {
-            int n = ::epoll_wait(epoll_fd, events, MAX_EVENTS, MAX_TIMEOUT_MS);
+            int n = ::epoll_wait(epoll_fd, events, MAX_EVENTS, heap.min());
             if (n < 0) {
                 LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::run()"));
                 return 1;
@@ -24,12 +41,14 @@ namespace io {
                     handler->on_event(ERROR);
                 }
             }
+            
 
             for ( size_t i(0); i < conns.size(); ++i ) {
                 update_epoll_interest(conns.at(i));
             }
         
             remove_connections();
+            
         }
         
         return int(!running);

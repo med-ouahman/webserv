@@ -16,7 +16,6 @@ namespace core {
                 on_writeable();
             }
         }
-        
         return processing;
     }
 

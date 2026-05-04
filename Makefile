@@ -1,6 +1,6 @@
 CXX := c++
 
-DEBUG := -g3 -O0
+DEBUG := -g3 -O0 -D DEBUG=1
 CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 $(DEBUG)
 
 # Libraries we might link against in the future, for now just a placeholder
@@ -38,6 +38,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/conn_process.cpp \
 	srcs/core/conn_handle_event.cpp \
 	srcs/core/dispatch_parser_result.cpp \
+	srcs/core/on_cgi_finished.cpp \
 	srcs/http/parser/HTTPParser.cpp \
 	srcs/http/parser/parse_headers.cpp \
 	srcs/http/parser/parse_request_line.cpp \
@@ -68,6 +69,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/application/cgi/iochannel/io_channel_handle_event.cpp \
 	srcs/http/application/cgi/iochannel/io_ch_process.cpp \
 	srcs/http/application/cgi/iochannel/io_ch_process_data.cpp \
+	srcs/http/application/cgi/cgi_iochannel_closed.cpp \
 	srcs/http/application/response_builder/generate_directory_listing.cpp \
 	srcs/http/application/response_builder/MimeType.cpp \
 	srcs/io/create_sockets.cpp \

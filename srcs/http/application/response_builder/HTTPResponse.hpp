@@ -29,19 +29,21 @@ namespace http {
 		
         HTTPStatusCode status_code;
 		std::string reason;
-		std::string body;
+		std::string body; /* temporary */
 		IBodyProvider* body_provider;
 		std::map<std::string, std::string> headers;
 
         private:
+            size_t serialize_headers( char* buff, ::size_t max_size );
             std::map<std::string, std::string>::iterator current_header; /* track the current header */
             std::string line_buff; /* stores incomplete headers */
         
-        public:
-            ::size_t serialize_headers( char* buff, ::size_t max_size );
-            void serialize_current_header();
-            ::ssize_t produce( char* buff, ::size_t max_size );
-        public:
+        public:           
+            ssize_t produce( char* buff, ::size_t max_size );
+            void    add_header( const std::string& key, const std::string& value );
+            void    set_response_line( HTTPStatusCode code, std::string const & reason );
+
+        private:
             enum SerializeState {
                 RESPONSE_LINE,
                 HEADERS,

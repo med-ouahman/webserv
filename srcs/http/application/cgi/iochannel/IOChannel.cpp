@@ -22,7 +22,7 @@ namespace http {
     }
 
     bool IOChannel::readbuf_drained() {
-        return bytes_received == listener->consumed_data();
+        return data_view.len_ == data_view.bytes_consumed;
     }
     
 }

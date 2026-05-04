@@ -19,42 +19,23 @@ namespace core {
         config(conf),
         close_after_write(false),
         num_requests(0),
+        action(ConnectionAction::READ),
         ms_(0),
         cgi_handler(NULL) {}
 
     Connection::~Connection() {
-    
         state = ConnectionState::CLOSING;
         exit_cgi();
+        
     }
 
-    ConnectionAction Connection::desired_action() const {
-        
-        ConnectionAction action = { false, false, false, false };
-    
-        switch (state) {
-            case ConnectionState::READING:
-                action.want_read = true;
-                break;
-            case ConnectionState::WRITING:
-                action.want_write = true;
-                break;
-            case ConnectionState::CLOSING:
-                action.want_close = true;
-                break;
-            default:
-                break;
-        }
-
+    ConnectionAction::Type Connection::desired_action() const {
         return action;
     }
 
     int Connection::get_fd() const {
         return fd;
     }
-
-    
-
 
     void Connection::tick() {
         
@@ -67,5 +48,6 @@ namespace core {
         if (ms_ > MAX_IDLE_TIMEOUT) {
             state = ConnectionState::CLOSING;
         }
+
     }
 }

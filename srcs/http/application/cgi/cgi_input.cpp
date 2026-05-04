@@ -4,7 +4,7 @@
 
 namespace http {
 
-    void CGIHandler::on_input_ready( core::DataView* data_view ) {
+    ScanResult CGIHandler::on_input_ready( core::DataView* data_view ) {
 
         /*
             parisng and stuff done here.
@@ -27,18 +27,23 @@ namespace http {
 
 
         */
-        // EXAMPLE:
 
-        ScanResult r = scanner.scan(1000);
-        if (r ==SUCCESS) {
-            // parse header here
-        } else {
-            // handle case here
+        scanner.set_data_view(data_view);
+        // scan_headers();
+        while (true) {
+
+            ScanResult r = scanner.scan(MAX_BLOCK_LEN);
+            if (r != SUCCESS)
+                return r;
+            conn.get_response().add_header(scanner.line(), "val");
+            if (scanner.line().size() == 0) {
+                output_state = BODY;
+                // conn.get_response().body_provider = new CGIBodyProvider();
+            }
+
+            scanner.reset();
+            return r;
         }
-        data_view->data_ptr_[0]=data_view->data_ptr_[0];
-        HTTPResponse& response = conn.get_response();
-
-        response.headers["key"] = "value";
 
     }
 

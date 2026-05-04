@@ -10,11 +10,12 @@ namespace io {
             on_write_complete();
             return ;
         }
+
         if (sent_offset < bytes_to_write) {
             
             write();
             if (bytes_r < 0) {
-                processing = false;
+                on_write_error();
                 return ;
             }
 
