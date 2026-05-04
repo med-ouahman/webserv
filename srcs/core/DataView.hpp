@@ -4,12 +4,25 @@
 
 namespace core {
 
-    struct DataView {
-        char* data_ptr_;
-        size_t len_;
-        size_t bytes_consumed;
+    class DataView {
+        private:
+            const char* data_;
+            size_t size_;
 
+            size_t cursor_;
 
-        DataView(): data_ptr_(NULL), len_(0), bytes_consumed(0) {}
+            DataView( const DataView& v );
+            DataView& operator=( const DataView& v );
+
+        public:
+            DataView( const char* data );
+	    ~DataView();
+            void advance( size_t n );
+            const char* data() const;
+            bool empty() const;
+            void rewind( size_t n );
+            void shrink( size_t size );
+            size_t cursor() const;
+
     };
 }

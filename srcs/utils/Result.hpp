@@ -21,7 +21,7 @@ template <typename T> struct Result {
         T result;
         Error error;
 
-        Result<T>( const Error& err ): ok(false), error(err) {}
+        Result( const Error& err ): ok(false), error(err) {}
         Result( const T& res ): ok(true), result(res) {}
         Result(): ok(true) {}
 };

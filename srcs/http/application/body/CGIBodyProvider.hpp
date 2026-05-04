@@ -14,6 +14,5 @@ namespace http {
         private:
             const CGIHandler& cgi_handler;
             core::DataView* view;
-
     };
 }
