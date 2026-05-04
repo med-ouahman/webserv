@@ -41,6 +41,7 @@ namespace http {
 				STATUS_LINE,
 				HEADERS,
 				BODY,
+				READING_BODY,
 			} output_state;
 
 			enum CGIError {
@@ -62,13 +63,12 @@ namespace http {
 			const io::EventLoop& loop;
 			LineScanner scanner;
 
-			size_t bytes_consumed;
+			core::DataView* data_view;
 		
 		public:
 			void on_channel_closed();
 			ScanResult on_input_ready( core::DataView* data_view );
 			ssize_t produce_output( char* buff, size_t size );
-			size_t consumed_data() { return bytes_consumed; };
 			void on_error();
 		
 			/**/

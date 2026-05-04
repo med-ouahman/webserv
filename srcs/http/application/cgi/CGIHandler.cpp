@@ -18,8 +18,7 @@ namespace http {
         stdout_ch(pipe_guard.stdout_pipe[0], this, STDStream::STDOUT, EPOLLIN | EPOLLET),
         stderr_ch(pipe_guard.stderr_pipe[0], this, STDStream::STDERR, EPOLLIN | EPOLLET),
         conn(con),
-        loop(l),
-        bytes_consumed(0) {}
+        loop(l) {}
 
     CGIHandler::~CGIHandler() {
         kill(cgi_pid, SIGKILL);

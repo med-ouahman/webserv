@@ -1,6 +1,7 @@
 #include "CGIHandler.hpp"
 #include "Connection.hpp"
 #include "HTTPResponse.hpp"
+#include "CGIBodyProvider.hpp"
 
 namespace http {
 
@@ -24,27 +25,18 @@ namespace http {
             The LineScanner is a utility that helps detect CRLF line.
             LineScanner::scan(size), scans the given buffer for the pair \r\n, if found it is put in the lienebuff and access via LineScanner::line()
             the LineScanner::scan returns 3 values, SUCCESS a line was fully parsed, NEED_MORE: more data is needed or ERROR is case of error (size>max_size)
-
-
         */
 
         scanner.set_data_view(data_view);
-        // scan_headers();
-        while (true) {
-
-            ScanResult r = scanner.scan(MAX_BLOCK_LEN);
-            if (r != SUCCESS)
-                return r;
-            conn.get_response().add_header(scanner.line(), "val");
-            if (scanner.line().size() == 0) {
-                output_state = BODY;
-                // conn.get_response().body_provider = new CGIBodyProvider();
-            }
-
-            scanner.reset();
-            return r;
+    
+        if (output_state == CGIOutputState::HEADERS) {
+            // scan_headers()
         }
 
+        if (output_state == CGIOutputState::BODY) {
+            conn.on_cgi_output_ready(); // tells the connection to enable cgi body
+            output_state = CGIOutputState::READING_BODY;
+        }
     }
 
 }

@@ -76,6 +76,7 @@ namespace core {
             http::HTTPResponse& get_response() { return response; }
             void tick();
             void on_cgi_finished();
+            void on_cgi_output_ready();
             
         private:
             void process_outgoing_data();

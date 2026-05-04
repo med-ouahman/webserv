@@ -9,8 +9,9 @@ namespace core {
         p.reset();
         close_after_write = !req.want_keep_alive();
         response.body = "HTTP/1.1 200 OK\r\nhost: localhost\r\n\r\n";
-
-
+        state = ConnectionState::WRITING;
+        close_after_write = true;
+        return ;
         http::HTTPDispatcher::HandlerResult res = dispatcher.handle_request(req);
         if (res.response_type == http::HTTPResponseType::CGI) {
             std::cout << "CGI\n";

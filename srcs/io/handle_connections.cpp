@@ -37,14 +37,20 @@ namespace io {
         uint32_t new_mask = EPOLLIN | EPOLLET;
         core::ConnectionAction::Type action = conn->desired_action();
         
-        if (action == core::ConnectionAction::CLOSE) {
-            return ;
-        }
+        switch (action) {
 
-        if (action == core::ConnectionAction::CLOSE) {
-            new_mask = EPOLLOUT | EPOLLET;
+            case core::ConnectionAction::READ:
+                break;
+            case core::ConnectionAction::DISABLE_READ: case core::ConnectionAction::DISABLE_WRITE:
+                del_fd(conn->get_fd());
+                return ;
+            case core::ConnectionAction::WRITE:
+                new_mask = EPOLLOUT | EPOLLET;
+                break;
+            case core::ConnectionAction::CLOSE:
+                return ;
         }
-
+        
         if (new_mask != conn->get_mask()) {
             mod_fd(conn->get_fd(), new_mask, conn);
             conn->set_mask(new_mask);
