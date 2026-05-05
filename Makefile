@@ -25,9 +25,9 @@ INCLUDES = -Iincludes \
 	-Isrcs/http/application/dispatcher \
 	-Isrcs/http/application/response_builder \
 	-Isrcs/http/application/cgi/iochannel \
-	-Isrcs/io/stream \
-	-Isrcs/config \
-	-Isrcs/utils \
+	-Isrcs/io/stream/ \
+	-Isrcs/config/ \
+	-Isrcs/utils/ \
 
 SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/Connection.cpp \
