@@ -4,7 +4,7 @@ namespace http {
     
     void IOChannel::process_incoming_data() {
         
-        listener->on_input_ready(&data_view);
+        listener->on_input_ready();
         processing = false;
     }
 

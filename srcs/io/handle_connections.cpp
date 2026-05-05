@@ -17,7 +17,7 @@ namespace io {
         return true;
     }
 
-    bool EventLoop::remove_connections() {
+    void EventLoop::sweep() {
 
         for ( size_t i(0); i < conns.size(); ) {
             if (conns[i]->desired_action().want_close) {
@@ -29,7 +29,6 @@ namespace io {
             }
         }
        
-        return true;
     }
 
     void EventLoop::update_epoll_interest( core::Connection* conn ) {

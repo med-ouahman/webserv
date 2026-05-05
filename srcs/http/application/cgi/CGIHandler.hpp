@@ -28,6 +28,10 @@ namespace http {
 			~CGIHandler();
 			void spawn( const CGIContext& context );
 			const static std::size_t MAX_BLOCK_LEN = 1024 * 16;
+
+		private:
+			CGIHandler( const CGIHandler& );
+			CGIHandler& operator=( const CGIHandler& );
 			
 		private:
 			enum CGIState {
@@ -66,16 +70,17 @@ namespace http {
 	
 			core::Connection& conn;
 			const io::EventLoop& loop;
-			core::DataView* data_view;
+			core::DataView& stdout_ch_view;
 			LineScanner scanner;
 
 		
 		public:
 			void on_channel_closed();
-			ScanResult on_input_ready( core::DataView* data_view );
+			ScanResult on_input_ready();
 			ssize_t produce_output( char* buff, size_t size );
 			void on_error();
-		
+			core::DataView& get_stdout_data_view();
+			void pull();
 			/**/
 
 	};

@@ -46,7 +46,7 @@ namespace io {
 			bool start_listeners();
 
 		private:
-			bool remove_connections();
+			void sweep();
 			void update_epoll_interest( core::Connection* conn );
 			void pump();
 

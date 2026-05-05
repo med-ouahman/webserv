@@ -43,8 +43,11 @@ namespace core {
             /* config + parsing + response generation */
             ConnectionState::Type state;
             http::HTTPParser p;
+
             http::BodyHandler body_p;
+
             http::HTTPDispatcher dispatcher;
+            
             const config::Config& config;
             bool close_after_write;
             size_t num_requests;
@@ -61,13 +64,13 @@ namespace core {
             void exit_cgi();
             
         private:
-            bool process();
             bool advance();
             bool readbuf_drained() { return data_view.empty(); }
             void on_client_error();
             void on_request_ready();
-    
+        
         public:
+            void process();
             int get_fd() const;
             ConnectionAction desired_action() const;
             void set_mask( uint32_t new_mask ) { event_mask = new_mask; }
@@ -77,7 +80,7 @@ namespace core {
             void on_cgi_finished();
             void on_cgi_output_ready();
             bool want_resume_task();
-            void resume_task();
+            
             
         private:
             void process_outgoing_data();

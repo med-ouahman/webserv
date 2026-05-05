@@ -31,7 +31,7 @@ namespace io {
 			void on_event( EventType type );
 		
 		protected:
-			virtual bool process() = 0;
+			virtual void process() = 0;
 			virtual bool readbuf_drained() = 0;
 			virtual void handle_event() = 0;
 			bool processing;

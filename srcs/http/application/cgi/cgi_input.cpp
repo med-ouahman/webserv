@@ -5,7 +5,7 @@
 
 namespace http {
 
-    ScanResult CGIHandler::on_input_ready( core::DataView* data_view ) {
+    ScanResult CGIHandler::on_input_ready() {
 
         /*
             parisng and stuff done here.
@@ -26,8 +26,6 @@ namespace http {
             LineScanner::scan(size), scans the given buffer for the pair \r\n, if found it is put in the lienebuff and access via LineScanner::line()
             the LineScanner::scan returns 3 values, SUCCESS a line was fully parsed, NEED_MORE: more data is needed or ERROR is case of error (size>max_size)
         */
-
-        (void)data_view;
     
         if (output_state == CGIOutputState::HEADERS) {
             /*

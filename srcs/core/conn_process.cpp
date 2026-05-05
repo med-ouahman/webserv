@@ -2,7 +2,7 @@
 
 namespace core {
 
-    bool Connection::process() {
+    void Connection::process() {
 
         processing = state != ConnectionState::CLOSING;
         
@@ -17,7 +17,6 @@ namespace core {
             }
         }
         
-        return processing;
     }
 
     void Connection::on_read_eof() {

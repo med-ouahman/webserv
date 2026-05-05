@@ -45,13 +45,13 @@ namespace io {
                     pending_conns.push_back(static_cast<core::Connection*>(handler));
                 }
             }
-            
 
             for ( size_t i(0); i < conns.size(); ++i ) {
                 update_epoll_interest(conns.at(i));
             }
         
-            remove_connections();
+            sweep();
+            pump();
             
         }
         

@@ -19,10 +19,15 @@ namespace http {
         stderr_ch(pipe_guard.stderr_pipe[0], this, STDStream::STDERR, EPOLLIN | EPOLLET),
         conn(con),
         loop(l),
+        stdout_ch_view(stdout_ch.get_view()),
         scanner(stdout_ch.get_view()) {}
 
     CGIHandler::~CGIHandler() {
         ::kill(cgi_pid, SIGKILL);
         ::waitpid(cgi_pid, &cgi_status, WNOHANG);
+    }
+
+    core::DataView& CGIHandler::get_stdout_data_view() {
+        return stdout_ch_view;
     }
 }

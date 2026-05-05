@@ -30,9 +30,9 @@ namespace http {
             uint32_t get_event() const;
             ~IOChannel();
             core::DataView& get_view();
+            void process();
         
         private:
-            bool process();
             bool readbuf_drained();
             void handle_event();
             void on_read_eof();

@@ -66,6 +66,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/application/cgi/cgi_input.cpp \
 	srcs/http/application/cgi/cgi_on_error.cpp \
 	srcs/http/application/cgi/cgi_output.cpp \
+	srcs/http/application/cgi/cgi_pull.cpp \
 	srcs/http/application/cgi/iochannel/IOChannel.cpp \
 	srcs/http/application/cgi/iochannel/io_channel_handle_event.cpp \
 	srcs/http/application/cgi/iochannel/io_ch_process.cpp \
@@ -78,6 +79,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/io/EventLoop.cpp \
 	srcs/io/handle_fds.cpp \
 	srcs/io/run.cpp \
+	srcs/io/event_loop_pump.cpp \
 	srcs/io/ListeningSocket.cpp \
 	srcs/io/socket_events.cpp \
 	srcs/io/handle_connections.cpp \

@@ -67,7 +67,6 @@ namespace core {
     }
 
     void Connection::on_write_error() {
-        action = ConnectionEvent::DISABLE_WRITE;
         processing = false;
     }
 }

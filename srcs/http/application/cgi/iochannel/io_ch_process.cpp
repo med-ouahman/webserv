@@ -2,7 +2,7 @@
 
 namespace http {
     
-    bool IOChannel::process() {
+    void IOChannel::process() {
 
 
         while (processing) {
@@ -20,7 +20,7 @@ namespace http {
 
         }
         
-        return false;
+        
     }
 
 }

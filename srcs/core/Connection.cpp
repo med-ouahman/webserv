@@ -63,4 +63,8 @@ namespace core {
         }
 
     }
+	
+	bool Connection::want_resume_task() {	
+		return bytes_to_write > 0 || !data_view.empty();
+	}
 }
