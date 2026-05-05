@@ -20,7 +20,7 @@ namespace io {
     bool EventLoop::remove_connections() {
 
         for ( size_t i(0); i < conns.size(); ) {
-            if (conns[i]->desired_action() == core::ConnectionAction::CLOSE) {
+            if (conns[i]->desired_action().want_close) {
                 del_fd(conns[i]->get_fd());
                 delete conns[i];
                 conns.erase(conns.begin() + i);
@@ -35,20 +35,12 @@ namespace io {
     void EventLoop::update_epoll_interest( core::Connection* conn ) {
 
         uint32_t new_mask = EPOLLIN | EPOLLET;
-        core::ConnectionAction::Type action = conn->desired_action();
+        core::ConnectionAction action = conn->desired_action();
         
-        switch (action) {
-
-            case core::ConnectionAction::READ:
-                break;
-            case core::ConnectionAction::DISABLE_READ: case core::ConnectionAction::DISABLE_WRITE:
-                del_fd(conn->get_fd());
-                return ;
-            case core::ConnectionAction::WRITE:
-                new_mask = EPOLLOUT | EPOLLET;
-                break;
-            case core::ConnectionAction::CLOSE:
-                return ;
+        if (action.want_write) {
+            new_mask = EPOLLOUT | EPOLLET;
+        } else if (action.want_close) {
+            return ;
         }
         
         if (new_mask != conn->get_mask()) {

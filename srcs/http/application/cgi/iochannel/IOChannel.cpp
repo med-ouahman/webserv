@@ -22,7 +22,11 @@ namespace http {
     }
 
     bool IOChannel::readbuf_drained() {
-        return data_view.len_ == data_view.bytes_consumed;
+        return data_view.empty();
+    }
+
+    core::DataView& IOChannel::get_view( ) {
+        return data_view;
     }
     
 }

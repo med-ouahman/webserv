@@ -11,6 +11,7 @@
 #include "Config.hpp"
 #include "Result.hpp"
 #include <fcntl.h>
+#include <deque>
 
 namespace core {
 	class Connection;
@@ -34,6 +35,7 @@ namespace io {
 			bool running;
 			std::vector<core::Connection*> conns;
 			std::vector<ListeningSocket> listeners;
+			std::deque<core::Connection*> pending_conns;
 
 		private:
 			EventLoop( const EventLoop& other );
@@ -46,14 +48,15 @@ namespace io {
 		private:
 			bool remove_connections();
 			void update_epoll_interest( core::Connection* conn );
-			
+			void pump();
+
 		public:
 			explicit EventLoop( const config::Config& conf );
 			~EventLoop();
 			int run(); 
 			const config::Config& conf;
 			bool add_connection( int client_fd );
-
+			
 			bool add_fd( int fd, uint32_t events, IIOHandler* handler ) const;
 			bool mod_fd( int fd, uint32_t events, IIOHandler* handler ) const;
 			bool del_fd( int fd ) const;

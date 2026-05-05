@@ -16,13 +16,14 @@ namespace core {
 
         public:
             DataView( const char* data );
-	    ~DataView();
+	        ~DataView();
             void advance( size_t n );
             const char* data() const;
             bool empty() const;
             void rewind( size_t n );
             void shrink( size_t size );
+            void update( size_t new_size );
             size_t cursor() const;
-
+            size_t size() const;
     };
 }

@@ -58,12 +58,11 @@ namespace http {
                 };
             };
 
-            explicit HTTPParser( const config::Config& conf );
+            explicit HTTPParser( const config::Config& conf, core::DataView& v );
             ~HTTPParser();
             ScanResult parse();
             HTTPRequest& get_request();
             void reset();
-            void set_data_view( core::DataView* DataView );
             ParseState::Type  get_parser_state() const;
             bool finished() { return headers_done; }
             

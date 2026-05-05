@@ -4,9 +4,8 @@
 
 namespace http {
 
-    CGIBodyProvider::CGIBodyProvider( const CGIHandler& h, core::DataView* v )
-        : cgi_handler(h),
-        view(v)
+    CGIBodyProvider::CGIBodyProvider( const CGIHandler& h )
+        : cgi_handler(h)
     {}
 
     CGIBodyProvider::~CGIBodyProvider() {
@@ -14,14 +13,14 @@ namespace http {
     }
 
     bool CGIBodyProvider::finished() const {
-
+        return true;
     }
 
     ssize_t CGIBodyProvider::read( char* buff, size_t size ) {
  
-        cgi_handler.pull();
-        size_t to_copy = std::min(view->len_ - view->bytes_consumed, size);
-        ::memcpy(buff, view->data_ptr_, to_copy);
+        // cgi_handler.pull();
+        size_t to_copy = std::min(view->size() - view->cursor(), size);
+        ::memcpy(buff, view->data(), to_copy);
         return to_copy;
     }
 

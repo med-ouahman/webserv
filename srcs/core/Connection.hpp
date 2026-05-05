@@ -49,7 +49,6 @@ namespace core {
             bool close_after_write;
             size_t num_requests;
             http::HTTPResponse response;
-            ConnectionAction::Type action;
 
         private:
             /* timeout */
@@ -64,19 +63,21 @@ namespace core {
         private:
             bool process();
             bool advance();
-            bool readbuf_drained() { return data_view.len_ == data_view.bytes_consumed; }
+            bool readbuf_drained() { return data_view.empty(); }
             void on_client_error();
             void on_request_ready();
     
         public:
             int get_fd() const;
-            ConnectionAction::Type desired_action() const;
+            ConnectionAction desired_action() const;
             void set_mask( uint32_t new_mask ) { event_mask = new_mask; }
             uint32_t get_mask() const { return event_mask; }
             http::HTTPResponse& get_response() { return response; }
             void tick();
             void on_cgi_finished();
             void on_cgi_output_ready();
+            bool want_resume_task();
+            void resume_task();
             
         private:
             void process_outgoing_data();

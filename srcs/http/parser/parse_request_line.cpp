@@ -72,7 +72,7 @@ namespace http {
 			
 		line_c.reset();
 		parse_state = ParseState::HEADERS;
-		std::cout << "HEADERS\n";
+		
 		return SUCCESS;
 	}
 	

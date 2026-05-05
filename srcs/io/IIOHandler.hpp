@@ -14,6 +14,7 @@ namespace io {
         public:
             IIOHandler( int fd_ ): fd(fd_) {};
             virtual void on_event( EventType event ) = 0;
+            virtual bool want_resume_task() { return false; };
             virtual ~IIOHandler() {
                 if (fd >= 0) {
                     ::close(fd);

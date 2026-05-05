@@ -13,6 +13,10 @@ namespace core {
 		cursor_ += n;
 	}
 
+	size_t DataView::size() const {
+		return size_;
+	}
+
 	const char* DataView::data() const {
 		return data_ + cursor_;
 	}
@@ -32,4 +36,10 @@ namespace core {
 	void DataView::shrink( size_t new_size ) {
 		size_ = new_size;
 	}
+
+	void DataView::update( size_t new_size ) {
+		size_ = new_size;
+		cursor_ = 0;
+	}
+	
 }

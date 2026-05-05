@@ -8,13 +8,11 @@ namespace core {
 
         http::ScanResult result;
         
-        p.set_data_view(&data_view);
         result = p.parse();
 
         if (p.get_parser_state() == http::ParseState::BODY) {
         
             body_p.detect_body_type(p.get_request().headers);
-            body_p.set_data_view(&data_view);
             result = body_p.parse_body();
         }
         
@@ -69,7 +67,7 @@ namespace core {
     }
 
     void Connection::on_write_error() {
-        action = ConnectionAction::DISABLE_WRITE;
+        action = ConnectionEvent::DISABLE_WRITE;
         processing = false;
     }
 }

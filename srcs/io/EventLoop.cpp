@@ -16,30 +16,20 @@ namespace io {
             running = false;
         }
 
-        if (running) {
-            running = start_listeners();
-        }
+        running = running && start_listeners();
     }
 
     EventLoop::~EventLoop() {
         running = false;
-        if (epoll_fd != -1) {
-            close(epoll_fd);
+        
+        if (epoll_fd > -1) {
+            ::close(epoll_fd);
         }
 
         for ( ::size_t i = 0; i < conns.size(); ++i ) {
             delete conns[i];
         }
         
-    }
-
-    EventLoop& EventLoop::operator=( const EventLoop& other ) { 
-        if (this != &other) {}
-        return *this;
-    }
-
-    EventLoop::EventLoop( const EventLoop& other ): conf(other.conf) {
-        (void)other;
     }
 
 }

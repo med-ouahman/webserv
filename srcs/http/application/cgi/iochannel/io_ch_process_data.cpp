@@ -6,7 +6,6 @@ namespace http {
         
         listener->on_input_ready(&data_view);
         processing = false;
-        
     }
 
     void IOChannel::process_outgoing_data() {
@@ -33,7 +32,7 @@ namespace http {
     }
 
     void IOChannel::on_write_complete() {
-        close(fd);
+        ::close(fd);
     }
 
     void IOChannel::on_write_error() {

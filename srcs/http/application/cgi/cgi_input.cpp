@@ -27,16 +27,20 @@ namespace http {
             the LineScanner::scan returns 3 values, SUCCESS a line was fully parsed, NEED_MORE: more data is needed or ERROR is case of error (size>max_size)
         */
 
-        scanner.set_data_view(data_view);
+        (void)data_view;
     
         if (output_state == CGIOutputState::HEADERS) {
-            // scan_headers()
+            /*
+                the headers are built and sent to the response object          
+            */
         }
 
         if (output_state == CGIOutputState::BODY) {
             conn.on_cgi_output_ready(); // tells the connection to enable cgi body
             output_state = CGIOutputState::READING_BODY;
         }
+
+        return SUCCESS;
     }
 
 }

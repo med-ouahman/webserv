@@ -10,9 +10,10 @@ namespace http {
 	
 	const std::string BodyHandler::hexas = "0123456789abcdef";
 	
-	BodyHandler::BodyHandler( int fd )
+	BodyHandler::BodyHandler( int fd, core::DataView& v )
 		: body_storage(BodyStorage::NONE),
 		body_state(BodyState::PREPARING),
+		data_view(v),
 		conn_fd(fd),
 		body_dir("/tmp/"),
 		body_bytes_parsed(0),
@@ -22,7 +23,8 @@ namespace http {
 		body_type(BodyType::UNSET),
 		body_set(false),
 		chunk_state(ChunkState::CHUNK_SIZE),
-		chunk_remaining(0) {}
+		chunk_remaining(0),
+		sc(v) {}
 
 	BodyHandler::~BodyHandler() {
 
@@ -49,11 +51,6 @@ namespace http {
 		body_buff.erase(to_copy);
 		
 		return to_copy;
-	}
-
-	void BodyHandler::set_data_view( core::DataView* v ) {
-		data_view = v;
-		sc.set_data_view(v);
 	}
 
 	void BodyHandler::prepare_body() {

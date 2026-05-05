@@ -40,6 +40,10 @@ namespace io {
                 } else if (events[i].events & (EPOLLERR | EPOLLHUP)) {
                     handler->on_event(ERROR);
                 }
+
+                if (handler->want_resume_task()) {
+                    pending_conns.push_back(static_cast<core::Connection*>(handler));
+                }
             }
             
 

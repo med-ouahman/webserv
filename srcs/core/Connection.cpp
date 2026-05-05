@@ -13,23 +13,36 @@ namespace core {
         event_mask(mask),
         loop(l),
         state(ConnectionState::IDLE),
-        p(conf),
-        body_p(_fd),
+        p(conf, data_view),
+        body_p(_fd, data_view),
         dispatcher(conf),
         config(conf),
         close_after_write(false),
         num_requests(0),
-        action(ConnectionAction::READ),
         ms_(0),
         cgi_handler(NULL) {}
 
     Connection::~Connection() {
         state = ConnectionState::CLOSING;
         exit_cgi();
-        
     }
 
-    ConnectionAction::Type Connection::desired_action() const {
+    ConnectionAction Connection::desired_action() const {
+        ConnectionAction action;
+
+        switch (state) {
+            case ConnectionState::READING:
+                action.want_read = true;
+                break;
+            case ConnectionState::WRITING:
+                action.want_write = true;
+                break;
+            case ConnectionState::CLOSING:
+                action.want_close = true;
+            default:
+                break;
+        }
+
         return action;
     }
 

@@ -56,18 +56,17 @@ namespace http {
             static const std::string hexas;
 
 		public:
-			explicit BodyHandler( int fd );
+			explicit BodyHandler( int fd, core::DataView& v );
 			~BodyHandler();
 			ssize_t produce_body_chunk( char* buff, size_t size );
 			void detect_body_type( std::map<std::string, std::string>& headers );
             ScanResult parse_body();
-            void set_data_view( core::DataView* data_view );
 
 		private:
             BodyStorage::Type body_storage;
             BodyState::Type body_state;
 
-            core::DataView* data_view;
+            core::DataView& data_view;
             std::string body_buff;
  			const int conn_fd;
             const char* body_dir;

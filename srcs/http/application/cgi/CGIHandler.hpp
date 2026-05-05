@@ -37,12 +37,17 @@ namespace http {
 				ERROR,
 			}	cgi_state;
 
-			enum CGIOutputState {
-				STATUS_LINE,
-				HEADERS,
-				BODY,
-				READING_BODY,
-			} output_state;
+			struct CGIOutputState {
+				enum Type {
+
+					STATUS_LINE,
+					HEADERS,
+					BODY,
+					READING_BODY,
+				};
+			};
+			
+			CGIOutputState::Type output_state;
 
 			enum CGIError {
 				NONE,
@@ -61,9 +66,9 @@ namespace http {
 	
 			core::Connection& conn;
 			const io::EventLoop& loop;
+			core::DataView* data_view;
 			LineScanner scanner;
 
-			core::DataView* data_view;
 		
 		public:
 			void on_channel_closed();

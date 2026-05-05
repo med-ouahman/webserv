@@ -20,7 +20,7 @@ namespace http {
             if (chunk_remaining == 0) chunk_state = ChunkState::CHUNK_LAST;
 
             else chunk_state = ChunkState::CHUNK_DATA;
-    
+
         }
 
         if (chunk_state == ChunkState::CHUNK_LAST) {
@@ -37,6 +37,9 @@ namespace http {
         body_len = chunk_remaining;
 
         write_body();
+
+        if (body_state == BodyState::ERROR)
+            return ERROR;
         
         if (body_bytes_parsed == chunk_remaining) {
             body_bytes_parsed = 0;

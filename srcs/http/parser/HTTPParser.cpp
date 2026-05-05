@@ -2,11 +2,12 @@
 
 namespace http {
 	
-	HTTPParser::HTTPParser( const config::Config& conf )
+	HTTPParser::HTTPParser( const config::Config& conf, core::DataView& v )
 		: headers_done(false),
 		
 		leading_crlf_count(0),
 		header_count(0),
+		line_c(v),
 		parse_state(ParseState::REQUEST_LINE),
 		config(conf) {}
 
@@ -23,11 +24,6 @@ namespace http {
 		headers_done = false;
 		parse_state = ParseState::REQUEST_LINE;
 		request = HTTPRequest();
-	}
-
-	void HTTPParser::set_data_view( core::DataView* data_view ) {
-
-		line_c.set_data_view(data_view);
 	}
 
 	ParseState::Type HTTPParser::get_parser_state() const {

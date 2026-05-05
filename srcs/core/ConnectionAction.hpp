@@ -3,14 +3,9 @@
 namespace core {
 	
 	struct ConnectionAction {
-		
-		public:
-			enum Type {
-				READ,
-				WRITE,
-				DISABLE_READ,
-				DISABLE_WRITE,
-				CLOSE,
-			};
+		bool want_read;
+		bool want_write;
+		bool want_close;
+		bool want_you;
 	};
 }

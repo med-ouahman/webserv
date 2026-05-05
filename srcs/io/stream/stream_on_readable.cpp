@@ -18,9 +18,7 @@ namespace io {
                 return ;
             }
             
-            data_view.data_ptr_ = readbuf;
-            data_view.bytes_consumed = 0;
-            data_view.len_ = bytes_r;
+            data_view.update(bytes_r);
         }
 
         process_incoming_data();

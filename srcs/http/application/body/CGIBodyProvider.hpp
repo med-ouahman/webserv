@@ -1,5 +1,5 @@
 #include "IBodyProvider.hpp"
-
+#include "DataView.hpp"
 
 namespace http {
 
@@ -9,8 +9,9 @@ namespace http {
         public:
             bool finished() const;
             ssize_t read( char* buff, size_t max_size );
-            CGIBodyProvider( const CGIHandler& h, core::DataView* view );
+            CGIBodyProvider( const CGIHandler& h );
             ~CGIBodyProvider();
+
         private:
             const CGIHandler& cgi_handler;
             core::DataView* view;
