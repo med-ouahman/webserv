@@ -18,28 +18,38 @@ namespace core {
 
 
 namespace http {
+
+	class CGIState {
+		public:
+			enum Type {
+
+				SPAWN,
+				ACTIVE,
+				WRITING_BODY,
+				WAITING,
+				IDLE,
+				ERROR,
+			};
+	};
 	
 	struct CGIContext;
 
 	class CGIHandler: public io::IDataListener {
 		
 		public:
+			const static std::size_t MAX_BLOCK_LEN = 1024 * 16; // 16KB
+			const static std::size_t MAX_CGI_BODY_LEN = 1024 * 1024; // 1MB
+			
 			explicit CGIHandler( core::Connection& conn, const io::EventLoop& l );
-			~CGIHandler();
 			void spawn( const CGIContext& context );
-			const static std::size_t MAX_BLOCK_LEN = 1024 * 16;
+			~CGIHandler();
 
 		private:
 			CGIHandler( const CGIHandler& );
 			CGIHandler& operator=( const CGIHandler& );
+			static time_t cgi_timeout_ms;
 			
 		private:
-			enum CGIState {
-				SPAWN,
-				ACTIVE,
-				IDLE,
-				ERROR,
-			}	cgi_state;
 
 			struct CGIOutputState {
 				enum Type {
@@ -47,11 +57,12 @@ namespace http {
 					STATUS_LINE,
 					HEADERS,
 					BODY,
-					READING_BODY,
+					WRITING_BODY,
 				};
 			};
 			
 			CGIOutputState::Type output_state;
+			CGIState::Type cgi_state;
 
 			enum CGIError {
 				NONE,
@@ -72,8 +83,8 @@ namespace http {
 			const io::EventLoop& loop;
 			core::DataView& stdout_ch_view;
 			LineScanner scanner;
+			time_t start_time;
 
-		
 		public:
 			void on_channel_closed();
 			ScanResult on_input_ready();
@@ -81,6 +92,8 @@ namespace http {
 			void on_error();
 			core::DataView& get_stdout_data_view();
 			void pull();
+			void on_ch_error();
+			CGIState::Type get_cgi_state() const;
 			/**/
 
 	};

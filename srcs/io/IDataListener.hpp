@@ -21,5 +21,6 @@ namespace io {
 			virtual ssize_t produce_output( char* buff, size_t size ) = 0;
 			virtual void on_error() = 0;
 			virtual void on_channel_closed() = 0;
+			virtual void on_ch_error() = 0;
 	};
 }

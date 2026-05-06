@@ -16,7 +16,7 @@ namespace http {
                 return ERROR;
             case BodyState::FINISH:
                 return SUCCESS;
-            case BodyState::READING_BODY:
+            case BodyState::WRITING_BODY:
                 return NEED_MORE;
             default:
                 return NEED_MORE;

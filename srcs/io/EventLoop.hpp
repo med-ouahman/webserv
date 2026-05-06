@@ -12,6 +12,7 @@
 #include "Result.hpp"
 #include <fcntl.h>
 #include <deque>
+#include <ctime>
 
 namespace core {
 	class Connection;

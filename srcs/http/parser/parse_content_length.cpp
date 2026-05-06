@@ -3,7 +3,7 @@
 
 namespace http {
 
-    bool BodyHandler::parse_content_length( std::string const& s ) {
+    bool BodyHandler::parse_content_length( std::string const& s, size_t& body_len ) {
 		for ( ::size_t i = 0; i < s.length(); i++ ) {
 			if (!isdigit(s[i])) {
 				return false;

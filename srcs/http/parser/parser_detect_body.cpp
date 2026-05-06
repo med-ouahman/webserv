@@ -16,7 +16,7 @@ namespace http {
 
 		if (content_length) {
 			std::cout << "content-length: what the hell??";
-			if (!parse_content_length(headers["content-length"]))
+			if (!parse_content_length(headers["content-length"]), body_len)
 				body_type = BodyType::ERROR;
 
 			if (body_len == 0) body_type = BodyType::NONE;

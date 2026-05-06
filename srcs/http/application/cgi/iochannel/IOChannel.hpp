@@ -36,6 +36,7 @@ namespace http {
             bool readbuf_drained();
             void handle_event();
             void on_read_eof();
+            void on_read_error();
 			void process_incoming_data();
 			void process_outgoing_data();
             void on_write_complete();

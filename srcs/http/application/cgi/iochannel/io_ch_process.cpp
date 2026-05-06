@@ -4,7 +4,8 @@ namespace http {
     
     void IOChannel::process() {
 
-
+        processing = true;
+        
         while (processing) {
             
             switch (stream) {
@@ -19,8 +20,6 @@ namespace http {
             }
 
         }
-        
-        
     }
 
 }

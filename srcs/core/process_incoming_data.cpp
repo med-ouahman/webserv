@@ -45,12 +45,11 @@ namespace core {
         
         if (produced < 0) {
             processing = false;
-            state = ConnectionState::CLOSING;
             return ;
         }
         
         bytes_to_write = produced;
-        /* He means this, we producer returns 0. it means that there is nothing else to write */
+
         if (bytes_to_write == 0) {
             if (!readbuf_drained()) state = ConnectionState::READING;
             else if (close_after_write) state = ConnectionState::CLOSING;

@@ -58,6 +58,7 @@ namespace io {
 			
 			virtual void on_read_eof() = 0;
 			virtual void process_incoming_data() = 0;
+			virtual void on_read_error() = 0;
 			virtual void process_outgoing_data() = 0;
 			virtual void on_write_complete() = 0;
 			virtual void on_write_error() = 0;

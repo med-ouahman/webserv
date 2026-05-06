@@ -4,8 +4,11 @@ namespace http {
     
     void IOChannel::process_incoming_data() {
         
-        listener->on_input_ready();
-        processing = false;
+        ScanResult r = listener->on_input_ready();
+        
+        if (ERROR == r || SUCCESS == r) {
+            processing = false;
+        }
     }
 
     void IOChannel::process_outgoing_data() {
@@ -37,6 +40,10 @@ namespace http {
 
     void IOChannel::on_write_error() {
         // 
+    }
+
+    void IOChannel::on_read_error() {
+        listener->on_ch_error();
     }
 
 }

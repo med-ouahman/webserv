@@ -24,4 +24,7 @@ namespace core {
         processing = false;
     }
 
+    void Connection::on_read_error() {
+
+    }
 }

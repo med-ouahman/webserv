@@ -14,7 +14,7 @@ namespace io {
             }
             
             if (bytes_r < 0) {
-                processing = false;
+                on_read_error();
                 return ;
             }
             

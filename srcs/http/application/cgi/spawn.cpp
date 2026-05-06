@@ -7,11 +7,11 @@ namespace http {
 
     void CGIHandler::spawn( const CGIContext& context ) {
         
-        if (cgi_state != SPAWN) {
+        if (cgi_state != CGIState::SPAWN) {
             return ;
         }
 
-        cgi_state = ACTIVE;
+        cgi_state = CGIState::ACTIVE;
         cgi_pid = ::fork();
         if (cgi_pid == 0) {
 
@@ -28,6 +28,7 @@ namespace http {
             ::execve(context.interpreter_path.c_str(), argv, __environ);
             LOG_ERROR(MAKE_ERRNO_ERROR("execve()"));
             ::exit(EXIT_FAILURE);
+            throw std::runtime_error(strerror(errno));
         }
 
         CLOSE_FD(pipe_guard.stdin_pipe[0]);

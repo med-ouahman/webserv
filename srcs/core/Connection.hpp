@@ -79,6 +79,7 @@ namespace core {
             void tick();
             void on_cgi_finished();
             void on_cgi_output_ready();
+            void on_cgi_error( http::HTTPStatusCode c, std::string const& reason );
             bool want_resume_task();
             
             
@@ -87,6 +88,7 @@ namespace core {
             void process_incoming_data();
             void handle_event();
             void on_read_eof();
+            void on_read_error();
             void on_write_complete();
             void on_write_error();
     };

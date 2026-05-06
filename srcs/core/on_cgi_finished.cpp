@@ -1,5 +1,6 @@
 #include "Connection.hpp"
 #include "CGIBodyProvider.hpp"
+#include <cstdlib>
 
 namespace core {
 
@@ -8,8 +9,35 @@ namespace core {
 	}
 
 	void Connection::on_cgi_output_ready() {
-		response.body_provider = new http::CGIBodyProvider(*cgi_handler);
+
+		bool has_content_len = response.headers["content-length"].size() > 0;
+
+		char* end;
+
+		size_t body_size = 0;
+
+		if (has_content_len) body_size = ::strtoul(response.headers["content-length"].c_str(), &end, 10);
+
+		if (has_content_len && *end != '\0' || body_size > http::CGIHandler::MAX_CGI_BODY_LEN) {
+			state = ConnectionState::WRITING;
+			response.status_code = http::BAD_GATEWAY;
+			response.reason = "Bad Gateway";
+			close_after_write = true;
+			return ;
+		}
+
+		http::BodySendMethod::Type body_method = has_content_len
+			? http::BodySendMethod::CONTENT_LENGTH: http::BodySendMethod::CHUNKED;
+
+		response.body_provider = new http::CGIBodyProvider(*cgi_handler, body_method, body_size);
 		state = ConnectionState::WRITING;
+	}
+
+	void Connection::on_cgi_error(http::HTTPStatusCode c, std::string const& reason ) {
+		response.status_code = c;
+		response.reason = reason;
+		state = ConnectionState::WRITING;
+		close_after_write = true;
 	}
 
 }

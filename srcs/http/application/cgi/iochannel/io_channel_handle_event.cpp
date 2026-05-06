@@ -29,7 +29,6 @@ namespace http {
 				processing = true;
 				break;
 			case io::ERROR:
-				
 				listener->on_error();
 				break;
 		}

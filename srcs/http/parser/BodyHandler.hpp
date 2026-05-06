@@ -32,7 +32,7 @@ namespace http {
 
         enum Type {
             PREPARING,
-            READING_BODY,
+            WRITING_BODY,
             FINISH,
             ERROR
         };
@@ -61,6 +61,7 @@ namespace http {
 			ssize_t produce_body_chunk( char* buff, size_t size );
 			void detect_body_type( std::map<std::string, std::string>& headers );
             ScanResult parse_body();
+            static bool parse_content_length( std::string const& s, size_t& body_size );
 
 		private:
             BodyStorage::Type body_storage;
@@ -86,7 +87,7 @@ namespace http {
             LineScanner sc;
 
         private:
-            bool parse_content_length( std::string const& s );
+            
             size_t parse_chunk_size( std::string const& line_buff );
             bool is_valid_hexa( const char c );
             ScanResult parse_body_content_length();
