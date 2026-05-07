@@ -25,6 +25,7 @@ namespace http {
         private:
             size_t body_size;
             size_t body_bytes_read;
+            size_t leftover;
 
             BodySendMethod::Type send_method;
             CGIHandler& cgi_handler;

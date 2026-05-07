@@ -22,21 +22,42 @@ namespace http {
 
     ssize_t CGIBodyProvider::read( char* buff, size_t size ) {
  
-        cgi_handler.pull();
+        if (leftover == 0) {
+            cgi_handler.pull();
+            if (data_view.size() == 0) return 0;
+        }
         
-        if (data_view.size() == 0) return 0;
         
         if (cgi_handler.get_cgi_state() != CGIState::WRITING_BODY) {
             return -1;
         }
 
         body_bytes_read += data_view.size();
+
         if (body_bytes_read > body_size)
             return -1;
 
-        ssize_t to_copy = std::min(data_view.size() - data_view.cursor(), size);
+        if (send_method == BodySendMethod::CONTENT_LENGTH) {
+            
+            ssize_t to_copy = std::min(data_view.size() - data_view.cursor(), size);
+            ::memcpy(buff, data_view.data(), to_copy);
+            return to_copy;
+        }
+
+        size_t copied = 0;
+
+        std::string formatted = format_chunk(data_view.size());
+
+        ::memcpy(buff, formatted.c_str(), formatted.size());
+        buff += formatted.size();
+        copied += formatted.size();
+        size_t rem = size - formatted.size();
+        size_t to_copy = std::min(rem, data_view.size());
         ::memcpy(buff, data_view.data(), to_copy);
-        return to_copy;
+        buff += to_copy;
+        ::memcpy(buff, "\r\n", 2);
+        
+        return copied;
     }
 
     std::string CGIBodyProvider::format_chunk( size_t chunk_size ) {

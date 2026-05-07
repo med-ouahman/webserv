@@ -14,7 +14,7 @@ namespace core {
 
 		char* end;
 
-		size_t body_size = 0;
+		size_t body_size = http::CGIHandler::MAX_CGI_BODY_LEN;
 
 		if (has_content_len) body_size = ::strtoul(response.headers["content-length"].c_str(), &end, 10);
 
