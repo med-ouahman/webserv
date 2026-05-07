@@ -5,11 +5,12 @@
 namespace http {
 
     CGIBodyProvider::CGIBodyProvider( CGIHandler& h, BodySendMethod::Type b, size_t size )
-        : body_size(size),
+        : content_length(size),
         body_bytes_read(0),
         cgi_handler(h),
         data_view(h.get_stdout_data_view()),
-        send_method(b)
+        send_method(b),
+        chunk_state(ChunkState::NONE)
     {}
 
     CGIBodyProvider::~CGIBodyProvider() {
@@ -20,33 +21,26 @@ namespace http {
         return true;
     }
 
-    ssize_t CGIBodyProvider::read( char* buff, size_t size ) {
- 
-        cgi_handler.pull();
-        
-        if (data_view.size() == 0) return 0;
-        
-        if (cgi_handler.get_cgi_state() != CGIState::WRITING_BODY) {
-            return -1;
+    ssize_t CGIBodyProvider::read( core::BufferWriter* writer, size_t max_size ) {
+
+        switch (send_method) {
+            case BodySendMethod::CHUNKED:
+                return send_body_chunked(writer, max_size);
+
+            case BodySendMethod::CONTENT_LENGTH:
+                return send_body_content_length(writer->buff(), writer->remaining());
         }
 
-        body_bytes_read += data_view.size();
-        if (body_bytes_read > body_size)
-            return -1;
-
-        ssize_t to_copy = std::min(data_view.size() - data_view.cursor(), size);
-        ::memcpy(buff, data_view.data(), to_copy);
-        return to_copy;
+        static_assert("UNDEFINED BODY TYPE!!!");
+        return -1;
     }
 
-    std::string CGIBodyProvider::format_chunk( size_t chunk_size ) {
+    void CGIBodyProvider::format_chunk( size_t size ) {
         std::stringstream ss;
-        ss << std::hex << chunk_size;
+        ss << std::hex << size;
 
-        std::string formatted = ss.str();
-        formatted.append("\r\n");
-
-        return formatted;
+        chunk_header = ss.str();
+        chunk_header.append("\r\n");
     }
 
    

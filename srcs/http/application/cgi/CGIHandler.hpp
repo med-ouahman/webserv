@@ -27,7 +27,7 @@ namespace http {
 				ACTIVE,
 				WRITING_BODY,
 				WAITING,
-				IDLE,
+				FINISHED,
 				ERROR,
 			};
 	};
@@ -94,6 +94,7 @@ namespace http {
 			void pull();
 			void on_ch_error();
 			CGIState::Type get_cgi_state() const;
+			bool finished();
 			/**/
 
 	};

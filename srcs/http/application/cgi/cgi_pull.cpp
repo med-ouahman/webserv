@@ -8,7 +8,7 @@ namespace http {
 
 	void CGIHandler::pull() {
 
-		if (cgi_state == CGIState::ERROR) {
+		if (cgi_state == CGIState::ERROR || cgi_state == CGIState::FINISHED) {
 			return ;
 		}
 
@@ -19,4 +19,7 @@ namespace http {
 		cgi_state = CGIState::WAITING;
 	}
 
+	bool CGIHandler::finished() {
+		return cgi_state == CGIState::FINISHED;
+	}
 }

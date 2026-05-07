@@ -10,11 +10,6 @@ namespace http {
         
         cgi_state = CGIState::ERROR;
 
-        if (output_state == CGIOutputState::WRITING_BODY) {
-            /* send the last chunk and close */
-            return ;
-        }
-
         conn.on_cgi_error(BAD_GATEWAY, "Bad Gateway");
     }
 

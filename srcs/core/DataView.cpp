@@ -42,4 +42,8 @@ namespace core {
 		cursor_ = 0;
 	}
 	
+	void DataView::reset() {
+		size_ = 0;
+		cursor_ = 0;
+	}
 }

@@ -23,6 +23,7 @@ namespace core {
             void rewind( size_t n );
             void shrink( size_t size );
             void update( size_t new_size );
+            void reset();
             size_t cursor() const;
             size_t size() const;
     };

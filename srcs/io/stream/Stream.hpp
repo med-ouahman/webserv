@@ -7,6 +7,7 @@
 #include "Result.hpp"
 #include "IDataListener.hpp"
 #include "DataView.hpp"
+#include "BufferWriter.hpp"
 
 namespace io {
 
@@ -48,7 +49,7 @@ namespace io {
 			size_t sent_offset;
 
 			core::DataView data_view;
-
+			core::BufferWriter writer;
 
 		protected:
 			void read();

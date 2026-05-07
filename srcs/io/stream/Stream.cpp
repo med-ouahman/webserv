@@ -7,8 +7,10 @@ namespace io {
         processing(false),
         bytes_r(0),
         readbuf(),
+        writebuff(),
         bytes_to_write(0),
         bytes_sent(0),
         sent_offset(0),
-        data_view(readbuf) {}
+        data_view(readbuf),
+        writer(writebuff) {}
 }

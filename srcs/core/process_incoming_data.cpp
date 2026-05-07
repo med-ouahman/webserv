@@ -41,7 +41,7 @@ namespace core {
         bytes_to_write = 0;
         sent_offset = 0;
 
-        ssize_t produced = response.produce(writebuff, SEND_CHUNK_SIZE);
+        ssize_t produced = response.produce(&writer, SEND_CHUNK_SIZE);
         
         if (produced < 0) {
             processing = false;
