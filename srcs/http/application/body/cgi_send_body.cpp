@@ -66,11 +66,13 @@ namespace http {
 
 				case ChunkState::CHUNK_DATA:
 					writer->update(temp_writer.data(), temp_writer.remaining());
+					chunk_state = ChunkState::CHUNK_TRAIL;
 					/* fall through */
 				case ChunkState::CHUNK_TRAIL:
-					if (writer->remaining() >= 2)
+					if (writer->remaining() >= 2) {
 						::memcpy(writer->write_ptr(), "\r\n", 2);
 						chunk_state = ChunkState::DONE;
+					}
 					break;
 				case ChunkState::DONE:
 					return 0;

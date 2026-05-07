@@ -1,5 +1,5 @@
 #include "HTTPDispatcher.hpp"
-
+#include <cstdlib>
 namespace http {
 
 
@@ -10,7 +10,8 @@ namespace http {
         (void)req;
         (void)result;
         
-        ctx.script_filename   = "/home/mouahman/cgi-bin/hello.py";
+        std::string home(getenv("HOME"));
+        ctx.script_filename   = home + (home[home.length() - 1] == '/' ? "":"/") +"webserv/cgi-bin/script.py";
         ctx.interpreter_path  = "/usr/bin/python3";
         ctx.script_name       = "/cgi-bin/hello.py";
         ctx.path_info         = "/user/42";

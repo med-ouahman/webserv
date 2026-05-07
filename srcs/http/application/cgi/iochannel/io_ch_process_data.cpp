@@ -4,6 +4,7 @@ namespace http {
     
     void IOChannel::process_incoming_data() {
         
+        std::cout << "INPUT!\n";
         ScanResult r = listener->on_input_ready();
         
         if (ERROR == r || SUCCESS == r) {
@@ -28,7 +29,6 @@ namespace http {
     }
 
     void IOChannel::on_read_eof() {
-        std::cout << "CHannel done fr\n";
         listener->on_channel_closed();
         processing = false;
     }
