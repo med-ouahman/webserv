@@ -5,7 +5,8 @@ namespace io {
     void Stream::on_readable() {
         
         if (readbuf_drained()) {
-
+            
+            data_view.reset();
             read();
             
             if (bytes_r == 0) {

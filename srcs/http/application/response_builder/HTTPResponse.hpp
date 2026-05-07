@@ -6,6 +6,8 @@
 #include "HTTPStatusCode.hpp"
 #include "IBodyProvider.hpp"
 
+namespace core { class BufferWriter; }
+
 namespace http {
 
     class HTTPResponseType {
@@ -39,7 +41,7 @@ namespace http {
             std::string line_buff; /* stores incomplete headers */
         
         public:           
-            ssize_t produce( char* buff, ::size_t max_size );
+            ssize_t produce( core::BufferWriter* writer, ::size_t max_size );
             void    add_header( const std::string& key, const std::string& value );
             void    set_response_line( HTTPStatusCode code, std::string const & reason );
 

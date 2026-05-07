@@ -6,12 +6,12 @@ namespace io {
 
         process_outgoing_data();
         
-        if (bytes_to_write == 0) {
+        if (writer.size() == 0) {
             on_write_complete();
             return ;
         }
 
-        if (sent_offset < bytes_to_write) {
+        if (writer.offset() < writer.size()) {
             
             write();
             if (bytes_r < 0) {
@@ -19,7 +19,7 @@ namespace io {
                 return ;
             }
 
-            sent_offset += bytes_r;
+            writer.advance(bytes_r);
         }
     }
 }
