@@ -4,31 +4,19 @@
 
 namespace http {
 
-	ssize_t CGIBodyProvider::pull() {
-
-		cgi_handler.pull();
-
-        if (cgi_handler.get_cgi_state() == CGIState::ERROR) return -1;
-		
-		return data_view.size();
-	}
 
 	ssize_t CGIBodyProvider::fill_buff( core::BufferWriter* writer ) {
 
 		ssize_t total_copied = 0;
 
 		while (true) {
-			
-			ssize_t ret = pull();
-			
-			if (ret < 0) return ret;
-			if (ret == 0) return total_copied;
+        	if (cgi_handler.get_cgi_state() == CGIState::ERROR) return -1;
 
 			size_t available = data_view.size() - data_view.cursor();
 
 			size_t to_copy = std::min(available, writer->remaining());
 			
-			::memcpy(writer->buff(), data_view.data(), to_copy);
+			::memcpy(writer->write_ptr(), data_view.data(), to_copy);
 			total_copied += to_copy;
 			data_view.advance(to_copy);
 
@@ -38,7 +26,7 @@ namespace http {
 				break;
 		}
 
-		return total_copied;
+		return writer->size();
 	}
 
 	ssize_t CGIBodyProvider::send_body_content_length( core::BufferWriter* writer ) {
@@ -63,20 +51,31 @@ namespace http {
 		while (true) {
 
 			switch (chunk_state) {
-				case ChunkState::CHUNK_HEAD:
-
-                	ssize_t t = fill_buff(writer);
+				case ChunkState::CHUNK_HEAD: {
+	
+					ssize_t t = fill_buff(writer);
 					if (t < 0) return -1;	
 					format_chunk(t);
 					chunk_state = ChunkState::CHUNK_DATA;
+					temp_writer.update(writer->data(), writer->remaining());
+					writer->update(const_cast<char*>(chunk_header.c_str()), chunk_header.size());
+					return chunk_header.size();
 					break;
+				}
+				
 
 				case ChunkState::CHUNK_DATA:
-                /**/
+					writer->update(temp_writer.data(), temp_writer.remaining());
+					/* fall through */
 				case ChunkState::CHUNK_TRAIL:
-                /**/
+					if (writer->remaining() >= 2)
+						::memcpy(writer->write_ptr(), "\r\n", 2);
+						chunk_state = ChunkState::DONE;
+					break;
+				case ChunkState::DONE:
+					return 0;
 				default:
-                /**/
+					break;
 			}
 			
 		}

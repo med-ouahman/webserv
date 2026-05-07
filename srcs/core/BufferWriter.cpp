@@ -3,7 +3,7 @@
 namespace core {
 
 
-    BufferWriter::BufferWriter( char* b ): buff_(b), size_(0), offset_(0) {
+    BufferWriter::BufferWriter( char* b ): buff_(b), capacity_(0), offset_(0) {
 
     }
 
@@ -11,35 +11,51 @@ namespace core {
         
     }
 
-    bool BufferWriter::update( char* buf, size_t n ) {
-        if (offset_ != size_)
-            return false;
+    void BufferWriter::update( char* buf, size_t n ) {
         buff_ = buf;
-        size_ = n;
-        return true;
+        capacity_ = n;
+        offset_ = 0;
     }
 
+    void BufferWriter::update( size_t n ) {
+        capacity_ = n;
+        offset_ = 0;
+    }
+    
     size_t BufferWriter::size() {
-        return size_;
+        return capacity_;
     }
 
     size_t BufferWriter::offset() {
         return offset_;
     }
 
-    char* BufferWriter::buff() {
+    char* BufferWriter::data() {
         return buff_ + offset_;
     }
 
     bool BufferWriter::full() {
-        return offset_ == size_;
+        return offset_ == capacity_;
     }
 
     size_t BufferWriter::remaining() {
-        return size_ - offset_;
+        return capacity_ - offset_;
     }
 
     void BufferWriter::advance( size_t n ) {
         offset_ += n;
     }
-} 
+
+    size_t BufferWriter::capacity() {
+        return capacity_;
+    }
+
+    void BufferWriter::reset() {
+        capacity_ = 0;
+        offset_ = 0;
+    }
+
+    char* BufferWriter::write_ptr() {
+        return buff_ + offset_;
+    }
+}

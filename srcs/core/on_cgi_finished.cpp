@@ -18,7 +18,7 @@ namespace core {
 
 		if (has_content_len) body_size = ::strtoul(response.headers["content-length"].c_str(), &end, 10);
 
-		if (has_content_len && *end != '\0' || body_size > http::CGIHandler::MAX_CGI_BODY_LEN) {
+		if ((has_content_len && *end != '\0') || body_size > http::CGIHandler::MAX_CGI_BODY_LEN) {
 			state = ConnectionState::WRITING;
 			response.status_code = http::BAD_GATEWAY;
 			response.reason = "Bad Gateway";

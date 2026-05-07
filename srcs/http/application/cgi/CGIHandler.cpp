@@ -7,12 +7,10 @@
 namespace http {
 
     CGIHandler::CGIHandler( core::Connection& con, const io::EventLoop& l )
-        : cgi_state(CGIState::SPAWN),
-        output_state(CGIOutputState::STATUS_LINE),
-      
+        : output_state(CGIOutputState::STATUS_LINE),
+        cgi_state(CGIState::SPAWN),
         cgi_pid(-1),
         cgi_status(0),
-
         pipe_guard(),
         stdin_ch(pipe_guard.stdin_pipe[1], this, STDStream::STDIN, EPOLLOUT | EPOLLET),
         stdout_ch(pipe_guard.stdout_pipe[0], this, STDStream::STDOUT, EPOLLIN | EPOLLET),

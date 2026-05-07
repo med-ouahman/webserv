@@ -35,22 +35,21 @@ namespace core {
 
     void Connection::process_outgoing_data() {
 
-        if (sent_offset < bytes_to_write)
+        if (writer.offset() < writer.size())
             return ;
 
-        bytes_to_write = 0;
-        sent_offset = 0;
+        writer.reset();
 
-        ssize_t produced = response.produce(&writer, SEND_CHUNK_SIZE);
+        ssize_t produced = response.produce(&writer, writer.capacity());
         
         if (produced < 0) {
             processing = false;
             return ;
         }
         
-        bytes_to_write = produced;
+        writer.update(produced);
 
-        if (bytes_to_write == 0) {
+        if (writer.size() == 0) {
             if (!readbuf_drained()) state = ConnectionState::READING;
             else if (close_after_write) state = ConnectionState::CLOSING;
             else state = ConnectionState::IDLE;

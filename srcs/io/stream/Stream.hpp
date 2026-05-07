@@ -39,7 +39,7 @@ namespace io {
 			EventType io_event;
 			ssize_t bytes_r; /* whatever read/write returned */
 
-		protected:
+		private:
 			/* input */
 			char readbuf[READ_BUFFER_SIZE];
 			/* output */
@@ -47,7 +47,8 @@ namespace io {
 			size_t bytes_to_write;
 			size_t bytes_sent;
 			size_t sent_offset;
-
+			
+		protected:
 			core::DataView data_view;
 			core::BufferWriter writer;
 

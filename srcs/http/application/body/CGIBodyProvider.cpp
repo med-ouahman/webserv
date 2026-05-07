@@ -7,10 +7,12 @@ namespace http {
     CGIBodyProvider::CGIBodyProvider( CGIHandler& h, BodySendMethod::Type b, size_t size )
         : content_length(size),
         body_bytes_read(0),
+        chunk_size(0),
+        send_method(b),
+        chunk_state(ChunkState::NONE),
         cgi_handler(h),
         data_view(h.get_stdout_data_view()),
-        send_method(b),
-        chunk_state(ChunkState::NONE)
+        temp_writer(NULL)
     {}
 
     CGIBodyProvider::~CGIBodyProvider() {
@@ -21,17 +23,17 @@ namespace http {
         return true;
     }
 
-    ssize_t CGIBodyProvider::read( core::BufferWriter* writer, size_t max_size ) {
+    ssize_t CGIBodyProvider::read( core::BufferWriter* writer ) {
 
         switch (send_method) {
             case BodySendMethod::CHUNKED:
-                return send_body_chunked(writer, max_size);
+                return send_body_chunked(writer);
 
             case BodySendMethod::CONTENT_LENGTH:
-                return send_body_content_length(writer->buff(), writer->remaining());
+                return send_body_content_length(writer);
         }
 
-        static_assert("UNDEFINED BODY TYPE!!!");
+        assert(false && "UNDEFINED BODY TYPE!!!");
         return -1;
     }
 

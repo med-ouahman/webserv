@@ -40,6 +40,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/dispatch_parser_result.cpp \
 	srcs/core/on_cgi_finished.cpp \
 	srcs/core/DataView.cpp \
+	srcs/core/BufferWriter.cpp \
 	srcs/http/parser/HTTPParser.cpp \
 	srcs/http/parser/parse_headers.cpp \
 	srcs/http/parser/parse_request_line.cpp \
@@ -75,6 +76,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/application/response_builder/generate_directory_listing.cpp \
 	srcs/http/application/response_builder/MimeType.cpp \
 	srcs/http/application/body/CGIBodyProvider.cpp \
+	srcs/http/application/body/cgi_send_body.cpp \
 	srcs/io/create_sockets.cpp \
 	srcs/io/EventLoop.cpp \
 	srcs/io/handle_fds.cpp \

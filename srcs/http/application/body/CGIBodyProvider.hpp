@@ -1,5 +1,8 @@
 #include "IBodyProvider.hpp"
 #include "DataView.hpp"
+#include <cassert>
+#include <string>
+#include "BufferWriter.hpp"
 
 namespace http {
 
@@ -12,14 +15,6 @@ namespace http {
         };
     };
 
-    struct ChunkState {
-        enum Type {
-            NONE,
-            CHUNK_HEAD,
-            CHUNK_DATA,
-            CHUNK_TRAIL
-        };
-    };
 
     class CGIBodyProvider: public IBodyProvider {
 
@@ -28,9 +23,19 @@ namespace http {
 
         public:
             bool    finished() const;
-            ssize_t read( core::BufferWriter* writer, size_t max_size );
+            ssize_t read( core::BufferWriter* writer );
             explicit CGIBodyProvider( CGIHandler& h, BodySendMethod::Type body_method, size_t size );
             ~CGIBodyProvider();
+
+            struct ChunkState {
+                enum Type {
+                    NONE,
+                    CHUNK_HEAD,
+                    CHUNK_DATA,
+                    CHUNK_TRAIL,
+                    DONE,
+                };
+            };
 
         private:
             size_t content_length;
@@ -43,6 +48,7 @@ namespace http {
             ChunkState::Type chunk_state;
             CGIHandler& cgi_handler;
             core::DataView& data_view;
+            core::BufferWriter temp_writer;
 
             CGIBodyProvider( const CGIBodyProvider& other );
             CGIBodyProvider& operator=( const CGIBodyProvider& other );
@@ -51,7 +57,6 @@ namespace http {
             ssize_t send_body_content_length( core::BufferWriter* writer );
             ssize_t fill_buff( core::BufferWriter* writer );
             ssize_t send_body_chunked( core::BufferWriter* writer );
-            ssize_t pull();
 
     };
 }

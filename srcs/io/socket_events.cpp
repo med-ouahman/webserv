@@ -13,12 +13,10 @@ namespace io {
             
             int client_fd = ::accept(fd, (struct sockaddr* )&client_addr, &client_addr_len);
             if (client_fd < 0) {
-                if (errno != EAGAIN)
-                    LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::accept()"));
                 break;
             }
 
-            std::cout << "connection fd: " << client_fd << "\n";
+            std::cout << "CONNECTION_FD: " << client_fd << "\n";
             loop.add_connection(client_fd);
         }
         
@@ -26,6 +24,8 @@ namespace io {
     }
 
     bool ListeningSocket::on_error() {
+        if (errno != EAGAIN)
+            LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::accept()"));
         return false;
     }
 }

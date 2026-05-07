@@ -13,19 +13,18 @@ namespace http {
 
     void IOChannel::process_outgoing_data() {
         
-        if (sent_offset < bytes_to_write)
+        if (writer.offset() < writer.size())
             return ;
 
-        sent_offset = 0;
-        bytes_to_write = 0;
-        ssize_t produced = listener->produce_output(writebuff, SEND_CHUNK_SIZE);
+        
+        ssize_t produced = listener->produce_output(writer.data(), SEND_CHUNK_SIZE);
         
         if (produced < 0 || produced == 0) {
             processing = false;
             return ;
         }
 
-        bytes_to_write = produced;
+        writer.update(produced);
     }
 
     void IOChannel::on_read_eof() {

@@ -9,7 +9,7 @@ class Heap {
     public:
         int min() {
 
-            if (heap.size() == 1)
+            if (heap.size() == 0)
                 return -1;
             return 100; // later;
         };
