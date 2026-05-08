@@ -40,7 +40,10 @@ namespace io {
 			LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_ctl(EPOLL_CTL_MOD)"));
 			return false;
 		}
-		
+	
+		#ifdef DEBUG 
+			std::cout << "MODIFIED FD: " << fd << "\n";
+		#endif
 		return true;
 	}
 
@@ -50,6 +53,10 @@ namespace io {
 			LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_ctl(EPOLL_CTL_DEL)"));
 			return false;
 		}
+
+		#ifdef DEBUG
+			std::cout << "DELETED FD: " << fd << std::endl;
+		#endif
 		
 		return true;
 	}
