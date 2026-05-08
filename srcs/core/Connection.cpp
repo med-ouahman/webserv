@@ -7,7 +7,7 @@
 
 namespace core {
     
-    Connection::Connection( int _fd, const config::Config& conf, uint32_t mask, const io::EventLoop& l )
+    Connection::Connection( int _fd, const config::Config& conf, uint32_t mask, io::EventLoop& l )
         : Stream(_fd),
         
         event_mask(mask),
@@ -20,11 +20,11 @@ namespace core {
         close_after_write(false),
         num_requests(0),
         ms_(0),
+        resume_task(false),
         cgi_handler(NULL) {}
 
     Connection::~Connection() {
         state = ConnectionState::CLOSING;
-        exit_cgi();
     }
 
     ConnectionAction Connection::desired_action() const {
@@ -64,7 +64,8 @@ namespace core {
 
     }
 	
-	bool Connection::want_resume_task() {	
-		return writer.remaining() > 0 || !data_view.empty();
-	}
+	bool Connection::want_resume_task() {
+        std::cout << "Want resume task fr "<< int(resume_task)<< "\n";
+        return resume_task;
+    }
 }

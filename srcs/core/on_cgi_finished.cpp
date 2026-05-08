@@ -1,11 +1,14 @@
 #include "Connection.hpp"
 #include "CGIBodyProvider.hpp"
 #include <cstdlib>
+#include "EventLoop.hpp"
 
 namespace core {
 
 	void Connection::on_cgi_finished() {
+		std::cout << "CGI is done\n";
 		state = ConnectionState::CGI_FINISH;
+		cgi_detach();
 	}
 
 	void Connection::on_cgi_output_ready() {
@@ -31,6 +34,8 @@ namespace core {
 
 		response.body_provider = new http::CGIBodyProvider(*cgi_handler, body_method, body_size);
 		state = ConnectionState::WRITING;
+		std::cout << "CGI BODY TYPE: " << (has_content_len?"CONTENT-LENGTH\n":"CHUNKED\n");
+		resume_task = true;
 	}
 
 	void Connection::on_cgi_error(http::HTTPStatusCode c, std::string const& reason ) {

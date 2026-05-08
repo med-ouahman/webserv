@@ -18,7 +18,7 @@ namespace http {
             ::dup2(pipe_guard.stdin_pipe[0], STDIN_FILENO);
             ::dup2(pipe_guard.stdout_pipe[1], STDOUT_FILENO);
             ::dup2(pipe_guard.stderr_pipe[1], STDERR_FILENO);
-            
+                        
     
             pipe_guard.close_pipes();
             char* argv[] = {

@@ -4,16 +4,7 @@
 #include "ConfigParser.hpp"
 #include <signal.h>
 #include <stdlib.h>
-
-
-
-void clear( int a ) {
-    if ( a== SIGQUIT){
-        system("clear");
-    }
-}
-
-config::Config conf;
+#include "CGIBodyProvider.hpp"
 
 int main( int argc, char** argv ) {
 
@@ -22,7 +13,6 @@ int main( int argc, char** argv ) {
         return 1;
     }
 
-    signal(SIGQUIT, clear);
     signal(SIGPIPE, SIG_IGN);
     
     const char* config_file = argv[1];
@@ -33,6 +23,7 @@ int main( int argc, char** argv ) {
     #ifdef DEV_MODE
     config::Config conf = config::ConfigParser::build_default_config();
     #endif
+    
     io::EventLoop loop(conf);
     return loop.run();
 }

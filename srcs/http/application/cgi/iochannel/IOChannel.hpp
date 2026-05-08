@@ -31,7 +31,9 @@ namespace http {
             ~IOChannel();
             core::DataView& get_view();
             void process();
-        
+            // #ifdef DEBUG
+            std::string channel_type( STDStream::Type S );
+            // #endif
         private:
             bool readbuf_drained();
             void handle_event();

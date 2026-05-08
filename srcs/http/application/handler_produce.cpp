@@ -5,13 +5,15 @@
 
 namespace http {
 
-	ssize_t HTTPResponse::produce( core::BufferWriter* writer, size_t size ) {
+	ssize_t HTTPResponse::produce( core::BufferWriter* writer ) {
 		
 		ssize_t bytes = 0;
+
+		std::cout << "Begin serializing the response\n";
 		
 		if (HEADERS == serialize_state || RESPONSE_LINE == serialize_state) {
-			bytes += serialize_headers(writer->data(), size);
-			return bytes;
+			bytes += serialize_headers(writer);
+			std::cout << "Bytes Serialized: " << bytes << "\n";
 		}
 
 		if (BODY == serialize_state) {
@@ -23,4 +25,5 @@ namespace http {
 
 		return bytes;
 	}
+
 }

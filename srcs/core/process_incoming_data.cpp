@@ -40,14 +40,14 @@ namespace core {
 
         writer.reset();
 
-        ssize_t produced = response.produce(&writer, writer.capacity());
+        ssize_t produced = response.produce(&writer);
         
         if (produced < 0) {
             processing = false;
             return ;
         }
         
-        writer.update(produced);
+        writer.advance(produced);
 
         if (writer.size() == 0) {
             if (!readbuf_drained()) state = ConnectionState::READING;

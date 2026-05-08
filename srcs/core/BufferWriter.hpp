@@ -14,7 +14,7 @@ namespace core {
 			BufferWriter& operator=( const BufferWriter& other );
 		
 		public:
-			explicit BufferWriter( char* b );
+			explicit BufferWriter( char* b, size_t cap );
 			~BufferWriter();
 			void update( char* buff, size_t size );
 			void update( size_t n );
@@ -23,6 +23,7 @@ namespace core {
 			size_t offset();
 			size_t size();
 			bool full();
+			bool empty();
 			size_t remaining();
 			void advance( size_t n );
 			void reset();

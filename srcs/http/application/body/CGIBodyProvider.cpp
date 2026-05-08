@@ -9,10 +9,10 @@ namespace http {
         body_bytes_read(0),
         chunk_size(0),
         send_method(b),
-        chunk_state(ChunkState::NONE),
+        chunk_state(ChunkState::CHUNK_HEAD),
         cgi_handler(h),
         data_view(h.get_stdout_data_view()),
-        temp_writer(NULL)
+        temp_writer(NULL, 0)
     {}
 
     CGIBodyProvider::~CGIBodyProvider() {

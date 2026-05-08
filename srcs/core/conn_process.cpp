@@ -4,6 +4,9 @@ namespace core {
 
     void Connection::process() {
 
+        if (resume_task) std::cout << "TASK RESUME\n";
+        resume_task = false;
+        
         processing = state != ConnectionState::CLOSING;
         
         while (processing) {

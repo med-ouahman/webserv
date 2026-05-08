@@ -10,7 +10,11 @@ namespace http {
 		ssize_t total_copied = 0;
 
 		while (true) {
-        	if (cgi_handler.get_cgi_state() == CGIState::ERROR) return -1;
+
+			cgi_handler.pull();
+
+        	if (cgi_handler.get_cgi_state() == CGIState::WAITING) return writer->size();
+			if (cgi_handler.get_cgi_state() == CGIState::ERROR) return -1;
 
 			size_t available = data_view.size() - data_view.cursor();
 
@@ -47,7 +51,7 @@ namespace http {
 	}
 
 	ssize_t CGIBodyProvider::send_body_chunked( core::BufferWriter* writer ) {
-
+		std::cout << "Begin sending the body using chunks\n";
 		while (true) {
 
 			switch (chunk_state) {

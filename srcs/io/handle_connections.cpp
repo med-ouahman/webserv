@@ -29,6 +29,12 @@ namespace io {
             }
         }
        
+        for ( size_t i(0); i < bin.size(); ++i ) {
+            std::cout << "Something's off\n";
+            delete bin[i];   
+        }
+
+        bin.clear();
     }
 
     void EventLoop::update_epoll_interest( core::Connection* conn ) {
@@ -43,8 +49,13 @@ namespace io {
         }
         
         if (new_mask != conn->get_mask()) {
+            std::cout << "Connection WANTS: " << (action.want_write ? "WRITING\n":"READING\n");
             mod_fd(conn->get_fd(), new_mask, conn);
             conn->set_mask(new_mask);
         }
+    }
+
+    void EventLoop::add_cgi_handler( http::CGIHandler* h ) {
+        bin.push_back(h);
     }
 }

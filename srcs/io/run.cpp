@@ -31,6 +31,7 @@ namespace io {
                 return 1;
             }
 
+            std::cout << "Events: " << n << "\n";
             for ( int i(0); i < n; ++i ) {
                 IIOHandler* handler = static_cast<IIOHandler*>(events[i].data.ptr);
                 if (events[i].events & EPOLLIN) {
@@ -42,16 +43,17 @@ namespace io {
                 }
 
                 if (handler->want_resume_task()) {
+                    std::cout << "What??\n";
                     pending_conns.push_back(static_cast<core::Connection*>(handler));
                 }
             }
-
+            std::cout << "----------------------------------------------------------\n";
             for ( size_t i(0); i < conns.size(); ++i ) {
                 update_epoll_interest(conns.at(i));
             }
-        
-            sweep();
+
             pump();
+            sweep();
             
         }
         

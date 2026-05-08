@@ -23,6 +23,7 @@ namespace http {
     CGIHandler::~CGIHandler() {
         ::kill(cgi_pid, SIGKILL);
         ::waitpid(cgi_pid, &cgi_status, WNOHANG);
+        std::cout << WEXITSTATUS(cgi_status) << "\n";
     }
 
     core::DataView& CGIHandler::get_stdout_data_view() {

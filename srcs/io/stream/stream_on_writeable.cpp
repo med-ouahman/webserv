@@ -19,7 +19,7 @@ namespace io {
                 return ;
             }
 
-            writer.advance(bytes_r);
+            writer.update(bytes_r);
         }
     }
 }

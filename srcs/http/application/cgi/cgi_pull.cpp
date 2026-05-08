@@ -16,6 +16,7 @@ namespace http {
 	}
 	
 	void CGIHandler::on_ch_error() {
+		std::cout << "waiting for data to come from the iochannel\n";
 		cgi_state = CGIState::WAITING;
 	}
 

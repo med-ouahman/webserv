@@ -3,7 +3,7 @@
 
 namespace http {
 
-	std::string channel_type( STDStream::Type S ) {
+	std::string IOChannel::channel_type( STDStream::Type S ) {
 
 		switch (S) {
 			case STDStream::STDERR:
@@ -19,6 +19,7 @@ namespace http {
 	void IOChannel::handle_event() {
 		
 		std::string c = channel_type(stream);
+		std::cout << "Event: " << c << "\n";
 		switch (io_event) {
 			case io::NONE:
 				break;
@@ -32,6 +33,7 @@ namespace http {
 				listener->on_error();
 				break;
 		}
+
 	}
 
 }

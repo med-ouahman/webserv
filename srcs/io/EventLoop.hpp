@@ -37,6 +37,7 @@ namespace io {
 			std::vector<core::Connection*> conns;
 			std::vector<ListeningSocket> listeners;
 			std::deque<core::Connection*> pending_conns;
+			std::vector<http::CGIHandler*> bin;
 
 		private:
 			EventLoop( const EventLoop& other );
@@ -61,6 +62,7 @@ namespace io {
 			bool add_fd( int fd, uint32_t events, IIOHandler* handler ) const;
 			bool mod_fd( int fd, uint32_t events, IIOHandler* handler ) const;
 			bool del_fd( int fd ) const;
+			void add_cgi_handler( http::CGIHandler* h );
 		
 	};
 }

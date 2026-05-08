@@ -7,7 +7,10 @@ namespace http {
 
 	void CGIHandler::on_channel_closed() {
 
+		if (cgi_state == CGIState::FINISHED) return ;
+		
 		cgi_state = CGIState::FINISHED;
+		
 		loop.del_fd(stdin_ch.get_fd());
 		loop.del_fd(stdout_ch.get_fd());
 		

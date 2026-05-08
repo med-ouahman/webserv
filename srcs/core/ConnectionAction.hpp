@@ -7,5 +7,9 @@ namespace core {
 		bool want_write;
 		bool want_close;
 		bool want_you;
+
+		ConnectionAction(): want_read(false), want_write(false), want_close(false), want_you(false) {
+
+		}
 	};
 }

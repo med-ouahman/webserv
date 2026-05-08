@@ -1,5 +1,5 @@
-
 #include "Connection.hpp"
+#include "EventLoop.hpp"
 
 namespace core {
 
@@ -10,7 +10,7 @@ namespace core {
             cgi_handler->spawn(cgi_ctx);
         } catch (std::runtime_error& err) {
             std::cerr << err.what() << "\n";
-            exit_cgi();
+            cgi_detach();
             dispatcher.build_error_response(http::INTERNAL_SERVER_ERROR, "Internal Server Error");
             state = ConnectionState::WRITING;
             close_after_write = true;
@@ -18,8 +18,9 @@ namespace core {
 
     }
 
-    void Connection::exit_cgi() {
-        delete cgi_handler;
+    void Connection::cgi_detach() {
+        std::cout << "Detaching the CGI Process after finish\n";
+        loop.add_cgi_handler(cgi_handler);
         cgi_handler = NULL;
     }
 

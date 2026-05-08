@@ -12,5 +12,5 @@ namespace io {
         bytes_sent(0),
         sent_offset(0),
         data_view(readbuf),
-        writer(writebuff) {}
+        writer(writebuff, SEND_CHUNK_SIZE) {}
 }

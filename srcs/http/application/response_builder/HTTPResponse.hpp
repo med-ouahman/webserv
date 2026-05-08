@@ -36,15 +36,13 @@ namespace http {
 		std::map<std::string, std::string> headers;
 
         private:
-            size_t serialize_headers( char* buff, ::size_t max_size );
+            size_t serialize_headers( core::BufferWriter* writer );
             std::map<std::string, std::string>::iterator current_header; /* track the current header */
             std::string line_buff; /* stores incomplete headers */
         
         public:           
-            ssize_t produce( core::BufferWriter* writer, ::size_t max_size );
-            void    add_header( const std::string& key, const std::string& value );
-            void    set_response_line( HTTPStatusCode code, std::string const & reason );
-
+            ssize_t produce( core::BufferWriter* writer );
+            
         private:
             enum SerializeState {
                 RESPONSE_LINE,

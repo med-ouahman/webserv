@@ -20,7 +20,7 @@ namespace core {
 
     class Connection: public io::Stream {
         public:
-            explicit Connection( int fd, const config::Config& conf, uint32_t mask, const io::EventLoop& loop );
+            explicit Connection( int fd, const config::Config& conf, uint32_t mask, io::EventLoop& loop );
             ~Connection();
 
         private:
@@ -37,7 +37,7 @@ namespace core {
         private:
             /* epoll */
             uint32_t event_mask;
-            const io::EventLoop& loop;
+            io::EventLoop& loop;
             
         private:
             /* config + parsing + response generation */
@@ -56,12 +56,13 @@ namespace core {
         private:
             /* timeout */
             uint64_t ms_;
-
+            bool resume_task;
+            
         private:
             /* CGI */
             http::CGIHandler* cgi_handler;
             void enter_cgi( const http::CGIContext& cgi_ctx );
-            void exit_cgi();
+            void cgi_detach();
             
         private:
             bool advance();

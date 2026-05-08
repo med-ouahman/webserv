@@ -4,7 +4,6 @@ namespace http {
     
     void IOChannel::process_incoming_data() {
         
-        std::cout << "INPUT!\n";
         ScanResult r = listener->on_input_ready();
         
         if (ERROR == r || SUCCESS == r) {
@@ -17,8 +16,7 @@ namespace http {
         if (writer.offset() < writer.size())
             return ;
 
-        
-        ssize_t produced = listener->produce_output(writer.data(), SEND_CHUNK_SIZE);
+        ssize_t produced = listener->produce_output(writer.data(), writer.capacity());
         
         if (produced < 0 || produced == 0) {
             processing = false;
@@ -34,7 +32,7 @@ namespace http {
     }
 
     void IOChannel::on_write_complete() {
-        ::close(fd);
+    
     }
 
     void IOChannel::on_write_error() {
@@ -42,6 +40,7 @@ namespace http {
     }
 
     void IOChannel::on_read_error() {
+        processing = false;
         listener->on_ch_error();
     }
 
