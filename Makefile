@@ -1,7 +1,9 @@
 CXX := c++
 
+FT := -pg  -finstrument-functions
+
 DEBUG := -g3 -O0 -D DEBUG=1
-CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 $(DEBUG)
+CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 $(DEBUG) $(FT)
 
 # Libraries we might link against in the future, for now just a placeholder
 LIBS := 

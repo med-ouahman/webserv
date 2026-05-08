@@ -27,6 +27,7 @@ namespace http {
     }
 
     void IOChannel::on_read_eof() {
+
         listener->on_channel_closed();
         processing = false;
     }
