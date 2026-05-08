@@ -30,7 +30,6 @@ namespace io {
         }
        
         for ( size_t i(0); i < bin.size(); ++i ) {
-            std::cout << "Something's off\n";
             delete bin[i];   
         }
 

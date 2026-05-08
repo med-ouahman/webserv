@@ -17,12 +17,22 @@ namespace http {
             };
     };
 
+    class IOChannelState {
+        public:
+            enum Type {
+                IDLE,
+                ACTIVE,
+                ERROR,
+            };
+    };
+
     class IOChannel: public io::Stream {
 
         private:
             io::IDataListener* listener;
             STDStream::Type stream;
             uint32_t event;
+            IOChannelState::Type state;
             
         public:
             explicit IOChannel( int fd, CGIHandler* h, STDStream::Type stream_type, uint32_t event_mask );

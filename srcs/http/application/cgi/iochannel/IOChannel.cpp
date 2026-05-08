@@ -8,7 +8,8 @@ namespace http {
         : Stream(fd_),
         listener(h),
         stream(stream_type),
-        event(event_mask) {}
+        event(event_mask),
+        state(IOChannelState::IDLE) {}
 
     IOChannel::~IOChannel() {}
 
