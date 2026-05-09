@@ -68,4 +68,10 @@ namespace core {
         std::cout << "Want resume task fr "<< int(resume_task)<< "\n";
         return resume_task;
     }
+
+    void Connection::resume() {
+        if (resume_task) std::cout << "TASK RESUME\n";
+        resume_task = false;
+        process();
+    }
 }

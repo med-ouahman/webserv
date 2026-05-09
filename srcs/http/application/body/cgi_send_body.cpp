@@ -52,19 +52,20 @@ namespace http {
 
 	ssize_t CGIBodyProvider::send_body_chunked( core::BufferWriter* writer ) {
 		std::cout << "Begin sending the body using chunks\n";
+
 		while (true) {
 
 			switch (chunk_state) {
 				case ChunkState::CHUNK_HEAD: {
 	
 					ssize_t t = fill_buff(writer);
+					std::cout << "Av: " << writer->size() << "\n";
 					if (t < 0) return -1;	
 					format_chunk(t);
 					chunk_state = ChunkState::CHUNK_DATA;
 					temp_writer.update(writer->data(), writer->remaining());
 					writer->update(const_cast<char*>(chunk_header.c_str()), chunk_header.size());
 					return chunk_header.size();
-					break;
 				}
 				
 

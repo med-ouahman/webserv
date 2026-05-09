@@ -27,13 +27,13 @@ namespace http {
     }
 
     void IOChannel::on_read_eof() {
-
+        
         listener->on_channel_closed();
         processing = false;
     }
 
     void IOChannel::on_write_complete() {
-    
+        
     }
 
     void IOChannel::on_write_error() {

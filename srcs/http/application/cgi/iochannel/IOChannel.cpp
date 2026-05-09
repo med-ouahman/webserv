@@ -29,5 +29,9 @@ namespace http {
     core::DataView& IOChannel::get_view( ) {
         return data_view;
     }
+
+    void IOChannel::shutdown() {
+        state = IOChannelState::CLOSED;
+    }
     
 }

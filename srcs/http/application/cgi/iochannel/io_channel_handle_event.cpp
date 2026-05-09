@@ -19,23 +19,20 @@ namespace http {
 	void IOChannel::handle_event() {
 		
 		std::string c = channel_type(stream);
-		
-		CGIState::Type s = static_cast<CGIHandler*>(listener)->get_cgi_state();
-		if (s == CGIState::ERROR || s == CGIState::FINISHED) {
-			state = IOChannelState::ERROR;
-			std::cout << "ERRROR CGI\n";
+
+		if (state == IOChannelState::CLOSED)
 			return ;
-		}
-		std::cout << "BYPASSED\n";
 		state = IOChannelState::ACTIVE;
 		switch (io_event) {
 			case io::NONE:
 				state = IOChannelState::IDLE;
 				break;
 			case io::READABLE:
+				std::cout << "IOCHANNEL READBLE\n";
 				processing = true;
 				break;
 			case io::WRITABLE:
+				std::cout << "IOCHANNLE WRITABLE\n";
 				processing = true;
 				break;
 			case io::ERROR:

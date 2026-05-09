@@ -30,6 +30,7 @@ namespace io {
         }
        
         for ( size_t i(0); i < bin.size(); ++i ) {
+        
             delete bin[i];   
         }
 

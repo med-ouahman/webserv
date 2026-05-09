@@ -7,6 +7,7 @@ namespace http {
 
     ScanResult CGIHandler::on_input_ready() {
        
+        std::cout << "B: " << stdout_ch_view.size() <<"\n";
         if (output_state == CGIOutputState::WRITING_BODY)
             return SUCCESS;
     

@@ -17,12 +17,14 @@ namespace http {
 		}
 
 		if (BODY == serialize_state) {
+			std::cout << "Begin serializing the body\n";
 			ssize_t b = body_provider->read(writer);
 			if (b < 0)
 				return -1;
 			bytes += b;
 		}
-
+		
+		if (bytes == 0) std::cout << "Response done\n";
 		return bytes;
 	}
 

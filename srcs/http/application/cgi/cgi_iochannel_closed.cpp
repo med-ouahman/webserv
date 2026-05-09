@@ -8,13 +8,17 @@ namespace http {
 	void CGIHandler::on_channel_closed() {
 
 		if (cgi_state == CGIState::FINISHED) return ;
-		
+
 		cgi_state = CGIState::FINISHED;
+
+		stdin_ch.shutdown();
+		stdout_ch.shutdown();
+		stderr_ch.shutdown();
 		
 		loop.del_fd(stdin_ch.get_fd());
-		loop.del_fd(stdout_ch.get_fd());
-		
+		loop.del_fd(stdout_ch.get_fd());		
 		loop.del_fd(stderr_ch.get_fd());
+		
 		conn.on_cgi_finished();
 	}
 

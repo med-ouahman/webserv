@@ -21,8 +21,9 @@ namespace http {
         scanner(stdout_ch.get_view()) {}
 
     CGIHandler::~CGIHandler() {
-        ::kill(cgi_pid, SIGKILL);
+        ::kill(cgi_pid, SIGTERM);
         ::waitpid(cgi_pid, &cgi_status, WNOHANG);
+        std::cout << "CGI CLEARED\n";
         std::cout << WEXITSTATUS(cgi_status) << "\n";
     }
 

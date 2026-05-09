@@ -82,7 +82,7 @@ namespace core {
             void on_cgi_output_ready();
             void on_cgi_error( http::HTTPStatusCode c, std::string const& reason );
             bool want_resume_task();
-            
+            void resume();
             
         private:
             void process_outgoing_data();

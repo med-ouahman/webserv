@@ -22,6 +22,7 @@ namespace http {
             enum Type {
                 IDLE,
                 ACTIVE,
+                CLOSED,
                 ERROR,
             };
     };
@@ -41,9 +42,9 @@ namespace http {
             ~IOChannel();
             core::DataView& get_view();
             void process();
-            // #ifdef DEBUG
+            void shutdown();
             std::string channel_type( STDStream::Type S );
-            // #endif
+            
         private:
             bool readbuf_drained();
             void handle_event();
