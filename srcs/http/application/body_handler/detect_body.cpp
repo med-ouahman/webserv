@@ -1,12 +1,12 @@
 #include "BodyHandler.hpp"
 #include <iostream>
+#include <cstdlib>
 
 namespace http {
 
-	void BodyHandler::detect_body_type( std::map<std::string, std::string> & headers )  {
+	void BodyHandler::detect_body_type( std::map<std::string, std::string>& headers )  {
 		
-		if (body_set)
-			return ;
+		if (body_type != BodyType::UNSET) return ;
 		
 		bool content_length = headers["content-length"].size() != 0;
 		bool transfer_encoding = headers["transfer-encoding"].size() != 0;
@@ -15,9 +15,16 @@ namespace http {
 			body_type = BodyType::ERROR;
 
 		if (content_length) {
+			
 			std::cout << "content-length: what the hell??";
-			if (!parse_content_length(headers["content-length"], body_len))
+			
+			char* end;
+
+			body_len = ::strtoul(headers["content-length"].c_str(), &end, 10);
+			if (*end != '\0' || body_len > MAX_BODY_LEN) {
 				body_type = BodyType::ERROR;
+				return ;
+			}
 
 			if (body_len == 0) body_type = BodyType::NONE;
 			else body_type = BodyType::CONTENT_LENGTH;

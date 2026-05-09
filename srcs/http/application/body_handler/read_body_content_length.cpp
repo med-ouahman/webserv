@@ -5,11 +5,10 @@
 
 namespace http {
 
-    ScanResult BodyHandler::parse_body_content_length() {
-
-        write_body();
+    ScanResult BodyHandler::read_body_content_length() {
         
         if (body_bytes_parsed == body_len) body_state = BodyState::FINISH;
+        write_body();
 
         switch (body_state) {
             case BodyState::ERROR:
@@ -50,3 +49,4 @@ namespace http {
         data_view.advance(copied);
     }
 }
+

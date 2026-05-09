@@ -11,17 +11,17 @@ namespace http {
 		return hexas.find(c) != std::string::npos;
 	}
     
-   ScanResult BodyHandler::parse_body() {
+   ScanResult BodyHandler::read_body( const std::string& filename ) {
 
-        if (!body_set) prepare_body();
+        if (body_storage == BodyStorage::NONE) prepare_body(filename);
 
         ScanResult result;
         switch (body_type) {
             case BodyType::CONTENT_LENGTH:
-                result = parse_body_content_length();
+                result = read_body_content_length();
                 break;
             case BodyType::TRANSFER_ENCODING_CHUNKED:
-                result = parse_body_chunked();
+                result = read_body_chunked();
                 break;
             case BodyType::ERROR:
                 result = ERROR;

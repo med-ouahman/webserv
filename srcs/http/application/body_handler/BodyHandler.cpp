@@ -30,12 +30,14 @@ namespace http {
 
 		if (body_fd >= 0) ::close(body_fd);
 
-		::unlink(body_path.c_str());
+		if (body_storage == BodyStorage::FILE_TEMP) {
+			::unlink(body_path.c_str());
+		}
 	}
 
 	ssize_t BodyHandler::produce_body_chunk( char* buff, size_t size ) {
 		
-		if (body_storage == BodyStorage::FILE) {
+		if (body_storage == BodyStorage::FILE_TEMP) {
 
 			if (body_fd < 0) {
 				body_fd = open(body_path.c_str(), O_RDONLY);
@@ -53,22 +55,21 @@ namespace http {
 		return to_copy;
 	}
 
-	void BodyHandler::prepare_body() {
-
-		if (body_storage != BodyStorage::NONE)
-			return ;
+	void BodyHandler::prepare_body( const std::string& filename ) {
 		
 		if (body_len <= MAX_BODY_BUFF_SIZE) {
 			body_storage = BodyStorage::BUFFER;
 			return ;
 		}
 	
-		body_storage = BodyStorage::FILE;
-		
-		std::stringstream ss;
-		ss << conn_fd;
-		
-		body_path = body_dir + std::string("tmp_body_") + ss.str();
+		if (filename.size() > 0) {
+			body_storage = BodyStorage::FILE_PERM;
+			body_path = filename;
+		} else {
+			std::stringstream ss;
+			ss << conn_fd;
+			body_path = body_dir + std::string("tmp_body_") + ss.str();
+		}
 		
 		body_fd = open(body_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
 

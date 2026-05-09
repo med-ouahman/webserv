@@ -4,7 +4,8 @@
 #include "LineScanner.hpp"
 
 namespace core {
-	struct DataView;
+	class DataView;
+	class BufferWriter;
 }
 
 namespace http {

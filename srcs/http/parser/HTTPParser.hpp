@@ -75,7 +75,6 @@ namespace http {
 
         private:
             /* stateless helpers. */
-            static bool parse_content_length( std::string const& s, ::size_t& body_len );
             static bool validate_http_version( std::string const& s );
             static void normalize_header_name( std::string& name );
             static bool validate_header_name( const std::string& name );

@@ -3,7 +3,7 @@
 
 namespace http {
 
-    ScanResult BodyHandler::parse_body_chunked() {
+    ScanResult BodyHandler::read_body_chunked() {
 
         if (chunk_state == ChunkState::CHUNK_SIZE) {
 
@@ -36,7 +36,6 @@ namespace http {
         
         body_len = chunk_remaining;
 
-        write_body();
 
         if (body_state == BodyState::ERROR)
             return ERROR;

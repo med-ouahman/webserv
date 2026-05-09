@@ -44,7 +44,7 @@ namespace core {
             ConnectionState::Type state;
             http::HTTPParser p;
 
-            http::BodyHandler body_p;
+            http::BodyHandler body_handler;
 
             http::HTTPDispatcher dispatcher;
             

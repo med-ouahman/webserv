@@ -42,6 +42,8 @@ namespace http {
         enum Type {
             NONE,
             BUFFER,
+            FILE_PERM,
+            FILE_TEMP,
             FILE,
         };
     };
@@ -52,6 +54,7 @@ namespace http {
             static const std::size_t MAX_HEADER_BLOCK_LEN = 16384;
             static const std::size_t MAX_BODY_LEN         = 10 * 1024 * 1024;  // 10 MB /* WTF, DELETE THIS, BODY SIZE COMES FROM CONFIG!! */
             static const std::size_t MAX_CHUNK_SIZE       = 1  * 1024 * 1024;
+            static const std::size_t MAX_CHUNK_EXC        = MAX_CHUNK_SIZE + 1;
             static const std::size_t MAX_BODY_BUFF_SIZE   = 1024L; // 1KB
             static const std::string hexas;
 
@@ -60,8 +63,7 @@ namespace http {
 			~BodyHandler();
 			ssize_t produce_body_chunk( char* buff, size_t size );
 			void detect_body_type( std::map<std::string, std::string>& headers );
-            ScanResult parse_body();
-            static bool parse_content_length( std::string const& s, size_t& body_size );
+            ScanResult read_body( std::string const& filename );
 
 		private:
             BodyStorage::Type body_storage;
@@ -87,13 +89,12 @@ namespace http {
             LineScanner sc;
 
         private:
-            
             size_t parse_chunk_size( std::string const& line_buff );
             bool is_valid_hexa( const char c );
-            ScanResult parse_body_content_length();
-            ScanResult parse_body_chunked();
-            void prepare_body();
-            void reset();
+            ScanResult read_body_content_length();
+            ScanResult read_body_chunked();
             void write_body();
+            void prepare_body( const std::string& filename );
+            void reset();
 	};
 }

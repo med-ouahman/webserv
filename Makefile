@@ -27,6 +27,7 @@ INCLUDES = -Iincludes \
 	-Isrcs/http/application/dispatcher \
 	-Isrcs/http/application/response_builder \
 	-Isrcs/http/application/cgi/iochannel \
+	-Isrcs/http/application/body_handler \
 	-Isrcs/io/stream/ \
 	-Isrcs/config/ \
 	-Isrcs/utils/ \
@@ -35,6 +36,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/Connection.cpp \
 	srcs/core/ConnectionStateMachine.cpp \
 	srcs/core/process_incoming_data.cpp \
+	srcs/core/process_outgoing_data.cpp \
 	srcs/core/conn_advance.cpp \
 	srcs/core/conn_cgi.cpp \
 	srcs/core/conn_process.cpp \
@@ -46,17 +48,16 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/parser/HTTPParser.cpp \
 	srcs/http/parser/parse_headers.cpp \
 	srcs/http/parser/parse_request_line.cpp \
-	srcs/http/parser/parse_body.cpp \
+	srcs/http/application/body_handler/read_body.cpp \
 	srcs/http/parser/parser_utils.cpp \
 	srcs/http/parser/HTTPRequest.cpp \
 	srcs/http/parser/parser_consume.cpp \
-	srcs/http/parser/parser_detect_body.cpp \
-	srcs/http/parser/parse_content_length.cpp \
-	srcs/http/parser/parse_chunk_size.cpp \
+	srcs/http/application/body_handler/detect_body.cpp \
+	srcs/http/application/body_handler/parse_chunk_size.cpp \
 	srcs/http/parser/LineScanner.cpp \
-	srcs/http/parser/BodyHandler.cpp \
-	srcs/http/parser/parse_body_chunked.cpp \
-	srcs/http/parser/parse_body_content_length.cpp \
+	srcs/http/application/body_handler/BodyHandler.cpp \
+	srcs/http/application/body_handler/read_body_chunked.cpp \
+	srcs/http/application/body_handler/read_body_content_length.cpp \
 	srcs/http/application/dispatcher/HTTPDispatcher.cpp \
 	srcs/http/application/dispatcher/serialize_response.cpp \
 	srcs/http/application/dispatcher/handle_request.cpp \
@@ -109,7 +110,7 @@ a: $(NAME)
 $(OBJDIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	@$(CXX) $(CXX_FLAGS) $(INCLUDES) $(LIBS) -c $< -o $@
-	@printf "\tcompiling %-30s -> %s\n" $(notdir $<) $(notdir $@)
+	@printf "\t%-30s -> %s\n" $(notdir $<) $(notdir $@)
 
 $(NAME): $(OBJS)
 	@$(CXX) $(CXX_FLAGS) $(INCLUDES) $(OBJS) $(LIBS) -o $(NAME)

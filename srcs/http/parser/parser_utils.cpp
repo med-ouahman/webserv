@@ -7,20 +7,6 @@ namespace http {
 		return s == "HTTP/1.1" || s == "HTTP/1.0";
 	}
 
-	bool HTTPParser::parse_content_length( std::string const& s, size_t& body_len ) {
-		for ( size_t i = 0; i < s.length(); i++ ) {
-			if (!isdigit(s[i])) {
-				return false;
-			}
-
-			body_len = body_len * 10 + s[i] - 48;
-			if (body_len > 101010) {
-				return false;
-			}
-		}
-
-		return true;
-	}
 
 	bool HTTPParser::add_request_header( std::string const& s ) {
 		size_t colon_index = s.find(":");
