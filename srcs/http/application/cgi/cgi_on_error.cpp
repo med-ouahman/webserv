@@ -9,6 +9,7 @@ namespace http {
     
     void CGIHandler::on_error() {
         
+        std::cout << int(cgi_state) << "\n";
         std::cout << strerror(errno) << "\n";
         std::cout << "CGI ERROR\n";
         cgi_state = CGIState::ERROR;

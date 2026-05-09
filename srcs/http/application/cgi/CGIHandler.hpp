@@ -53,7 +53,7 @@ namespace http {
 
 			struct CGIOutputState {
 				enum Type {
-
+					
 					STATUS_LINE,
 					HEADERS,
 					BODY,
@@ -88,7 +88,7 @@ namespace http {
 		public:
 			void on_channel_closed();
 			ScanResult on_input_ready();
-			ssize_t produce_output( char* buff, size_t size );
+			ssize_t produce_output( core::BufferWriter* writer );
 			void on_error();
 			core::DataView& get_stdout_data_view();
 			void pull();

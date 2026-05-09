@@ -9,12 +9,6 @@ namespace core {
         http::ScanResult result;
         
         result = p.parse();
-
-        if (p.get_parser_state() == http::ParseState::BODY) {
-        
-            body_p.detect_body_type(p.get_request().headers);
-            result = body_p.parse_body();
-        }
         
         switch (result) {
             case http::NEED_MORE:
@@ -43,6 +37,7 @@ namespace core {
         ssize_t produced = response.produce(&writer);
         
         if (produced < 0) {
+            state = ConnectionState::CLOSING;
             processing = false;
             return ;
         }

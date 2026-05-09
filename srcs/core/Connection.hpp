@@ -56,7 +56,6 @@ namespace core {
         private:
             /* timeout */
             uint64_t ms_;
-            bool resume_task;
             
         private:
             /* CGI */
@@ -79,10 +78,9 @@ namespace core {
             http::HTTPResponse& get_response() { return response; }
             void tick();
             void on_cgi_finished();
+            void bind_cgi();
             void on_cgi_output_ready();
             void on_cgi_error( http::HTTPStatusCode c, std::string const& reason );
-            bool want_resume_task();
-            void resume();
             
         private:
             void process_outgoing_data();

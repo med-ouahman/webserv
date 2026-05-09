@@ -11,7 +11,7 @@ namespace core {
 		cgi_detach();
 	}
 
-	void Connection::on_cgi_output_ready() {
+	void Connection::bind_cgi() {
 
 		bool has_content_len = response.headers["content-length"].size() > 0;
 
@@ -35,7 +35,6 @@ namespace core {
 		response.body_provider = new http::CGIBodyProvider(*cgi_handler, body_method, body_size);
 		state = ConnectionState::WRITING;
 		std::cout << "CGI BODY TYPE: " << (has_content_len?"CONTENT-LENGTH\n":"CHUNKED\n");
-		resume_task = true;
 	}
 
 	void Connection::on_cgi_error(http::HTTPStatusCode c, std::string const& reason ) {
@@ -43,6 +42,11 @@ namespace core {
 		response.reason = reason;
 		state = ConnectionState::WRITING;
 		close_after_write = true;
+	}
+
+	void Connection::on_cgi_output_ready() {
+		state = ConnectionState::WRITING;
+		/* */
 	}
 
 }

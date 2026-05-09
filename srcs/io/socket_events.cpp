@@ -9,23 +9,19 @@ namespace io {
     bool ListeningSocket::accept_clients() {
         struct sockaddr_in client_addr;
         socklen_t client_addr_len = sizeof(client_addr);
-        while (true) {
-            
-            int client_fd = ::accept(fd, (struct sockaddr* )&client_addr, &client_addr_len);
-            if (client_fd < 0) {
-                break;
-            }
-
-            std::cout << "CONNECTION_FD: " << client_fd << "\n";
-            loop.add_connection(client_fd);
+    
+        int client_fd = ::accept(fd, (struct sockaddr* )&client_addr, &client_addr_len);
+        if (client_fd < 0) {
+            return false;
         }
-        
+
+        std::cout << "CONNECTION_FD: " << client_fd << "\n";
+        loop.add_connection(client_fd);
         return true;
     }
 
     bool ListeningSocket::on_error() {
-        if (errno != EAGAIN)
-            LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::accept()"));
+        LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::accept()"));
         return false;
     }
 }

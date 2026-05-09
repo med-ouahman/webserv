@@ -19,7 +19,7 @@ namespace core {
     }
 
     void Connection::cgi_detach() {
-        std::cout << "Detaching the CGI Process after finish\n";
+        std::cout << "Detaching the CGIHandler after finish, EventLoop in control now\n";
         loop.add_cgi_handler(cgi_handler);
         cgi_handler = NULL;
     }

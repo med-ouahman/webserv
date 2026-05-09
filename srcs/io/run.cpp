@@ -47,7 +47,6 @@ namespace io {
                 update_epoll_interest(conns.at(i));
             }
 
-            pump();
             sweep();
             
         }

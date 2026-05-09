@@ -20,7 +20,6 @@ namespace core {
         close_after_write(false),
         num_requests(0),
         ms_(0),
-        resume_task(false),
         cgi_handler(NULL) {}
 
     Connection::~Connection() {
@@ -64,14 +63,4 @@ namespace core {
 
     }
 	
-	bool Connection::want_resume_task() {
-        std::cout << "Want resume task fr "<< int(resume_task)<< "\n";
-        return resume_task;
-    }
-
-    void Connection::resume() {
-        if (resume_task) std::cout << "TASK RESUME\n";
-        resume_task = false;
-        process();
-    }
 }

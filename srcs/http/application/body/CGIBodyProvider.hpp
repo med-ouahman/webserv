@@ -55,8 +55,11 @@ namespace http {
             
             void format_chunk( size_t chunk_size );
             ssize_t send_body_content_length( core::BufferWriter* writer );
-            ssize_t fill_buff( core::BufferWriter* writer );
             ssize_t send_body_chunked( core::BufferWriter* writer );
+
+            void chunk_head();
+            void chunk_data();
+            void chunk_trail();
 
     };
 }

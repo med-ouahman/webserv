@@ -8,8 +8,8 @@ namespace io {
 
     bool EventLoop::add_connection( int client_fd ) {
 
-        conns.push_back(new core::Connection(client_fd, conf, EPOLLIN | EPOLLET, *this));
-        if (!add_fd(client_fd, EPOLLIN | EPOLLET, conns.back())) {
+        conns.push_back(new core::Connection(client_fd, conf, EPOLLIN, *this));
+        if (!add_fd(client_fd, EPOLLIN, conns.back())) {
             conns.pop_back();
             return false;
         }
@@ -39,11 +39,11 @@ namespace io {
 
     void EventLoop::update_epoll_interest( core::Connection* conn ) {
 
-        uint32_t new_mask = EPOLLIN | EPOLLET;
+        uint32_t new_mask = EPOLLIN;
         core::ConnectionAction action = conn->desired_action();
         
         if (action.want_write) {
-            new_mask = EPOLLOUT | EPOLLET;
+            new_mask = EPOLLOUT;
         } else if (action.want_close) {
             return ;
         }

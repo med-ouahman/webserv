@@ -16,7 +16,7 @@ namespace http {
         if (writer.offset() < writer.size())
             return ;
 
-        ssize_t produced = listener->produce_output(writer.data(), writer.capacity());
+        ssize_t produced = listener->produce_output(&writer);
         
         if (produced < 0 || produced == 0) {
             processing = false;

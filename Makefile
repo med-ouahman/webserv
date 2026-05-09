@@ -79,6 +79,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/application/response_builder/MimeType.cpp \
 	srcs/http/application/body/CGIBodyProvider.cpp \
 	srcs/http/application/body/cgi_send_body.cpp \
+	srcs/http/application/body/cgi_body_chunked.cpp \
 	srcs/io/create_sockets.cpp \
 	srcs/io/EventLoop.cpp \
 	srcs/io/handle_fds.cpp \
@@ -107,20 +108,22 @@ a: $(NAME)
 	
 $(OBJDIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXX_FLAGS) $(INCLUDES) $(LIBS) -c $< -o $@
+	@$(CXX) $(CXX_FLAGS) $(INCLUDES) $(LIBS) -c $< -o $@
+	@printf "\tcompiling %-30s -> %s\n" $(notdir $<) $(notdir $@)
 
 $(NAME): $(OBJS)
-	$(CXX) $(CXX_FLAGS) $(INCLUDES) $(OBJS) $(LIBS) -o $(NAME)
+	@$(CXX) $(CXX_FLAGS) $(INCLUDES) $(OBJS) $(LIBS) -o $(NAME)
+	@echo "\tLinking against " $(NAME)
 
 $(BODY_DIR):
 	@mkdir $(BODY_DIR)
 
 clean:
-	rm -fr $(OBJDIR)
+	@rm -fr $(OBJDIR)
 
 fclean: clean
-	rm -f $(NAME)
-	rm -fr $(BODY_DIR)
+	@rm -f $(NAME)
+	@rm -fr $(BODY_DIR)
 
 re: fclean all
 

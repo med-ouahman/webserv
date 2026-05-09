@@ -61,7 +61,7 @@ namespace io {
 		*/
 
 		for ( ::size_t i(0); i < conf.server.listens.size(); ++i ) {		
-			if (!add_fd(listeners[i].get_fd(), EPOLLIN | EPOLLET, &listeners[i])) {
+			if (!add_fd(listeners[i].get_fd(), EPOLLIN, &listeners[i])) {
 				return false;
 			}
 		}

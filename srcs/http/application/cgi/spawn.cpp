@@ -39,7 +39,6 @@ namespace http {
             throw std::runtime_error(strerror(errno));
         }
 
-        loop.add_fd(stdin_ch.get_fd(), stdin_ch.get_event(), &stdin_ch);
         loop.add_fd(stdout_ch.get_fd(), stdout_ch.get_event(), &stdout_ch);
         loop.add_fd(stderr_ch.get_fd(), stderr_ch.get_event(), &stderr_ch);
     }

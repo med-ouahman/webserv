@@ -7,9 +7,10 @@ namespace http {
 
     ScanResult CGIHandler::on_input_ready() {
        
-        std::cout << "B: " << stdout_ch_view.size() <<"\n";
-        if (output_state == CGIOutputState::WRITING_BODY)
+        if (output_state == CGIOutputState::WRITING_BODY) {
+            conn.on_cgi_output_ready();
             return SUCCESS;
+        }
     
         if (output_state == CGIOutputState::HEADERS
             || output_state == CGIOutputState::STATUS_LINE) {
@@ -20,7 +21,7 @@ namespace http {
         }
 
         if (output_state == CGIOutputState::BODY) {
-            conn.on_cgi_output_ready();
+            conn.bind_cgi();
             output_state = CGIOutputState::WRITING_BODY;
         }
 
