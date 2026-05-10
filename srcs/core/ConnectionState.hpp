@@ -2,6 +2,16 @@
 #pragma once
 
 namespace core {
+
+	class RequestPhase {
+		public:
+			enum Type {
+				BUILDING,
+				RESOLVING,
+				PROCESSING
+			};
+	};
+
 	class ConnectionState {
 		public:
 			enum Type {

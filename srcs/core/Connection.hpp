@@ -19,10 +19,6 @@ namespace config {
 namespace core {
 
     class Connection: public io::Stream {
-        public:
-            explicit Connection( int fd, const config::Config& conf, uint32_t mask, io::EventLoop& loop );
-            ~Connection();
-
         private:
             const static std::size_t SEND_CHUNK_SIZE = 1024 * 16;
             const static std::size_t MAX_REQUESTS = 100;
@@ -35,54 +31,44 @@ namespace core {
             const static std::size_t BODY_LIMIT_TICKS     = 1000;
             
         private:
-            /* epoll */
             uint32_t event_mask;
             io::EventLoop& loop;
-            
-        private:
-            /* config + parsing + response generation */
             ConnectionState::Type state;
+            RequestPhase::Type phase;
             http::HTTPParser p;
-
             http::BodyHandler body_handler;
-
             http::HTTPDispatcher dispatcher;
-            
             const config::Config& config;
             bool close_after_write;
             size_t num_requests;
             http::HTTPResponse response;
-
-        private:
-            /* timeout */
-            uint64_t ms_;
             
         private:
-            /* CGI */
             http::CGIHandler* cgi_handler;
-            void enter_cgi( const http::CGIContext& cgi_ctx );
-            void cgi_detach();
-            
-        private:
-            bool advance();
-            bool readbuf_drained() { return data_view.empty(); }
-            void on_client_error();
-            void on_request_ready();
-        
-        public:
-            void process();
-            int get_fd() const;
-            ConnectionAction desired_action() const;
-            void set_mask( uint32_t new_mask ) { event_mask = new_mask; }
-            uint32_t get_mask() const { return event_mask; }
-            http::HTTPResponse& get_response() { return response; };
-            http::BodyHandler& get_body_handler() { return body_handler;};
+            void invoke_cgi( const http::CGIContext& context );
+            void release_cgi_handler();
             void on_cgi_finished();
             void bind_cgi();
             void on_cgi_output_ready();
             void on_cgi_error( http::HTTPStatusCode c, std::string const& reason );
             
         private:
+            void on_client_error();
+            void on_request_ready();
+        
+        public:
+            public:
+            explicit Connection( int fd, const config::Config& conf, uint32_t mask, io::EventLoop& loop );
+            ~Connection();
+            int get_fd() const;
+            ConnectionAction desired_action() const;
+            void set_mask( uint32_t new_mask ) { event_mask = new_mask; }
+            uint32_t get_mask() const { return event_mask; }
+            http::HTTPResponse& get_response() { return response; };
+            http::BodyHandler& get_body_handler() { return body_handler;};
+
+        private:
+             void process();
             void process_outgoing_data();
             void process_incoming_data();
             void handle_event();

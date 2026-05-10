@@ -8,7 +8,7 @@ namespace core {
 	void Connection::on_cgi_finished() {
 		std::cout << "CGI is done\n";
 		state = ConnectionState::CGI_FINISH;
-		cgi_detach();
+		release_cgi_handler();
 	}
 
 	void Connection::bind_cgi() {

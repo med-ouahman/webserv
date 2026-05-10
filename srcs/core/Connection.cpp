@@ -13,13 +13,13 @@ namespace core {
         event_mask(mask),
         loop(l),
         state(ConnectionState::IDLE),
+        phase(RequestPhase::BUILDING),
         p(conf, data_view),
         body_handler(_fd, data_view),
         dispatcher(conf),
         config(conf),
         close_after_write(false),
         num_requests(0),
-        ms_(0),
         cgi_handler(NULL) {}
 
     Connection::~Connection() {

@@ -13,6 +13,9 @@ namespace http {
     
    ScanResult BodyHandler::read_body( const std::string& filename ) {
 
+        if (body_type == BodyType::NONE)
+            return SUCCESS;
+            
         if (body_storage == BodyStorage::NONE) prepare_body(filename);
 
         ScanResult result;

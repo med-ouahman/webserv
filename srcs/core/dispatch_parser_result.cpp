@@ -8,15 +8,14 @@ namespace core {
         http::HTTPRequest req = p.get_request();
         p.reset();
         close_after_write = !req.want_keep_alive();
-        state = ConnectionState::WRITING;
     
-
+        /* Notice: Pass the body handler if you want the body*/
         http::HTTPDispatcher::HandlerResult res = dispatcher.handle_request(req);
         
         if (res.response_type == http::HTTPResponseType::CGI) {
-            std::cout << "CGI\n";
             state = ConnectionState::CGI;
-            enter_cgi(res.cgi_ctx);
+            invoke_cgi(res.cgi_ctx);
+            body_handler.detect_body_type(req.headers);
         } else {
             state = ConnectionState::WRITING;
         }
