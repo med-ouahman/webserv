@@ -20,7 +20,7 @@ namespace core {
         writer.advance(produced);
 
         if (writer.size() == 0) {
-            if (!readbuf_drained()) state = ConnectionState::READING;
+            if (!data_view.empty()) state = ConnectionState::READING;
             else if (close_after_write) state = ConnectionState::CLOSING;
             else state = ConnectionState::IDLE;
         }

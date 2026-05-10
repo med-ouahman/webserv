@@ -8,6 +8,7 @@ namespace core {
 			enum Type {
 				BUILDING,
 				RESOLVING,
+				READING_BODY,
 				PROCESSING
 			};
 	};

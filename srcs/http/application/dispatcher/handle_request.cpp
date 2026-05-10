@@ -10,20 +10,9 @@
 
 namespace http {
 
-
-    HTTPDispatcher::HandlerResult HTTPDispatcher::handle_request( const HTTPRequest& req ) {
+    void HTTPDispatcher::handle_request( ResolutionResult& result, const HTTPRequest& req ) {
         
-
-        HandlerResult handler_result;
-        ResolutionResult result = resolve(req, config.server);
-        handler_result.cgi_ctx = get_cgi_context(req, result);
-        handler_result.response_type = HTTPResponseType::CGI;
-
-        return handler_result;
-        
-
-        handler_result.response_type = result.type;
-        
+        (void)req;
         switch (result.type) {
             case HTTPResponseType::ERROR_RESPONSE:
                 build_error_response(result.status_code, result.reason);
@@ -41,12 +30,9 @@ namespace http {
                 /* upload file handler */
                 break;
             case HTTPResponseType::CGI:
-                handler_result.cgi_ctx = get_cgi_context(req, result);
-                break;
+                /* deferred to the cgi handler */
             default:
                 break;
-        }
-        
-        return handler_result;
+        };
     }
 }

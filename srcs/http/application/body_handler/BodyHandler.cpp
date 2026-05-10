@@ -64,7 +64,7 @@ namespace http {
 			return ;
 		}
 	
-		if (filename.size() > 0) {
+		if (!filename.empty()) {
 			body_storage = BodyStorage::FILE_PERM;
 			std::cout << "BODY: FILE_PERM\n";
 			body_path = filename;

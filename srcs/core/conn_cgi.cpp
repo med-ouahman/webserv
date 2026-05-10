@@ -8,12 +8,15 @@ namespace core {
         try {
             cgi_handler = new http::CGIHandler(*this, loop);
             cgi_handler->spawn(cgi_ctx);
-        } catch ( std::runtime_error& __attribute_maybe_unused__(err) ) {
+        } catch ( std::runtime_error& err ) {
+            std::cout << err.what() << "\n";
             release_cgi_handler();
             dispatcher.build_error_response(http::INTERNAL_SERVER_ERROR, "Internal Server Error");
             state = ConnectionState::WRITING;
             close_after_write = true;
         }
+    
+        state = ConnectionState::CGI;
     }
 
     void Connection::release_cgi_handler() {

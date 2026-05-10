@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 #include <set>
-#define DEV_MODE 0
+
 namespace config {
 
 struct ListenEndPoint {

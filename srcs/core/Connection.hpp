@@ -42,19 +42,15 @@ namespace core {
             bool close_after_write;
             size_t num_requests;
             http::HTTPResponse response;
-            
-        private:
             http::CGIHandler* cgi_handler;
+
+        public:
             void invoke_cgi( const http::CGIContext& context );
             void release_cgi_handler();
             void on_cgi_finished();
             void bind_cgi();
             void on_cgi_output_ready();
             void on_cgi_error( http::HTTPStatusCode c, std::string const& reason );
-            
-        private:
-            void on_client_error();
-            void on_request_ready();
         
         public:
             public:
@@ -68,7 +64,8 @@ namespace core {
             http::BodyHandler& get_body_handler() { return body_handler;};
 
         private:
-             void process();
+            void on_client_error();
+            void process();
             void process_outgoing_data();
             void process_incoming_data();
             void handle_event();

@@ -29,7 +29,7 @@ namespace io {
 		private:
 			const static ::size_t MAX_EVENTS			= 128;
 			const static ::size_t MAX_CONCURRENT_CGI	= 100;
-			static const int 	  MAX_TIMEOUT_MS		= 60;
+			static const int 	  MAX_TIMEOUT_MS		= 60; // static for now, soon will bey dynamic using max/min heap
 			
 		private:
 			int epoll_fd;
@@ -40,17 +40,12 @@ namespace io {
 			std::vector<http::CGIHandler*> bin;
 
 		private:
-			EventLoop( const EventLoop& other );
-			EventLoop& operator=( const EventLoop& other );
-		
-		private:
+			EventLoop( const EventLoop& other ); // Non copy-able
+			EventLoop& operator=( const EventLoop& other ); // Non assignable
 			error::Result<int> create_listening_socket( const config::ListenEndPoint& endpoint );
 			bool start_listeners();
-
-		private:
 			void sweep();
 			void update_epoll_interest( core::Connection* conn );
-			void pump();
 
 		public:
 			explicit EventLoop( const config::Config& conf );

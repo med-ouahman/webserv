@@ -33,7 +33,6 @@ namespace io {
 		
 		protected:
 			virtual void process() = 0;
-			virtual bool readbuf_drained() = 0;
 			virtual void handle_event() = 0;
 			bool processing;
 			EventType io_event;

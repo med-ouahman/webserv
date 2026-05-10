@@ -3,14 +3,14 @@ CXX := c++
 FT := -pg  -finstrument-functions
 
 DEBUG := -g3 -O0 -D DEBUG=1
-CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 $(DEBUG) $(FT)
+DEVELOPMENT = -D DEV_MODE=1
+
+CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 $(DEBUG) $(DEVELOPMENT) $(FT)
 
 # Libraries we might link against in the future, for now just a placeholder
 LIBS := 
 
 SRCDIR = srcs
-
-BODY_DIR = ./srcs/http/parser/.body_dir
 
 OBJDIR := obj
 
@@ -37,7 +37,6 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/ConnectionStateMachine.cpp \
 	srcs/core/process_incoming_data.cpp \
 	srcs/core/process_outgoing_data.cpp \
-	srcs/core/conn_advance.cpp \
 	srcs/core/conn_cgi.cpp \
 	srcs/core/conn_process.cpp \
 	srcs/core/conn_handle_event.cpp \
@@ -85,7 +84,6 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/io/EventLoop.cpp \
 	srcs/io/handle_fds.cpp \
 	srcs/io/run.cpp \
-	srcs/io/event_loop_pump.cpp \
 	srcs/io/ListeningSocket.cpp \
 	srcs/io/socket_events.cpp \
 	srcs/io/handle_connections.cpp \
@@ -101,11 +99,7 @@ SRCS = $(SRCDIR)/main.cpp \
 
 OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 
-all: $(NAME) $(BODY_DIR)
-
-a: $(NAME)
-	@clear
-	@./webserv
+all: $(NAME) 
 	
 $(OBJDIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
@@ -115,15 +109,12 @@ $(OBJDIR)/%.o: %.cpp
 $(NAME): $(OBJS)
 	@$(CXX) $(CXX_FLAGS) $(INCLUDES) $(OBJS) $(LIBS) -o $(NAME)
 
-$(BODY_DIR):
-	@mkdir $(BODY_DIR)
-
 clean:
 	@rm -fr $(OBJDIR)
 
 fclean: clean
 	@rm -f $(NAME)
-	@rm -fr $(BODY_DIR)
+	@rm -fr 
 
 re: fclean all
 

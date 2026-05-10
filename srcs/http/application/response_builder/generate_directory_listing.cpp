@@ -33,7 +33,7 @@ namespace http {
             + std::string("</title></head><body><h1>Directory listing for ")
             + std::string(dirname) + std::string("</h1>") + div;
 
-        ::size_t max_size = 1024 * 16;
+        ::size_t max_size = 1024 * 5;
         dirent* current;
         while ((current = readdir(dir))) {    
             std::string current_list = generate_anchor(current->d_name);
