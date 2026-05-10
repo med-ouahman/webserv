@@ -5,6 +5,13 @@
 
 namespace http {
 
+    char** build_cgi_env() {
+        char** arr = new char*[2];
+        arr[0] = const_cast<char*>("CONTENT_LENGTH=100");
+        arr[1] = NULL;
+        return arr;
+    }
+
     void CGIHandler::spawn( const CGIContext& context ) {
         
         if (cgi_state != CGIState::SPAWN) {
@@ -25,7 +32,7 @@ namespace http {
                 (char*)context.interpreter_path.c_str(),
                 (char *)context.script_filename.c_str(), NULL};
 
-            ::execve(context.interpreter_path.c_str(), argv, __environ);
+            ::execve(context.interpreter_path.c_str(), argv, build_cgi_env());
             LOG_ERROR(MAKE_ERRNO_ERROR("execve()"));
             ::exit(EXIT_FAILURE);
             throw std::runtime_error(strerror(errno));

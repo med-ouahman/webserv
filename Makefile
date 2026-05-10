@@ -114,7 +114,6 @@ $(OBJDIR)/%.o: %.cpp
 
 $(NAME): $(OBJS)
 	@$(CXX) $(CXX_FLAGS) $(INCLUDES) $(OBJS) $(LIBS) -o $(NAME)
-	@echo "\tLinking against " $(NAME)
 
 $(BODY_DIR):
 	@mkdir $(BODY_DIR)

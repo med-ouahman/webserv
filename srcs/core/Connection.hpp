@@ -75,8 +75,8 @@ namespace core {
             ConnectionAction desired_action() const;
             void set_mask( uint32_t new_mask ) { event_mask = new_mask; }
             uint32_t get_mask() const { return event_mask; }
-            http::HTTPResponse& get_response() { return response; }
-            void tick();
+            http::HTTPResponse& get_response() { return response; };
+            http::BodyHandler& get_body_handler() { return body_handler;};
             void on_cgi_finished();
             void bind_cgi();
             void on_cgi_output_ready();

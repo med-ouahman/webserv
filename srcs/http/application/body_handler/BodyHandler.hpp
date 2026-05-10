@@ -5,6 +5,7 @@
 #include <map>
 #include "LineScanner.hpp"
 #include <ostream>
+#include "BufferWriter.hpp"
 
 namespace http {
 
@@ -58,10 +59,13 @@ namespace http {
             static const std::size_t MAX_BODY_BUFF_SIZE   = 1024L; // 1KB
             static const std::string hexas;
 
+            BodyHandler( const BodyHandler& );
+            BodyHandler& operator=( const BodyHandler& );
+            
 		public:
 			explicit BodyHandler( int fd, core::DataView& v );
 			~BodyHandler();
-			ssize_t produce_body_chunk( char* buff, size_t size );
+			ssize_t produce_body_chunk( core::BufferWriter* writer );
 			void detect_body_type( std::map<std::string, std::string>& headers );
             ScanResult read_body( std::string const& filename );
 

@@ -23,8 +23,8 @@ namespace io {
 	class Stream: public IIOHandler {
 
 		public:
-			const static std::size_t READ_BUFFER_SIZE = 1024 * 16;
-			const static std::size_t SEND_CHUNK_SIZE = 1024 * 16;
+			const static std::size_t READ_BUFFER_SIZE = 1024 * 4;
+			const static std::size_t SEND_CHUNK_SIZE = 1024 * 4;
 
 		public:
 			Stream( int fd );
@@ -37,16 +37,13 @@ namespace io {
 			virtual void handle_event() = 0;
 			bool processing;
 			EventType io_event;
-			ssize_t bytes_r; /* whatever read/write returned */
+			ssize_t bytes_r;
 
 		private:
 			/* input */
 			char readbuf[READ_BUFFER_SIZE];
 			/* output */
 			char writebuff[SEND_CHUNK_SIZE];
-			size_t bytes_to_write;
-			size_t bytes_sent;
-			size_t sent_offset;
 			
 		protected:
 			core::DataView data_view;

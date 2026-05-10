@@ -14,7 +14,7 @@ namespace core {
         loop(l),
         state(ConnectionState::IDLE),
         p(conf, data_view),
-        body_p(_fd, data_view),
+        body_handler(_fd, data_view),
         dispatcher(conf),
         config(conf),
         close_after_write(false),
@@ -48,19 +48,5 @@ namespace core {
     int Connection::get_fd() const {
         return fd;
     }
-
-    void Connection::tick() {
-        
-        if (ConnectionState::IDLE == state) {
-            ms_ += 0;
-        } else {
-            ms_ = 0;
-        }
-
-        if (ms_ > MAX_IDLE_TIMEOUT) {
-            state = ConnectionState::CLOSING;
-        }
-
-    }
-	
+    	
 }

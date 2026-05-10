@@ -11,7 +11,7 @@ namespace io {
             return ;
         }
 
-        if (writer.offset() < writer.size()) {
+        if (!writer.empty()) {
             
             write();
             if (bytes_r < 0) {
@@ -19,7 +19,7 @@ namespace io {
                 return ;
             }
 
-            writer.update(bytes_r);
+            writer.advance(bytes_r);
         }
     }
 }

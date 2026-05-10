@@ -7,8 +7,9 @@ namespace http {
 
     ScanResult BodyHandler::read_body_content_length() {
         
-        if (body_bytes_parsed == body_len) body_state = BodyState::FINISH;
         write_body();
+        
+        if (body_bytes_parsed == body_len) body_state = BodyState::FINISH;
 
         switch (body_state) {
             case BodyState::ERROR:

@@ -33,15 +33,14 @@ namespace http {
     }
 
     void IOChannel::on_write_complete() {
-        
+        shutdown();
     }
 
     void IOChannel::on_write_error() {
-        // 
+        listener->on_ch_error();
     }
 
     void IOChannel::on_read_error() {
-        processing = false;
         listener->on_ch_error();
     }
 

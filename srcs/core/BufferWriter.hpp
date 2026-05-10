@@ -10,6 +10,7 @@ namespace core {
 			char* buff_;
 			size_t capacity_;
 			size_t offset_;
+			size_t size_;
 			BufferWriter( const BufferWriter& other );
 			BufferWriter& operator=( const BufferWriter& other );
 		

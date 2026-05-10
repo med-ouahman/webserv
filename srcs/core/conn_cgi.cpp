@@ -15,7 +15,6 @@ namespace core {
             state = ConnectionState::WRITING;
             close_after_write = true;
         }
-
     }
 
     void Connection::cgi_detach() {

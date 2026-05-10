@@ -35,9 +35,9 @@ namespace http {
 		}
 	}
 
-	ssize_t BodyHandler::produce_body_chunk( char* buff, size_t size ) {
+	ssize_t BodyHandler::produce_body_chunk( core::BufferWriter* writer ) {
 		
-		if (body_storage == BodyStorage::FILE_TEMP) {
+		if (body_storage == BodyStorage::FILE_TEMP || body_storage == BodyStorage::FILE_PERM) {
 
 			if (body_fd < 0) {
 				body_fd = open(body_path.c_str(), O_RDONLY);
@@ -45,11 +45,11 @@ namespace http {
 					return -1;
 			}
 
-			return ::read(body_fd, buff, size);
+			return ::read(body_fd, writer->write_ptr(), writer->remaining());
 		}
 
-		size_t to_copy = std::min(body_buff.size(), size);
-		::memcpy(buff, body_buff.c_str(), to_copy);
+		size_t to_copy = std::min(body_buff.size(), writer->remaining());
+		::memcpy(writer->write_ptr(), body_buff.c_str(), to_copy);
 		body_buff.erase(to_copy);
 		
 		return to_copy;
@@ -57,15 +57,20 @@ namespace http {
 
 	void BodyHandler::prepare_body( const std::string& filename ) {
 		
+		std::cout << "Content-Length: " << body_len << "\n";
 		if (body_len <= MAX_BODY_BUFF_SIZE) {
+			std::cout << "BODY: BUFFER\n";
 			body_storage = BodyStorage::BUFFER;
 			return ;
 		}
 	
 		if (filename.size() > 0) {
 			body_storage = BodyStorage::FILE_PERM;
+			std::cout << "BODY: FILE_PERM\n";
 			body_path = filename;
 		} else {
+			body_storage = BodyStorage::FILE_TEMP;
+			std::cout << "BODY: FILE_TEMP\n";
 			std::stringstream ss;
 			ss << conn_fd;
 			body_path = body_dir + std::string("tmp_body_") + ss.str();

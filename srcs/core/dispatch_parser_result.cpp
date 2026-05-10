@@ -11,15 +11,15 @@ namespace core {
         state = ConnectionState::WRITING;
     
 
-        // http::HTTPDispatcher::HandlerResult res = dispatcher.handle_request(req);
+        http::HTTPDispatcher::HandlerResult res = dispatcher.handle_request(req);
         
-        // if (res.response_type == http::HTTPResponseType::CGI) {
-        //     std::cout << "CGI\n";
-        //     state = ConnectionState::CGI;
-        //     enter_cgi(res.cgi_ctx);
-        // } else {
-        //     state = ConnectionState::WRITING;
-        // }
+        if (res.response_type == http::HTTPResponseType::CGI) {
+            std::cout << "CGI\n";
+            state = ConnectionState::CGI;
+            enter_cgi(res.cgi_ctx);
+        } else {
+            state = ConnectionState::WRITING;
+        }
     }
 
     void Connection::on_client_error() {

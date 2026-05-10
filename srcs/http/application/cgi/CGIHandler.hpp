@@ -49,8 +49,9 @@ namespace http {
 			CGIHandler& operator=( const CGIHandler& );
 			static time_t cgi_timeout_ms;
 			
-		private:
+			void cgi_body_init();
 
+		private:
 			struct CGIOutputState {
 				enum Type {
 					
@@ -83,6 +84,7 @@ namespace http {
 			const io::EventLoop& loop;
 			core::DataView& stdout_ch_view;
 			LineScanner scanner;
+
 			time_t start_time;
 
 		public:
