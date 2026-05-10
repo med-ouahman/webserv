@@ -55,8 +55,11 @@ namespace http {
 		return to_copy;
 	}
 
-	void BodyHandler::prepare_body( const std::string& filename ) {
+	void BodyHandler::prepare_body( BodyType::Type type, BodyStorage::Type storage, const std::string& filename, size_t parsed_body_size ) {
 		
+		body_type = type;
+		body_storage = storage;
+		body_len = parsed_body_size;
 		std::cout << "Content-Length: " << body_len << "\n";
 		if (body_len <= MAX_BODY_BUFF_SIZE) {
 			std::cout << "BODY: BUFFER\n";

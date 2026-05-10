@@ -7,6 +7,7 @@
 #include <iostream>
 #include "CGIContext.hpp"
 #include <memory>
+#include "BodyHandler.hpp"
 
 namespace config {
     struct ServerConfig;
@@ -25,10 +26,9 @@ namespace http {
         std::string mime_type;
         std::map<std::string, std::string> extra_headers;
         BodyType::Type body_type;
-        BodyType b;
         BodyStorage::Type body_storage;
         bool close_conn;
-        size_t max_body_size;
+        size_t parsed_body_size;
         std::string path;
         CGIContext* cgi_context;
     };

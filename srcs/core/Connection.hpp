@@ -39,24 +39,24 @@ namespace core {
             http::BodyHandler body_handler;
             http::HTTPDispatcher dispatcher;
             const config::Config& config;
+            
             bool close_after_write;
             size_t num_requests;
+            
             http::HTTPResponse response;
             http::CGIHandler* cgi_handler;
+            http::ResolutionResult current_res;
 
         public:
+            explicit Connection( int fd, const config::Config& conf, uint32_t mask, io::EventLoop& loop );
+            ~Connection();
+            int get_fd() const;
             void invoke_cgi( const http::CGIContext& context );
             void release_cgi_handler();
             void on_cgi_finished();
             void bind_cgi();
             void on_cgi_output_ready();
             void on_cgi_error( http::HTTPStatusCode c, std::string const& reason );
-        
-        public:
-            public:
-            explicit Connection( int fd, const config::Config& conf, uint32_t mask, io::EventLoop& loop );
-            ~Connection();
-            int get_fd() const;
             ConnectionAction desired_action() const;
             void set_mask( uint32_t new_mask ) { event_mask = new_mask; }
             uint32_t get_mask() const { return event_mask; }
@@ -73,5 +73,10 @@ namespace core {
             void on_read_error();
             void on_write_complete();
             void on_write_error();
+
+            void request_building();
+            void request_resloving();
+            void request_processing();
+            void request_reading_body();
     };
 }

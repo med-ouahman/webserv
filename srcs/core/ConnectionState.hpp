@@ -9,7 +9,9 @@ namespace core {
 				BUILDING,
 				RESOLVING,
 				READING_BODY,
-				PROCESSING
+				PROCESSING,
+				FINAL,
+				ERROR
 			};
 	};
 

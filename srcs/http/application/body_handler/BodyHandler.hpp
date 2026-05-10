@@ -66,8 +66,9 @@ namespace http {
 			explicit BodyHandler( int fd, core::DataView& v );
 			~BodyHandler();
 			ssize_t produce_body_chunk( core::BufferWriter* writer );
+            void prepare_body( BodyType::Type type, BodyStorage::Type storage, const std::string& filename, size_t parsed_body_size );
 			void detect_body_type( std::map<std::string, std::string>& headers );
-            ScanResult read_body( std::string const& filename );
+            ScanResult read_body();
 
 		private:
             BodyStorage::Type body_storage;
@@ -98,7 +99,6 @@ namespace http {
             ScanResult read_body_content_length();
             ScanResult read_body_chunked();
             void write_body();
-            void prepare_body( const std::string& filename );
             void reset();
 	};
 }
