@@ -31,6 +31,9 @@ namespace http {
         size_t parsed_body_size;
         std::string path;
         CGIContext* cgi_context;
+
+        ResolutionResult( HTTPStatusCode c, std::string const& r ): status_code(c), reason(r) {}
+        ResolutionResult() {}
     };
 
 
@@ -55,6 +58,8 @@ namespace http {
             bool allow_presistance() { return allow_keep_alive; };
             void handle_request( ResolutionResult& r, const HTTPRequest& req );
             CGIContext get_cgi_context( const HTTPRequest& req, const ResolutionResult& result );
+
+			BodyType::Type detect_body_type( std::map<std::string, std::string>& headers );
 
     };
 }

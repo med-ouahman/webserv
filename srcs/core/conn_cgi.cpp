@@ -3,11 +3,11 @@
 
 namespace core {
 
-    void Connection::invoke_cgi( const http::CGIContext& cgi_ctx ) {
+    void Connection::invoke_cgi( const http::CGIContext& context ) {
         
         try {
             cgi_handler = new http::CGIHandler(*this, loop);
-            cgi_handler->spawn(cgi_ctx);
+            cgi_handler->spawn(context);
         } catch ( std::runtime_error& err ) {
             std::cout << err.what() << "\n";
             release_cgi_handler();
