@@ -54,6 +54,7 @@ namespace core {
             invoke_cgi(http::HTTPDispatcher::get_cgi_context(p.get_request(), current_res));
         else
            http::HTTPDispatcher::handle_request(current_res, p.get_request());
+        phase = RequestPhase::FINAL;
     }
 
     void Connection::request_reading_body() {
@@ -68,6 +69,7 @@ namespace core {
                 processing = false;
                 break;
             case http::NEED_MORE:
+                processing = false;
                 break;
         }
     }

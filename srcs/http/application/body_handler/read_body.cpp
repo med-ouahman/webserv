@@ -13,9 +13,8 @@ namespace http {
     
    ScanResult BodyHandler::read_body() {
 
-        if (body_type == BodyType::NONE)
-            return SUCCESS;
-    
+        if (body_type == BodyType::NONE) return SUCCESS;
+        
         ScanResult result;
         switch (body_type) {
             case BodyType::CONTENT_LENGTH:
@@ -41,11 +40,15 @@ namespace http {
     }
 
     void BodyHandler::reset() {
+        
+        body_bytes_parsed = 0;
+        
+        body_type = BodyType::NONE;
+        body_storage = BodyStorage::NONE;
 
         if (body_fd >= 0) {
             ::close(body_fd);
             body_fd = -1;
         }
-
     }
 }

@@ -35,7 +35,7 @@ namespace http {
 
         enum Type {
             PREPARING,
-            WRITING_BODY,
+            READING,
             FINISH,
             ERROR
         };

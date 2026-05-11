@@ -48,8 +48,6 @@ namespace http {
 			CGIHandler( const CGIHandler& );
 			CGIHandler& operator=( const CGIHandler& );
 			static time_t cgi_timeout_ms;
-			
-			void cgi_body_init();
 
 		private:
 			struct CGIOutputState {

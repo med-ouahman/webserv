@@ -22,7 +22,9 @@ namespace http {
         cgi_pid = ::fork();
         if (cgi_pid == 0) {
 
-            ::dup2(pipe_guard.stdin_pipe[0], STDIN_FILENO);
+            int body_fd = open(context.temp_body_path.c_str(), O_RDONLY);
+            if (body_fd < 0) exit(EXIT_FAILURE);
+            ::dup2(body_fd, STDIN_FILENO);
             ::dup2(pipe_guard.stdout_pipe[1], STDOUT_FILENO);
             ::dup2(pipe_guard.stderr_pipe[1], STDERR_FILENO);
                         
@@ -35,7 +37,6 @@ namespace http {
             ::execve(context.interpreter_path.c_str(), argv, build_cgi_env());
             LOG_ERROR(MAKE_ERRNO_ERROR("execve()"));
             ::exit(EXIT_FAILURE);
-            throw std::runtime_error(strerror(errno));
         }
 
         CLOSE_FD(pipe_guard.stdin_pipe[0]);
@@ -46,10 +47,8 @@ namespace http {
             throw std::runtime_error(strerror(errno));
         }
 
-        loop.add_fd(stdin_ch.get_fd(), stdin_ch.get_event(), &stdin_ch);
         loop.add_fd(stdout_ch.get_fd(), stdout_ch.get_event(), &stdout_ch);
         loop.add_fd(stderr_ch.get_fd(), stderr_ch.get_event(), &stderr_ch);
     }
-
 
 }

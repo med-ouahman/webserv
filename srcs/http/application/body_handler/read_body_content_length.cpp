@@ -9,14 +9,17 @@ namespace http {
         
         write_body();
         
-        if (body_bytes_parsed == body_len) body_state = BodyState::FINISH;
+        if (body_bytes_parsed == body_len) {
+             body_state = BodyState::FINISH;
+             std::cout << "Done\n";
+        }
 
         switch (body_state) {
             case BodyState::ERROR:
                 return ERROR;
             case BodyState::FINISH:
                 return SUCCESS;
-            case BodyState::WRITING_BODY:
+            case BodyState::READING:
                 return NEED_MORE;
             default:
                 return NEED_MORE;
@@ -25,21 +28,19 @@ namespace http {
         return SUCCESS;
     }
 
-
     void BodyHandler::write_body() {
 
         size_t remaining = body_len - body_bytes_parsed;
         size_t available = data_view.size() - data_view.cursor();
-        
         size_t to_copy = std::min(remaining, available);
-
-        ssize_t copied;
+        ssize_t copied = 0;
 
         if (body_storage == BodyStorage::BUFFER) {
             body_buff.append(data_view.data() + data_view.cursor(), to_copy);
             copied = to_copy;
         } else {
             copied = ::write(body_fd, data_view.data() + data_view.cursor(), to_copy); 
+           
             if (copied < 0) {
                 body_state = BodyState::ERROR;
                 return ;

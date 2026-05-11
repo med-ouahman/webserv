@@ -51,8 +51,6 @@ namespace http {
             return ;
         }
 
-        result.body_policy.body_path = result.path;
-
         char* end = NULL;        
         result.body_policy.parsed_body_size = ::strtoul(const_cast<HTTPRequest&>(req).headers["content-length"].c_str(), &end, 10);
         
@@ -75,6 +73,7 @@ namespace http {
             return ;
         }
 
+        result.body_policy.body_path = result.path;
         result.body_policy.storage = BodyStorage::FILE_PERM;
         
         if (result.body_policy.parsed_body_size < MAX_BUFFERED_BODY_SIZE) {

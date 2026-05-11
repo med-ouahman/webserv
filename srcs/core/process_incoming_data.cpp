@@ -2,13 +2,11 @@
 #include "Connection.hpp"
 #include "LineScanner.hpp"
 
-#define THE_TUREST_VALUE_ON_EARTH true;
-
 namespace core {
   
     void Connection::process_incoming_data() {
 
-        processing = THE_TUREST_VALUE_ON_EARTH;
+        processing = true;
         while (processing) {
             switch (phase) {
                 case RequestPhase::BUILDING:

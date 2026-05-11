@@ -61,8 +61,18 @@ namespace http {
 		body_type = p.type;
 		body_storage = p.storage;
 		body_len = p.parsed_body_size;
+
+		body_state = BodyState::READING;
 		
+		if (body_storage == BodyStorage::BUFFER)
+			return ;
+			
 		body_path = p.body_path;
+		if (body_storage == BodyStorage::FILE_TEMP) {
+			std::stringstream ss;
+			ss << conn_fd;
+			body_path = "/tmp/tmp_body_" + ss.str(); 
+		}
 		
 		body_fd = open(body_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
 

@@ -6,6 +6,7 @@
 namespace http {
     
     struct CGIContext {
+        std::string temp_body_path;
         std::string script_filename;      
         std::string interpreter_path;     
         std::string path_info;
