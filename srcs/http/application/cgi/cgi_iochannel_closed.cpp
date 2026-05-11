@@ -11,11 +11,9 @@ namespace http {
 
 		cgi_state = CGIState::FINISHED;
 
-		stdin_ch.shutdown();
 		stdout_ch.shutdown();
 		stderr_ch.shutdown();
 		
-		loop.del_fd(stdin_ch.get_fd());
 		loop.del_fd(stdout_ch.get_fd());		
 		loop.del_fd(stderr_ch.get_fd());
 		

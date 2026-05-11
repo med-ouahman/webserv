@@ -16,8 +16,6 @@ namespace http {
             || output_state == CGIOutputState::STATUS_LINE) {
             std::cout << "Headers\n";
             output_state = CGIOutputState::BODY;
-            /* PARSE HEADERS HERE PLEASE */
-            
         }
 
         if (output_state == CGIOutputState::BODY) {

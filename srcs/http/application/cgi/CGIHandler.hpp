@@ -74,6 +74,7 @@ namespace http {
 			int		cgi_status;
 
 			PipeGuard pipe_guard;
+			
 			IOChannel stdin_ch;
 			IOChannel stdout_ch;
 			IOChannel stderr_ch;

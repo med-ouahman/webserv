@@ -9,9 +9,10 @@ namespace http {
         return url;
     }
 
+
     bool HTTPDispatcher::file_exists( const char* filename ) {
         struct stat buf;
-        
+
         if (stat(filename, &buf)) {
             return false;
         }

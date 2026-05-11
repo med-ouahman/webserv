@@ -36,7 +36,11 @@ namespace http {
         assert(false && "UNDEFINED BODY TYPE!!!");
         return -1;
     }
-
+    /*
+        FF\r\n
+        data
+        \r\n
+    */
     void CGIBodyProvider::format_chunk( size_t size ) {
         std::stringstream ss;
         ss << std::hex << size;

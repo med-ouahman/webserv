@@ -25,16 +25,15 @@ namespace http {
             int body_fd = open(context.temp_body_path.c_str(), O_RDONLY);
             if (body_fd < 0) exit(EXIT_FAILURE);
             ::dup2(body_fd, STDIN_FILENO);
-            ::dup2(pipe_guard.stdout_pipe[1], STDOUT_FILENO);
-            ::dup2(pipe_guard.stderr_pipe[1], STDERR_FILENO);
+            // ::dup2(pipe_guard.stdout_pipe[1], STDOUT_FILENO);
+            // ::dup2(pipe_guard.stderr_pipe[1], STDERR_FILENO);
                         
-    
+            chdir(context.working_directory.c_str());
             pipe_guard.close_pipes();
             char* argv[] = {
-                (char*)context.interpreter_path.c_str(),
-                (char *)context.script_filename.c_str(), NULL};
+                const_cast<char*>("./app"), NULL};
 
-            ::execve(context.interpreter_path.c_str(), argv, build_cgi_env());
+            ::execve("./app", argv, build_cgi_env());
             LOG_ERROR(MAKE_ERRNO_ERROR("execve()"));
             ::exit(EXIT_FAILURE);
         }

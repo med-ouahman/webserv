@@ -29,9 +29,9 @@ namespace http {
         (void)req;
         (void)result;
         
-        std::string home(getenv("HOME"));
-        ctx.script_filename   = home + (home[home.length() - 1] == '/' ? "":"/") + "/cgi-bin/hello.py";
-        
+        std::string cgi_home = std::string(getenv("HOME")) +  "/cgin-bin/";
+        ctx.script_filename   = cgi_home + "hello.py";
+        ctx.interpreter_path = cgi_home + "/app";
         ctx.interpreter_path  = "/usr/bin/python3";
         ctx.script_name       = "/cgi-bin/cgi_py.py";
         ctx.path_info         = "/user/42";
