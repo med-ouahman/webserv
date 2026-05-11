@@ -21,10 +21,10 @@ namespace core {
                     request_reading_body();
                     break;
                 case RequestPhase::ERROR:
+                    processing = false;
                     on_client_error();
                     break;
             }
         }
     }
-
 }
