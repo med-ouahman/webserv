@@ -5,6 +5,7 @@
 #include <ostream>
 #include <iostream>
 #include <cstring>
+#include "HTTPDispatcher.hpp"
 
 namespace http {
 	
@@ -55,29 +56,13 @@ namespace http {
 		return to_copy;
 	}
 
-	void BodyHandler::prepare_body( BodyType::Type type, BodyStorage::Type storage, const std::string& filename, size_t parsed_body_size ) {
+	void BodyHandler::prepare_body( BodyPolicy& p ) {
 		
-		body_type = type;
-		body_storage = storage;
-		body_len = parsed_body_size;
-		std::cout << "Content-Length: " << body_len << "\n";
-		if (body_len <= MAX_BODY_BUFF_SIZE) {
-			std::cout << "BODY: BUFFER\n";
-			body_storage = BodyStorage::BUFFER;
-			return ;
-		}
-	
-		if (!filename.empty()) {
-			body_storage = BodyStorage::FILE_PERM;
-			std::cout << "BODY: FILE_PERM\n";
-			body_path = filename;
-		} else {
-			body_storage = BodyStorage::FILE_TEMP;
-			std::cout << "BODY: FILE_TEMP\n";
-			std::stringstream ss;
-			ss << conn_fd;
-			body_path = body_dir + std::string("tmp_body_") + ss.str();
-		}
+		body_type = p.type;
+		body_storage = p.storage;
+		body_len = p.parsed_body_size;
+		
+		body_path = p.body_path;
 		
 		body_fd = open(body_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
 

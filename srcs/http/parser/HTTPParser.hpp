@@ -42,10 +42,7 @@ namespace http {
             size_t header_count;
             HTTPRequest request;
             LineScanner line_c;
-
-        private:
             ParseState::Type parse_state;
-            const config::Config& config;
 
         public:
             class ParseResult {
@@ -58,7 +55,7 @@ namespace http {
                 };
             };
 
-            explicit HTTPParser( const config::Config& conf, core::DataView& v );
+            explicit HTTPParser( core::DataView& v );
             ~HTTPParser();
             ScanResult parse();
             HTTPRequest& get_request();

@@ -8,10 +8,7 @@
 namespace http {
     
     
-    HTTPDispatcher::HTTPDispatcher( const config::Config& conf )
-        :config(conf),
-        allow_keep_alive(true)
-         {}
+    HTTPDispatcher::HTTPDispatcher() {}
 
     HTTPDispatcher::~HTTPDispatcher() {}
 
@@ -44,6 +41,45 @@ namespace http {
         ctx.timeout_seconds   = 5;
 
         return ctx;
+    }
+
+    void HTTPDispatcher::configure_body_policy( const HTTPRequest& req, ResolutionResult& result ) {
+        
+        result.body_policy.type = detect_body_type(const_cast<std::map<std::string, std::string>&>(req.headers));
+        
+        if (result.body_policy.type == BodyType::NONE) {
+            return ;
+        }
+
+        result.body_policy.body_path = result.path;
+
+        char* end = NULL;        
+        result.body_policy.parsed_body_size = ::strtoul(const_cast<HTTPRequest&>(req).headers["content-length"].c_str(), &end, 10);
+        
+        if (end && *end != '\0') {
+            result.status_code = BAD_REQUEST;
+            result.reason = "Bad Request";
+            result.body_policy.type = BodyType::ERROR;
+            return ;
+        }
+
+        if (result.body_policy.parsed_body_size > config::Config::get_config().server.client_max_body_size) {
+            result.status_code = PAYLOAD_TOO_LARGE;
+            result.reason = "Payload Too Large";
+            result.body_policy.type = BodyType::ERROR;
+            return ;
+        }
+
+        if (result.type == HTTPResponseType::CGI) {
+            result.body_policy.storage = BodyStorage::FILE_TEMP;
+            return ;
+        }
+
+        result.body_policy.storage = BodyStorage::FILE_PERM;
+        
+        if (result.body_policy.parsed_body_size < MAX_BUFFERED_BODY_SIZE) {
+            result.body_policy.storage = BodyStorage::BUFFER;
+        }
     }
 
 }

@@ -7,17 +7,15 @@
 
 namespace core {
     
-    Connection::Connection( int _fd, const config::Config& conf, uint32_t mask, io::EventLoop& l )
+    Connection::Connection( int _fd, uint32_t mask, io::EventLoop& l )
         : Stream(_fd),
         
         event_mask(mask),
         loop(l),
         state(ConnectionState::IDLE),
         phase(RequestPhase::BUILDING),
-        p(conf, data_view),
+        p(data_view),
         body_handler(_fd, data_view),
-        dispatcher(conf),
-        config(conf),
         close_after_write(false),
         num_requests(0),
         cgi_handler(NULL) {}

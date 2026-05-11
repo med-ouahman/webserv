@@ -2,14 +2,13 @@
 
 namespace http {
 	
-	HTTPParser::HTTPParser( const config::Config& conf, core::DataView& v )
+	HTTPParser::HTTPParser( core::DataView& v )
 		: headers_done(false),
 		
 		leading_crlf_count(0),
 		header_count(0),
 		line_c(v),
-		parse_state(ParseState::REQUEST_LINE),
-		config(conf) {}
+		parse_state(ParseState::REQUEST_LINE) {}
 
 	HTTPParser::~HTTPParser() {}
 

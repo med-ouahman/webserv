@@ -3,7 +3,7 @@
 namespace core {
 
     void Connection::on_client_error() {
-        dispatcher.build_error_response(http::BAD_REQUEST, "Bad request");
+       http::HTTPDispatcher::build_error_response(http::BAD_REQUEST, "Bad request");
         state = ConnectionState::WRITING;
         close_after_write = true;
     }
@@ -29,16 +29,16 @@ namespace core {
 
     void Connection::request_resloving() {
         
-        current_res = dispatcher.resolve(p.get_request(), config.server);
+        current_res = http::HTTPDispatcher::resolve(p.get_request());
 
-        if (current_res.body_type == http::BodyType::ERROR)
+        if (current_res.body_policy.type == http::BodyType::ERROR)
         {
             on_client_error();
             processing = false;
         } 
-        else if (current_res.body_type != http::BodyType::NONE)
+        else if (current_res.body_policy.type != http::BodyType::NONE)
         {
-            body_handler.prepare_body(current_res.body_type, current_res.body_storage, current_res.path, current_res.parsed_body_size);
+            body_handler.prepare_body(current_res.body_policy);
             phase = RequestPhase::READING_BODY;
         }
         else
@@ -51,9 +51,9 @@ namespace core {
         processing = false;
 
         if (current_res.type == http::HTTPResponseType::CGI)
-            invoke_cgi(dispatcher.get_cgi_context(p.get_request(), current_res));
+            invoke_cgi(http::HTTPDispatcher::get_cgi_context(p.get_request(), current_res));
         else
-            dispatcher.handle_request(current_res, p.get_request());
+           http::HTTPDispatcher::handle_request(current_res, p.get_request());
     }
 
     void Connection::request_reading_body() {
@@ -68,7 +68,7 @@ namespace core {
                 processing = false;
                 break;
             case http::NEED_MORE:
-                break;   
+                break;
         }
     }
 

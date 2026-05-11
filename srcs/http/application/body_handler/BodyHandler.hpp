@@ -9,6 +9,8 @@
 
 namespace http {
 
+    struct BodyPolicy;
+    
     struct BodyType {
         enum Type {
             UNSET,
@@ -66,7 +68,7 @@ namespace http {
 			explicit BodyHandler( int fd, core::DataView& v );
 			~BodyHandler();
 			ssize_t produce_body_chunk( core::BufferWriter* writer );
-            void prepare_body( BodyType::Type type, BodyStorage::Type storage, const std::string& filename, size_t parsed_body_size );
+            void prepare_body( BodyPolicy& p );
             ScanResult read_body();
 
 		private:

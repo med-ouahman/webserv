@@ -8,7 +8,7 @@ namespace io {
 
     bool EventLoop::add_connection( int client_fd ) {
 
-        conns.push_back(new core::Connection(client_fd, conf, EPOLLIN, *this));
+        conns.push_back(new core::Connection(client_fd, EPOLLIN, *this));
         if (!add_fd(client_fd, EPOLLIN, conns.back())) {
             conns.pop_back();
             return false;

@@ -48,10 +48,9 @@ namespace io {
 			void update_epoll_interest( core::Connection* conn );
 
 		public:
-			explicit EventLoop( const config::Config& conf );
+			explicit EventLoop();
 			~EventLoop();
 			int run(); 
-			const config::Config& conf;
 			bool add_connection( int client_fd );
 			
 			bool add_fd( int fd, uint32_t events, IIOHandler* handler ) const;

@@ -41,8 +41,9 @@ namespace io {
 	}
 
 	bool EventLoop::start_listeners() {
- 		for ( ::size_t i(0); i < conf.server.listens.size(); ++i ) {
-			error::Result<int> result = create_listening_socket(conf.server.listens[i]);
+		config::ServerConfig server = config::Config::get_config().server;
+ 		for ( ::size_t i(0); i < server.listens.size(); ++i ) {
+			error::Result<int> result = create_listening_socket(server.listens[i]);
 			
 			if (!result.ok) {
 				LOG_ERROR(result.error);
@@ -60,7 +61,7 @@ namespace io {
 			Instead, we finish creating the socket and then add themt to epoll.
 		*/
 
-		for ( ::size_t i(0); i < conf.server.listens.size(); ++i ) {		
+		for ( ::size_t i(0); i < server.listens.size(); ++i ) {		
 			if (!add_fd(listeners[i].get_fd(), EPOLLIN, &listeners[i])) {
 				return false;
 			}

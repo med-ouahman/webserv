@@ -19,16 +19,16 @@ namespace http {
         return true;
     }
 
-    ResolutionResult HTTPDispatcher::resolve( const HTTPRequest& req, const config::ServerConfig& server ) {
+    ResolutionResult HTTPDispatcher::resolve( const HTTPRequest& req ) {
         ResolutionResult result;
 
+        config::ServerConfig server = config::Config::get_config().server;
+        
         result.path = "";
         result.reason = "";
         result.status_code = http::OK;
         result.type = HTTPResponseType::CGI;
-        result.body_storage = BodyStorage::FILE_TEMP;
-        result.body_type = BodyType::CONTENT_LENGTH; 
-        result.parsed_body_size = 0;
+        configure_body_policy(req, result);
         return result;
         const config::LocationConfig* location = find_location(req.url, server.locations);
         const std::string path = extract_path(req.url);

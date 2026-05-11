@@ -6,8 +6,9 @@
 #include <stdlib.h>
 #include "CGIBodyProvider.hpp"
 
+bool config::Config::has_instance = false;
 
-
+config::Config config::Config::instance;
 
 int main( int argc, const char* argv[] ) {
 
@@ -25,8 +26,9 @@ int main( int argc, const char* argv[] ) {
     
     #ifdef DEV_MODE
     config::Config conf = config::ConfigParser::build_default_config();
+    config::Config::set_config(conf);
     #endif
     
-    io::EventLoop loop(conf);
+    io::EventLoop loop;
     return loop.run();
 }

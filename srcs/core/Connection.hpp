@@ -37,9 +37,6 @@ namespace core {
             RequestPhase::Type phase;
             http::HTTPParser p;
             http::BodyHandler body_handler;
-            http::HTTPDispatcher dispatcher;
-            const config::Config& config;
-            
             bool close_after_write;
             size_t num_requests;
             
@@ -48,7 +45,7 @@ namespace core {
             http::ResolutionResult current_res;
 
         public:
-            explicit Connection( int fd, const config::Config& conf, uint32_t mask, io::EventLoop& loop );
+            explicit Connection( int fd, uint32_t mask, io::EventLoop& loop );
             ~Connection();
             int get_fd() const;
             void invoke_cgi( const http::CGIContext& context );

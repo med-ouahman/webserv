@@ -5,8 +5,6 @@
 namespace http {
 
 	BodyType::Type HTTPDispatcher::detect_body_type( std::map<std::string, std::string>& headers )  {
-		
-		BodyType::Type body_type;
 
 		bool content_length = headers["content-length"].size() != 0;
 		bool transfer_encoding = headers["transfer-encoding"].size() != 0;

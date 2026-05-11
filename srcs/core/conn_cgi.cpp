@@ -11,7 +11,7 @@ namespace core {
         } catch ( std::runtime_error& err ) {
             std::cout << err.what() << "\n";
             release_cgi_handler();
-            dispatcher.build_error_response(http::INTERNAL_SERVER_ERROR, "Internal Server Error");
+            http::HTTPDispatcher::build_error_response(http::INTERNAL_SERVER_ERROR, "Internal Server Error");
             state = ConnectionState::WRITING;
             close_after_write = true;
         }
