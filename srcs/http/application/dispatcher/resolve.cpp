@@ -26,6 +26,9 @@ namespace http {
         result.reason = "";
         result.status_code = http::OK;
         result.type = HTTPResponseType::CGI;
+        result.body_storage = BodyStorage::FILE_TEMP;
+        result.body_type = BodyType::CONTENT_LENGTH; 
+        result.parsed_body_size = 0;
         return result;
         const config::LocationConfig* location = find_location(req.url, server.locations);
         const std::string path = extract_path(req.url);

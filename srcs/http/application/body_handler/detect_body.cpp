@@ -1,39 +1,23 @@
-#include "BodyHandler.hpp"
+#include "HTTPDispatcher.hpp"
 #include <iostream>
 #include <cstdlib>
 
 namespace http {
 
-	void BodyHandler::detect_body_type( std::map<std::string, std::string>& headers )  {
+	BodyType::Type HTTPDispatcher::detect_body_type( std::map<std::string, std::string>& headers )  {
 		
-		if (body_type != BodyType::UNSET) return ;
-		std::cout << "IXD\n";
+		BodyType::Type body_type;
+
 		bool content_length = headers["content-length"].size() != 0;
 		bool transfer_encoding = headers["transfer-encoding"].size() != 0;
 
 		if (content_length && transfer_encoding)
-			body_type = BodyType::ERROR;
+			return BodyType::ERROR;
 
-		if (content_length) {
+		if (content_length)	return BodyType::CONTENT_LENGTH;
 			
-			std::cout << "content-length: what the hell??";
-			
-			char* end;
-
-			body_len = ::strtoul(headers["content-length"].c_str(), &end, 10);
-			if (*end != '\0' || body_len > MAX_BODY_LEN) {
-				body_type = BodyType::ERROR;
-				return ;
-			}
-
-			if (body_len == 0) body_type = BodyType::NONE;
-			else body_type = BodyType::CONTENT_LENGTH;
-			
-		} 
+		else if (transfer_encoding) return BodyType::TRANSFER_ENCODING_CHUNKED;
 		
-		else if (transfer_encoding) body_type = BodyType::TRANSFER_ENCODING_CHUNKED;
-		
-		else body_type = BodyType::NONE;
-		
+		return BodyType::NONE;
 	}
 }

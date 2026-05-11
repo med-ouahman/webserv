@@ -40,6 +40,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/conn_cgi.cpp \
 	srcs/core/conn_process.cpp \
 	srcs/core/conn_handle_event.cpp \
+	srcs/core/conn_request_phase.cpp \
 	srcs/core/dispatch_parser_result.cpp \
 	srcs/core/on_cgi_finished.cpp \
 	srcs/core/DataView.cpp \
