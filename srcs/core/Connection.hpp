@@ -32,7 +32,6 @@ namespace core {
             
         private:
             uint32_t event_mask;
-            io::EventLoop& loop;
             ConnectionState::Type state;
             RequestPhase::Type phase;
             http::HTTPParser p;
@@ -43,9 +42,10 @@ namespace core {
             http::HTTPResponse response;
             http::CGIHandler* cgi_handler;
             http::IRequestHandler* request_handler;
-            http::ResolutionResult current_res;
-
+            
         public:
+            http::ResolutionResult current_res;
+            io::EventLoop& loop;
             explicit Connection( int fd, uint32_t mask, io::EventLoop& loop );
             ~Connection();
             int get_fd() const;

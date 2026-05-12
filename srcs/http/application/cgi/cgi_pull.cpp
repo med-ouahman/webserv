@@ -17,7 +17,7 @@ namespace http {
 	
 	void CGIHandler::on_ch_error() {
 		
-		cgi_state = CGIState::WAITING;
+		cgi_state = CGIState::ERROR;
 	}
 
 	bool CGIHandler::finished() {

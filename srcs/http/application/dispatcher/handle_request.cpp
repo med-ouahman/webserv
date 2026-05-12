@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include "Config.hpp"
 #include "IRequestHandler.hpp"
+#include "CGIHandler.hpp"
 
 namespace http {
 
@@ -31,7 +32,7 @@ namespace http {
                 /* upload file handler */
                 break;
             case HTTPResponseType::CGI:
-                /* deferred to the cgi handler */
+                return new CGIHandler();
             default:
                 break;
         };

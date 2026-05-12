@@ -21,8 +21,7 @@ namespace http {
 		std::string version;
 		std::string url;
 		std::map<std::string, std::string> headers;
-		std::string body_path; // body is stored as a disk file.
-
+		
 		HTTPMethod get_method( std::string& s ) const;
 		std::string get_method( HTTPMethod m ) const;
 		HTTPRequest();

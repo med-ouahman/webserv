@@ -15,7 +15,7 @@ namespace http {
         return arr;
     }
 
-    void CGIHandler::spawn( const CGIContext& context ) {
+    void CGIHandler::spawn( const io::EventLoop& loop, const CGIContext& context ) {
         
         if (cgi_state != CGIState::SPAWN) {
             return ;
@@ -28,8 +28,8 @@ namespace http {
             int body_fd = open(context.temp_body_path.c_str(), O_RDONLY);
             if (body_fd < 0) exit(EXIT_FAILURE);
             ::dup2(body_fd, STDIN_FILENO);
-            // ::dup2(pipe_guard.stdout_pipe[1], STDOUT_FILENO);
-            // ::dup2(pipe_guard.stderr_pipe[1], STDERR_FILENO);
+            ::dup2(pipe_guard.stdout_pipe[1], STDOUT_FILENO);
+            ::dup2(pipe_guard.stderr_pipe[1], STDERR_FILENO);
                         
             chdir(context.working_directory.c_str());
             pipe_guard.close_pipes();

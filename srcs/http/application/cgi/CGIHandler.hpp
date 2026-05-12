@@ -34,14 +34,16 @@ namespace http {
 	
 	struct CGIContext;
 
-	class CGIHandler {
+	class CGIHandler: public IRequestHandler {
 		
 		public:
 			const static std::size_t MAX_BLOCK_LEN = 1024 * 16; // 16KB
 			const static std::size_t MAX_CGI_BODY_LEN = 1024 * 1024; // 1MB
 			
-			explicit CGIHandler( core::Connection& conn, const io::EventLoop& l );
-			void spawn( const CGIContext& context );
+			explicit CGIHandler();
+			void spawn( const io::EventLoop& loop, const CGIContext& context );
+			void handle( core::Connection& conn );
+			bool done();
 			~CGIHandler();
 
 		private:
@@ -79,20 +81,18 @@ namespace http {
 			IOChannel stdout_ch;
 			IOChannel stderr_ch;
 	
-			core::Connection& conn;
-			const io::EventLoop& loop;
 			core::DataView& stdout_ch_view;
 			LineScanner scanner;
 
 			time_t start_time;
 
 		public:
-			void on_channel_closed();
-			ScanResult on_input_ready();
-			ssize_t produce_output( core::BufferWriter* writer );
-			void on_error();
+			void on_channel_closed( core::Connection& conn );
+			ScanResult on_input_ready( core::Connection& conn );
+			ssize_t produce_output( core::Connection& conn, core::BufferWriter* writer );
+			void on_error( core::Connection& conn );
 			core::DataView& get_stdout_data_view();
-			void pull();
+			void pull(); // EXPIRED
 			void on_ch_error();
 			CGIState::Type get_cgi_state() const;
 			bool finished();

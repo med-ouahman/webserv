@@ -5,7 +5,7 @@
 
 namespace http {
 
-    ScanResult CGIHandler::on_input_ready() {
+    ScanResult CGIHandler::on_input_ready( core::Connection& conn ) {
        
         if (output_state == CGIOutputState::WRITING_BODY) {
             conn.on_cgi_output_ready();
