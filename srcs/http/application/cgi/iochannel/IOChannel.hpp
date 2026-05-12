@@ -30,13 +30,13 @@ namespace http {
     class IOChannel: public io::Stream {
 
         private:
-            io::IDataListener* listener;
+            CGIHandler& cgi_handler;
             STDStream::Type stream;
             uint32_t event;
             IOChannelState::Type state;
             
         public:
-            explicit IOChannel( int fd, CGIHandler* h, STDStream::Type stream_type, uint32_t event_mask );
+            explicit IOChannel( int fd, CGIHandler& h, STDStream::Type stream_type, uint32_t event_mask );
             int get_fd() const;
             uint32_t get_event() const;
             ~IOChannel();

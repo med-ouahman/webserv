@@ -34,7 +34,7 @@ namespace http {
 	
 	struct CGIContext;
 
-	class CGIHandler: public io::IDataListener {
+	class CGIHandler {
 		
 		public:
 			const static std::size_t MAX_BLOCK_LEN = 1024 * 16; // 16KB

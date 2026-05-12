@@ -2,7 +2,6 @@
 
 #include "ConnectionState.hpp"
 #include "ConnectionAction.hpp"
-#include "ConnectionEvent.hpp"
 #include "HTTPParser.hpp"
 #include "CGIHandler.hpp"
 #include "CGIContext.hpp"
@@ -11,6 +10,7 @@
 #include "Stream.hpp"
 #include "BodyHandler.hpp"
 #include "DataView.hpp"
+#include "IRequestHandler.hpp"
 
 namespace config {
     struct ServerConfig;
@@ -20,15 +20,15 @@ namespace core {
 
     class Connection: public io::Stream {
         private:
-            const static std::size_t SEND_CHUNK_SIZE = 1024 * 16;
-            const static std::size_t MAX_REQUESTS = 100;
-            const static std::size_t MAX_INACTIVITY_LIMIT = 100;
-            const static std::size_t MAX_IDLE_TIMEOUT = 500;
-            const static std::size_t MIN_PROGRESS_BYTES = 1024 * 4;
-            const static std::size_t MIN_BODY_CHUNK       = 4096;
+            const static std::size_t SEND_CHUNK_SIZE            = 16384;
+            const static std::size_t MAX_REQUESTS               = 100;
+            const static std::size_t MAX_INACTIVITY_LIMIT       = 100;
+            const static std::size_t MAX_IDLE_TIMEOUT           = 500;
+            const static std::size_t MIN_PROGRESS_BYTES         = 4096;
+            const static std::size_t MIN_BODY_CHUNK             = 4096;
             const static std::size_t REQUEST_LINE_LIMIT_TICKS   = 100;
-            const static std::size_t HEADERS_LIMIT_TICKS  = 500;
-            const static std::size_t BODY_LIMIT_TICKS     = 1000;
+            const static std::size_t HEADERS_LIMIT_TICKS        = 500;
+            const static std::size_t BODY_LIMIT_TICKS           = 1000;
             
         private:
             uint32_t event_mask;
@@ -42,6 +42,7 @@ namespace core {
             
             http::HTTPResponse response;
             http::CGIHandler* cgi_handler;
+            http::IRequestHandler* request_handler;
             http::ResolutionResult current_res;
 
         public:

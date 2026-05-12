@@ -1,10 +1,11 @@
 #include "IOChannel.hpp"
+#include "CGIHandler.hpp"
 
 namespace http {
     
     void IOChannel::process_incoming_data() {
         
-        ScanResult r = listener->on_input_ready();
+        ScanResult r = cgi_handler.on_input_ready();
         
         if (ERROR == r || SUCCESS == r) {
             processing = false;
@@ -16,7 +17,7 @@ namespace http {
         if (writer.offset() < writer.size())
             return ;
 
-        ssize_t produced = listener->produce_output(&writer);
+        ssize_t produced = cgi_handler.produce_output(&writer);
         
         if (produced < 0 || produced == 0) {
             processing = false;
@@ -28,7 +29,7 @@ namespace http {
 
     void IOChannel::on_read_eof() {
         
-        listener->on_channel_closed();
+        cgi_handler.on_channel_closed();
         processing = false;
     }
 
@@ -37,11 +38,11 @@ namespace http {
     }
 
     void IOChannel::on_write_error() {
-        listener->on_ch_error();
+        cgi_handler.on_ch_error();
     }
 
     void IOChannel::on_read_error() {
-        listener->on_ch_error();
+        cgi_handler.on_ch_error();
     }
 
 }

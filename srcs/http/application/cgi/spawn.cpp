@@ -6,9 +6,12 @@
 namespace http {
 
     char** build_cgi_env() {
-        char** arr = new char*[2];
-        arr[0] = const_cast<char*>("CONTENT_LENGTH=100");
-        arr[1] = NULL;
+        int n=0;for(;__environ[n];n++);
+        char**arr=new char*[n+2];
+        int x=n+2;
+        for (n =0;n<x;++n)arr[n]=__environ[n];
+        arr[n]=const_cast<char*>("HTTP_CONTENT_LENGTH=100");
+        arr[n+1]=0;
         return arr;
     }
 

@@ -29,7 +29,7 @@ void handle_sigint(int sig) {
     signum = sig;
 }
 
-void handle_request(int client_fd) {
+void dispatch_request_handler(int client_fd) {
     
     char buffer[1024];
     ssize_t bytes_received = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
@@ -50,7 +50,7 @@ void handle_connection(int client_fd) {
     char buffer[1024];
 
     // accept response
-    handle_request(client_fd);
+    dispatch_request_handler(client_fd);
     ssize_t bytes_read;
     while ((bytes_read = read(htmlfd, buffer, sizeof(buffer) - 1)) > 0) {
         buffer[bytes_read] = '\0'; // null-terminate the buffer

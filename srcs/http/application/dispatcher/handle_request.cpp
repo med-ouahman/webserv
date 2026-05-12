@@ -7,10 +7,11 @@
 #include <sstream>
 #include <sys/stat.h>
 #include "Config.hpp"
+#include "IRequestHandler.hpp"
 
 namespace http {
 
-    void HTTPDispatcher::handle_request( ResolutionResult& result, const HTTPRequest& req ) {
+    IRequestHandler* HTTPDispatcher::dispatch_request_handler( ResolutionResult& result, const HTTPRequest& req ) {
         
         (void)req;
         switch (result.type) {

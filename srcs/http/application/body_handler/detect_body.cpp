@@ -1,20 +1,25 @@
 #include "HTTPDispatcher.hpp"
-#include <iostream>
-#include <cstdlib>
 
 namespace http {
 
 	BodyType::Type HTTPDispatcher::detect_body_type( std::map<std::string, std::string>& headers )  {
 
-		bool content_length = headers["content-length"].size() != 0;
-		bool transfer_encoding = headers["transfer-encoding"].size() != 0;
+		std::string& transfer_encoding = headers["transfer-encoding"];
 
-		if (content_length && transfer_encoding)
+		bool has_content_length = not headers["content-length"].empty();
+		bool has_transfer_encoding = not transfer_encoding.empty();
+
+		if (transfer_encoding != "chunked") {
+			build_error_response(NOT_IMPLEMENTED, "Not Implemented");
+			return BodyType::ERROR;	
+		}
+
+		if (has_content_length && has_content_length)
 			return BodyType::ERROR;
 
-		if (content_length)	return BodyType::CONTENT_LENGTH;
+		if (has_content_length)	return BodyType::CONTENT_LENGTH;
 			
-		else if (transfer_encoding) return BodyType::TRANSFER_ENCODING_CHUNKED;
+		else if (has_transfer_encoding) return BodyType::TRANSFER_ENCODING_CHUNKED;
 		
 		return BodyType::NONE;
 	}

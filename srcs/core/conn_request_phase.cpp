@@ -48,13 +48,9 @@ namespace core {
     }
 
     void Connection::request_processing() {
-        processing = false;
-
-        if (current_res.type == http::HTTPResponseType::CGI)
-            invoke_cgi(http::HTTPDispatcher::get_cgi_context(p.get_request(), current_res));
-        else
-           http::HTTPDispatcher::handle_request(current_res, p.get_request());
-        phase = RequestPhase::FINAL;
+        request_handler = http::HTTPDispatcher::dispatch_request_handler(current_res, p.get_request());
+        request_handler->handle();
+        processing = request_handler->done();
     }
 
     void Connection::request_reading_body() {

@@ -64,7 +64,7 @@ namespace http {
             HTTPDispatcher();
             ~HTTPDispatcher();
             static bool allow_presistance() { return true; };
-            static void handle_request( ResolutionResult& r, const HTTPRequest& req );
+            static IRequestHandler* dispatch_request_handler( ResolutionResult& r, const HTTPRequest& req );
             static CGIContext get_cgi_context( const HTTPRequest& req, const ResolutionResult& result );
 
 			static BodyType::Type detect_body_type( std::map<std::string, std::string>& headers );

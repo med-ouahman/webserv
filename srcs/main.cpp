@@ -20,7 +20,7 @@ int main( int argc, const char* argv[] ) {
     signal(SIGPIPE, SIG_IGN);
     
     const char* config_file = argv[1];
-    if (!config_file) {
+    if (not config_file) {
         config_file = "./config/default.conf";
     }
     

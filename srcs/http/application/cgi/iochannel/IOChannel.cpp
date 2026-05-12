@@ -4,9 +4,9 @@
 
 namespace http {
 
-    IOChannel::IOChannel( int fd_, CGIHandler* h, STDStream::Type stream_type, uint32_t event_mask )
+    IOChannel::IOChannel( int fd_, CGIHandler& h, STDStream::Type stream_type, uint32_t event_mask )
         : Stream(fd_),
-        listener(h),
+        cgi_handler(h),
         stream(stream_type),
         event(event_mask),
         state(IOChannelState::IDLE) {}
