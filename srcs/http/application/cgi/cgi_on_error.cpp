@@ -7,7 +7,7 @@
 
 namespace http {
     
-    void CGIHandler::on_error( core::Connection& conn ) {
+    void CGIHandler::on_error() {
         
         std::cout << int(cgi_state) << "\n";
         std::cout << strerror(errno) << "\n";

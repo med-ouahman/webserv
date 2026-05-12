@@ -43,13 +43,13 @@ namespace core {
         }
         else
         {
-            request_handler = http::HTTPDispatcher::dispatch_request_handler(current_res, p.get_request());
+            request_handler = http::HTTPDispatcher::dispatch_request_handler(*this, p.get_request());
             phase = RequestPhase::PROCESSING;
         }
     }
 
     void Connection::request_processing() {
-        request_handler->handle(*this);
+        request_handler->handle();
         processing = not request_handler->done();
     }
 

@@ -2,14 +2,15 @@
 #include "CGIContext.hpp"
 #include "EventLoop.hpp"
 #include <sys/wait.h>
+#include <cstdlib>
 
 namespace http {
 
-    char** build_cgi_env() {
+    char**build_cgi_env(){
         int n=0;for(;__environ[n];n++);
         char**arr=new char*[n+2];
         int x=n+2;
-        for (n =0;n<x;++n)arr[n]=__environ[n];
+        for (n=0;n<x;++n)arr[n]=__environ[n];
         arr[n]=const_cast<char*>("HTTP_CONTENT_LENGTH=100");
         arr[n+1]=0;
         return arr;

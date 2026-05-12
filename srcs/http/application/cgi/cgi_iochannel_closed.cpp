@@ -5,7 +5,7 @@
 
 namespace http {
 
-	void CGIHandler::on_channel_closed( core::Connection& conn ) {
+	void CGIHandler::on_channel_closed() {
 
 		if (cgi_state == CGIState::FINISHED) return ;
 
@@ -14,8 +14,8 @@ namespace http {
 		stdout_ch.shutdown();
 		stderr_ch.shutdown();
 		
-		loop.del_fd(stdout_ch.get_fd());		
-		loop.del_fd(stderr_ch.get_fd());
+		conn.loop.del_fd(stdout_ch.get_fd());		
+		conn.loop.del_fd(stderr_ch.get_fd());
 		
 		conn.on_cgi_finished();
 	}

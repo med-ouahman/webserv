@@ -8,6 +8,12 @@
 #include "CGIContext.hpp"
 #include <memory>
 #include "BodyHandler.hpp"
+#include "IRequestHandler.hpp"
+
+namespace core {
+    class Connection;
+}
+
 
 namespace config {
     struct ServerConfig;
@@ -64,7 +70,7 @@ namespace http {
             HTTPDispatcher();
             ~HTTPDispatcher();
             static bool allow_presistance() { return true; };
-            static IRequestHandler* dispatch_request_handler( ResolutionResult& r, const HTTPRequest& req );
+            static IRequestHandler* dispatch_request_handler( core::Connection& conn, const HTTPRequest& req );
             static CGIContext get_cgi_context( const HTTPRequest& req, const ResolutionResult& result );
 
 			static BodyType::Type detect_body_type( std::map<std::string, std::string>& headers );

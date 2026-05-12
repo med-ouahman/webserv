@@ -11,14 +11,14 @@ namespace core {
         : Stream(_fd),
         
         event_mask(mask),
-        loop(l),
         state(ConnectionState::IDLE),
         phase(RequestPhase::BUILDING),
         p(data_view),
         body_handler(_fd, data_view),
         close_after_write(false),
         num_requests(0),
-        cgi_handler(NULL) {}
+        cgi_handler(NULL),
+        loop(l) {}
 
     Connection::~Connection() {
         state = ConnectionState::CLOSING;

@@ -3,7 +3,7 @@
 
 namespace http {
 
-    ssize_t CGIHandler::produce_output( core::Connection& conn, core::BufferWriter* writer ) {
+    ssize_t CGIHandler::produce_output( core::BufferWriter* writer ) {
         return conn.get_body_handler().produce_body_chunk(writer);
     }
     

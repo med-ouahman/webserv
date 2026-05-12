@@ -38,14 +38,12 @@ namespace http {
 		method = UNKNOWN;
 		version.clear();
 		url.clear();
-		body_path.clear();
+		
 		headers.clear();
 	}
 
 	HTTPRequest::~HTTPRequest() {
-		if (body_path.size()) {
-			unlink(body_path.c_str());
-		}
+		
 	}
 
 	bool HTTPRequest::want_keep_alive() {

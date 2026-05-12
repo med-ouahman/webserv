@@ -1,12 +1,9 @@
 #pragma once
 
-#include "IIOHandler.hpp"
 #include "IOChannel.hpp"
-#include <unistd.h>
-#include <stdlib.h>
 #include "PipeGuard.hpp"
-#include "IDataListener.hpp"
 #include "LineScanner.hpp"
+#include "IRequestHandler.hpp"
 
 namespace io {
 	class EventLoop;
@@ -40,9 +37,9 @@ namespace http {
 			const static std::size_t MAX_BLOCK_LEN = 1024 * 16; // 16KB
 			const static std::size_t MAX_CGI_BODY_LEN = 1024 * 1024; // 1MB
 			
-			explicit CGIHandler();
+			explicit CGIHandler( core::Connection& conn_ );
 			void spawn( const io::EventLoop& loop, const CGIContext& context );
-			void handle( core::Connection& conn );
+			void handle();
 			bool done();
 			~CGIHandler();
 
@@ -81,16 +78,17 @@ namespace http {
 			IOChannel stdout_ch;
 			IOChannel stderr_ch;
 	
+			core::Connection& conn;
 			core::DataView& stdout_ch_view;
 			LineScanner scanner;
 
 			time_t start_time;
 
 		public:
-			void on_channel_closed( core::Connection& conn );
-			ScanResult on_input_ready( core::Connection& conn );
-			ssize_t produce_output( core::Connection& conn, core::BufferWriter* writer );
-			void on_error( core::Connection& conn );
+			void on_channel_closed();
+			ScanResult on_input_ready();
+			ssize_t produce_output( core::BufferWriter* writer );
+			void on_error();
 			core::DataView& get_stdout_data_view();
 			void pull(); // EXPIRED
 			void on_ch_error();

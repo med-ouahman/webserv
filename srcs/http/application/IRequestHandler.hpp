@@ -6,7 +6,7 @@ namespace http {
 		
 		public:
 			virtual ~IRequestHandler() {}
-			virtual void handle( core::Connection& ) = 0;
+			virtual void handle() = 0;
 			virtual bool done() = 0;
 	};
 }

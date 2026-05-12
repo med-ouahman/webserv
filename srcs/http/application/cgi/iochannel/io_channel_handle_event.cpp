@@ -37,7 +37,7 @@ namespace http {
 				break;
 			case io::ERROR:
 				state = IOChannelState::ERROR;
-				cgi_handler.on_error();
+				cgi_handler.on_ch_error();
 				break;
 		}
 
