@@ -21,6 +21,7 @@ namespace http {
         switch (result.type) {
             case HTTPResponseType::ERROR_RESPONSE:
                 build_error_response(result.status_code, result.reason);
+                // reutnr ErrorHandler()
                 break;
             case HTTPResponseType::STATIC_FILE:
                 /* static file handler */

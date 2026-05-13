@@ -30,6 +30,7 @@ namespace io {
 			Stream( int fd );
 			virtual ~Stream() {};
 			void on_event( EventType type );
+			int get_fd() const { return fd; }
 		
 		protected:
 			virtual void process() = 0;
@@ -53,7 +54,6 @@ namespace io {
 			void write();
 			void on_readable();
 			void on_writeable();
-			
 			virtual void on_read_eof() = 0;
 			virtual void process_incoming_data() = 0;
 			virtual void on_read_error() = 0;

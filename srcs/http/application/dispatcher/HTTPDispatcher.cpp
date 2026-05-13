@@ -55,6 +55,7 @@ namespace http {
         result.body_policy.parsed_body_size = ::strtoul(const_cast<HTTPRequest&>(req).headers["content-length"].c_str(), &end, 10);
         
         if (end && *end != '\0') {
+            std::cout << "Bad Content length\n";
             result.status_code = BAD_REQUEST;
             result.reason = "Bad Request";
             result.body_policy.type = BodyType::ERROR;

@@ -42,7 +42,7 @@ namespace core {
             phase = RequestPhase::READING_BODY;
         }
         else
-        {
+        { 
             request_handler = http::HTTPDispatcher::dispatch_request_handler(*this, p.get_request());
             phase = RequestPhase::PROCESSING;
         }
@@ -58,7 +58,8 @@ namespace core {
         
         switch (r) {
             case http::SUCCESS:
-                phase = RequestPhase::PROCESSING;
+                std::cout << "Body Read Successfully\n";
+                phase = RequestPhase::FINAL;
                 break;
             case http::ERROR:
                 phase = RequestPhase::ERROR;

@@ -9,16 +9,16 @@ namespace http {
 		bool has_content_length = not headers["content-length"].empty();
 		bool has_transfer_encoding = not transfer_encoding.empty();
 
-		if (transfer_encoding != "chunked") {
+		if (has_transfer_encoding and transfer_encoding != "chunked") {
 			build_error_response(NOT_IMPLEMENTED, "Not Implemented");
 			return BodyType::ERROR;	
 		}
 
-		if (has_content_length && has_content_length)
+		if (has_content_length and has_transfer_encoding)
 			return BodyType::ERROR;
 
 		if (has_content_length)	return BodyType::CONTENT_LENGTH;
-			
+		
 		else if (has_transfer_encoding) return BodyType::TRANSFER_ENCODING_CHUNKED;
 		
 		return BodyType::NONE;

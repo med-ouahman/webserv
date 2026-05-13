@@ -11,6 +11,7 @@
 #include "BodyHandler.hpp"
 #include "DataView.hpp"
 #include "IRequestHandler.hpp"
+#include "Timestamp.hpp"
 
 namespace config {
     struct ServerConfig;
@@ -40,16 +41,15 @@ namespace core {
             size_t num_requests;
             
             http::HTTPResponse response;
-            http::CGIHandler* cgi_handler;
             http::IRequestHandler* request_handler;
+            Timestamp last_;
             
         public:
+            Timestamp& last() { return last_; };
             http::ResolutionResult current_res;
             io::EventLoop& loop;
             explicit Connection( int fd, uint32_t mask, io::EventLoop& loop );
             ~Connection();
-            int get_fd() const;
-            void invoke_cgi( const http::CGIContext& context );
             void release_cgi_handler();
             void on_cgi_finished();
             void bind_cgi();

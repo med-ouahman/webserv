@@ -17,7 +17,6 @@ namespace core {
         body_handler(_fd, data_view),
         close_after_write(false),
         num_requests(0),
-        cgi_handler(NULL),
         loop(l) {}
 
     Connection::~Connection() {

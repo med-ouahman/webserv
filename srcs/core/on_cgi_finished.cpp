@@ -32,7 +32,9 @@ namespace core {
 		http::BodySendMethod::Type body_method = has_content_len
 			? http::BodySendMethod::CONTENT_LENGTH: http::BodySendMethod::CHUNKED;
 
-		response.body_provider = new http::CGIBodyProvider(*cgi_handler, body_method, body_size);
+		response.body_provider = new http::CGIBodyProvider(*static_cast<http::CGIHandler*>(request_handler),
+			body_method, body_size);
+
 		state = ConnectionState::WRITING;
 		std::cout << "CGI BODY TYPE: " << (has_content_len?"CONTENT-LENGTH\n":"CHUNKED\n");
 	}

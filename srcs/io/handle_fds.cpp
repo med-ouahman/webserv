@@ -1,5 +1,7 @@
 #include "EventLoop.hpp"
 #include "IIOHandler.hpp"
+#include <sys/epoll.h>
+#include <fcntl.h>
 
 namespace io {
 	bool EventLoop::add_fd( int fd, uint32_t events, IIOHandler* handler ) const {

@@ -1,6 +1,7 @@
 
 #include "EventLoop.hpp"
 #include "Connection.hpp"
+#include <sys/epoll.h>
 
 class Heap {
 
@@ -47,8 +48,8 @@ namespace io {
                 update_epoll_interest(conns.at(i));
             }
 
+            check_timeouts();
             sweep();
-            
         }
         
         return int(!running);

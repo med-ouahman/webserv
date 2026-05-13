@@ -57,7 +57,7 @@ namespace http {
 	}
 
 	void BodyHandler::prepare_body( BodyPolicy& p ) {
-		
+		std::cout << "Preparing body\n";
 		body_type = p.type;
 		body_storage = p.storage;
 		body_len = p.parsed_body_size;

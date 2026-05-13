@@ -7,6 +7,7 @@ namespace core {
     void Connection::process_incoming_data() {
 
         processing = true;
+
         while (processing) {
             switch (phase) {
                 case RequestPhase::BUILDING:
@@ -26,7 +27,10 @@ namespace core {
                     on_client_error();
                     break;
                 case RequestPhase::FINAL:
+                    state = ConnectionState::WRITING;
+                    response.body = "HTTP/1.1 200 OK\r\n";
                     processing = false;
+                    close_after_write = true;
                     break;
             }
         }

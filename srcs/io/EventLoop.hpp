@@ -1,18 +1,14 @@
 #pragma once
 
 #include <stdio.h>
-#include <cstring>
-#include <cerrno>
-#include <unistd.h>
-#include <sys/epoll.h>
 #include <vector>
 #include <stdexcept>
 #include "ListeningSocket.hpp"
 #include "Config.hpp"
 #include "Result.hpp"
-#include <fcntl.h>
-#include <deque>
 #include <ctime>
+#include <chrono>
+#include <list>
 
 namespace core {
 	class Connection;
@@ -25,28 +21,35 @@ namespace http {
 namespace io {
 	class IIOHandler;
 
+	typedef int second_t;
+
 	class EventLoop {
 		private:
-			const static ::size_t MAX_EVENTS			= 128;
-			const static ::size_t MAX_CONCURRENT_CGI	= 100;
-			static const int 	  MAX_TIMEOUT_MS		= 60; // static for now, soon will bey dynamic using max/min heap
-			
+			const static std::size_t	MAX_CONNECTIONS		= 1000;
+			const static std::size_t	MAX_EVENTS			= 128;
+			const static std::size_t	MAX_CONCURRENT_CGI	= 100;
+			const static std::size_t	MAX_TIMEOUT_MS		= 60;
+
+			const static second_t		MAX_HEADER_TIMEOUT	= 10;
+			const static second_t		MAX_BODY_PROGRESS_TIMEOUT = 30;
+			const static second_t		MAX_IDLE_TIMEOUT = 60;
+
 		private:
 			int epoll_fd;
 			bool running;
 			std::vector<core::Connection*> conns;
 			std::vector<ListeningSocket> listeners;
-			std::deque<core::Connection*> pending_conns;
-			std::vector<http::CGIHandler*> bin;
+			std::vector<http::CGIHandler*> cgi_bin;
 
 		private:
-			EventLoop( const EventLoop& other ); // Non copy-able
-			EventLoop& operator=( const EventLoop& other ); // Non assignable
+			EventLoop( const EventLoop& other );
+			EventLoop& operator=( const EventLoop& other );
 			error::Result<int> create_listening_socket( const config::ListenEndPoint& endpoint );
 			bool start_listeners();
 			void sweep();
 			void update_epoll_interest( core::Connection* conn );
-
+			bool timedout( core::Connection* conn );
+			
 		public:
 			explicit EventLoop();
 			~EventLoop();

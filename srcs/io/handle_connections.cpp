@@ -3,6 +3,8 @@
 #include <fcntl.h>
 #include <cerrno>
 #include <cstring>
+#include <sys/epoll.h>
+#include "Timestamp.hpp"
 
 namespace io {
 
@@ -20,21 +22,25 @@ namespace io {
     void EventLoop::sweep() {
 
         for ( size_t i(0); i < conns.size(); ) {
-            if (conns[i]->desired_action().want_close) {
+            bool drop = conns[i]->desired_action().want_close;
+
+            drop = drop || timedout(conns[i]);
+            if (drop)
+            {
                 del_fd(conns[i]->get_fd());
                 delete conns[i];
                 conns.erase(conns.begin() + i);
-            } else {
-                ++i;
             }
+
+            else ++i;
         }
        
-        for ( size_t i(0); i < bin.size(); ++i ) {
+        for ( size_t i(0); i < cgi_bin.size(); ++i ) {
         
-            delete bin[i];   
+            delete cgi_bin[i];   
         }
 
-        bin.clear();
+        cgi_bin.clear();
     }
 
     void EventLoop::update_epoll_interest( core::Connection* conn ) {
@@ -56,6 +62,11 @@ namespace io {
     }
 
     void EventLoop::add_cgi_handler( http::CGIHandler* h ) {
-        bin.push_back(h);
+        cgi_bin.push_back(h);
     }
+
+    bool EventLoop::timedout( core::Connection* conn ) {
+        
+    }
+
 }

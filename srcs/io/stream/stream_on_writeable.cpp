@@ -11,15 +11,14 @@ namespace io {
             return ;
         }
 
-        if (!writer.empty()) {
-            
-            write();
-            if (bytes_r < 0) {
-                on_write_error();
-                return ;
-            }
 
-            writer.advance(bytes_r);
+        write();
+        if (bytes_r < 0) {
+            on_write_error();
+            return ;
         }
+
+        writer.advance(bytes_r);
+        
     }
 }

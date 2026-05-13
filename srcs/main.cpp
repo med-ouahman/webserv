@@ -6,9 +6,12 @@
 #include <stdlib.h>
 #include "CGIBodyProvider.hpp"
 
-bool config::Config::has_instance = false;
 
-config::Config config::Config::instance;
+namespace config {
+    
+    bool Config::has_instance = false;
+    Config Config::instance;
+}
 
 int main( int argc, const char* argv[] ) {
 

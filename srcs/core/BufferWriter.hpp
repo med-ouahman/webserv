@@ -29,6 +29,7 @@ namespace core {
 			void advance( size_t n );
 			void reset();
 			size_t capacity();
+			size_t write( const char* src, size_t n__ );
 	};
 
 } 

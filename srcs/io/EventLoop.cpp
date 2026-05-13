@@ -3,6 +3,7 @@
 #include <iostream>
 #include "ListeningSocket.hpp"
 #include <fcntl.h>
+#include <sys/epoll.h>
 
 namespace io {
 
@@ -24,6 +25,7 @@ namespace io {
         
         if (epoll_fd > -1) {
             ::close(epoll_fd);
+            epoll_fd = -1;
         }
 
         for ( ::size_t i = 0; i < conns.size(); ++i ) {

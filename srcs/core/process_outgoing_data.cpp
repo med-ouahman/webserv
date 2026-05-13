@@ -10,32 +10,29 @@ namespace core {
         writer.reset();
 
         ssize_t produced = response.produce(&writer);
-        
+        std::cout << "X: " << produced << "\n";
         if (produced < 0) {
             state = ConnectionState::CLOSING;
             processing = false;
             return ;
         }
         
-        writer.advance(produced);
-
-        if (writer.size() == 0) {
-            if (!data_view.empty()) state = ConnectionState::READING;
-            else if (close_after_write) state = ConnectionState::CLOSING;
-            else state = ConnectionState::IDLE;
+        if (produced == 0) {
+            if (close_after_write) state = ConnectionState::CLOSING;
+            else if (!data_view.empty()) state = ConnectionState::READING;
         }
         
-        processing = (state == ConnectionState::READING)
-            || (state == ConnectionState::WRITING);
     }
 
 
     void Connection::on_write_complete() {
+        std::cout << "Write complete\n";
         /// nothing for now, the code above handles it??
     }
 
     void Connection::on_write_error() {
         processing = false;
+        state = ConnectionState::CLOSING;
     }
 
 }
