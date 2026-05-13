@@ -11,13 +11,13 @@ namespace http {
 
             if (r != SUCCESS) return r;
             
-            chunk_remaining = parse_chunk_size(sc.line());
+            current_chunk_size = parse_chunk_size(sc.line());
 
-            if (chunk_remaining > MAX_CHUNK_SIZE) return ERROR;
+            if (current_chunk_size > MAX_CHUNK_SIZE) return ERROR;
             
             sc.reset();
             
-            if (chunk_remaining == 0) chunk_state = ChunkState::CHUNK_LAST;
+            if (current_chunk_size == 0) chunk_state = ChunkState::CHUNK_LAST;
 
             else chunk_state = ChunkState::CHUNK_DATA;
 
@@ -34,13 +34,14 @@ namespace http {
             return SUCCESS;
         }
         
-        body_len = chunk_remaining;
+        body_len = current_chunk_size;
 
-
+        write_body();
+        
         if (body_state == BodyState::ERROR)
             return ERROR;
         
-        if (body_bytes_parsed == chunk_remaining) {
+        if (body_bytes_parsed == current_chunk_size) {
             body_bytes_parsed = 0;
             sc.reset();
             chunk_state = ChunkState::CHUNK_SIZE;

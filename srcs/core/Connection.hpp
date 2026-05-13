@@ -12,6 +12,7 @@
 #include "DataView.hpp"
 #include "IRequestHandler.hpp"
 #include "Timestamp.hpp"
+#include "limits.hpp"
 
 namespace config {
     struct ServerConfig;
@@ -21,17 +22,6 @@ namespace core {
 
     class Connection: public io::Stream {
         private:
-            const static std::size_t SEND_CHUNK_SIZE            = 16384;
-            const static std::size_t MAX_REQUESTS               = 100;
-            const static std::size_t MAX_INACTIVITY_LIMIT       = 100;
-            const static std::size_t MAX_IDLE_TIMEOUT           = 500;
-            const static std::size_t MIN_PROGRESS_BYTES         = 4096;
-            const static std::size_t MIN_BODY_CHUNK             = 4096;
-            const static std::size_t REQUEST_LINE_LIMIT_TICKS   = 100;
-            const static std::size_t HEADERS_LIMIT_TICKS        = 500;
-            const static std::size_t BODY_LIMIT_TICKS           = 1000;
-            
-        private:
             uint32_t event_mask;
             ConnectionState::Type state;
             RequestPhase::Type phase;
@@ -39,7 +29,7 @@ namespace core {
             http::BodyHandler body_handler;
             bool close_after_write;
             size_t num_requests;
-            
+            size_t min_body_progress_bytes;
             http::HTTPResponse response;
             http::IRequestHandler* request_handler;
             Timestamp last_;
@@ -60,6 +50,7 @@ namespace core {
             uint32_t get_mask() const { return event_mask; }
             http::HTTPResponse& get_response() { return response; };
             http::BodyHandler& get_body_handler() { return body_handler;};
+            RequestPhase::Type request_phase() const { return phase; }
 
         private:
             void on_client_error();

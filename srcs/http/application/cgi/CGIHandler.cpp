@@ -3,6 +3,7 @@
 #include "Connection.hpp"
 #include <signal.h>
 #include <sys/wait.h>
+#include <sys/epoll.h>
 
 namespace http {
 

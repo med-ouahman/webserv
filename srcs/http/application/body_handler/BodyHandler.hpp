@@ -70,6 +70,7 @@ namespace http {
 			ssize_t produce_body_chunk( core::BufferWriter* writer );
             void prepare_body( BodyPolicy& p );
             ScanResult read_body();
+            size_t parsed_bytes() const { return body_bytes_parsed; };
 
 		private:
             BodyStorage::Type body_storage;
@@ -90,7 +91,7 @@ namespace http {
             bool body_set;
             
             ChunkState::Type chunk_state;
-            size_t chunk_remaining;
+            size_t current_chunk_size;
             
             LineScanner sc;
 

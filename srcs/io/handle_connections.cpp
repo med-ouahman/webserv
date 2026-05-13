@@ -11,7 +11,7 @@ namespace io {
     bool EventLoop::add_connection( int client_fd ) {
 
         conns.push_back(new core::Connection(client_fd, EPOLLIN, *this));
-        if (!add_fd(client_fd, EPOLLIN, conns.back())) {
+        if (not add_fd(client_fd, EPOLLIN, conns.back())) {
             conns.pop_back();
             return false;
         }
@@ -24,7 +24,7 @@ namespace io {
         for ( size_t i(0); i < conns.size(); ) {
             bool drop = conns[i]->desired_action().want_close;
 
-            drop = drop || timedout(conns[i]);
+            drop = drop or timedout(conns[i]);
             if (drop)
             {
                 del_fd(conns[i]->get_fd());
@@ -67,6 +67,25 @@ namespace io {
 
     bool EventLoop::timedout( core::Connection* conn ) {
         
+        double limit = limits::MAX_IDLE_TIMEOUT;
+       
+        switch (conn->request_phase()) {
+            
+            case core::RequestPhase::BUILDING:
+                limit = limits::MAX_HEADER_TIMEOUT;
+                break;
+            case core::RequestPhase::READING_BODY:
+                limit = limits::MAX_BODY_PROGRESS_TIMEOUT;
+                break;
+            default:
+                limit = limits::MAX_IDLE_TIMEOUT;
+        }
+
+        if (conn->last().elapsed() >= limit) {
+            return true;
+        }
+
+        return false;
     }
 
 }

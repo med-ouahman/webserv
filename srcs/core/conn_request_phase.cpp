@@ -21,6 +21,7 @@ namespace core {
                 on_client_error();
                 break;
             case http::SUCCESS:
+                last_.update();
                 phase = RequestPhase::RESOLVING;
                 break;
         }
@@ -54,10 +55,20 @@ namespace core {
     }
 
     void Connection::request_reading_body() {
+        
         http::ScanResult r = body_handler.read_body();
+
+        min_body_progress_bytes += body_handler.parsed_bytes();
+
+        if (body_handler.parsed_bytes() >= limits::MIN_BODY_PROGRESS_BYTES) {
+            last_.update();
+            min_body_progress_bytes -= limits::MIN_BODY_PROGRESS_BYTES;
+        }
         
         switch (r) {
             case http::SUCCESS:
+                last_.update();
+                min_body_progress_bytes = 0;
                 std::cout << "Body Read Successfully\n";
                 phase = RequestPhase::FINAL;
                 break;

@@ -17,6 +17,7 @@ namespace core {
         body_handler(_fd, data_view),
         close_after_write(false),
         num_requests(0),
+        min_body_progress_bytes(0),
         loop(l) {}
 
     Connection::~Connection() {
@@ -42,8 +43,4 @@ namespace core {
         return action;
     }
 
-    int Connection::get_fd() const {
-        return fd;
-    }
-    	
 }

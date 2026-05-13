@@ -24,7 +24,7 @@ namespace http {
 		body_type(BodyType::UNSET),
 		body_set(false),
 		chunk_state(ChunkState::CHUNK_SIZE),
-		chunk_remaining(0),
+		current_chunk_size(0),
 		sc(v) {}
 
 	BodyHandler::~BodyHandler() {

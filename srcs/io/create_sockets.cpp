@@ -3,6 +3,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
+#include <sys/epoll.h>
 #include "Error.hpp"
 #include "Result.hpp"
 

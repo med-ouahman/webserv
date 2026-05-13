@@ -10,7 +10,7 @@ class Heap {
     public:
         int min() {
 
-            if (heap.size() == 0)
+            if (heap.size() == 1)
                 return -1;
             return 100; // later;
         };
@@ -21,12 +21,13 @@ namespace io {
 
     int EventLoop::run() {
        
-        struct epoll_event events[MAX_EVENTS];
+        struct epoll_event events[limits::MAX_EVENTS];
 
         Heap heap;
-        
+        size_t cycles = 0;
         while (running) {
-            int n = ::epoll_wait(epoll_fd, events, MAX_EVENTS, heap.min());
+            std::cout << "CYCLE: " << cycles << "\n"; 
+            int n = ::epoll_wait(epoll_fd, events, limits::MAX_EVENTS, heap.min());
             if (n < 0) {
                 LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::run()"));
                 return 1;
@@ -48,8 +49,8 @@ namespace io {
                 update_epoll_interest(conns.at(i));
             }
 
-            check_timeouts();
             sweep();
+            ++cycles;
         }
         
         return int(!running);

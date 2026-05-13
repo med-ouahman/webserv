@@ -7,7 +7,6 @@ namespace core {
     void Connection::process_incoming_data() {
 
         processing = true;
-
         while (processing) {
             switch (phase) {
                 case RequestPhase::BUILDING:

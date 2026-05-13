@@ -132,7 +132,7 @@ STATE_ERROR
 
 States represent **structural position** in the HTTP message. They answer the question: "what part of the HTTP message are we currently parsing?" They do not answer "how far through the current token are we?" — that is the job of cursors and accumulators.
 
-Sub-states are never exposed. They are owned by the innermost scope that needs them. `scan_line()` owns line accumulation state via `line_buf_`. Body progress is tracked by `body_received_`. Chunk progress is tracked by `chunk_remaining_`. None of these appear in the `ParseState` enum.
+Sub-states are never exposed. They are owned by the innermost scope that needs them. `scan_line()` owns line accumulation state via `line_buf_`. Body progress is tracked by `body_received_`. Chunk progress is tracked by `current_chunk_size_`. None of these appear in the `ParseState` enum.
 
 ### Transition Table
 
@@ -164,7 +164,7 @@ CHUNK_SIZE               CRLF found, valid hex size, size == 0       CHUNK_LAST
 CHUNK_SIZE               CRLF found, invalid or extensions present    ERROR
 CHUNK_SIZE               no CRLF yet                                  CHUNK_SIZE (NEED_MORE)
 
-CHUNK_DATA               chunk_remaining == 0                         CHUNK_TRAIL
+CHUNK_DATA               current_chunk_size == 0                         CHUNK_TRAIL
 CHUNK_DATA               not enough bytes yet                         CHUNK_DATA (NEED_MORE)
 
 CHUNK_TRAIL              CRLF found                                   CHUNK_SIZE
@@ -199,7 +199,7 @@ This is the correct granularity for HTTP. There is nothing useful the parser can
 
 The limit check inside `scan_line()` is per-byte — the line is rejected the moment `line_buf_.size()` exceeds the applicable limit, before the garbage has fully arrived.
 
-Body parsing does not use `scan_line()`. Body bytes are read in bulk using `chunk_remaining_` and `body_received_` cursors against the available window.
+Body parsing does not use `scan_line()`. Body bytes are read in bulk using `current_chunk_size_` and `body_received_` cursors against the available window.
 
 ---
 
@@ -306,11 +306,11 @@ The parser uses four states to handle chunked bodies:
 
 **`STATE_CHUNK_SIZE`**
 
-Uses `scan_line()` to read the chunk size line. The line must contain only hexadecimal digits and nothing else. No chunk extensions (`;` and anything after it) are permitted — their presence is `PARSE_ERROR`. The hex value is parsed into `chunk_remaining_`. If the value is zero, transition to `STATE_CHUNK_LAST`. Otherwise transition to `STATE_CHUNK_DATA`. Individual chunk size must not exceed `MAX_CHUNK_SIZE`.
+Uses `scan_line()` to read the chunk size line. The line must contain only hexadecimal digits and nothing else. No chunk extensions (`;` and anything after it) are permitted — their presence is `PARSE_ERROR`. The hex value is parsed into `current_chunk_size_`. If the value is zero, transition to `STATE_CHUNK_LAST`. Otherwise transition to `STATE_CHUNK_DATA`. Individual chunk size must not exceed `MAX_CHUNK_SIZE`.
 
 **`STATE_CHUNK_DATA`**
 
-Reads exactly `chunk_remaining_` bytes and writes them to the temp file. Uses the same cursor approach as identity body — reads `min(chunk_remaining_, available)` bytes per `parse()` call, advances `chunk_remaining_`. When `chunk_remaining_` reaches zero, transitions to `STATE_CHUNK_TRAIL`.
+Reads exactly `current_chunk_size_` bytes and writes them to the temp file. Uses the same cursor approach as identity body — reads `min(current_chunk_size_, available)` bytes per `parse()` call, advances `current_chunk_size_`. When `current_chunk_size_` reaches zero, transitions to `STATE_CHUNK_TRAIL`.
 
 **`STATE_CHUNK_TRAIL`**
 
@@ -417,7 +417,7 @@ The handler accesses the body by opening `body_path` when needed. It does not re
 - Resets `pos_`, `len_`, `data_` to zero/null.
 - Clears `line_buf_` (capacity retained — no reallocation).
 - Resets `header_count_` and `header_block_bytes_` to zero.
-- Resets `body_received_` and `chunk_remaining_` to zero.
+- Resets `body_received_` and `current_chunk_size_` to zero.
 - Closes the body file descriptor if still open.
 
 `reset()` does not reallocate. Internal strings retain their capacity. The parser is immediately ready to receive the next request.

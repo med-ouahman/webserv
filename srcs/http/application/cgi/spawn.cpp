@@ -2,6 +2,7 @@
 #include "CGIContext.hpp"
 #include "EventLoop.hpp"
 #include <sys/wait.h>
+#include <fcntl.h>
 #include <cstdlib>
 
 namespace http {

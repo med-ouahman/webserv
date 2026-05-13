@@ -10,8 +10,8 @@ namespace http {
         write_body();
         
         if (body_bytes_parsed == body_len) {
-             body_state = BodyState::FINISH;
-             std::cout << "Done\n";
+            body_state = BodyState::FINISH;
+            std::cout << "Done\n";
         }
 
         switch (body_state) {
