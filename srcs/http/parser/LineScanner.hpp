@@ -13,9 +13,9 @@ namespace http {
 
 	class LineScanner {
 		private:
-			std::string 		linebuff;
-			core::DataView& 	data_view;
-			bool				cr_found;
+			std::string linebuff;
+			DataView& 	data_view;
+			bool		cr_found;
 
 		public:
 			void reset();
@@ -23,7 +23,7 @@ namespace http {
 			ScanResult scan( size_t max_block_len );
 			bool empty() { return data_view.empty(); };
 			
-			LineScanner( core::DataView& v );
+			LineScanner( DataView& v );
 			~LineScanner();
 	};
 }

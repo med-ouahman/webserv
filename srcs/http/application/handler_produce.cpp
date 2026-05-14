@@ -5,7 +5,7 @@
 
 namespace http {
 
-	ssize_t HTTPResponse::produce( core::BufferWriter* writer ) {
+	ssize_t HTTPResponse::produce( BufferWriter* writer ) {
 		
 		ssize_t bytes = body.size();
 		writer->write(body.c_str(), body.size());

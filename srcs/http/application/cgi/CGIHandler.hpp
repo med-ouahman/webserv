@@ -4,6 +4,7 @@
 #include "PipeGuard.hpp"
 #include "LineScanner.hpp"
 #include "IRequestHandler.hpp"
+#include "Timestamp.hpp"
 
 namespace io {
 	class EventLoop;
@@ -23,7 +24,6 @@ namespace http {
 				SPAWN,
 				ACTIVE,
 				WRITING_BODY,
-				WAITING,
 				FINISHED,
 				ERROR,
 			};
@@ -46,7 +46,7 @@ namespace http {
 		private:
 			CGIHandler( const CGIHandler& );
 			CGIHandler& operator=( const CGIHandler& );
-			static time_t cgi_timeout_ms;
+			static time_t cgi_timeout_secs;
 
 		private:
 			struct CGIOutputState {
@@ -79,21 +79,22 @@ namespace http {
 			IOChannel stderr_ch;
 	
 			core::Connection& conn;
-			core::DataView& stdout_ch_view;
+			DataView& stdout_ch_view;
 			LineScanner scanner;
 
-			time_t start_time;
+			Timestamp start_time;
+			Timestamp sigterm_sent_at;
 
 		public:
 			void on_channel_closed();
 			ScanResult on_input_ready();
-			ssize_t produce_output( core::BufferWriter* writer );
+			ssize_t produce_output( BufferWriter* writer );
 			void on_error();
-			core::DataView& get_stdout_data_view();
+			DataView& get_stdout_data_view();
 			void pull(); // EXPIRED
 			void on_ch_error();
-			CGIState::Type get_cgi_state() const;
 			bool finished();
+			bool timedout();
 			/**/
 
 	};

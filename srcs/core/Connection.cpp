@@ -1,5 +1,3 @@
-
-#include "ConnectionStateMachine.hpp"
 #include "Connection.hpp"
 #include <unistd.h>
 #include <cstring>
@@ -43,4 +41,31 @@ namespace core {
         return action;
     }
 
+    bool Connection::timedout() {
+        
+        double limit = limits::MAX_IDLE_TIMEOUT;
+       
+        switch (phase) {
+            case core::RequestPhase::INITIAL:
+                limit = limits::MAX_INITIAL_TIMEOUT;
+                break;
+            case core::RequestPhase::BUILDING:
+                limit = limits::MAX_HEADER_TIMEOUT;
+                break;
+            case core::RequestPhase::READING_BODY:
+                limit = limits::MAX_BODY_PROGRESS_TIMEOUT;
+                break;
+            case core::RequestPhase::IDLE:
+                limit = limits::MAX_IDLE_TIMEOUT;
+                break;
+            default:
+                limit = 0;
+        }
+
+        if (last_.elapsed() >= limit) {
+            return true;
+        }
+
+        return false;
+    }
 }

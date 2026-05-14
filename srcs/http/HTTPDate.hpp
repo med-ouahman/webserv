@@ -5,7 +5,7 @@
 #include <string>
 #include <sstream>
 
-namespace core {
+namespace http {
 
 	class HTTPDate {
 		
@@ -24,11 +24,11 @@ namespace core {
 				return format(Timestamp::now());
 			}
 
-			static std::string http_header_now() {
+			static std::string http_date_header_now() {
 				return "Date: " + format(Timestamp::now()) + "\r\n";
 			}
 
-			static std::string http_header( const Timestamp& ts ) {
+			static std::string http_date_header( const Timestamp& ts ) {
 				return "Date: " + format(ts) + "\r\n";
 			}
 	};

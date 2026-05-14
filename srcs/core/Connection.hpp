@@ -45,6 +45,7 @@ namespace core {
             void bind_cgi();
             void on_cgi_output_ready();
             void on_cgi_error( http::HTTPStatusCode c, std::string const& reason );
+            bool timedout();
             ConnectionAction action() const;
             void set_mask( uint32_t new_mask ) { event_mask = new_mask; }
             uint32_t get_mask() const { return event_mask; }

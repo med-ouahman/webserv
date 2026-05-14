@@ -5,6 +5,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include "CGIBodyProvider.hpp"
+#include "CGIHandler.hpp"
 
 
 namespace config {
@@ -12,6 +13,7 @@ namespace config {
     bool Config::has_instance = false;
     Config Config::instance;
 }
+
 
 int main( int argc, const char* argv[] ) {
 

@@ -5,7 +5,7 @@
 namespace http {
 
 
-	ssize_t CGIBodyProvider::send_body_content_length( core::BufferWriter* writer ) {
+	ssize_t CGIBodyProvider::send_body_content_length( BufferWriter* writer ) {
 
 		body_bytes_read += writer->size();
 		
@@ -18,7 +18,7 @@ namespace http {
 		return body_bytes_read;
 	}
 
-	ssize_t CGIBodyProvider::send_body_chunked( core::BufferWriter* writer ) {
+	ssize_t CGIBodyProvider::send_body_chunked( BufferWriter* writer ) {
 		std::cout << "Begin sending the body using chunks\n";
 
 		switch (chunk_state) {

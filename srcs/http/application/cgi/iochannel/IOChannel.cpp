@@ -26,7 +26,7 @@ namespace http {
         return data_view.empty();
     }
 
-    core::DataView& IOChannel::get_view( ) {
+    DataView& IOChannel::get_view( ) {
         return data_view;
     }
 

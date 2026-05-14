@@ -21,9 +21,9 @@ namespace http {
 			}
 		}
 
-		::size_t cursor = 0;
-		::size_t line_offset = 0;
-		::size_t method_len = 0;
+		size_t cursor = 0;
+		size_t line_offset = 0;
+		size_t method_len = 0;
 
 		while (cursor < line_c.line().size() && line_c.line()[cursor] != ' ' && method_len <= MAX_METHOD_LEN) {
 			++method_len;
@@ -43,7 +43,7 @@ namespace http {
 		}
 		++cursor;
 		line_offset = cursor;
-		::size_t uri_len = 0;
+		size_t uri_len = 0;
 		while (cursor < line_c.line().size() && line_c.line()[cursor] != ' ' && uri_len <= MAX_URI_LEN) {
 			++uri_len;
 			++cursor;
@@ -57,7 +57,7 @@ namespace http {
 	
 		++cursor;
 		line_offset = cursor;
-		::size_t version_len = 0;
+		size_t version_len = 0;
 		while (cursor < line_c.line().size() && version_len <= MAX_VERSION_LEN) {
 			++version_len;
 			++cursor;

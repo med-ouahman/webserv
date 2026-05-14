@@ -44,7 +44,9 @@ namespace core {
             phase = RequestPhase::READING_BODY;
         }
         else
-        { 
+        {   
+            phase = RequestPhase::FINAL;
+            return ; 
             request_handler = http::HTTPDispatcher::dispatch_request_handler(*this, p.get_request());
             phase = RequestPhase::PROCESSING;
         }

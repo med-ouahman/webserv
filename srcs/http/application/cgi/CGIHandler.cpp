@@ -4,9 +4,11 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <sys/epoll.h>
+#include "Timestamp.hpp"
 
 namespace http {
 
+    time_t CGIHandler::cgi_timeout_secs;
     CGIHandler::CGIHandler( core::Connection& conn_ )
         : output_state(CGIOutputState::STATUS_LINE),
         cgi_state(CGIState::SPAWN),
@@ -18,7 +20,10 @@ namespace http {
         stderr_ch(pipe_guard.stderr_pipe[0], *this, STDStream::STDERR, EPOLLIN),
         conn(conn_),
         stdout_ch_view(stdout_ch.get_view()),
-        scanner(stdout_ch.get_view()) {}
+        scanner(stdout_ch.get_view()),
+        sigterm_sent_at(0) {
+            cgi_timeout_secs = 30; // config::Config::get_config().server.cgi_timeout; // NOT FOUND
+        }
 
     CGIHandler::~CGIHandler() {
         ::kill(cgi_pid, SIGTERM);
@@ -27,12 +32,12 @@ namespace http {
         std::cout << WEXITSTATUS(cgi_status) << "\n";
     }
 
-    core::DataView& CGIHandler::get_stdout_data_view() {
+    DataView& CGIHandler::get_stdout_data_view() {
         return stdout_ch_view;
     }
 
     void CGIHandler::handle() {
-         
+        
         try {
             spawn(conn.loop, *conn.current_res.cgi_context);
         } catch ( std::runtime_error& err ) {
@@ -45,4 +50,39 @@ namespace http {
     bool CGIHandler::done() {
         return cgi_state == CGIState::FINISHED;
     }
+
+    bool CGIHandler::timedout() {
+        
+        if (sigterm_sent_at.seconds() == 0) {
+
+            if (start_time.elapsed() >= cgi_timeout_secs) {
+                sigterm_sent_at.update();
+                ::kill(cgi_pid, SIGTERM);
+                if (0 == ::waitpid(cgi_pid, &cgi_status, WNOHANG))
+                    return false;
+                cgi_state = CGIState::ERROR;
+                conn.on_cgi_error(GATEWAY_TIMEOUT, "Gateway Timeout");
+                return true;
+            }
+
+        } else if (sigterm_sent_at.elapsed() >= limits::MAX_CGI_WAIT_AFTER_SIGTERM) {
+            ::kill(cgi_pid, SIGKILL);
+
+            ::waitpid(cgi_pid, &cgi_status, WNOHANG);
+            conn.on_cgi_error(GATEWAY_TIMEOUT, "Gateway Timeout");
+            cgi_state = CGIState::ERROR;
+            return true;
+        }
+
+        return false;
+    }
+
+
+	void CGIHandler::on_ch_error() {	
+		cgi_state = CGIState::ERROR;
+	}
+
+	bool CGIHandler::finished() {
+		return cgi_state == CGIState::ERROR || cgi_state == CGIState::FINISHED;
+	}
 }

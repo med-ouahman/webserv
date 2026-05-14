@@ -4,6 +4,7 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <cstdlib>
+#include "Timestamp.hpp"
 
 namespace http {
 
@@ -24,6 +25,7 @@ namespace http {
         }
 
         cgi_state = CGIState::ACTIVE;
+        start_time.update();
         cgi_pid = ::fork();
         if (cgi_pid == 0) {
 

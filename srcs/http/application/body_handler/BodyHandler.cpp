@@ -11,7 +11,7 @@ namespace http {
 	
 	const std::string BodyHandler::hexas = "0123456789abcdef";
 	
-	BodyHandler::BodyHandler( int fd, core::DataView& v )
+	BodyHandler::BodyHandler( int fd, DataView& v )
 		: body_storage(BodyStorage::NONE),
 		body_state(BodyState::PREPARING),
 		data_view(v),
@@ -36,7 +36,7 @@ namespace http {
 		}
 	}
 
-	ssize_t BodyHandler::produce_body_chunk( core::BufferWriter* writer ) {
+	ssize_t BodyHandler::produce_body_chunk( BufferWriter* writer ) {
 		
 		if (body_storage == BodyStorage::FILE_TEMP || body_storage == BodyStorage::FILE_PERM) {
 

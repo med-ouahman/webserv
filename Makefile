@@ -34,14 +34,12 @@ INCLUDES = -Iincludes \
 
 SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/Connection.cpp \
-	srcs/core/ConnectionStateMachine.cpp \
 	srcs/core/process_incoming_data.cpp \
 	srcs/core/process_outgoing_data.cpp \
 	srcs/core/conn_cgi.cpp \
 	srcs/core/conn_process.cpp \
 	srcs/core/conn_handle_event.cpp \
 	srcs/core/conn_request_phase.cpp \
-	srcs/core/dispatch_parser_result.cpp \
 	srcs/core/on_cgi_finished.cpp \
 	srcs/core/DataView.cpp \
 	srcs/core/BufferWriter.cpp \
@@ -51,7 +49,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/application/body_handler/read_body.cpp \
 	srcs/http/parser/parser_utils.cpp \
 	srcs/http/parser/HTTPRequest.cpp \
-	srcs/http/parser/parser_consume.cpp \
+	srcs/http/parser/http_parse.cpp \
 	srcs/http/application/body_handler/detect_body.cpp \
 	srcs/http/application/body_handler/parse_chunk_size.cpp \
 	srcs/http/parser/LineScanner.cpp \

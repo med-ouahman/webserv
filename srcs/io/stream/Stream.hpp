@@ -38,8 +38,8 @@ namespace io {
 			bool processing;
 			EventType io_event;
 			ssize_t bytes_r;
-			core::DataView data_view;
-			core::BufferWriter writer;
+			DataView data_view;
+			BufferWriter writer;
 			
 		protected:
 			void read();

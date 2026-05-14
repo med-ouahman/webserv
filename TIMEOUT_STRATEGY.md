@@ -113,7 +113,7 @@ Each connection progresses through distinct phases, each with its own timeout po
 ### 7. CGI Execution Timeout
 **Duration**: 30 seconds  
 **Starts**: When CGI child process is forked  
-**Ends**: When CGI process exits or is killed  
+**Ends**: When CGI process exits or is killed
 **Purpose**: Prevent runaway or malicious CGI scripts from consuming resources indefinitely
 
 **Rationale**: Well-written CGI scripts execute quickly. Scripts that hang or loop infinitely must be terminated.

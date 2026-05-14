@@ -24,7 +24,7 @@ namespace io {
         for ( size_t i(0); i < conns.size(); ) {
             bool drop = conns[i]->action().want_close;
             std::cout << (drop?"want close\n":"");
-            drop = drop or timedout(conns[i]);
+            drop = drop or conns[i]->timedout();
             if (drop)
             {
                 del_fd(conns[i]->get_fd());
@@ -35,8 +35,15 @@ namespace io {
             else ++i;
         }
        
-        for ( size_t i(0); i < cgi_bin.size(); ++i ) {
-            delete cgi_bin[i];
+        for ( size_t i(0); i < cgi_bin.size(); ) {
+
+            bool drop = cgi_bin[i]->finished();
+
+            drop = drop or cgi_bin[i]->timedout();
+            if (drop) {
+                delete cgi_bin[i];
+                cgi_bin.erase(cgi_bin.begin() + 1);
+            } else ++i;
         }
 
         cgi_bin.clear();
@@ -64,31 +71,5 @@ namespace io {
         cgi_bin.push_back(h);
     }
 
-    bool EventLoop::timedout( core::Connection* conn ) {
-        
-        double limit = limits::MAX_IDLE_TIMEOUT;
-       
-        switch (conn->request_phase()) {
-            case core::RequestPhase::INITIAL:
-                limit = limits::MAX_INITIAL_TIMEOUT;
-                break;
-            case core::RequestPhase::BUILDING:
-                limit = limits::MAX_HEADER_TIMEOUT;
-                break;
-            case core::RequestPhase::READING_BODY:
-                limit = limits::MAX_BODY_PROGRESS_TIMEOUT;
-                break;
-            case core::RequestPhase::IDLE:
-                limit = limits::MAX_IDLE_TIMEOUT;
-            default:
-                limit = 0;
-        }
-
-        if (conn->last().elapsed() >= limit) {
-            return true;
-        }
-
-        return false;
-    }
 
 }

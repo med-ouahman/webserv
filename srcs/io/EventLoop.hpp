@@ -27,13 +27,13 @@ namespace io {
 			std::vector<core::Connection*> conns;
 			std::vector<ListeningSocket> listeners;
 			std::vector<http::CGIHandler*> cgi_bin;
+			
 			EventLoop( const EventLoop& other );
 			EventLoop& operator=( const EventLoop& other );
 			error::Result<int> create_listening_socket( const config::ListenEndPoint& endpoint );
 			bool start_listeners();
 			void sweep();
 			void update_epoll_interest( core::Connection* conn );
-			bool timedout( core::Connection* conn );
 			
 		public:
 			explicit EventLoop();

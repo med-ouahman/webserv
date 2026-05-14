@@ -2,7 +2,7 @@
 
 namespace http {
 	
-	HTTPParser::HTTPParser( core::DataView& v )
+	HTTPParser::HTTPParser( DataView& v )
 		: headers_done(false),
 		
 		leading_crlf_count(0),

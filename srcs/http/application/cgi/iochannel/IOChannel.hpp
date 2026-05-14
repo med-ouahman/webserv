@@ -40,7 +40,7 @@ namespace http {
             int get_fd() const;
             uint32_t get_event() const;
             ~IOChannel();
-            core::DataView& get_view();
+            DataView& get_view();
             void process();
             void shutdown();
             std::string channel_type( STDStream::Type S );

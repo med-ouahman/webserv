@@ -3,7 +3,6 @@
 #include <iostream>
 #include <stdint.h>
 #include "ConnectionState.hpp"
-#include "ConnectionEvent.hpp"
 #include "HTTPRequest.hpp"
 #include "Config.hpp"
 #include "LineScanner.hpp"
@@ -32,12 +31,11 @@ namespace http {
             static const std::size_t MAX_HEADER_VALUE_LEN = 8192;
             static const std::size_t MAX_HEADER_COUNT     = 100;
             static const std::size_t MAX_HEADER_BLOCK_LEN = 16384;  // 16 KB
-            static const std::size_t MAX_BODY_LEN         = 10 * 1024 * 1024;  // 10 MB
             static const std::size_t MAX_CHUNK_SIZE       = 1  * 1024 * 1024;  // 1 MB
             static const std::size_t MAX_LEADING_CRLF     = 5;
     
         private:
-            bool headers_done;    
+            bool headers_done;
             size_t leading_crlf_count;
             size_t header_count;
             HTTPRequest request;
@@ -55,7 +53,7 @@ namespace http {
                 };
             };
 
-            explicit HTTPParser( core::DataView& v );
+            explicit HTTPParser( DataView& v );
             ~HTTPParser();
             ScanResult parse();
             HTTPRequest& get_request();
@@ -64,7 +62,6 @@ namespace http {
             bool finished() { return headers_done; }
             
         private:
-           
             ScanResult parse_request_line();
             ScanResult parse_headers();
             bool add_request_header( std::string const& s );

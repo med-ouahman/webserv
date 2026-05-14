@@ -2,15 +2,6 @@
 
 namespace http {
 
-	CGIState::Type CGIHandler::get_cgi_state() const {
-		return cgi_state;
-	}
-	
-	void CGIHandler::on_ch_error() {	
-		cgi_state = CGIState::ERROR;
-	}
 
-	bool CGIHandler::finished() {
-		return cgi_state == CGIState::FINISHED;
-	}
+	
 }

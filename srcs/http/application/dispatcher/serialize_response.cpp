@@ -9,7 +9,7 @@ namespace http {
     const char* HTTPResponse::COLON = ":";
     const char* HTTPResponse::CRLF = "\r\n";
     
-    size_t HTTPResponse::serialize_headers( core::BufferWriter* writer ) {
+    size_t HTTPResponse::serialize_headers( BufferWriter* writer ) {
         serialize_state = BODY;
         if (serialize_state == RESPONSE_LINE) {
             std::cout<< "Serializing Response Line\n";

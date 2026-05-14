@@ -18,12 +18,9 @@ namespace http {
 
     class CGIBodyProvider: public IBodyProvider {
 
-        private:
-            const static std::size_t MIN_CHUNK_SIZE = 1024 * 8; // 8KB
-
         public:
             bool    finished() const;
-            ssize_t read( core::BufferWriter* writer );
+            ssize_t read( BufferWriter* writer );
             explicit CGIBodyProvider( CGIHandler& h, BodySendMethod::Type body_method, size_t size );
             ~CGIBodyProvider();
 
@@ -47,15 +44,15 @@ namespace http {
             BodySendMethod::Type send_method;
             ChunkState::Type chunk_state;
             CGIHandler& cgi_handler;
-            core::DataView& data_view;
-            core::BufferWriter temp_writer;
+            DataView& data_view;
+            BufferWriter temp_writer;
 
             CGIBodyProvider( const CGIBodyProvider& other );
             CGIBodyProvider& operator=( const CGIBodyProvider& other );
             
             void format_chunk( size_t chunk_size );
-            ssize_t send_body_content_length( core::BufferWriter* writer );
-            ssize_t send_body_chunked( core::BufferWriter* writer );
+            ssize_t send_body_content_length( BufferWriter* writer );
+            ssize_t send_body_chunked( BufferWriter* writer );
 
             void chunk_head();
             void chunk_data();

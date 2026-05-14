@@ -2,7 +2,7 @@
 
 namespace http {
 
-	LineScanner::LineScanner( core::DataView& v )
+	LineScanner::LineScanner( DataView& v )
 	:data_view(v),
 	cr_found(false)
 	{}

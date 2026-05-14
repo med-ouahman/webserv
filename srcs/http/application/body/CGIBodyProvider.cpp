@@ -23,7 +23,7 @@ namespace http {
         return true;
     }
 
-    ssize_t CGIBodyProvider::read( core::BufferWriter* writer ) {
+    ssize_t CGIBodyProvider::read( BufferWriter* writer ) {
 
         switch (send_method) {
             case BodySendMethod::CHUNKED:

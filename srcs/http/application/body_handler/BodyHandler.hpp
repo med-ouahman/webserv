@@ -65,9 +65,9 @@ namespace http {
             BodyHandler& operator=( const BodyHandler& );
             
 		public:
-			explicit BodyHandler( int fd, core::DataView& v );
+			explicit BodyHandler( int fd, DataView& v );
 			~BodyHandler();
-			ssize_t produce_body_chunk( core::BufferWriter* writer );
+			ssize_t produce_body_chunk( BufferWriter* writer );
             void prepare_body( BodyPolicy& p );
             ScanResult read_body();
             size_t parsed_bytes() const { return body_bytes_parsed; };
@@ -76,7 +76,7 @@ namespace http {
             BodyStorage::Type body_storage;
             BodyState::Type body_state;
 
-            core::DataView& data_view;
+            DataView& data_view;
             std::string body_buff;
  			const int conn_fd;
             const char* body_dir;

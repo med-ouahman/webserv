@@ -7,7 +7,7 @@ namespace core {
     void Connection::process_incoming_data() {
 
         processing = true;
-        std::cout << "Wtf??\n";
+        std::cout << "Request Phase: " << phase <<"\n";
         while (processing) {
             switch (phase) {
                 case RequestPhase::BUILDING: case RequestPhase::INITIAL:
@@ -28,10 +28,13 @@ namespace core {
                     break;
                 case RequestPhase::FINAL:
                     state = ConnectionState::WRITING;
+                    phase = RequestPhase::WRITING_RESPONSE;
                     response.body = "HTTP/1.1 200 OK\r\n";
                     processing = false;
                     close_after_write = true;
                     break;
+                default:
+                    return ;
             }
         }
     }
