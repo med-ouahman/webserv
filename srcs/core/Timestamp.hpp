@@ -12,17 +12,17 @@ namespace core {
 			Timestamp& operator=( const Timestamp& );
 			
 		public:
-			Timestamp(): seconds_(time(NULL)) {}
+			explicit Timestamp(): seconds_(::time(NULL)) {}
 			static Timestamp now() {
 				return Timestamp();
 			};
 
 			void update() {
-				seconds_ = time(NULL);
+				seconds_ = ::time(NULL);
 			};
 
 			double elapsed() const {
-				return difftime(time(NULL), seconds_);
+				return ::difftime(::time(NULL), seconds_);
 			};
 
 			time_t seconds() const {

@@ -12,19 +12,19 @@ namespace core {
         
         event_mask(mask),
         state(ConnectionState::IDLE),
-        phase(RequestPhase::BUILDING),
+        phase(RequestPhase::INITIAL),
         p(data_view),
         body_handler(_fd, data_view),
         close_after_write(false),
         num_requests(0),
-        min_body_progress_bytes(0),
+        body_bytes_received(0),
         loop(l) {}
 
     Connection::~Connection() {
         state = ConnectionState::CLOSING;
     }
 
-    ConnectionAction Connection::desired_action() const {
+    ConnectionAction Connection::action() const {
         ConnectionAction action;
 
         switch (state) {

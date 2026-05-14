@@ -22,8 +22,8 @@ namespace io {
     void EventLoop::sweep() {
 
         for ( size_t i(0); i < conns.size(); ) {
-            bool drop = conns[i]->desired_action().want_close;
-
+            bool drop = conns[i]->action().want_close;
+            std::cout << (drop?"want close\n":"");
             drop = drop or timedout(conns[i]);
             if (drop)
             {
@@ -36,8 +36,7 @@ namespace io {
         }
        
         for ( size_t i(0); i < cgi_bin.size(); ++i ) {
-        
-            delete cgi_bin[i];   
+            delete cgi_bin[i];
         }
 
         cgi_bin.clear();
@@ -46,7 +45,7 @@ namespace io {
     void EventLoop::update_epoll_interest( core::Connection* conn ) {
 
         uint32_t new_mask = EPOLLIN;
-        core::ConnectionAction action = conn->desired_action();
+        core::ConnectionAction action = conn->action();
         
         if (action.want_write) {
             new_mask = EPOLLOUT;
@@ -70,15 +69,19 @@ namespace io {
         double limit = limits::MAX_IDLE_TIMEOUT;
        
         switch (conn->request_phase()) {
-            
+            case core::RequestPhase::INITIAL:
+                limit = limits::MAX_INITIAL_TIMEOUT;
+                break;
             case core::RequestPhase::BUILDING:
                 limit = limits::MAX_HEADER_TIMEOUT;
                 break;
             case core::RequestPhase::READING_BODY:
                 limit = limits::MAX_BODY_PROGRESS_TIMEOUT;
                 break;
-            default:
+            case core::RequestPhase::IDLE:
                 limit = limits::MAX_IDLE_TIMEOUT;
+            default:
+                limit = 0;
         }
 
         if (conn->last().elapsed() >= limit) {

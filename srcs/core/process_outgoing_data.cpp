@@ -19,7 +19,7 @@ namespace core {
         
         if (produced == 0) {
             if (close_after_write) state = ConnectionState::CLOSING;
-            else if (!data_view.empty()) state = ConnectionState::READING;
+            else phase = RequestPhase::IDLE;
         }
         
     }

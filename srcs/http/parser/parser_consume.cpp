@@ -11,16 +11,14 @@ namespace http {
 	
 		if (ParseState::REQUEST_LINE == parse_state) {
 			r = parse_request_line();
-		}
-
-		if (ParseState::HEADERS == parse_state) {
+		} else if (ParseState::HEADERS == parse_state) {
 			r = parse_headers();
 		}
 
 		if (ParseState::ERROR == parse_state) {
 			return ERROR;
 		}
-		
+		std::cout << r << "\n";
 		return r;
 	}
 }

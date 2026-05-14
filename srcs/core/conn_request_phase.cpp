@@ -11,7 +11,7 @@ namespace core {
     void Connection::request_building() {
 
         http::ScanResult result = p.parse();
-
+        
         switch (result) {
             case http::NEED_MORE:
                 processing = false;
@@ -22,7 +22,8 @@ namespace core {
                 break;
             case http::SUCCESS:
                 last_.update();
-                phase = RequestPhase::RESOLVING;
+                phase = p.finished() ? RequestPhase::RESOLVING: RequestPhase::BUILDING;
+                processing = phase == RequestPhase::RESOLVING;
                 break;
         }
 
@@ -51,24 +52,27 @@ namespace core {
 
     void Connection::request_processing() {
         request_handler->handle();
-        processing = not request_handler->done();
+        
+        phase = request_handler->done()
+            ? RequestPhase::FINAL
+            : phase;
     }
 
     void Connection::request_reading_body() {
         
         http::ScanResult r = body_handler.read_body();
 
-        min_body_progress_bytes += body_handler.parsed_bytes();
+        body_bytes_received += body_handler.parsed_bytes();
 
         if (body_handler.parsed_bytes() >= limits::MIN_BODY_PROGRESS_BYTES) {
             last_.update();
-            min_body_progress_bytes -= limits::MIN_BODY_PROGRESS_BYTES;
+            body_bytes_received %= limits::MIN_BODY_PROGRESS_BYTES;
         }
         
         switch (r) {
             case http::SUCCESS:
                 last_.update();
-                min_body_progress_bytes = 0;
+                body_bytes_received = 0;
                 std::cout << "Body Read Successfully\n";
                 phase = RequestPhase::FINAL;
                 break;

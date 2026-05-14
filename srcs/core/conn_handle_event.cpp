@@ -3,7 +3,6 @@
 namespace core {
 
 	void Connection::handle_event() {
-		
 		switch (io_event) {
 			case io::NONE:
 				break;

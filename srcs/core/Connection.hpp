@@ -29,7 +29,7 @@ namespace core {
             http::BodyHandler body_handler;
             bool close_after_write;
             size_t num_requests;
-            size_t min_body_progress_bytes;
+            size_t body_bytes_received;
             http::HTTPResponse response;
             http::IRequestHandler* request_handler;
             Timestamp last_;
@@ -45,7 +45,7 @@ namespace core {
             void bind_cgi();
             void on_cgi_output_ready();
             void on_cgi_error( http::HTTPStatusCode c, std::string const& reason );
-            ConnectionAction desired_action() const;
+            ConnectionAction action() const;
             void set_mask( uint32_t new_mask ) { event_mask = new_mask; }
             uint32_t get_mask() const { return event_mask; }
             http::HTTPResponse& get_response() { return response; };
@@ -55,14 +55,14 @@ namespace core {
         private:
             void on_client_error();
             void process();
-            void process_outgoing_data();
             void process_incoming_data();
             void handle_event();
             void on_read_eof();
             void on_read_error();
+            void process_outgoing_data();
             void on_write_complete();
             void on_write_error();
-
+            /* */
             void request_building();
             void request_resloving();
             void request_processing();
