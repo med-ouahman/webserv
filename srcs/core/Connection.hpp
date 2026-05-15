@@ -21,6 +21,7 @@ namespace config {
 namespace core {
 
     class Connection: public io::Stream {
+        
         private:
             uint32_t event_mask;
             ConnectionState::Type state;
@@ -33,10 +34,7 @@ namespace core {
             http::HTTPResponse response;
             http::IRequestHandler* request_handler;
             Timestamp last_;
-            
         public:
-            Timestamp& last() { return last_; };
-            http::ResolutionResult current_res;
             io::EventLoop& loop;
             explicit Connection( int fd, uint32_t mask, io::EventLoop& loop );
             ~Connection();
@@ -52,7 +50,6 @@ namespace core {
             http::HTTPResponse& get_response() { return response; };
             http::BodyHandler& get_body_handler() { return body_handler;};
             RequestPhase::Type request_phase() const { return phase; }
-
         private:
             void on_client_error();
             void process();

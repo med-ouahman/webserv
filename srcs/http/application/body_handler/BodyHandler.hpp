@@ -9,7 +9,7 @@
 
 namespace http {
 
-    struct BodyPolicy;
+    struct BodyConf;
     
     struct BodyType {
         enum Type {
@@ -68,7 +68,7 @@ namespace http {
 			explicit BodyHandler( int fd, DataView& v );
 			~BodyHandler();
 			ssize_t produce_body_chunk( BufferWriter* writer );
-            void prepare_body( BodyPolicy& p );
+            void prepare_body( BodyConf& p );
             ScanResult read_body();
             size_t parsed_bytes() const { return body_bytes_parsed; };
 

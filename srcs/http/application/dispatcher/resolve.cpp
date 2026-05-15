@@ -9,7 +9,6 @@ namespace http {
         return url;
     }
 
-
     bool HTTPDispatcher::file_exists( const char* filename ) {
         struct stat buf;
 
@@ -29,7 +28,6 @@ namespace http {
         result.reason = "";
         result.status_code = http::OK;
         result.type = HTTPResponseType::CGI;
-        configure_body_policy(req, result);
         return result;
         const config::LocationConfig* location = find_location(req.url, server.locations);
         const std::string path = extract_path(req.url);

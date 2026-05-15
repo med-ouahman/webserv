@@ -22,11 +22,10 @@ namespace http {
     }
 
 
-    CGIContext HTTPDispatcher::get_cgi_context( const HTTPRequest& req, const ResolutionResult& result ) {
+    CGIContext HTTPDispatcher::get_cgi_context( const ResolutionResult& result ) {
         
         CGIContext ctx;
 
-        (void)req;
         (void)result;
         
         std::string cgi_home = std::string(getenv("HOME")) +  "/cgin-bin/";
@@ -43,43 +42,42 @@ namespace http {
         return ctx;
     }
 
-    void HTTPDispatcher::configure_body_policy( const HTTPRequest& req, ResolutionResult& result ) {
+    BodyConf HTTPDispatcher::configure_body( const HTTPRequest& req, const ResolutionResult& result ) {
+        BodyConf body;
         
-        result.body_policy.type = detect_body_type(const_cast<std::map<std::string, std::string>&>(req.headers));
+        body.type = detect_body_type(req);
         
-        if (result.body_policy.type == BodyType::NONE) {
-            return ;
+        if (body.type == BodyType::NONE) {
+            return body;
         }
 
         char* end = NULL;        
-        result.body_policy.parsed_body_size = ::strtoul(const_cast<HTTPRequest&>(req).headers["content-length"].c_str(), &end, 10);
+        body.parsed_body_size = ::strtoul(const_cast<HTTPRequest&>(req).headers["content-length"].c_str(), &end, 10);
         
-        if (end && *end != '\0') {
+        if (end && *end not_eq '\0') {
             std::cout << "Bad Content length\n";
-            result.status_code = BAD_REQUEST;
-            result.reason = "Bad Request";
-            result.body_policy.type = BodyType::ERROR;
-            return ;
+            body.type = BodyType::ERROR;
+            return body;
         }
 
-        if (result.body_policy.parsed_body_size > config::Config::get_config().server.client_max_body_size) {
-            result.status_code = PAYLOAD_TOO_LARGE;
-            result.reason = "Payload Too Large";
-            result.body_policy.type = BodyType::ERROR;
-            return ;
+        if (body.parsed_body_size > config::Config::get_config().server.client_max_body_size) {
+            body.type = BodyType::ERROR;
+            return body;
         }
 
         if (result.type == HTTPResponseType::CGI) {
-            result.body_policy.storage = BodyStorage::FILE_TEMP;
-            return ;
+            body.storage = BodyStorage::FILE_TEMP;
+            return body;
         }
 
-        result.body_policy.body_path = result.path;
-        result.body_policy.storage = BodyStorage::FILE_PERM;
+        body.path = result.path;
+        body.storage = BodyStorage::FILE_PERM;
         
-        if (result.body_policy.parsed_body_size < MAX_BUFFERED_BODY_SIZE) {
-            result.body_policy.storage = BodyStorage::BUFFER;
+        if (body.parsed_body_size < MAX_BUFFERED_BODY_SIZE) {
+            body.storage = BodyStorage::BUFFER;
         }
+
+        return body;
     }
 
 }

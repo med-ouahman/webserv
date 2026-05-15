@@ -9,7 +9,8 @@
 namespace http {
 
     time_t CGIHandler::cgi_timeout_secs;
-    CGIHandler::CGIHandler( core::Connection& conn_ )
+
+    CGIHandler::CGIHandler( core::Connection& conn_, const ResolutionResult res_ )
         : output_state(CGIOutputState::STATUS_LINE),
         cgi_state(CGIState::SPAWN),
         cgi_pid(-1),
@@ -19,6 +20,7 @@ namespace http {
         stdout_ch(pipe_guard.stdout_pipe[0], *this, STDStream::STDOUT, EPOLLIN),
         stderr_ch(pipe_guard.stderr_pipe[0], *this, STDStream::STDERR, EPOLLIN),
         conn(conn_),
+        result(res_),
         stdout_ch_view(stdout_ch.get_view()),
         scanner(stdout_ch.get_view()),
         sigterm_sent_at(0) {
@@ -39,7 +41,7 @@ namespace http {
     void CGIHandler::handle() {
         
         try {
-            spawn(conn.loop, *conn.current_res.cgi_context);
+            spawn(conn.loop);
         } catch ( std::runtime_error& err ) {
             std::cout << err.what() << "\n";
             cgi_state = CGIState::ERROR;
@@ -68,7 +70,7 @@ namespace http {
         } else if (sigterm_sent_at.elapsed() >= limits::MAX_CGI_WAIT_AFTER_SIGTERM) {
             ::kill(cgi_pid, SIGKILL);
 
-            ::waitpid(cgi_pid, &cgi_status, WNOHANG);
+            ::waitpid(cgi_pid, &cgi_status, 0);  // should be blocking to ensuer the process is reaped
             conn.on_cgi_error(GATEWAY_TIMEOUT, "Gateway Timeout");
             cgi_state = CGIState::ERROR;
             return true;

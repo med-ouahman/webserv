@@ -30,26 +30,27 @@ namespace core {
     }
 
     void Connection::request_resloving() {
-        
-        current_res = http::HTTPDispatcher::resolve(p.get_request());
 
-        if (current_res.body_policy.type == http::BodyType::ERROR)
-        {
+        http::ResolutionResult result = http::HTTPDispatcher::resolve(p.get_request());
+
+        request_handler = http::HTTPDispatcher::create_request_handler(*this, result);
+        
+        http::BodyConf b = http::HTTPDispatcher::configure_body(p.get_request(), result);
+        
+        if (b.type == http::BodyType::ERROR) {
             on_client_error();
             processing = false;
-        } 
-        else if (current_res.body_policy.type != http::BodyType::NONE)
-        {
-            body_handler.prepare_body(current_res.body_policy);
-            phase = RequestPhase::READING_BODY;
+            return ;
         }
-        else
-        {   
-            phase = RequestPhase::FINAL;
-            return ; 
-            request_handler = http::HTTPDispatcher::dispatch_request_handler(*this, p.get_request());
+        
+        if (b.type == http::BodyType::NONE) {
             phase = RequestPhase::PROCESSING;
+            return ;
         }
+
+        body_handler.prepare_body(b);
+        
+        phase = RequestPhase::READING_BODY;
     }
 
     void Connection::request_processing() {
