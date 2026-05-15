@@ -26,8 +26,8 @@ namespace http {
         }
 
     CGIHandler::~CGIHandler() {
-        ::kill(cgi_pid, SIGTERM);
-        ::waitpid(cgi_pid, &cgi_status, WNOHANG);
+        ::kill(cgi_pid, SIGKILL);
+        ::waitpid(cgi_pid, &cgi_status, 0);
         std::cout << "CGI CLEARED\n";
         std::cout << WEXITSTATUS(cgi_status) << "\n";
     }
