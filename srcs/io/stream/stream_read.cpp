@@ -4,8 +4,7 @@
 namespace io {
 
     void Stream::read() {
-        bytes_r = ::read(fd, readbuf, READ_BUFFER_SIZE);
-        std::cout << "B: " << bytes_r << "\n";
+        bytes_r = ::read(fd_, readbuf, READ_BUFFER_SIZE);
     }
     
 }

@@ -56,7 +56,7 @@ namespace http {
 		return to_copy;
 	}
 
-	void BodyHandler::prepare_body( BodyPolicy& p ) {
+	void BodyHandler::prepare_body( BodyConf& p ) {
 		std::cout << "Preparing body\n";
 		body_type = p.type;
 		body_storage = p.storage;
@@ -67,7 +67,7 @@ namespace http {
 		if (body_storage == BodyStorage::BUFFER)
 			return ;
 			
-		body_path = p.body_path;
+		body_path = p.path;
 		if (body_storage == BodyStorage::FILE_TEMP) {
 			std::stringstream ss;
 			ss << conn_fd;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limits.hpp>
+#include "Limits.hpp"
 #include <vector>
 #include "ListeningSocket.hpp"
 #include "Config.hpp"
@@ -16,7 +16,7 @@ namespace http {
 }
 
 namespace io {
-	class IIOHandler;
+	class AIOHandler;
 
 	typedef int second_t;
 
@@ -41,8 +41,8 @@ namespace io {
 			int run(); 
 			bool add_connection( int client_fd );
 			
-			bool add_fd( int fd, uint32_t events, IIOHandler* handler ) const;
-			bool mod_fd( int fd, uint32_t events, IIOHandler* handler ) const;
+			bool add_fd( int fd, uint32_t events, AIOHandler* handler ) const;
+			bool mod_fd( int fd, uint32_t events, AIOHandler* handler ) const;
 			bool del_fd( int fd ) const;
 			void add_cgi_handler( http::CGIHandler* h );
 		

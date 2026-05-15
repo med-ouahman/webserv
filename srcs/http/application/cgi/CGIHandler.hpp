@@ -5,6 +5,7 @@
 #include "LineScanner.hpp"
 #include "IRequestHandler.hpp"
 #include "Timestamp.hpp"
+#include "HTTPDispatcher.hpp"
 
 namespace io {
 	class EventLoop;
@@ -17,10 +18,11 @@ namespace core {
 
 namespace http {
 
+	struct ResolutionResult;
+
 	class CGIState {
 		public:
 			enum Type {
-
 				SPAWN,
 				ACTIVE,
 				WRITING_BODY,
@@ -37,8 +39,8 @@ namespace http {
 			const static std::size_t MAX_BLOCK_LEN = 1024 * 16; // 16KB
 			const static std::size_t MAX_CGI_BODY_LEN = 1024 * 1024; // 1MB
 			
-			explicit CGIHandler( core::Connection& conn_ );
-			void spawn( const io::EventLoop& loop, const CGIContext& context );
+			explicit CGIHandler( core::Connection& conn_, const ResolutionResult result_ );
+			void spawn( const io::EventLoop& loop );
 			void handle();
 			bool done();
 			~CGIHandler();
@@ -79,6 +81,7 @@ namespace http {
 			IOChannel stderr_ch;
 	
 			core::Connection& conn;
+			const ResolutionResult result;
 			DataView& stdout_ch_view;
 			LineScanner scanner;
 
@@ -91,7 +94,6 @@ namespace http {
 			ssize_t produce_output( BufferWriter* writer );
 			void on_error();
 			DataView& get_stdout_data_view();
-			void pull(); // EXPIRED
 			void on_ch_error();
 			bool finished();
 			bool timedout();

@@ -1,12 +1,18 @@
 #include "HTTPDispatcher.hpp"
+#include "HTTPRequest.hpp"
 
 namespace http {
 
-	BodyType::Type HTTPDispatcher::detect_body_type( std::map<std::string, std::string>& headers )  {
+	BodyType::Type HTTPDispatcher::detect_body_type( const HTTPRequest& request )  {
 
-		std::string& transfer_encoding = headers["transfer-encoding"];
+		if (request.method == GET or request.method == DELETE) {
+			return BodyType::NONE;
+		}
 
-		bool has_content_length = not headers["content-length"].empty();
+		std::string& transfer_encoding = const_cast<std::map<std::string, std::string>&>(request.headers)["transfer-encoding"];
+
+		bool has_content_length = not const_cast<std::map<std::string, std::string>&>(request.headers)["content-length"].empty();
+		
 		bool has_transfer_encoding = not transfer_encoding.empty();
 
 		if (has_transfer_encoding and transfer_encoding != "chunked") {

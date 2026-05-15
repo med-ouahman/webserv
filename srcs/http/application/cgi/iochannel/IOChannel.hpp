@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Stream.hpp"
-#include "IDataListener.hpp"
 #include "DataView.hpp"
 
 namespace http {
@@ -37,7 +36,6 @@ namespace http {
             
         public:
             explicit IOChannel( int fd, CGIHandler& h, STDStream::Type stream_type, uint32_t event_mask );
-            int get_fd() const;
             uint32_t get_event() const;
             ~IOChannel();
             DataView& get_view();

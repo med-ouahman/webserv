@@ -15,7 +15,7 @@
 11. [Body Storage](#11-body-storage)
 12. [Content-Length Body](#12-content-length-body)
 13. [Chunked Transfer-Encoding Body](#13-chunked-transfer-encoding-body)
-14. [Hard Limits](#14-hard-limits)
+14. [Hard Limits](#14-hard-Limits)
 15. [Error Handling](#15-error-handling)
 16. [HTTPRequest Structure](#16-httprequest-structure)
 17. [Reset Behavior](#17-reset-behavior)
@@ -326,7 +326,7 @@ The total body size across all chunks is accumulated and checked against `MAX_BO
 
 ## 14. Hard Limits
 
-All limits are named constants in the `ParserLimits` namespace. Exceeding any limit produces `PARSE_ERROR` immediately — not after the full value has been received.
+All Limits are named constants in the `ParserLimits` namespace. Exceeding any limit produces `PARSE_ERROR` immediately — not after the full value has been received.
 
 ```cpp
 namespace ParserLimits

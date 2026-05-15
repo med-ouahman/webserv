@@ -47,8 +47,7 @@ namespace core {
 	}
 
 	void Connection::on_cgi_output_ready() {
-		state = ConnectionState::WRITING;
-		/* */
+		std::cout << "What??\n";
 	}
 
 }

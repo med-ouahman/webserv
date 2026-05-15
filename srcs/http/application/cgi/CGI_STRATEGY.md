@@ -1165,7 +1165,7 @@ These invariants must hold at all times. Violations indicate bugs.
 - Not suitable for high-concurrency CGI-heavy workloads
 
 **Mitigation Strategies:**
-- Enforce concurrent CGI limits
+- Enforce concurrent CGI Limits
 - Reject excess with 503 error
 - Cache static assets aggressively
 - Consider FastCGI for production (out of scope)

@@ -19,7 +19,10 @@ namespace core {
         
         if (produced == 0) {
             if (close_after_write) state = ConnectionState::CLOSING;
-            else phase = RequestPhase::IDLE;
+            else {
+                state = ConnectionState::READING;
+                phase = RequestPhase::BUILDING;
+            }
         }
         
     }

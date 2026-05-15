@@ -3,6 +3,6 @@
 namespace io {
     
     void Stream::write() {
-        bytes_r = ::write(fd, writer.data(), writer.remaining());
+        bytes_r = ::write(fd_, writer.data(), writer.remaining());
     }
 }

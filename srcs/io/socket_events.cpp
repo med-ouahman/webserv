@@ -10,7 +10,7 @@ namespace io {
         struct sockaddr_in client_addr;
         socklen_t client_addr_len = sizeof(client_addr);
     
-        int client_fd = ::accept(fd, (struct sockaddr* )&client_addr, &client_addr_len);
+        int client_fd = ::accept(fd_, (struct sockaddr* )&client_addr, &client_addr_len);
         if (client_fd < 0) {
             return false;
         }

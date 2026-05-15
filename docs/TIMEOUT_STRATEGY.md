@@ -415,4 +415,4 @@ This timeout strategy is appropriate for the current project scope (educational,
 - **Per-location timeouts**: Different timeout policies for different endpoints
 - **Adaptive timeouts**: Adjust based on server load or client behavior
 - **Timeout metrics**: Log timeout events for security monitoring
-- **Token bucket rate limiting**: Complement timeouts with connection rate limits per IP
+- **Token bucket rate limiting**: Complement timeouts with connection rate Limits per IP

@@ -7,10 +7,7 @@ namespace http {
 
 	ssize_t HTTPResponse::produce( BufferWriter* writer ) {
 		
-		ssize_t bytes = body.size();
-		writer->write(body.c_str(), body.size());
-		body.clear();
-		return bytes;
+		ssize_t bytes = 0;
 		
 		std::cout << "Begin serializing the response\n";
 		
@@ -22,7 +19,7 @@ namespace http {
 		if (BODY == serialize_state) {
 			std::cout << "Begin serializing the body\n";
 			
-			ssize_t b = 0;//  body_provider->read(writer);
+			ssize_t b = body_provider->read(writer);
 			if (b < 0)
 				return -1;
 			bytes += b;

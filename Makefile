@@ -16,7 +16,7 @@ OBJDIR := obj
 
 NAME = webserv
 
-INCLUDES = -Iincludes \
+INCLUDES = -Isrcs \
 	-Isrcs/core/ \
 	-Isrcs/io/ \
 	-Isrcs/http/ \
@@ -41,8 +41,8 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/conn_handle_event.cpp \
 	srcs/core/conn_request_phase.cpp \
 	srcs/core/on_cgi_finished.cpp \
-	srcs/core/DataView.cpp \
-	srcs/core/BufferWriter.cpp \
+	srcs/utils/DataView.cpp \
+	srcs/utils/BufferWriter.cpp \
 	srcs/http/parser/HTTPParser.cpp \
 	srcs/http/parser/parse_headers.cpp \
 	srcs/http/parser/parse_request_line.cpp \
@@ -58,11 +58,10 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/application/body_handler/read_body_content_length.cpp \
 	srcs/http/application/dispatcher/HTTPDispatcher.cpp \
 	srcs/http/application/dispatcher/serialize_response.cpp \
-	srcs/http/application/dispatcher/handle_request.cpp \
+	srcs/http/application/dispatcher/create_request_handler.cpp \
 	srcs/http/application/dispatcher/find_location.cpp \
 	srcs/http/application/dispatcher/resolve.cpp \
-	srcs/http/application/dispatcher/get_cgi_context.cpp \
-	srcs/http/application/handler_produce.cpp \
+	srcs/http/application/response_produce.cpp \
 	srcs/http/application/cgi/CGIHandler.cpp \
 	srcs/http/application/cgi/spawn.cpp \
 	srcs/http/application/cgi/cgi_input.cpp \
@@ -83,10 +82,10 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/io/EventLoop.cpp \
 	srcs/io/handle_fds.cpp \
 	srcs/io/run.cpp \
+	srcs/io/event_loop_sweep.cpp \
 	srcs/io/ListeningSocket.cpp \
 	srcs/io/socket_events.cpp \
 	srcs/io/handle_connections.cpp \
-	srcs/io/register_handlers.cpp \
 	srcs/io/stream/Stream.cpp \
 	srcs/io/stream/stream_read.cpp \
 	srcs/io/stream/stream_write.cpp \

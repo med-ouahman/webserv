@@ -12,7 +12,7 @@ class Timestamp {
 		
 	public:
 		explicit Timestamp(): seconds_(::time(NULL)) {}
-		explicit Timestamp(int): seconds_(0){}
+		explicit Timestamp( int ): seconds_(0) {}
 		static Timestamp now() {
 			return Timestamp();
 		};

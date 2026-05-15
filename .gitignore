@@ -44,4 +44,3 @@
 
 .vscode
 webserv
-./srcs/parser/http/.body_dir/*

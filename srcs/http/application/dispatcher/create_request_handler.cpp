@@ -13,11 +13,8 @@
 
 namespace http {
 
-    IRequestHandler* HTTPDispatcher::dispatch_request_handler( core::Connection& conn, const HTTPRequest& req ) {
+    IRequestHandler* HTTPDispatcher::create_request_handler( core::Connection& conn, const ResolutionResult& result ) {
         
-        (void)req;
-        ResolutionResult& result=conn.current_res;
-
         switch (result.type) {
             case HTTPResponseType::ERROR_RESPONSE:
                 build_error_response(result.status_code, result.reason);
@@ -40,7 +37,7 @@ namespace http {
                 // return new FileUploadHandler()
                 break;
             case HTTPResponseType::CGI:
-                return new CGIHandler(conn);
+                return new CGIHandler(conn, result);
             default:
                 break;
         };

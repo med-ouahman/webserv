@@ -6,9 +6,10 @@ namespace http {
     const config::LocationConfig* HTTPDispatcher::find_location( const std::string& url, const std::vector<config::LocationConfig>& locations ) {
     
         config::LocationConfig* location = NULL;
-        ::size_t best_prefix_length = 0;
+        
+        size_t best_prefix_length = 0;
 
-        for ( ::size_t i(0); i < locations.size(); ++i ) {
+        for ( size_t i(0); i < locations.size(); ++i ) {
             if (url == locations[i].path) {
                 return &locations[i];
             }
@@ -16,7 +17,7 @@ namespace http {
             if (!url.compare(0, locations[i].path.size(), locations[i].path)) {
                 if (best_prefix_length < locations[i].path.size()) {
                     best_prefix_length = locations[i].path.size();
-                    location = (config::LocationConfig* )&locations.at(i);
+                    location = const_cast<config::LocationConfig*>(&locations.at(i));
                 }
             }
         }

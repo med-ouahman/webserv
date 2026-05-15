@@ -26,6 +26,7 @@ namespace http {
 
 				chunk_head();
 				format_chunk(writer->size());
+				std::cout << chunk_header << "\n";
 				chunk_state = ChunkState::CHUNK_DATA;
 				temp_writer.update(writer->data(), writer->remaining());
 				writer->update(const_cast<char*>(chunk_header.c_str()), chunk_header.size());

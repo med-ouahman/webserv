@@ -7,7 +7,7 @@ namespace core {
     void Connection::process_incoming_data() {
 
         processing = true;
-        std::cout << "Request Phase: " << phase <<"\n";
+        
         while (processing) {
             switch (phase) {
                 case RequestPhase::BUILDING: case RequestPhase::INITIAL:

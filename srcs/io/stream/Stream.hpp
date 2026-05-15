@@ -2,10 +2,9 @@
 #pragma once
 
 #include <iostream>
-#include "IIOHandler.hpp"
+#include "AIOHandler.hpp"
 #include <unistd.h>
 #include "Result.hpp"
-#include "IDataListener.hpp"
 #include "DataView.hpp"
 #include "BufferWriter.hpp"
 
@@ -20,27 +19,22 @@ namespace io {
 			};
 	};
 
-	class Stream: public IIOHandler {
+	class Stream: public AIOHandler {
 
 		public:
 			const static std::size_t READ_BUFFER_SIZE = 1024 * 4;
 			const static std::size_t WRITE_BUFFER_SIZE = 1024 * 4;
-			Stream( int fd_ );
+			Stream( int fd );
 			virtual ~Stream() {};
 			void on_event( EventType type );
-			int get_fd() const { return fd; }
-
 		private:
 			char readbuf[READ_BUFFER_SIZE];
 			char writebuff[WRITE_BUFFER_SIZE];
-			
 		protected:
-			bool processing;
 			EventType io_event;
 			ssize_t bytes_r;
 			DataView data_view;
 			BufferWriter writer;
-			
 		protected:
 			void read();
 			void write();

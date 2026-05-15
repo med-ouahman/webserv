@@ -1,19 +1,16 @@
 
 #pragma once
 
-#include "HTTPResponse.hpp"
-#include "HTTPStatusCode.hpp"
 #include <vector>
 #include <iostream>
-#include "CGIContext.hpp"
 #include <memory>
+#include <stdint.h>
+#include "HTTPResponse.hpp"
 #include "BodyHandler.hpp"
-#include "IRequestHandler.hpp"
 
 namespace core {
     class Connection;
 }
-
 
 namespace config {
     struct ServerConfig;
@@ -24,23 +21,27 @@ namespace config {
 namespace http {
 
     struct HTTPRequest;
+    class IRequestHandler;
 
-    struct BodyPolicy {
-        BodyType::Type      type;
-        BodyStorage::Type   storage;
-        size_t              parsed_body_size;
-        std::string         body_path;
+    struct CGIContext {
+        std::string temp_body_path;
+        std::string script_filename;      
+        std::string interpreter_path;     
+        std::string path_info;
+        std::string script_name;          
+        std::string working_directory;
+        std::string server_name;          
+        uint32_t timeout_seconds;     
+        uint16_t server_port;       
     };
 
     struct ResolutionResult {
-        BodyPolicy body_policy;
+        
         HTTPResponseType::Type type;
         HTTPStatusCode status_code;
         std::string reason;
         std::string mime_type;
-        std::map<std::string, std::string> extra_headers;
         std::string path;
-        CGIContext* cgi_context;
 
         ResolutionResult( HTTPStatusCode c, std::string const& r )
             : type(HTTPResponseType::ERROR_RESPONSE),
@@ -48,6 +49,13 @@ namespace http {
             reason(r) {}
             
         ResolutionResult() {}
+    };
+
+    struct BodyConf {
+        BodyType::Type type;
+        BodyStorage::Type storage;
+        size_t parsed_body_size;
+        std::string path;
     };
 
 
@@ -60,7 +68,6 @@ namespace http {
                 const std::vector<config::LocationConfig>& locations );
             static std::string extract_path( const std::string& url );
             static bool file_exists( const char* filename );
-            static size_t parse_content_length( const std::string& s );
 
         public:
             static std::string generate_directory_list( const char* dir ); // TO BE MOVED
@@ -70,12 +77,9 @@ namespace http {
             HTTPDispatcher();
             ~HTTPDispatcher();
             static bool allow_presistance() { return true; };
-            static IRequestHandler* dispatch_request_handler( core::Connection& conn, const HTTPRequest& req );
-            static CGIContext get_cgi_context( const HTTPRequest& req, const ResolutionResult& result );
-
-			static BodyType::Type detect_body_type( std::map<std::string, std::string>& headers );
-
-            static void configure_body_policy( const HTTPRequest& req, ResolutionResult& result );
-
+            static IRequestHandler* create_request_handler( core::Connection& conn, const ResolutionResult& result );
+            static CGIContext resolve_cgi_context( const ResolutionResult& result );
+			static BodyType::Type detect_body_type( const HTTPRequest& request );
+            static BodyConf configure_body( const HTTPRequest& request, const ResolutionResult& result );
     };
 }
