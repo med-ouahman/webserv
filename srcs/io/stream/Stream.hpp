@@ -31,7 +31,6 @@ namespace io {
 			char readbuf[READ_BUFFER_SIZE];
 			char writebuff[WRITE_BUFFER_SIZE];
 		protected:
-			bool processing;
 			EventType io_event;
 			ssize_t bytes_r;
 			DataView data_view;
