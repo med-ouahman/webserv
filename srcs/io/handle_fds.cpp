@@ -1,10 +1,10 @@
 #include "EventLoop.hpp"
-#include "IIOHandler.hpp"
+#include "AIOHandler.hpp"
 #include <sys/epoll.h>
 #include <fcntl.h>
 
 namespace io {
-	bool EventLoop::add_fd( int fd, uint32_t events, IIOHandler* handler ) const {
+	bool EventLoop::add_fd( int fd, uint32_t events, AIOHandler* handler ) const {
 		
 		epoll_event event;
 		event.events = events;
@@ -33,7 +33,7 @@ namespace io {
 		return true;
 	}
 
-	bool EventLoop::mod_fd( int fd, uint32_t events, IIOHandler* handler ) const {
+	bool EventLoop::mod_fd( int fd, uint32_t events, AIOHandler* handler ) const {
 		epoll_event event;
 		event.events = events;
 		event.data.ptr = handler;

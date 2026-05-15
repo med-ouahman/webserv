@@ -8,7 +8,7 @@ namespace http {
         ScanResult r = cgi_handler.on_input_ready();
         
         if (ERROR == r || SUCCESS == r) {
-            processing = false;
+            state = IOChannelState::CLOSED;
         }
     }
 

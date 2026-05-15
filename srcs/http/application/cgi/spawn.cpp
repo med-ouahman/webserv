@@ -21,17 +21,18 @@ namespace http {
     void CGIHandler::spawn( const io::EventLoop& loop ) {
         
         if (cgi_state != CGIState::SPAWN) {
+            std::cout << "Already spawned\n";
             return ;
         }
 
-        CGIContext context = http::HTTPDispatcher::get_cgi_context(result);
+        CGIContext context = http::HTTPDispatcher::resolve_cgi_context(result);
         cgi_state = CGIState::ACTIVE;
         start_time.update();
         cgi_pid = ::fork();
         if (cgi_pid == 0) {
 
             ::dup2(pipe_guard.stdout_pipe[1], STDOUT_FILENO);
-            // ::dup2(pipe_guard.stderr_pipe[1], STDERR_FILENO);
+            ::dup2(pipe_guard.stderr_pipe[1], STDERR_FILENO);
                         
             pipe_guard.close_pipes();
             char* const argv[] = {
@@ -52,8 +53,8 @@ namespace http {
             throw std::runtime_error(strerror(errno));
         }
 
-        loop.add_fd(stdout_ch.get_fd(), stdout_ch.get_event(), &stdout_ch);
-        loop.add_fd(stderr_ch.get_fd(), stderr_ch.get_event(), &stderr_ch);
+        loop.add_fd(stdout_ch.fd(), stdout_ch.get_event(), &stdout_ch);
+        loop.add_fd(stderr_ch.fd(), stderr_ch.get_event(), &stderr_ch);
     }
 
 }

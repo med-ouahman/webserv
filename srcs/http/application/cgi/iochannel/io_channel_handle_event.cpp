@@ -20,8 +20,11 @@ namespace http {
 		
 		std::string c = channel_type(stream);
 
-		if (state == IOChannelState::CLOSED)
+		if (state == IOChannelState::CLOSED) {
+			std::cout << "CLOSED\n";
 			return ;
+		}
+		
 		state = IOChannelState::ACTIVE;
 		switch (io_event) {
 			case io::NONE:

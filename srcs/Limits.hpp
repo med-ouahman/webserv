@@ -1,6 +1,6 @@
 #pragma once
 
-struct limits {
+struct Limits {
 
 	enum {
         MAX_REQUESTS               = 100,

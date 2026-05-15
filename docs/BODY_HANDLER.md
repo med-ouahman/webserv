@@ -117,7 +117,7 @@ void EventLoop::write_to_socket(Connection& conn) {
     while (true) {
         if (!conn.on_writeable(bytes_sent))
             break;
-        bytes_sent = ::write(conn.get_fd(),
+        bytes_sent = ::write(conn.fd(),
                              conn.get_write_buff(),
                              conn.bytes_remaining());
     }
@@ -160,7 +160,7 @@ The interface is intentionally minimal. `produce()` calls `read()` when `Seriali
 
 ### Buffer boundary at HEADERS → BODY transition
 
-When `produce()` finishes copying the last header bytes and still has space remaining in the buffer, it immediately calls `body_provider->read(buffer + written, remaining)` in the same call. The provider's `max_size` parameter naturally limits how many body bytes are read. No intermediate buffer or leftover tracking is needed — the provider's internal cursor advances by exactly the bytes read.
+When `produce()` finishes copying the last header bytes and still has space remaining in the buffer, it immediately calls `body_provider->read(buffer + written, remaining)` in the same call. The provider's `max_size` parameter naturally Limits how many body bytes are read. No intermediate buffer or leftover tracking is needed — the provider's internal cursor advances by exactly the bytes read.
 
 ---
 
@@ -214,24 +214,24 @@ The auto-index HTML is generated in full as a string, written to a temp file via
 
 ## 7. CGI Architecture
 
-CGI is the only response type that involves a child process. It uses the existing `IIOHandler` polymorphism — the same interface the EventLoop uses for client sockets.
+CGI is the only response type that involves a child process. It uses the existing `AIOHandler` polymorphism — the same interface the EventLoop uses for client sockets.
 
-### `IIOHandler` interface
+### `AIOHandler` interface
 
 ```cpp
 namespace io {
-class IIOHandler {
+class AIOHandler {
 public:
     virtual void on_event(EventType event) = 0;
-    virtual ~IIOHandler() {}
+    virtual ~AIOHandler() {}
 };
 }
 ```
 
-The EventLoop maps `fd → IIOHandler*` and dispatches blindly:
+The EventLoop maps `fd → AIOHandler*` and dispatches blindly:
 
 ```cpp
-IIOHandler* handler = static_cast<IIOHandler*>(events[i].data.ptr);
+AIOHandler* handler = static_cast<AIOHandler*>(events[i].data.ptr);
 if (events[i].events & EPOLLIN)       handler->on_event(READABLE);
 else if (events[i].events & EPOLLOUT) handler->on_event(WRITABLE);
 else if (events[i].events & (EPOLLERR | EPOLLHUP)) handler->on_event(ERROR);
@@ -239,7 +239,7 @@ else if (events[i].events & (EPOLLERR | EPOLLHUP)) handler->on_event(ERROR);
 
 ### `CGIHandler`
 
-A derived `IIOHandler` registered with epoll on the CGI process's stdout pipe fd.
+A derived `AIOHandler` registered with epoll on the CGI process's stdout pipe fd.
 
 **Members:**
 - `int _pipe_fd` — non-blocking stdout pipe from CGI process

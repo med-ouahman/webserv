@@ -78,7 +78,7 @@ namespace http {
             ~HTTPDispatcher();
             static bool allow_presistance() { return true; };
             static IRequestHandler* create_request_handler( core::Connection& conn, const ResolutionResult& result );
-            static CGIContext get_cgi_context( const ResolutionResult& result );
+            static CGIContext resolve_cgi_context( const ResolutionResult& result );
 			static BodyType::Type detect_body_type( const HTTPRequest& request );
             static BodyConf configure_body( const HTTPRequest& request, const ResolutionResult& result );
     };

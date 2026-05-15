@@ -128,5 +128,5 @@ server_design/
     ├─ event-driven → O(events) cost
     ├─ thousands of idle connections possible
     ├─ partial I/O handled without blocking
-    └─ memory limits are primary scaling constraint
+    └─ memory Limits are primary scaling constraint
 ```

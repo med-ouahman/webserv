@@ -67,7 +67,7 @@ namespace http {
                 return true;
             }
 
-        } else if (sigterm_sent_at.elapsed() >= limits::MAX_CGI_WAIT_AFTER_SIGTERM) {
+        } else if (sigterm_sent_at.elapsed() >= Limits::MAX_CGI_WAIT_AFTER_SIGTERM) {
             ::kill(cgi_pid, SIGKILL);
 
             ::waitpid(cgi_pid, &cgi_status, 0);  // should be blocking to ensuer the process is reaped

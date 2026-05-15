@@ -19,35 +19,6 @@ namespace io {
         return true;
     }
 
-    void EventLoop::sweep() {
-
-        for ( size_t i(0); i < conns.size(); ) {
-            bool drop = conns[i]->action().want_close;
-            std::cout << (drop?"want close\n":"");
-            drop = drop or conns[i]->timedout();
-            if (drop)
-            {
-                del_fd(conns[i]->get_fd());
-                delete conns[i];
-                conns.erase(conns.begin() + i);
-            }
-
-            else ++i;
-        }
-       
-        for ( size_t i(0); i < cgi_bin.size(); ) {
-
-            bool drop = cgi_bin[i]->finished();
-
-            drop = drop or cgi_bin[i]->timedout();
-            if (drop) {
-                delete cgi_bin[i];
-                cgi_bin.erase(cgi_bin.begin() + 1);
-            } else ++i;
-        }
-
-        cgi_bin.clear();
-    }
 
     void EventLoop::update_epoll_interest( core::Connection* conn ) {
 
@@ -62,7 +33,7 @@ namespace io {
         
         if (new_mask != conn->get_mask()) {
             std::cout << "Connection WANTS: " << (action.want_write ? "WRITING\n":"READING\n");
-            mod_fd(conn->get_fd(), new_mask, conn);
+            mod_fd(conn->fd(), new_mask, conn);
             conn->set_mask(new_mask);
         }
     }

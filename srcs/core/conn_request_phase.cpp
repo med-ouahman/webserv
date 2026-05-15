@@ -55,7 +55,7 @@ namespace core {
 
     void Connection::request_processing() {
         request_handler->handle();
-        
+        processing = false;
         phase = request_handler->done()
             ? RequestPhase::FINAL
             : phase;
@@ -67,9 +67,9 @@ namespace core {
 
         body_bytes_received += body_handler.parsed_bytes();
 
-        if (body_handler.parsed_bytes() >= limits::MIN_BODY_PROGRESS_BYTES) {
+        if (body_handler.parsed_bytes() >= Limits::MIN_BODY_PROGRESS_BYTES) {
             last_.update();
-            body_bytes_received %= limits::MIN_BODY_PROGRESS_BYTES;
+            body_bytes_received %= Limits::MIN_BODY_PROGRESS_BYTES;
         }
         
         switch (r) {
@@ -77,7 +77,7 @@ namespace core {
                 last_.update();
                 body_bytes_received = 0;
                 std::cout << "Body Read Successfully\n";
-                phase = RequestPhase::FINAL;
+                phase = RequestPhase::PROCESSING;
                 break;
             case http::ERROR:
                 phase = RequestPhase::ERROR;

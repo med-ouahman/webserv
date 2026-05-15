@@ -4,7 +4,7 @@
 
 namespace io {
 
-	ListeningSocket::ListeningSocket( const ListeningSocket& socket ): IIOHandler(socket.fd), loop(socket.loop) {
+	ListeningSocket::ListeningSocket( const ListeningSocket& socket ): AIOHandler(socket.fd_), loop(socket.loop) {
 		
 	}
 
@@ -14,7 +14,7 @@ namespace io {
 		return *this;
 	}
 
-	ListeningSocket::ListeningSocket( EventLoop& loop, int fd ): IIOHandler(fd), loop(loop) {
+	ListeningSocket::ListeningSocket( EventLoop& loop, int fd ): AIOHandler(fd), loop(loop) {
 	
 	}
 
@@ -35,6 +35,6 @@ namespace io {
 	};
 
 	void ListeningSocket::release() {
-		fd = -1;
+		fd_ = -1;
 	}
 }

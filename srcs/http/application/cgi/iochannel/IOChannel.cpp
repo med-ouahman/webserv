@@ -13,11 +13,6 @@ namespace http {
 
     IOChannel::~IOChannel() {}
 
-
-    int IOChannel::get_fd() const {
-        return fd;
-    }
-
     uint32_t IOChannel::get_event() const {
         return event;
     }

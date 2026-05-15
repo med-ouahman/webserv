@@ -43,23 +43,25 @@ namespace core {
 
     bool Connection::timedout() {
         
-        double limit = limits::MAX_IDLE_TIMEOUT;
+        double limit = Limits::MAX_IDLE_TIMEOUT;
        
         switch (phase) {
             case core::RequestPhase::INITIAL:
-                limit = limits::MAX_INITIAL_TIMEOUT;
+                limit = Limits::MAX_INITIAL_TIMEOUT;
                 break;
             case core::RequestPhase::BUILDING:
-                limit = limits::MAX_HEADER_TIMEOUT;
+                limit = Limits::MAX_HEADER_TIMEOUT;
                 break;
             case core::RequestPhase::READING_BODY:
-                limit = limits::MAX_BODY_PROGRESS_TIMEOUT;
+                limit = Limits::MAX_BODY_PROGRESS_TIMEOUT;
                 break;
             case core::RequestPhase::IDLE:
-                limit = limits::MAX_IDLE_TIMEOUT;
+                limit = Limits::MAX_IDLE_TIMEOUT;
                 break;
+            case core::RequestPhase::PROCESSING: /* OR BETTER CGI*/
+                return false;
             default:
-                limit = 0;
+                limit = Limits::MAX_IDLE_TIMEOUT;
         }
 
         if (last_.elapsed() >= limit) {

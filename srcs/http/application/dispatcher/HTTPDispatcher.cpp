@@ -4,6 +4,7 @@
 #include "Config.hpp"
 #include <iostream>
 #include <cstdlib>
+#include <unistd.h>
 
 namespace http {
     
@@ -22,15 +23,15 @@ namespace http {
     }
 
 
-    CGIContext HTTPDispatcher::get_cgi_context( const ResolutionResult& result ) {
+    CGIContext HTTPDispatcher::resolve_cgi_context( const ResolutionResult& result ) {
         
         CGIContext ctx;
 
         (void)result;
-        
-        std::string cgi_home = std::string(getenv("HOME")) +  "/cgin-bin/";
-        ctx.script_filename   = cgi_home + "hello.py";
-        ctx.interpreter_path = cgi_home + "/app";
+        char* d = getcwd(NULL, 0);
+        std::string cgi_bin(d);
+        free(d);
+        ctx.script_filename   = cgi_bin + "/cgi-bin/hello.py";
         ctx.interpreter_path  = "/usr/bin/python3";
         ctx.script_name       = "/cgi-bin/cgi_py.py";
         ctx.path_info         = "/user/42";
