@@ -8,7 +8,9 @@
 
 namespace http {
 
-    time_t CGIHandler::cgi_timeout_secs;
+    size_t CGIHandler::cgi_timeout_secs;
+
+    const char* CGIHandler::cgi_metadata[] = {"REQUEST_METHOD", ""};
 
     CGIHandler::CGIHandler( core::Connection& conn_, const ResolutionResult res_ )
         : output_state(CGIOutputState::STATUS_LINE),
@@ -29,7 +31,7 @@ namespace http {
 
     CGIHandler::~CGIHandler() {
         ::kill(cgi_pid, SIGKILL);
-        ::waitpid(cgi_pid, &cgi_status, 0);
+        ::waitpid(cgi_pid, &cgi_status, 0); // blocking
         std::cout << "CGI CLEARED\n";
         std::cout << WEXITSTATUS(cgi_status) << "\n";
     }
@@ -87,4 +89,6 @@ namespace http {
 	bool CGIHandler::finished() {
 		return cgi_state == CGIState::ERROR || cgi_state == CGIState::FINISHED;
 	}
+
+
 }

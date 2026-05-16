@@ -20,7 +20,7 @@ namespace http {
     }
 
     ResolutionResult HTTPDispatcher::resolve( const HTTPRequest& req ) {
-        ResolutionResult result;
+        ResolutionResult result(req);
 
         config::ServerConfig server = config::Config::get_config().server;
         

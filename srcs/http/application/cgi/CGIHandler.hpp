@@ -44,11 +44,15 @@ namespace http {
 			void handle();
 			bool done();
 			~CGIHandler();
+			char** build_cgi_env();
+			char* transform( std::map<std::string, std::string>::iterator& it );
+			char** build_non_header_vars();
 
 		private:
 			CGIHandler( const CGIHandler& );
 			CGIHandler& operator=( const CGIHandler& );
-			static time_t cgi_timeout_secs;
+			static size_t cgi_timeout_secs;
+			const static char* cgi_metadata[];
 
 		private:
 			struct CGIOutputState {

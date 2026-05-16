@@ -43,7 +43,7 @@ bool BufferWriter::empty() {
 }
 
 size_t BufferWriter::remaining() {
-    return size_ - offset_;
+    return capacity_ - size_;
 }
 
 void BufferWriter::advance( size_t n__ ) {
@@ -67,7 +67,7 @@ size_t BufferWriter::write( const char* source, size_t n__ ) {
     offset_ = 0;
     size_t available = capacity_ - size_;
     size_t to_copy = std::min(available, n__);
-    ::memcpy(buff_ + size_, source, available);
-    size_ = to_copy;
+    ::memcpy(buff_ + size_, source, to_copy);
+    size_ += to_copy;
     return to_copy;
 }

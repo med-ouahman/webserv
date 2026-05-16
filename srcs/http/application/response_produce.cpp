@@ -16,7 +16,7 @@ namespace http {
 			std::cout << "Bytes Serialized: " << bytes << "\n";
 		}
 
-		if (BODY == serialize_state) {
+		if (BODY == serialize_state && body_provider not_eq NULL) {
 			std::cout << "Begin serializing the body\n";
 			
 			ssize_t b = body_provider->read(writer);

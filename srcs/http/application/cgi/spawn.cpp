@@ -4,18 +4,78 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <cstdlib>
+#include "HTTPRequest.hpp"
 #include "Timestamp.hpp"
 
 namespace http {
 
-    char**build_cgi_env(){
-        int n=0;for(;__environ[n];n++);
-        char**arr=new char*[n+2];
-        int x=n+2;
-        for (n=0;n<x;++n)arr[n]=__environ[n];
-        arr[n]=const_cast<char*>("HTTP_CONTENT_LENGTH=100");
-        arr[n+1]=0;
-        return arr;
+    char* CGIHandler::transform(std::map<std::string, std::string>::iterator& it) {
+
+        std::string& key = const_cast<std::string&>(it->first);
+        const std::string& value = it->second;
+
+        std::string env_name;
+
+        if (key == "content-type") env_name = "CONTENT_TYPE";
+        else if (key == "content-length") env_name = "CONTENT_LENGTH";
+        else {
+
+            env_name = "HTTP_";
+
+            for (size_t i = 0; i < key.size(); ++i) {
+
+                char c = key[i];
+
+                if (c == '-')
+                    env_name += '_';
+                else
+                    key[i] = std::toupper(static_cast<unsigned char>(c));
+            }
+
+            env_name.append(key);
+        }
+
+        // KEY=value + '\0'
+        size_t alloc_size = env_name.size() + 1 + value.size() + 1;
+
+        char* var = new char[alloc_size];
+
+        size_t pos = 0;
+
+        for (size_t i = 0; i < env_name.size(); ++i)
+            var[pos++] = env_name[i];
+
+        var[pos++] = '=';
+        for (size_t i = 0; i < value.size(); ++i)
+            var[pos++] = value[i];
+
+        var[pos] = '\0';
+
+        return var;
+    }
+
+    char** CGIHandler::build_cgi_env(){
+        size_t size = 0;
+
+        for (; __environ[size]; ++size );
+        
+        HTTPRequest& req = const_cast<HTTPRequest&>(result.request);
+        std::map<std::string, std::string>::iterator it = req.headers.begin();
+
+        for ( ; it != result.request.headers.end(); ++it) ++size;
+
+        char** s = build_non_header_vars();
+
+        char** cgi_variables = new char*[size];
+
+        size_t i = 0;
+        for ( ; __environ[i] != NULL; ++i) cgi_variables[i] = __environ[i];
+
+        it = req.headers.begin();
+
+        for ( ; it != req.headers.end(); ++it ) cgi_variables[i] = transform(const_cast<std::map<std::string, std::string>::iterator&>(it));
+
+        return cgi_variables;
     }
 
     void CGIHandler::spawn( const io::EventLoop& loop ) {
@@ -40,7 +100,7 @@ namespace http {
                const_cast<char*>(context.script_filename.c_str()),
                NULL};
                
-            ::execve(context.interpreter_path.c_str(), argv, __environ);
+            ::execve(context.interpreter_path.c_str(), argv, build_cgi_env());
             LOG_ERROR(MAKE_ERRNO_ERROR("execve()"));
             ::exit(EXIT_FAILURE);
         }

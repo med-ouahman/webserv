@@ -6,19 +6,18 @@
 
 namespace http {
 
-    const char* HTTPResponse::COLON = ":";
+    const char* HTTPResponse::COLON = ": ";
     const char* HTTPResponse::CRLF = "\r\n";
     
     size_t HTTPResponse::serialize_headers( BufferWriter* writer ) {
-        serialize_state = BODY;
         if (serialize_state == RESPONSE_LINE) {
             std::cout<< "Serializing Response Line\n";
             std::stringstream ss;
             ss << status_code;
         
             line_buff = "HTTP/1.1 " + ss.str() + " " + reason + CRLF;
-            ::memcpy(writer->write_ptr(), line_buff.c_str(), line_buff.size());
-            writer->advance(line_buff.size());
+            std::cout << line_buff;
+            writer->write(line_buff.c_str(), line_buff.size());
             serialize_state = HEADERS;
             line_buff.clear();
             current_header = headers.begin();
@@ -27,9 +26,13 @@ namespace http {
         if (HEADERS == serialize_state) {
             std::cout << "Serializing Headers\n";
             if (current_header == headers.end()) {
-                ::memcpy(writer->write_ptr(), CRLF, CRLF_SIZE);
-                writer->advance(CRLF_SIZE);
-                serialize_state = BODY;
+                
+                if (writer->remaining() >= CRLF_SIZE) {
+                    std::cout << "Response Headers done\n";
+                    writer->write(CRLF, CRLF_SIZE);
+                    serialize_state = BODY;
+                    return 0;
+                }
             }
 
             while (current_header != headers.end()) {
@@ -38,16 +41,21 @@ namespace http {
                     line_buff = (*current_header).first + COLON + (*current_header).second + CRLF;
                 }
                 
-                size_t remaining = std::min(writer->remaining(), line_buff.size());
-                ::memcpy(writer->write_ptr(), line_buff.c_str(), remaining);
-                writer->advance(remaining);
+                std::cout << "header size: "<< line_buff.size() <<"\n";
+                size_t w = writer->write(line_buff.c_str(), line_buff.size());
 
-                line_buff.erase(remaining);
-
-                if (line_buff.size() != 0)
+                std::cout << "Bytes written: " << w << "\n";
+                line_buff.erase(0, w);
+                std::cout << line_buff.size() << "\n";
+                if (line_buff.size() != 0) {
+                    std::cout << "leftovers";
+                    return 0;
                     break;
-                else
+                }
+                else {
+                    std::cout << "next header\n";
                     ++current_header;
+                }
 
             }
         }

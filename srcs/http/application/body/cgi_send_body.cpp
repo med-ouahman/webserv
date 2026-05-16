@@ -21,11 +21,12 @@ namespace http {
 	ssize_t CGIBodyProvider::send_body_chunked( BufferWriter* writer ) {
 		std::cout << "Begin sending the body using chunks\n";
 
+		std::cout << "current chunk size: " << data_view.size() << "\n"; 
 		switch (chunk_state) {
 			case ChunkState::CHUNK_HEAD: {
 
 				chunk_head();
-				format_chunk(writer->size());
+				format_chunk(data_view.size());
 				std::cout << chunk_header << "\n";
 				chunk_state = ChunkState::CHUNK_DATA;
 				temp_writer.update(writer->data(), writer->remaining());
@@ -36,12 +37,13 @@ namespace http {
 			case ChunkState::CHUNK_DATA:
 				chunk_data();
 				writer->update(temp_writer.data(), temp_writer.remaining());
+				data_view.advance(writer->write(data_view.data(), data_view.size()));
 				chunk_state = ChunkState::CHUNK_TRAIL;
 				/* fall through */
 			case ChunkState::CHUNK_TRAIL:
+				std::cout << "sending chunk trail\n";
 				chunk_trail();
-				if (writer->remaining() >= 2) {
-					::memcpy(writer->write_ptr(), "\r\n", 2);
+				if (2 == writer->write("\r\n", 2)) {
 					chunk_state = ChunkState::DONE;
 				}
 				break;

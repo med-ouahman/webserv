@@ -40,8 +40,13 @@ namespace http {
             std::map<std::string, std::string>::iterator current_header; /* track the current header */
             std::string line_buff; /* stores incomplete headers */
         
-        public:           
+        public:
             ssize_t produce( BufferWriter* writer );
+            void reset() {
+                delete body_provider;
+                body_provider = NULL;
+                serialize_state = RESPONSE_LINE;
+            }
             
         private:
             enum SerializeState {

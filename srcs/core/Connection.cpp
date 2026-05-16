@@ -43,7 +43,7 @@ namespace core {
     }
 
     bool Connection::timedout() {
-        
+        return false;
         double limit = Limits::MAX_IDLE_TIMEOUT;
         double elapsed = 0;
         switch (phase) {
@@ -81,6 +81,8 @@ namespace core {
             default:
                 limit = Limits::MAX_IDLE_TIMEOUT;
         }
+
+        std::cout << "Limit: " << limit << '\n';
 
         if (last_.elapsed() >= limit) {
             return true;

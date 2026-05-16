@@ -26,12 +26,17 @@ namespace core {
                     processing = false;
                     on_client_error();
                     break;
-                case RequestPhase::FINAL:
+                case RequestPhase::WRITING_RESPONSE:
                     state = ConnectionState::WRITING;
-                    phase = RequestPhase::WRITING_RESPONSE;
-                    response.body = "HTTP/1.1 200 OK\r\n";
-                    processing = false;
                     close_after_write = true;
+                    return ;
+                    break;
+                case RequestPhase::FINAL:
+                    p.reset();
+                    response.reset();
+                    state = ConnectionState::READING;
+                    processing = false;
+                    phase = RequestPhase::IDLE;
                     break;
                 default:
                     return ;

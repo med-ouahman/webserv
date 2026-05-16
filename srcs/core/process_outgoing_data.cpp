@@ -10,7 +10,7 @@ namespace core {
         writer.reset();
 
         ssize_t produced = response.produce(&writer);
-        std::cout << "X: " << produced << "\n";
+        
         if (produced < 0) {
             state = ConnectionState::CLOSING;
             processing = false;
@@ -20,8 +20,7 @@ namespace core {
         if (produced == 0) {
             if (close_after_write) state = ConnectionState::CLOSING;
             else {
-                state = ConnectionState::READING;
-                phase = RequestPhase::BUILDING;
+                phase = RequestPhase::FINAL;
             }
         }
         

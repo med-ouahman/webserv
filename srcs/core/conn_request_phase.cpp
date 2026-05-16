@@ -22,7 +22,7 @@ namespace core {
                 break;
             case http::SUCCESS:
                 last_.update();
-                phase = p.finished() ? RequestPhase::RESOLVING: phase;
+                phase = p.finished() ? RequestPhase::RESOLVING: RequestPhase::BUILDING;
                 processing = phase == RequestPhase::RESOLVING;
                 break;
         }
@@ -30,6 +30,16 @@ namespace core {
     }
 
     void Connection::request_resloving() {
+        
+        response.status_code = http::OK;
+        response.reason = "OK";
+        response.headers["content-type"] = "text/html";
+        response.headers["content-length"] = "300";
+        response.headers["transfer-encoding"] = "chunked";
+        response.headers["User-Agent"] = "Firefox";
+
+        phase = RequestPhase::WRITING_RESPONSE;
+        return ;
 
         http::ResolutionResult result = http::HTTPDispatcher::resolve(p.get_request());
 
