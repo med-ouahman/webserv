@@ -78,17 +78,8 @@ namespace core {
                 break;
             case core::RequestPhase::PROCESSING:
                 return false;
-            default:
-                limit = Limits::MAX_IDLE_TIMEOUT;
+            }
+
         }
 
-        std::cout << "Limit: " << limit << '\n';
-
-        if (last_.elapsed() >= limit) {
-            return true;
-        }
-
-        return false;
     }
-
-}
