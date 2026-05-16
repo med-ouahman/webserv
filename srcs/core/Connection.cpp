@@ -16,6 +16,7 @@ namespace core {
         close_after_write(false),
         num_requests(0),
         body_bytes_received(0),
+        body_bytes_sent(0),
         loop(l) {}
 
     Connection::~Connection() {
@@ -44,7 +45,7 @@ namespace core {
     bool Connection::timedout() {
         
         double limit = Limits::MAX_IDLE_TIMEOUT;
-       
+        double elapsed = 0;
         switch (phase) {
             case core::RequestPhase::INITIAL:
                 limit = Limits::MAX_INITIAL_TIMEOUT;
@@ -53,12 +54,29 @@ namespace core {
                 limit = Limits::MAX_HEADER_TIMEOUT;
                 break;
             case core::RequestPhase::READING_BODY:
-                limit = Limits::MAX_BODY_PROGRESS_TIMEOUT;
-                break;
+
+                elapsed = last_.elapsed();
+                if (elapsed >= Limits::MIN_BODY_WAIT_SECS) {
+                    double ratio = body_bytes_received / elapsed;
+                    if (ratio < Limits::MIN_BYTES_PER_SEC) {
+                        return true;
+                    }
+                }
+                return false;
+            case RequestPhase::WRITING_RESPONSE:
+
+                elapsed = last_.elapsed();
+                if (elapsed >= Limits::MIN_BODY_WAIT_SECS) {
+                    double ration = body_bytes_sent / elapsed;
+                    if (ration < Limits::MIN_BYTES_PER_SEC) {
+                        return true;
+                    }
+                }
+                return false;
             case core::RequestPhase::IDLE:
                 limit = Limits::MAX_IDLE_TIMEOUT;
                 break;
-            case core::RequestPhase::PROCESSING: /* OR BETTER CGI*/
+            case core::RequestPhase::PROCESSING:
                 return false;
             default:
                 limit = Limits::MAX_IDLE_TIMEOUT;
@@ -70,4 +88,5 @@ namespace core {
 
         return false;
     }
+
 }

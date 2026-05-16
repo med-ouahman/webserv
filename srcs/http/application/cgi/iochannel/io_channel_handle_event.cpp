@@ -32,11 +32,9 @@ namespace http {
 				break;
 			case io::READABLE:
 				std::cout <<  c <<  " IOCHANNEL READBLE\n";
-				processing = true;
 				break;
 			case io::WRITABLE:
 				std::cout << c << " IOCHANNLE WRITABLE\n";
-				processing = true;
 				break;
 			case io::ERROR:
 				state = IOChannelState::ERROR;

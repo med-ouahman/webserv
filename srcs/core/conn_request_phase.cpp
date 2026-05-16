@@ -22,7 +22,7 @@ namespace core {
                 break;
             case http::SUCCESS:
                 last_.update();
-                phase = p.finished() ? RequestPhase::RESOLVING: RequestPhase::BUILDING;
+                phase = p.finished() ? RequestPhase::RESOLVING: phase;
                 processing = phase == RequestPhase::RESOLVING;
                 break;
         }
@@ -47,7 +47,7 @@ namespace core {
             phase = RequestPhase::PROCESSING;
             return ;
         }
-
+        std::cout << b.type << "\n";
         body_handler.prepare_body(b);
         
         phase = RequestPhase::READING_BODY;
@@ -66,11 +66,6 @@ namespace core {
         http::ScanResult r = body_handler.read_body();
 
         body_bytes_received += body_handler.parsed_bytes();
-
-        if (body_handler.parsed_bytes() >= Limits::MIN_BODY_PROGRESS_BYTES) {
-            last_.update();
-            body_bytes_received %= Limits::MIN_BODY_PROGRESS_BYTES;
-        }
         
         switch (r) {
             case http::SUCCESS:

@@ -6,7 +6,6 @@ namespace io {
         : AIOHandler(fd),
         readbuf(),
         writebuff(),
-        processing(false),
         bytes_r(0),
         data_view(readbuf),
         writer(writebuff, WRITE_BUFFER_SIZE) {}

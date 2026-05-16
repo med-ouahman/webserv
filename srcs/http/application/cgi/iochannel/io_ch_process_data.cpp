@@ -20,7 +20,6 @@ namespace http {
         ssize_t produced = cgi_handler.produce_output(&writer);
         
         if (produced < 0 || produced == 0) {
-            processing = false;
             return ;
         }
 
@@ -30,7 +29,6 @@ namespace http {
     void IOChannel::on_read_eof() {
         
         cgi_handler.on_channel_closed();
-        processing = false;
     }
 
     void IOChannel::on_write_complete() {

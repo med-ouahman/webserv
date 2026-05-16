@@ -31,9 +31,12 @@ namespace core {
             bool close_after_write;
             size_t num_requests;
             size_t body_bytes_received;
+            size_t body_bytes_sent;
             http::HTTPResponse response;
             http::IRequestHandler* request_handler;
             Timestamp last_;
+            Timestamp conn_lifetime;
+            bool processing;
         public:
             io::EventLoop& loop;
             explicit Connection( int fd, uint32_t mask, io::EventLoop& loop );
