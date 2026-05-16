@@ -31,7 +31,7 @@ namespace core {
             bool close_after_write;
             size_t num_requests;
             size_t body_bytes_received;
-            size_t body_bytes_sent;
+            size_t total_bytes_sent;
             http::HTTPResponse response;
             http::IRequestHandler* request_handler;
             Timestamp last_;

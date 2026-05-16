@@ -10,7 +10,7 @@ namespace http {
 
     size_t CGIHandler::cgi_timeout_secs;
 
-    const char* CGIHandler::cgi_metadata[] = {"REQUEST_METHOD", ""};
+    const char* CGIHandler::cgi_metadata[] = {"REQUEST_METHOD", "SERVER_PROTOCOL", "QUERY_STRING", NULL};
 
     CGIHandler::CGIHandler( core::Connection& conn_, const ResolutionResult res_ )
         : output_state(CGIOutputState::STATUS_LINE),

@@ -20,6 +20,7 @@ namespace http {
 		HTTPMethod method;
 		std::string version;
 		std::string url;
+		std::string query;
 		std::map<std::string, std::string> headers;
 		
 		HTTPMethod get_method( std::string& s ) const;

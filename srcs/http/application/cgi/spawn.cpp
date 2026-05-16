@@ -64,12 +64,24 @@ namespace http {
 
         for ( ; it != result.request.headers.end(); ++it) ++size;
 
-        char** s = build_non_header_vars();
+        for ( size_t i(0) ; cgi_metadata[i] != NULL; ++i ) ++size;
 
         char** cgi_variables = new char*[size];
 
         size_t i = 0;
         for ( ; __environ[i] != NULL; ++i) cgi_variables[i] = __environ[i];
+
+        for ( size_t i(0); cgi_metadata[i] != NULL; ++i ) {
+            std::string s = std::string(cgi_metadata[i]);
+            std::string var_name = s + "=";
+            if (s == "REQUEST_LINE") {
+                var_name = var_name + req.get_method(req.method);
+            } else if (s == "SERVER_PROTOCOL") {
+                var_name += "HTTP/1.1";
+            } else if (s == "QUERY_STRING") {
+                var_name += req.query;
+            } else if (s == "")
+        }
 
         it = req.headers.begin();
 

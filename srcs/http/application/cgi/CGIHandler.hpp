@@ -37,7 +37,7 @@ namespace http {
 		
 		public:
 			const static std::size_t MAX_BLOCK_LEN = 1024 * 16; // 16KB
-			const static std::size_t MAX_CGI_BODY_LEN = 1024 * 1024; // 1MB
+			const static std::size_t MAX_CGI_BODY_LEN = 1024 * 1024 * 10; // 10MB
 			
 			explicit CGIHandler( core::Connection& conn_, const ResolutionResult result_ );
 			void spawn( const io::EventLoop& loop );
@@ -46,7 +46,6 @@ namespace http {
 			~CGIHandler();
 			char** build_cgi_env();
 			char* transform( std::map<std::string, std::string>::iterator& it );
-			char** build_non_header_vars();
 
 		private:
 			CGIHandler( const CGIHandler& );

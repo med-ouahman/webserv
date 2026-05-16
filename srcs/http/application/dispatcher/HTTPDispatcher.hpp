@@ -43,11 +43,6 @@ namespace http {
         std::string mime_type;
         std::string path;
         const HTTPRequest& request;
-
-        ResolutionResult( HTTPStatusCode c, std::string const& r )
-            : type(HTTPResponseType::ERROR_RESPONSE),
-            status_code(c),
-            reason(r) {}
             
         ResolutionResult( const HTTPRequest& r): request(r) {}
     };

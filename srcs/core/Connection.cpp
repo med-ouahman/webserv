@@ -16,7 +16,7 @@ namespace core {
         close_after_write(false),
         num_requests(0),
         body_bytes_received(0),
-        body_bytes_sent(0),
+        total_bytes_sent(0),
         loop(l) {}
 
     Connection::~Connection() {
@@ -67,7 +67,7 @@ namespace core {
 
                 elapsed = last_.elapsed();
                 if (elapsed >= Limits::MIN_BODY_WAIT_SECS) {
-                    double ration = body_bytes_sent / elapsed;
+                    double ration = total_bytes_sent / elapsed;
                     if (ration < Limits::MIN_BYTES_PER_SEC) {
                         return true;
                     }
@@ -76,10 +76,14 @@ namespace core {
             case core::RequestPhase::IDLE:
                 limit = Limits::MAX_IDLE_TIMEOUT;
                 break;
-            case core::RequestPhase::PROCESSING:
+            default:
                 return false;
             }
 
+            if (last_.elapsed() > limit) {
+                return true;
+            }
+            return false;
         }
 
 }

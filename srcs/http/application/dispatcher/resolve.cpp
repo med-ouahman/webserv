@@ -41,7 +41,6 @@ namespace http {
         }
         
         if (location->redirect.return_code) {
-            return ResolutionResult(static_cast<HTTPStatusCode>(location->redirect.return_code), "Redirect");
         }
 
         if (location->allowed_methods.find(req.get_method(req.method)) == location->allowed_methods.end()) {
@@ -50,7 +49,6 @@ namespace http {
 
         if (req.method == DELETE) {
             if (!method_allowed) {
-                return ResolutionResult(METHOD_NOT_ALLOWED, "Method Not Allowed");
             }
 
             if (file_exists(path.c_str())) {
@@ -58,7 +56,6 @@ namespace http {
                 result.path = path;
                 return result;
             }
-            return ResolutionResult(NOT_FOUND, "Not Found");
         }
 
 
