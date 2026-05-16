@@ -95,7 +95,6 @@ struct Config {
     static bool has_instance;
 
     static void set_config( Config& conf ) {
-
         if (!has_instance) {
             instance = conf;
             has_instance = true;
