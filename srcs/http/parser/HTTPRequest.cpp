@@ -5,7 +5,7 @@
 
 namespace http {
 
-    HTTPMethod HTTPRequest::get_method( std::string& s ) const {
+    HTTPMethod HTTPRequest::get_method_name( std::string& s ) const {
 		if (s == "GET")
 			return GET;
 		if (s == "POST")
@@ -20,7 +20,7 @@ namespace http {
 		return UNKNOWN;
 	}
 	
-	std::string HTTPRequest::get_method( HTTPMethod m ) const {
+	std::string HTTPRequest::get_method_name( HTTPMethod m ) const {
 		if (m == GET)
 			return "GET";
 		if (m == POST)

@@ -31,14 +31,15 @@ namespace http {
         char* d = getcwd(NULL, 0);
         std::string cgi_bin(d);
         free(d);
+    
         ctx.script_filename   = cgi_bin + "/cgi-bin/hello.py";
         ctx.interpreter_path  = "/usr/bin/python3";
         ctx.script_name       = "/cgi-bin/cgi_py.py";
         ctx.path_info         = "/user/42";
         ctx.working_directory = "/home/mouahman/cgi-bin";
         ctx.server_name       = "localhost";
-        ctx.server_port       = 8080;
-        ctx.timeout_seconds   = 5;
+        ctx.server_port       = 8080; // LATER
+        ctx.timeout_seconds   = result.location->cgi_timeout;
 
         return ctx;
     }

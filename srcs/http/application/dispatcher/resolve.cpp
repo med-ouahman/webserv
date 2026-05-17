@@ -28,22 +28,23 @@ namespace http {
         result.reason = "";
         result.status_code = http::OK;
         result.type = HTTPResponseType::CGI;
+        result.location = &config::Config::get_config().server.locations[0];
         return result;
-        const config::LocationConfig* location = find_location(req.url, server.locations);
+        result.location = find_location(req.url, server.locations);
         const std::string path = extract_path(req.url);
         bool method_allowed = true;
         
-        if (!location) {
+        if (not result.location) {
             result.status_code = INTERNAL_SERVER_ERROR;
             result.type = HTTPResponseType::ERROR_RESPONSE;
             result.path = "";
             return result;
         }
         
-        if (location->redirect.return_code) {
+        if (result.location->redirect.return_code) {
         }
 
-        if (location->allowed_methods.find(req.get_method(req.method)) == location->allowed_methods.end()) {
+        if (result.location->allowed_methods.find(req.get_method_name(req.method)) == result.location->allowed_methods.end()) {
             method_allowed = false;
         }
 

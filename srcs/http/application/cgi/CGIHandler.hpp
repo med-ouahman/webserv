@@ -44,14 +44,17 @@ namespace http {
 			void handle();
 			bool done();
 			~CGIHandler();
-			char** build_cgi_env();
-			char* transform( std::map<std::string, std::string>::iterator& it );
+			char** build_cgi_env( const CGIContext& ctx );
+			char* transform( bool http_prefix, std::map<std::string, std::string>::iterator& it );
+			std::map<std::string, std::string> build_cgi_metadata( const CGIContext& context );
+			static bool forbidden_header( const std::string& header_name );
 
 		private:
 			CGIHandler( const CGIHandler& );
 			CGIHandler& operator=( const CGIHandler& );
 			static size_t cgi_timeout_secs;
 			const static char* cgi_metadata[];
+			const static char* stripped_headers[];
 
 		private:
 			struct CGIOutputState {

@@ -12,6 +12,8 @@ namespace http {
 
     const char* CGIHandler::cgi_metadata[] = {"REQUEST_METHOD", "SERVER_PROTOCOL", "QUERY_STRING", NULL};
 
+    const char* CGIHandler::stripped_headers[] = {"transfer-encoding", "content-length", "content-type", "connection", NULL};
+
     CGIHandler::CGIHandler( core::Connection& conn_, const ResolutionResult res_ )
         : output_state(CGIOutputState::STATUS_LINE),
         cgi_state(CGIState::SPAWN),
@@ -26,7 +28,7 @@ namespace http {
         stdout_ch_view(stdout_ch.get_view()),
         scanner(stdout_ch.get_view()),
         sigterm_sent_at(0) {
-            cgi_timeout_secs = 30; // config::Config::get_config().server.cgi_timeout; // NOT FOUND
+    
         }
 
     CGIHandler::~CGIHandler() {

@@ -43,6 +43,7 @@ namespace http {
         std::string mime_type;
         std::string path;
         const HTTPRequest& request;
+        const config::LocationConfig* location;
             
         ResolutionResult( const HTTPRequest& r): request(r) {}
     };

@@ -61,7 +61,7 @@ struct ServerConfig {
     std::vector<std::string> server_names;
     std::string root;
     std::vector<std::string> index_files;
-    std::map<int,std::string> error_pages;
+    std::map<int, std::string> error_pages;
     size_t client_max_body_size;
     bool session_enabled;
     std::string session_cookie_name;

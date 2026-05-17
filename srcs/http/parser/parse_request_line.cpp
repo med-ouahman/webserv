@@ -35,7 +35,7 @@ namespace http {
 		}
 
 		std::string method = line_c.line().substr(line_offset, method_len);
-		request.method = request.get_method(method);
+		request.method = request.get_method_name(method);
 		
 		if (request.method == UNKNOWN) {
 			std::cout << "unknown method\n";
