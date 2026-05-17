@@ -64,19 +64,16 @@ namespace http {
 
 	void HTTPParser::normalize_header_name( std::string& name ) {
 		for ( size_t i = 0; i < name.length(); i++ ) {
-			if (name[i] >= 'A' && name[i] <= 'Z') {
-				name[i] = tolower(name[i]);
-			}
+			if (name[i] >= 'A' && name[i] <= 'Z') name[i] = tolower(name[i]);
 		}
 	}
 
 	bool HTTPParser::validate_header_name( const std::string& name ) {
 
 		for ( size_t i = 0; i < name.length(); i++ ) {
-			if (!isascii(name[i]) || !isprint(name[i])) {				
-				return false;
-			}
+			if (!isascii(name[i]) or !isprint(name[i]))	return false;
 		}
+
 		return true;
 	}
 

@@ -61,10 +61,10 @@ namespace http {
             void reset();
             ParseState::Type  get_parser_state() const;
             bool finished() { return headers_done; }
-            
-        private:
             static Base::Expected<RequestLine, int> parse_request_line( const std::string& line );
             static Base::Expected<std::pair<std::string, std::string>, int> parse_headers( const std::string& line );
+            
+        private:
             bool add_request_header( std::string const& s );
             bool validate_headers();
 
