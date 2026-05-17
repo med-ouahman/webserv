@@ -35,11 +35,13 @@ namespace http {
 	}
 		
 	HTTPRequestData::HTTPRequestData() {
-		method = UNKNOWN;
-		version.clear();
-		url.clear();
+		method_ = UNKNOWN;
+		version_.clear();
+		url_.clear();
 		
-		headers.clear();
+		headers_.clear();
+		finished_ = false;
+
 	}
 
 	HTTPRequestData::~HTTPRequestData() {
@@ -47,17 +49,17 @@ namespace http {
 	}
 
 	bool HTTPRequestData::want_keep_alive() {
-		if (version == "HTTP/1.1") {
-			return headers["connection"] != "close";
-		} else if (version == "HTTP/1.0") {
-			return headers["connection"] == "keep-alive";
+		if (version_ == "HTTP/1.1") {
+			return headers_["connection"] != "close";
+		} else if (version_ == "HTTP/1.0") {
+			return headers_["connection"] == "keep-alive";
 		}
 
 		return false;
 	}
 
 	bool HTTPRequestData::version_supported() const {
-		return version == "HTTP/1.0" || version == "HTTP/1.1";
+		return version_ == "HTTP/1.0" || version_ == "HTTP/1.1";
 	}
 
 

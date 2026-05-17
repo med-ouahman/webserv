@@ -10,7 +10,7 @@ webserver/
 │   │
 │   ├── connection_components.txt
 │   │   Connection
-│   │       ├── HTTPParser
+│   │       ├── Parser
 │   │       └── HTTPDispatcher
 │   │
 │   └── response_trigger.txt

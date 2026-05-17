@@ -32,7 +32,7 @@ namespace core {
                     return ;
                     break;
                 case RequestPhase::FINAL:
-                    p.reset();
+                    request.reset();
                     response.reset();
                     state = ConnectionState::READING;
                     processing = false;

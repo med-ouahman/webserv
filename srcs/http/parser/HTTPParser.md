@@ -1,4 +1,4 @@
-# HTTPParser — Design Document
+# Parser — Design Document
 
 ## Table of Contents
 
@@ -27,7 +27,7 @@
 
 ## 1. Purpose and Scope
 
-The HTTPParser is responsible for one thing: consuming raw bytes from a connection's read buffer and producing a complete, structurally valid `HTTPRequestData`. It is a pure HTTP structural parser. It does not perform semantic validation, routing, response generation, or any form of I/O on the connection socket.
+The Parser is responsible for one thing: consuming raw bytes from a connection's read buffer and producing a complete, structurally valid `HTTPRequestData`. It is a pure HTTP structural parser. It does not perform semantic validation, routing, response generation, or any form of I/O on the connection socket.
 
 The parser is designed to be incremental. It may receive data in arbitrarily small or large chunks — a single byte at a time or many kilobytes at once. It must handle all cases identically and produce deterministic results regardless of how the data arrives.
 
@@ -89,11 +89,11 @@ There is no fourth value. There is no `PARSE_BODY_READY` pause point or storage 
 ## 5. Public Interface
 
 ```cpp
-class HTTPParser
+class Parser
 {
 public:
-    HTTPParser(const std::string& tmp_dir, int connection_fd);
-    ~HTTPParser();
+    Parser(const std::string& tmp_dir, int connection_fd);
+    ~Parser();
 
     ParseResult            parse(const char* data, std::size_t len);
 
@@ -353,7 +353,7 @@ Limit checks inside `scan_line()` are incremental — the line is rejected the m
 All errors are immediate and terminal. When any check fails, `emit_error()` is called:
 
 ```cpp
-ParseResult HTTPParser::emit_error(ParseError e)
+ParseResult Parser::emit_error(ParseError e)
 {
     error_ = e;
     state_ = STATE_ERROR;

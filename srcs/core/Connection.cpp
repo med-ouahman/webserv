@@ -11,7 +11,7 @@ namespace core {
         event_mask(mask),
         state(ConnectionState::IDLE),
         phase(RequestPhase::INITIAL),
-        p(data_view),
+        line_scanner(data_view),
         body_handler(_fd, data_view),
         close_after_write(false),
         num_requests(0),

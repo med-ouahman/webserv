@@ -1,14 +1,14 @@
 
-#include "HTTPParser.hpp"
+#include "Parser.hpp"
 
 namespace http {
 	
-	bool HTTPParser::validate_http_version( std::string const& s ) {
+	bool Parser::validate_http_version( std::string const& s ) {
 		return s == "HTTP/1.1" || s == "HTTP/1.0";
 	}
 
 
-	bool HTTPParser::add_request_header( std::string const& s ) {
+	bool Parser::add_request_header( std::string const& s ) {
 		size_t colon_index = s.find(":");
 		if (colon_index == std::string::npos) {
 			std::cout << "colon not found\n";
@@ -31,7 +31,7 @@ namespace http {
 			return false;
 		}
 		
-		HTTPParser::normalize_header_name(name);
+		Parser::normalize_http_header_name(name);
 		
 		start = colon_index + 1;
 		
@@ -50,7 +50,7 @@ namespace http {
 		return true;
 	}
 
-	bool HTTPParser::validate_headers() {
+	bool Parser::validate_headers() {
 		
 		if (request.version == "HTTP/1.1") {
 			if (request.headers["host"].empty()) {
@@ -62,13 +62,13 @@ namespace http {
 		return true;
 	}
 
-	void HTTPParser::normalize_header_name( std::string& name ) {
+	void Parser::normalize_http_header_name( std::string& name ) {
 		for ( size_t i = 0; i < name.length(); i++ ) {
 			if (name[i] >= 'A' && name[i] <= 'Z') name[i] = tolower(name[i]);
 		}
 	}
 
-	bool HTTPParser::validate_header_name( const std::string& name ) {
+	bool Parser::validate_http_header_name( const std::string& name ) {
 
 		for ( size_t i = 0; i < name.length(); i++ ) {
 			if (!isascii(name[i]) or !isprint(name[i]))	return false;

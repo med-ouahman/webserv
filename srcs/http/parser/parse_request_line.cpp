@@ -1,12 +1,13 @@
 
-#include "HTTPParser.hpp"
-#include <sstream>
+#include "Parser.hpp"
+#include <iostream>
 
 namespace http {
 
-	Base::Expected<RequestLine, int> HTTPParser::parse_request_line( const std::string& line ) {
+	Base::Expected<RequestLine, int> Parser::parse_request_line( const std::string& line ) {
+		
 		RequestLine request_line;
-
+		
 		size_t cursor = 0;
 		size_t line_offset = 0;
 		size_t method_len = 0;

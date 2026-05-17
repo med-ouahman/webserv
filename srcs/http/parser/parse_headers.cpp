@@ -1,9 +1,9 @@
 
-#include "HTTPParser.hpp"
+#include "Parser.hpp"
 
 namespace http {
 
-    Base::Expected<std::pair<std::string, std::string>, int> HTTPParser::parse_headers( const std::string& line ) {
+    Base::Expected<std::pair<std::string, std::string>, int> Parser::parse_header( const std::string& line ) {
     
         std::pair<std::string, std::string> header;
 
@@ -19,9 +19,9 @@ namespace http {
 
         std::string name = line.substr(0, name_len);
         
-        if (!validate_header_name(name)) return ERROR;
+        if (!validate_http_header_name(name)) return ERROR;
     
-        normalize_header_name(name);
+        normalize_http_header_name(name);
         
         size_t start = cursor + 1;
         size_t end = line.size() - 1;

@@ -2,7 +2,7 @@
 
 #include "ConnectionState.hpp"
 #include "ConnectionAction.hpp"
-#include "HTTPParser.hpp"
+#include "Parser.hpp"
 #include "CGIHandler.hpp"
 #include "CGIContext.hpp"
 #include "HTTPDispatcher.hpp"
@@ -26,17 +26,19 @@ namespace core {
             uint32_t event_mask;
             ConnectionState::Type state;
             RequestPhase::Type phase;
-            http::HTTPParser p;
+            http::LineScanner line_scanner;
             http::BodyHandler body_handler;
             bool close_after_write;
             size_t num_requests;
             size_t body_bytes_received;
             size_t total_bytes_sent;
             http::HTTPResponse response;
+            http::HTTPRequestData request;
             http::IRequestHandler* request_handler;
             Timestamp last_;
             Timestamp conn_lifetime;
             bool processing;
+
         public:
             io::EventLoop& loop;
             explicit Connection( int fd, uint32_t mask, io::EventLoop& loop );

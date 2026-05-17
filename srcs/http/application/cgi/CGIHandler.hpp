@@ -36,7 +36,7 @@ namespace http {
 	class CGIHandler: public IRequestHandler {
 		
 		public:
-			const static std::size_t MAX_BLOCK_LEN = 1024 * 16; // 16KB
+			const static std::size_t MAX_CGI_HEADER_LEN = 1024 * 4; 
 			const static std::size_t MAX_CGI_BODY_LEN = 1024 * 1024 * 10; // 10MB
 			
 			explicit CGIHandler( core::Connection& conn_, const ResolutionResult result_ );
@@ -50,6 +50,7 @@ namespace http {
 			static bool forbidden_header( const std::string& header_name );
 
 		private:
+			void parse_cgi_headers();
 			CGIHandler( const CGIHandler& );
 			CGIHandler& operator=( const CGIHandler& );
 			static size_t cgi_timeout_secs;

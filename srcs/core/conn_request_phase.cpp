@@ -10,7 +10,7 @@ namespace core {
 
     void Connection::request_building() {
 
-        http::ScanResult result = p.parse();
+        http::ScanResult result = http::Parser::parse_http_request(request);
         
         switch (result) {
             case http::NEED_MORE:
@@ -21,7 +21,7 @@ namespace core {
                 break;
             case http::SUCCESS:
                 last_.update();
-                phase = p.finished() ? RequestPhase::RESOLVING: RequestPhase::BUILDING;
+                phase = request.headers_done() ? RequestPhase::RESOLVING: RequestPhase::BUILDING;
                 processing = phase == RequestPhase::RESOLVING;
                 break;
         }
@@ -40,11 +40,11 @@ namespace core {
         phase = RequestPhase::WRITING_RESPONSE;
         return ;
 
-        http::ResolutionResult result = http::HTTPDispatcher::resolve(p.get_request_data());
+        http::ResolutionResult result = http::HTTPDispatcher::resolve(request);
 
         request_handler = http::HTTPDispatcher::create_request_handler(*this, result);
         
-        http::BodyConf b = http::HTTPDispatcher::configure_body(p.get_request_data(), result);
+        http::BodyConf b = http::HTTPDispatcher::configure_body(request, result);
         
         if (b.type == http::BodyType::ERROR) {
             on_client_error();

@@ -20,7 +20,7 @@ namespace http {
         return false;
     }
 
-    char* CGIHandler::transform( bool http_prefix, std::map<std::string, std::string>::iterator& it ) {
+    char* CGIHandler::transform( bool has_http_prefix, std::map<std::string, std::string>::iterator& it ) {
 
         std::string key = const_cast<std::string&>(it->first);
         const std::string& value = it->second;
@@ -35,7 +35,7 @@ namespace http {
                 key[i] = std::toupper(static_cast<unsigned char>(c));
         }
 
-        std::string env_name = http_prefix ? "HTTP_" + key : key;
+        std::string env_name = has_http_prefix ? "HTTP_" + key : key;
         
         size_t alloc_size = env_name.size() + 1 + value.size() + 1;
 
@@ -92,7 +92,7 @@ namespace http {
     char** CGIHandler::build_cgi_env( const CGIContext& ctx ){
         size_t size = 0;
 
-        for (; __environ[size]; ++size );
+        for ( ; __environ[size] not_eq NULL; ++size );
         
         HTTPRequestData& req = const_cast<HTTPRequestData&>(result.request);
         std::map<std::string, std::string>::iterator it = req.headers.begin();
