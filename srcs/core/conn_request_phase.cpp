@@ -3,7 +3,7 @@
 namespace core {
 
     void Connection::on_client_error() {
-       http::HTTPDispatcher::build_error_response(http::BAD_REQUEST, "Bad request");
+       http::HTTPDispatcher::build_error_response(http::BAD_REQUEST);
         state = ConnectionState::WRITING;
         close_after_write = true;
     }
@@ -32,7 +32,7 @@ namespace core {
     void Connection::request_resloving() {
         
         response.status_code = http::OK;
-        response.reason = "OK";
+
         response.headers["content-type"] = "text/html";
         response.headers["content-length"] = "300";
         response.headers["transfer-encoding"] = "chunked";
@@ -41,11 +41,11 @@ namespace core {
         phase = RequestPhase::WRITING_RESPONSE;
         return ;
 
-        http::ResolutionResult result = http::HTTPDispatcher::resolve(p.get_request());
+        http::ResolutionResult result = http::HTTPDispatcher::resolve(p.get_request_data());
 
         request_handler = http::HTTPDispatcher::create_request_handler(*this, result);
         
-        http::BodyConf b = http::HTTPDispatcher::configure_body(p.get_request(), result);
+        http::BodyConf b = http::HTTPDispatcher::configure_body(p.get_request_data(), result);
         
         if (b.type == http::BodyType::ERROR) {
             on_client_error();

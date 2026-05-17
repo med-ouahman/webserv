@@ -12,10 +12,8 @@ namespace http {
             return SUCCESS;
         }
     
-        if (output_state == CGIOutputState::HEADERS
-            || output_state == CGIOutputState::STATUS_LINE) {
-            std::cout << "Headers\n";
-            output_state = CGIOutputState::BODY;
+        if (output_state == CGIOutputState::HEADERS) {
+            
         }
 
         if (output_state == CGIOutputState::BODY) {

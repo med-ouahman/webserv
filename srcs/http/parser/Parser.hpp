@@ -3,13 +3,13 @@
 #include <iostream>
 #include "ConnectionState.hpp"
 #include "ConnectionEvent.hpp"
-#include "HTTPRequest.hpp"
+#include "HTTPRequestData.hpp"
 
 namespace http {
     
     class HTTPParser {
         private:
-            HTTPRequest request;
+            HTTPRequestData request;
             std::string request_buff;
             enum ParseState {
                 REQUEST_LINE,
@@ -27,7 +27,7 @@ namespace http {
             HTTPParser();
             ~HTTPParser();
             ParseResult parse( char* buff );
-            HTTPRequest get_request() const;
+            HTTPRequestData get_request_data() const;
         private:
             ParseResult parse_request_line();
             ParseResult parse_headers();

@@ -1,11 +1,11 @@
 
-#include "HTTPRequest.hpp"
+#include "HTTPRequestData.hpp"
 #include <unistd.h>
 #include <iostream>
 
 namespace http {
 
-    HTTPMethod HTTPRequest::get_method_name( std::string& s ) const {
+    HTTPMethod HTTPRequestData::get_method_name( std::string& s ) const {
 		if (s == "GET")
 			return GET;
 		if (s == "POST")
@@ -20,7 +20,7 @@ namespace http {
 		return UNKNOWN;
 	}
 	
-	std::string HTTPRequest::get_method_name( HTTPMethod m ) const {
+	std::string HTTPRequestData::get_method_name( HTTPMethod m ) const {
 		if (m == GET)
 			return "GET";
 		if (m == POST)
@@ -34,7 +34,7 @@ namespace http {
 		return "UNKNOWN";
 	}
 		
-	HTTPRequest::HTTPRequest() {
+	HTTPRequestData::HTTPRequestData() {
 		method = UNKNOWN;
 		version.clear();
 		url.clear();
@@ -42,11 +42,11 @@ namespace http {
 		headers.clear();
 	}
 
-	HTTPRequest::~HTTPRequest() {
+	HTTPRequestData::~HTTPRequestData() {
 		
 	}
 
-	bool HTTPRequest::want_keep_alive() {
+	bool HTTPRequestData::want_keep_alive() {
 		if (version == "HTTP/1.1") {
 			return headers["connection"] != "close";
 		} else if (version == "HTTP/1.0") {
@@ -56,7 +56,7 @@ namespace http {
 		return false;
 	}
 
-	bool HTTPRequest::version_supported() const {
+	bool HTTPRequestData::version_supported() const {
 		return version == "HTTP/1.0" || version == "HTTP/1.1";
 	}
 

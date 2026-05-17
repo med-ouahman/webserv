@@ -13,7 +13,7 @@ namespace http {
 	HTTPParser::~HTTPParser() {}
 
 
- 	HTTPRequest& HTTPParser::get_request() {
+ 	HTTPRequestData& HTTPParser::get_request_data() {
 		return request;
 	}
 
@@ -22,7 +22,7 @@ namespace http {
 		leading_crlf_count = 0;
 		headers_done = false;
 		parse_state = ParseState::REQUEST_LINE;
-		request = HTTPRequest();
+		request = HTTPRequestData();
 	}
 
 	ParseState::Type HTTPParser::get_parser_state() const {

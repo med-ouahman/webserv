@@ -3,7 +3,7 @@
 #include <iostream>
 #include <stdint.h>
 #include "ConnectionState.hpp"
-#include "HTTPRequest.hpp"
+#include "HTTPRequestData.hpp"
 #include "Config.hpp"
 #include "LineScanner.hpp"
 #include "DataView.hpp"
@@ -38,7 +38,7 @@ namespace http {
             bool headers_done;
             size_t leading_crlf_count;
             size_t header_count;
-            HTTPRequest request;
+            HTTPRequestData request;
             LineScanner line_c;
             ParseState::Type parse_state;
 
@@ -56,7 +56,7 @@ namespace http {
             explicit HTTPParser( DataView& v );
             ~HTTPParser();
             ScanResult parse();
-            HTTPRequest& get_request();
+            HTTPRequestData& get_request_data();
             void reset();
             ParseState::Type  get_parser_state() const;
             bool finished() { return headers_done; }

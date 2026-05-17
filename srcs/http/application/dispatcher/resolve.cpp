@@ -1,6 +1,6 @@
 #include "HTTPDispatcher.hpp"
 #include "Config.hpp"
-#include "HTTPRequest.hpp"
+#include "HTTPRequestData.hpp"
 #include <sys/stat.h>
 
 namespace http {
@@ -19,13 +19,12 @@ namespace http {
         return true;
     }
 
-    ResolutionResult HTTPDispatcher::resolve( const HTTPRequest& req ) {
+    ResolutionResult HTTPDispatcher::resolve( const HTTPRequestData& req ) {
         ResolutionResult result(req);
 
         config::ServerConfig server = config::Config::get_config().server;
         
         result.path = "";
-        result.reason = "";
         result.status_code = http::OK;
         result.type = HTTPResponseType::CGI;
         result.location = &config::Config::get_config().server.locations[0];

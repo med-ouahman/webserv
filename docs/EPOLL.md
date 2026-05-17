@@ -76,7 +76,7 @@ server_design/
 │   │     PARSE_ERROR
 │   │     COMPLETE
 │   ├─ on COMPLETE
-│   │     req = parser.get_request()
+│   │     req = parser.get_request_data()
 │   │     validate
 │   │     handler.handle_request(req)
 │   │     response_buffer = handler.serialize_current_header()

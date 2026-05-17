@@ -1,5 +1,5 @@
 
-#include "HTTPRequest.hpp"
+#include "HTTPRequestData.hpp"
 #include "HTTPDispatcher.hpp"
 #include "Config.hpp"
 #include <iostream>
@@ -13,11 +13,10 @@ namespace http {
 
     HTTPDispatcher::~HTTPDispatcher() {}
 
-    void HTTPDispatcher::build_error_response( HTTPStatusCode code, std::string reason ) {
-        std::cout << "Sure shit, code: " << code << " reason: " << reason << "\n";
+    void HTTPDispatcher::build_error_response( HTTPStatusCode code ) {
+        std::cout << "Sure shit, code: " << code << "\n";
         HTTPResponse response;
         response.status_code = code;
-        response.reason = reason;
         response.headers["Connection"] = "close";
         response.body = "HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n";
     }
@@ -44,7 +43,7 @@ namespace http {
         return ctx;
     }
 
-    BodyConf HTTPDispatcher::configure_body( const HTTPRequest& req, const ResolutionResult& result ) {
+    BodyConf HTTPDispatcher::configure_body( const HTTPRequestData& req, const ResolutionResult& result ) {
         BodyConf body;
         
         body.type = detect_body_type(req);
@@ -54,7 +53,7 @@ namespace http {
         }
 
         char* end = NULL;        
-        body.parsed_body_size = ::strtoul(const_cast<HTTPRequest&>(req).headers["content-length"].c_str(), &end, 10);
+        body.parsed_body_size = ::strtoul(const_cast<HTTPRequestData&>(req).headers["content-length"].c_str(), &end, 10);
         
         if (end && *end not_eq '\0') {
             std::cout << "Bad Content length\n";

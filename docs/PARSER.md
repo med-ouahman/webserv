@@ -42,7 +42,7 @@ webserver/
 │   │
 │   │   Parser exposes only:
 │   │       parse(bytes)
-│   │       get_request()
+│   │       get_request_data()
 │   │
 │   ├── parser_state_machine.txt
 │   │   REQUEST_LINE
@@ -64,7 +64,7 @@ webserver/
 ├── http_request/
 │   │
 │   ├── structure.txt
-│   │   HTTPRequest
+│   │   HTTPRequestData
 │   │       method
 │   │       uri
 │   │       version
@@ -208,7 +208,7 @@ webserver/
 │   ├── handler.txt
 │   │   HTTPDispatcher
 │   │       builds HTTP response
-│   │       based on HTTPRequest
+│   │       based on HTTPRequestData
 │   │
 │   └── response_object.txt
 │       response structure useful for:

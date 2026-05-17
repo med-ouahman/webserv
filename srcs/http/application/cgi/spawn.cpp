@@ -4,7 +4,7 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <cstdlib>
-#include "HTTPRequest.hpp"
+#include "HTTPRequestData.hpp"
 #include "Timestamp.hpp"
 
 namespace http {
@@ -57,7 +57,7 @@ namespace http {
 
     std::map<std::string, std::string> CGIHandler::build_cgi_metadata( const CGIContext& ctx ) {
         std::map<std::string, std::string> headers;
-        HTTPRequest& req = const_cast<HTTPRequest&>(result.request);
+        HTTPRequestData& req = const_cast<HTTPRequestData&>(result.request);
 
         for ( size_t i(0); cgi_metadata[i] != NULL; ++i ) {
             
@@ -94,7 +94,7 @@ namespace http {
 
         for (; __environ[size]; ++size );
         
-        HTTPRequest& req = const_cast<HTTPRequest&>(result.request);
+        HTTPRequestData& req = const_cast<HTTPRequestData&>(result.request);
         std::map<std::string, std::string>::iterator it = req.headers.begin();
         for ( ; it != result.request.headers.end(); ++it ) ++size;
         

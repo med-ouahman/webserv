@@ -24,7 +24,6 @@ namespace core {
 		if ((has_content_len && *end != '\0') || body_size > http::CGIHandler::MAX_CGI_BODY_LEN) {
 			state = ConnectionState::WRITING;
 			response.status_code = http::BAD_GATEWAY;
-			response.reason = "Bad Gateway";
 			close_after_write = true;
 			return ;
 		}
@@ -39,15 +38,14 @@ namespace core {
 		std::cout << "CGI BODY TYPE: " << (has_content_len?"CONTENT-LENGTH\n":"CHUNKED\n");
 	}
 
-	void Connection::on_cgi_error(http::HTTPStatusCode c, std::string const& reason ) {
+	void Connection::on_cgi_error(http::HTTPStatusCode c ) {
 		response.status_code = c;
-		response.reason = reason;
 		state = ConnectionState::WRITING;
 		close_after_write = true;
 	}
 
 	void Connection::on_cgi_output_ready() {
-		std::cout << "What??\n";
+		state = ConnectionState::WRITING;
 	}
 
 }

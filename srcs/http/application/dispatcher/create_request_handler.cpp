@@ -1,5 +1,5 @@
 #include "HTTPDispatcher.hpp"
-#include "HTTPRequest.hpp"
+#include "HTTPRequestData.hpp"
 #include <fcntl.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -17,7 +17,7 @@ namespace http {
         
         switch (result.type) {
             case HTTPResponseType::ERROR_RESPONSE:
-                build_error_response(result.status_code, result.reason);
+                build_error_response(result.status_code);
                 // reutnr ErrorHandler()
                 break;
             case HTTPResponseType::STATIC_FILE:

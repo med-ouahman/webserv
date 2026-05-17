@@ -30,7 +30,7 @@ namespace http {
         static const char*    COLON;
 		
         HTTPStatusCode status_code;
-		std::string reason;
+		
 		std::string body; /* temporary */
 		IBodyProvider* body_provider;
 		std::map<std::string, std::string> headers;

@@ -15,7 +15,7 @@ namespace http {
 		UNKNOWN
 	};
 
-	struct HTTPRequest {
+	struct HTTPRequestData {
 		
 		HTTPMethod method;
 		std::string version;
@@ -26,8 +26,8 @@ namespace http {
 		
 		HTTPMethod get_method_name( std::string& s ) const;
 		std::string get_method_name( HTTPMethod m ) const;
-		HTTPRequest();
-		~HTTPRequest();
+		HTTPRequestData();
+		~HTTPRequestData();
 		bool want_keep_alive();
 		bool version_supported() const;
 	};

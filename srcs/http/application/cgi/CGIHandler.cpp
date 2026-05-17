@@ -49,7 +49,7 @@ namespace http {
         } catch ( std::runtime_error& err ) {
             std::cout << err.what() << "\n";
             cgi_state = CGIState::ERROR;
-            conn.on_cgi_error(http::INTERNAL_SERVER_ERROR, "Internal Server Error");;
+            conn.on_cgi_error(http::INTERNAL_SERVER_ERROR);;
         }
     }
 
@@ -67,7 +67,7 @@ namespace http {
                 if (0 == ::waitpid(cgi_pid, &cgi_status, WNOHANG))
                     return false;
                 cgi_state = CGIState::ERROR;
-                conn.on_cgi_error(GATEWAY_TIMEOUT, "Gateway Timeout");
+                conn.on_cgi_error(GATEWAY_TIMEOUT);
                 return true;
             }
 
@@ -75,7 +75,7 @@ namespace http {
             ::kill(cgi_pid, SIGKILL);
 
             ::waitpid(cgi_pid, &cgi_status, 0);  // should be blocking to ensuer the process is reaped
-            conn.on_cgi_error(GATEWAY_TIMEOUT, "Gateway Timeout");
+            conn.on_cgi_error(GATEWAY_TIMEOUT);
             cgi_state = CGIState::ERROR;
             return true;
         }
@@ -91,6 +91,5 @@ namespace http {
 	bool CGIHandler::finished() {
 		return cgi_state == CGIState::ERROR || cgi_state == CGIState::FINISHED;
 	}
-
 
 }

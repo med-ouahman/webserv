@@ -1,9 +1,9 @@
 #include "HTTPDispatcher.hpp"
-#include "HTTPRequest.hpp"
+#include "HTTPRequestData.hpp"
 
 namespace http {
 
-	BodyType::Type HTTPDispatcher::detect_body_type( const HTTPRequest& request )  {
+	BodyType::Type HTTPDispatcher::detect_body_type( const HTTPRequestData& request )  {
 
 		if (request.method == GET or request.method == DELETE) {
 			return BodyType::NONE;
@@ -16,7 +16,7 @@ namespace http {
 		bool has_transfer_encoding = not transfer_encoding.empty();
 
 		if (has_transfer_encoding and transfer_encoding != "chunked") {
-			build_error_response(NOT_IMPLEMENTED, "Not Implemented");
+			build_error_response(NOT_IMPLEMENTED);
 			return BodyType::ERROR;	
 		}
 

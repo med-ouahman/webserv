@@ -17,7 +17,7 @@ namespace http {
         stderr_ch.shutdown();
         stdout_ch.shutdown();
 
-        conn.on_cgi_error(BAD_GATEWAY, "Bad Gateway");
+        conn.on_cgi_error(BAD_GATEWAY);
     }
 
 }

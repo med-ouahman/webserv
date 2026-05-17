@@ -48,7 +48,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/parser/parse_request_line.cpp \
 	srcs/http/application/body_handler/read_body.cpp \
 	srcs/http/parser/parser_utils.cpp \
-	srcs/http/parser/HTTPRequest.cpp \
+	srcs/http/parser/HTTPRequestData.cpp \
 	srcs/http/parser/http_parse.cpp \
 	srcs/http/application/body_handler/detect_body.cpp \
 	srcs/http/application/body_handler/parse_chunk_size.cpp \
