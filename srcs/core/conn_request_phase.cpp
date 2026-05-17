@@ -3,7 +3,7 @@
 namespace core {
 
     void Connection::on_client_error() {
-       http::HTTPDispatcher::build_error_response(http::BAD_REQUEST);
+        response.build_error_response(http::BAD_REQUEST);
         state = ConnectionState::WRITING;
         close_after_write = true;
     }
@@ -17,8 +17,7 @@ namespace core {
                 processing = false;
                 break;
             case http::ERROR:
-                processing = false;
-                on_client_error();
+                phase = RequestPhase::ERROR;
                 break;
             case http::SUCCESS:
                 last_.update();

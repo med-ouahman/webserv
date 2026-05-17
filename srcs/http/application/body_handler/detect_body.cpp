@@ -16,7 +16,7 @@ namespace http {
 		bool has_transfer_encoding = not transfer_encoding.empty();
 
 		if (has_transfer_encoding and transfer_encoding != "chunked") {
-			build_error_response(NOT_IMPLEMENTED);
+			// build_error_response(NOT_IMPLEMENTED);
 			return BodyType::ERROR;	
 		}
 

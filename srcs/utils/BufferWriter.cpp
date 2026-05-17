@@ -43,6 +43,10 @@ bool BufferWriter::empty() {
 }
 
 size_t BufferWriter::remaining() {
+    return size_ - offset_;
+}
+
+size_t BufferWriter::bytes_free() {
     return capacity_ - size_;
 }
 
@@ -64,7 +68,6 @@ char* BufferWriter::write_ptr() {
 }
 
 size_t BufferWriter::write( const char* source, size_t n__ ) {
-    offset_ = 0;
     size_t available = capacity_ - size_;
     size_t to_copy = std::min(available, n__);
     ::memcpy(buff_ + size_, source, to_copy);

@@ -28,6 +28,7 @@ class BufferWriter {
 		void advance( size_t n );
 		void reset();
 		size_t capacity();
+		size_t bytes_free();
 		size_t write( const char* src, size_t n__ );
 };
 

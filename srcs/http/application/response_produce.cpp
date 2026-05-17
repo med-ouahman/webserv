@@ -5,6 +5,14 @@
 
 namespace http {
 
+
+	void HTTPResponse::build_error_response( HTTPStatusCode code ) {
+        std::cout << "Sure shit, code: " << code << "\n";
+        status_code = code;
+        headers["Connection"] = "close";
+    }
+
+
 	ssize_t HTTPResponse::produce( BufferWriter* writer ) {
 		
 		ssize_t bytes = 0;

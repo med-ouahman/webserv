@@ -19,9 +19,7 @@ namespace core {
         
         if (produced == 0) {
             if (close_after_write) state = ConnectionState::CLOSING;
-            else {
-                phase = RequestPhase::FINAL;
-            }
+            else phase = RequestPhase::FINAL;
         }
         
     }

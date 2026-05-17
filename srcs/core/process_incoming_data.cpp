@@ -23,8 +23,8 @@ namespace core {
                     request_processing();
                     break;
                 case RequestPhase::ERROR:
-                    processing = false;
                     on_client_error();
+                    processing = false;
                     break;
                 case RequestPhase::WRITING_RESPONSE:
                     state = ConnectionState::WRITING;

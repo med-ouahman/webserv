@@ -31,6 +31,7 @@ INCLUDES = -Isrcs \
 	-Isrcs/io/stream/ \
 	-Isrcs/config/ \
 	-Isrcs/utils/ \
+	-Isrcs/utils/baselib \
 
 SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/Connection.cpp \

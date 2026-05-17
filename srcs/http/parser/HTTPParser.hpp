@@ -7,6 +7,7 @@
 #include "Config.hpp"
 #include "LineScanner.hpp"
 #include "DataView.hpp"
+#include "Expected.hpp"
 
 namespace http {
     
@@ -35,9 +36,9 @@ namespace http {
             static const std::size_t MAX_LEADING_CRLF     = 5;
     
         private:
-            bool headers_done;
-            size_t leading_crlf_count;
-            size_t header_count;
+            bool    headers_done;
+            size_t  leading_crlf_count;
+            size_t  header_count;
             HTTPRequestData request;
             LineScanner line_c;
             ParseState::Type parse_state;
@@ -62,8 +63,8 @@ namespace http {
             bool finished() { return headers_done; }
             
         private:
-            ScanResult parse_request_line();
-            ScanResult parse_headers();
+            static Base::Expected<RequestLine, int> parse_request_line( const std::string& line );
+            static Base::Expected<std::pair<std::string, std::string>, int> parse_headers( const std::string& line );
             bool add_request_header( std::string const& s );
             bool validate_headers();
 

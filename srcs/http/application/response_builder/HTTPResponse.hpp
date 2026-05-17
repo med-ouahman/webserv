@@ -31,7 +31,6 @@ namespace http {
 		
         HTTPStatusCode status_code;
 		
-		std::string body; /* temporary */
 		IBodyProvider* body_provider;
 		std::map<std::string, std::string> headers;
 
@@ -47,7 +46,7 @@ namespace http {
                 body_provider = NULL;
                 serialize_state = RESPONSE_LINE;
             }
-            
+            void build_error_response( HTTPStatusCode code );
         private:
             enum SerializeState {
                 RESPONSE_LINE,

@@ -69,7 +69,7 @@ namespace http {
         public:
             static std::string generate_directory_list( const char* dir ); // TO BE MOVED
             static std::string generate_anchor( const char* name ); // TO BE MOVED
-            static void build_error_response( HTTPStatusCode code ); // TO BE MOVED;
+        
             static ResolutionResult resolve( const HTTPRequestData& req );
             HTTPDispatcher();
             ~HTTPDispatcher();

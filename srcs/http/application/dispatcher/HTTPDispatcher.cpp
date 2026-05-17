@@ -13,15 +13,6 @@ namespace http {
 
     HTTPDispatcher::~HTTPDispatcher() {}
 
-    void HTTPDispatcher::build_error_response( HTTPStatusCode code ) {
-        std::cout << "Sure shit, code: " << code << "\n";
-        HTTPResponse response;
-        response.status_code = code;
-        response.headers["Connection"] = "close";
-        response.body = "HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n";
-    }
-
-
     CGIContext HTTPDispatcher::resolve_cgi_context( const ResolutionResult& result ) {
         
         CGIContext ctx;

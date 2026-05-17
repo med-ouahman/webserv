@@ -15,6 +15,12 @@ namespace http {
 		UNKNOWN
 	};
 
+	struct RequestLine {
+		HTTPMethod method;
+		std::string version;
+		std::string uri;
+	};
+
 	struct HTTPRequestData {
 		
 		HTTPMethod method;
@@ -24,8 +30,8 @@ namespace http {
 		std::string query;
 		std::map<std::string, std::string> headers;
 		
-		HTTPMethod get_method_name( std::string& s ) const;
-		std::string get_method_name( HTTPMethod m ) const;
+		static HTTPMethod get_method( std::string& s );
+		static std::string get_method_name( HTTPMethod m );
 		HTTPRequestData();
 		~HTTPRequestData();
 		bool want_keep_alive();
