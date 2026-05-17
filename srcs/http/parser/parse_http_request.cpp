@@ -37,6 +37,8 @@ namespace http {
 					request.add_request_header(header_result.value());
 					break;
 
+				case RequestState::REQUEST_ERROR:
+					return ERROR;
 				default:
 					break;
 			}

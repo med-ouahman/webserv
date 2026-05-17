@@ -44,7 +44,7 @@ namespace http {
         }
 
         char* end = NULL;        
-        body.parsed_body_size = ::strtoul(const_cast<HTTPRequestData&>(req).headers["content-length"].c_str(), &end, 10);
+        body.parsed_body_size = ::strtoul(req.get("content-length").c_str(), &end, 10);
         
         if (end && *end not_eq '\0') {
             std::cout << "Bad Content length\n";

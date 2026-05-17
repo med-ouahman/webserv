@@ -5,13 +5,13 @@ namespace http {
 
 	BodyType::Type HTTPDispatcher::detect_body_type( const HTTPRequestData& request )  {
 
-		if (request.method == GET or request.method == DELETE) {
+		if (request.method() == GET or request.method() == DELETE) {
 			return BodyType::NONE;
 		}
 
-		std::string& transfer_encoding = const_cast<std::map<std::string, std::string>&>(request.headers)["transfer-encoding"];
+		const std::string& transfer_encoding = request.get("transfer-encoding");
 
-		bool has_content_length = not const_cast<std::map<std::string, std::string>&>(request.headers)["content-length"].empty();
+		bool has_content_length = not request.get("content-length").empty();
 		
 		bool has_transfer_encoding = not transfer_encoding.empty();
 

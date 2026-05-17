@@ -29,8 +29,8 @@ namespace http {
         result.type = HTTPResponseType::CGI;
         result.location = &config::Config::get_config().server.locations[0];
         return result;
-        result.location = find_location(req.url, server.locations);
-        const std::string path = extract_path(req.url);
+        result.location = find_location(req.unparsed_uri(), server.locations);
+        const std::string path = extract_path(req.unparsed_uri());
         bool method_allowed = true;
         
         if (not result.location) {
@@ -43,11 +43,11 @@ namespace http {
         if (result.location->redirect.return_code) {
         }
 
-        if (result.location->allowed_methods.find(req.get_method_name(req.method)) == result.location->allowed_methods.end()) {
+        if (result.location->allowed_methods.find(req.get_method_name()) == result.location->allowed_methods.end()) {
             method_allowed = false;
         }
 
-        if (req.method == DELETE) {
+        if (req.method() == DELETE) {
             if (!method_allowed) {
             }
 

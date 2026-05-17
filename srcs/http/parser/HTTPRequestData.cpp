@@ -5,44 +5,40 @@
 
 namespace http {
 
-    HTTPMethod HTTPRequestData::get_method( std::string& s ) {
-		if (s == "GET")
+    HTTPMethod HTTPRequestData::get_method( std::string const& m ) {
+		if (m == "GET")
 			return GET;
-		if (s == "POST")
+		if (m == "POST")
 			return POST;
-		if (s == "PUT") {
+		if (m == "PUT")
 			return PUT;
-		}
-		if (s == "PATCH")
+		if (m == "PATCH")
 			return PATCH;
-		if (s == "DELETE")
+		if (m == "DELETE")
 			return DELETE;
 		return UNKNOWN;
 	}
 	
-	std::string HTTPRequestData::get_method_name( HTTPMethod m ) {
-		if (m == GET)
+	std::string HTTPRequestData::get_method_name() const {
+		if (method_ == GET)
 			return "GET";
-		if (m == POST)
+		if (method_ == POST)
 			return "POST";
-		if (m == PUT)
+		if (method_ == PUT)
 			return "PUT";
-		if (m == PATCH)
+		if (method_ == PATCH)
 			return "PATCH";
-		if (m == DELETE)
+		if (method_ == DELETE)
 			return "DELETE";
 		return "UNKNOWN";
 	}
 		
-	HTTPRequestData::HTTPRequestData() {
-		method_ = UNKNOWN;
-		version_.clear();
-		url_.clear();
-		
-		headers_.clear();
-		finished_ = false;
-
-	}
+	HTTPRequestData::HTTPRequestData()
+	: method_(UNKNOWN),
+	request_state_(RequestState::REQUEST_LINE),
+	finished_(false),
+	leading_crlf_(0),
+	total_header_bytes_(0) {}
 
 	HTTPRequestData::~HTTPRequestData() {
 		
@@ -62,5 +58,68 @@ namespace http {
 		return version_ == "HTTP/1.0" || version_ == "HTTP/1.1";
 	}
 
+	void HTTPRequestData::add_request_header( const std::pair<std::string, std::string>& header ) {
+		
+		if (header.first.empty()) {
+			finished_ = true;
+			return ;
+		}
+		
+		total_header_bytes_ += header.first.size();
+		total_header_bytes_ += header.second.size();
 
+		headers_[header.first] = header.second;
+
+		if (headers_.size() > MAX_HEADER_COUNT) request_state_ = RequestState::REQUEST_ERROR;
+	}
+
+	void HTTPRequestData::add_request_line( const RequestLine& request_line ) {
+		method_ = request_line.method;
+		version_ = request_line.version;
+		unparsed_uri_ = request_line.uri;
+		/* split the unparsed uri and extract the quer string*/
+		query_string_ = "";
+	}
+	
+	bool HTTPRequestData::finished() const {
+		return finished_;
+	}
+
+	void HTTPRequestData::reset() {
+		
+	}
+
+	RequestState::Type HTTPRequestData::current_state() const {
+		return request_state_;
+	}
+
+	size_t HTTPRequestData::total_header_bytes() const {
+		return total_header_bytes_;
+	}
+
+
+	std::string const & HTTPRequestData::get( const std::string& key ) const {
+		try {
+			return headers_.at(key);
+		} catch(...) {
+			const static std::string empty;
+			return empty;
+		}
+	}
+
+	std::string const& HTTPRequestData::unparsed_uri() const {
+		return unparsed_uri_;
+	}
+
+	HTTPMethod HTTPRequestData::method() const {
+		return method_;
+	}
+
+	std::map<std::string, std::string> const& HTTPRequestData::headers() const {
+		return headers_;
+	}
+
+	std::string const& HTTPRequestData::query() const {
+		return query_string_;
+	}
 }

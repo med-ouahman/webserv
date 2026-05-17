@@ -64,11 +64,11 @@ namespace http {
             std::string s = std::string(cgi_metadata[i]);
             
             if (s == "REQUEST_METHOD") {
-                headers[s] = req.get_method_name(req.method);
+                headers[s] = req.get_method_name();
             } else if (s == "SERVER_PROTOCOL") {
                 headers[s] = "HTTP/1.1";
             } else if (s == "QUERY_STRING") {
-                headers[s] = req.query;
+                headers[s] = req.query();
             } else if (s == "CONTENT_TYPE") {
                 headers[s] = result.mime_type;
             } else if (s == "CONTENT_LENGTH") {
@@ -95,8 +95,11 @@ namespace http {
         for ( ; __environ[size] not_eq NULL; ++size );
         
         HTTPRequestData& req = const_cast<HTTPRequestData&>(result.request);
-        std::map<std::string, std::string>::iterator it = req.headers.begin();
-        for ( ; it != result.request.headers.end(); ++it ) ++size;
+        std::map<std::string, std::string>& headers = const_cast<std::map<std::string, std::string>&>(req.headers());
+
+        std::map<std::string, std::string>::iterator it = headers.begin();
+
+        for ( ; it != result.request.headers().end(); ++it ) ++size;
         
         std::map<std::string, std::string> cgi_metadata = build_cgi_metadata(ctx);
         it = cgi_metadata.begin();
@@ -110,7 +113,7 @@ namespace http {
         size_t i = 0;
         for ( ; __environ[i] != NULL; ++i ) cgi_variables[i] = __environ[i];
 
-        for (  it = req.headers.begin(); it != req.headers.end(); ) {
+        for (  it = headers.begin(); it != headers.end(); ) {
 
             if (forbidden_header(it->first)) {
                 continue;

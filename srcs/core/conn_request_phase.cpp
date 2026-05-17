@@ -10,7 +10,7 @@ namespace core {
 
     void Connection::request_building() {
 
-        http::ScanResult result = http::Parser::parse_http_request(request);
+        http::ScanResult result = http::Parser::parse_http_request(line_scanner, request);
         
         switch (result) {
             case http::NEED_MORE:
@@ -21,7 +21,7 @@ namespace core {
                 break;
             case http::SUCCESS:
                 last_.update();
-                phase = request.headers_done() ? RequestPhase::RESOLVING: RequestPhase::BUILDING;
+                phase = request.finished() ? RequestPhase::RESOLVING: RequestPhase::BUILDING;
                 processing = phase == RequestPhase::RESOLVING;
                 break;
         }
