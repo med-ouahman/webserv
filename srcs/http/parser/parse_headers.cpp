@@ -1,6 +1,6 @@
 
 #include "Parser.hpp"
-
+ #include <iostream>
 namespace http {
 
     Base::Expected<std::pair<std::string, std::string>, int> parser::parse_header( const std::string& line ) {
@@ -14,7 +14,12 @@ namespace http {
             ++name_len;
         }
 
-        if (cursor == line.size() or line[cursor] not_eq ':') return ERROR;
+        if (cursor == line.size() or line[cursor] not_eq ':')
+           
+            {
+                std::cerr << "XXXXXXXXX|\n";
+                return ERROR;
+            }
 
         std::string name = line.substr(0, name_len);
         

@@ -14,11 +14,13 @@ namespace http {
             return SUCCESS;
         }
     
-        if (parse_ctx.state == CGIOutputState::HEADERS) {
+        if (parse_ctx.state == CGIOutputState::HEADERS
+                || parse_ctx.state == CGIOutputState::STATUS_LINE) {
+            std::cout << "CGI HEADERS\n";
             parse_cgi_headers();
         }
 
-        if (parse_ctx.state == CGIOutputState::BODY) {
+        if (parse_ctx.state == CGIOutputState::BIND_BODY) {
             conn.bind_cgi();
             parse_ctx.state = CGIOutputState::WRITING_BODY;
         }

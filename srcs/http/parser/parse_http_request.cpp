@@ -1,9 +1,6 @@
 #include "Parser.hpp"
 #include "Expected.hpp"
-
-#ifdef DEBUG
 #include <iostream>
-#endif
 
 namespace http {
 	
@@ -35,6 +32,7 @@ namespace http {
 					std::cout << "Parsing headesrs\n";
 					if (scanner.line().empty()) {
 						request.on_finished();
+						std::cout << "headers done\n";
 						break;
 					}
 

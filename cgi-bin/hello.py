@@ -1,6 +1,17 @@
+#!/usr/bin/env python3
 
+print("Status: 200 OK\r\n", end="")
+print("Content-Type: text/html\r\n\r\n", end="")
 
-s = "GabaGool " * 10
-
-for i in range(0, 10):
-	print(s)
+print("""
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dummy CGI</title>
+</head>
+<body>
+    <h1>Hello from CGI!</h1>
+    <p>This is a dummy Python CGI script.</p>
+</body>
+</html>
+""")

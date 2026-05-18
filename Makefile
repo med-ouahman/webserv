@@ -62,7 +62,6 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/application/dispatcher/create_request_handler.cpp \
 	srcs/http/application/dispatcher/find_location.cpp \
 	srcs/http/application/dispatcher/resolve.cpp \
-	srcs/http/application/response_produce.cpp \
 	srcs/http/application/cgi/CGIHandler.cpp \
 	srcs/http/application/cgi/spawn.cpp \
 	srcs/http/application/cgi/parse_cgi_headers.cpp \
@@ -75,6 +74,8 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/application/cgi/iochannel/io_ch_process.cpp \
 	srcs/http/application/cgi/iochannel/io_ch_process_data.cpp \
 	srcs/http/application/cgi/cgi_iochannel_closed.cpp \
+	srcs/http/application/response_builder/HTTPResponse.cpp \
+	srcs/http/application/response_builder/response_produce.cpp \
 	srcs/http/application/response_builder/generate_directory_listing.cpp \
 	srcs/http/application/response_builder/MimeType.cpp \
 	srcs/http/application/body/CGIBodyProvider.cpp \

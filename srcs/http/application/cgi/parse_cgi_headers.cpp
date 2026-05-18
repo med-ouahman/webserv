@@ -8,36 +8,42 @@ namespace http {
 	ScanResult CGIHandler::parse_cgi_headers() {
 		
 
-		while (!parse_ctx.finished && parse_ctx.state != CGIOutputState::ERROR) {
+		while (not parse_ctx.finished and parse_ctx.state not_eq CGIOutputState::ERROR) {
 
 			size_t max_scan_size = MAX_CGI_HEADER_BLOCK_LEN - parse_ctx.bytes_parsed;
 
+			scanner.reset();
 			ScanResult r = scanner.scan(max_scan_size);
 			
-			if (r != SUCCESS) return r;
+			if (r not_eq SUCCESS) return r;
 
 			if (scanner.line().empty() and parse_ctx.state == CGIOutputState::HEADERS) {
 				parse_ctx.finished = true;
-				parse_ctx.state = CGIOutputState::WRITING_BODY;
+				parse_ctx.state = CGIOutputState::BIND_BODY;
 				break;
 			}
 
+			std::cout << scanner.line() << "\n";
 			Base::Expected<std::pair<std::string, std::string>, int> header_result = parser::parse_header(scanner.line());
 
-			if (not header_result.has_value()) return ERROR;
+			if (not header_result.has_value()) {
+				std::cout  << "Error\n";
+				return ERROR;
+			}
+
+			std::cout << header_result.value().first << " | " << header_result.value().second << "\n";
 
 			switch (parse_ctx.state) {
 				case CGIOutputState::STATUS_LINE:
 					sanitize_status_line(header_result.value());
 					break;
-				case CGIOutputState::HEADERS: {
+				case CGIOutputState::HEADERS:
 					sanitize_header(header_result.value());
 					break;
 				case CGIOutputState::ERROR:
 					return ERROR;
 				default:
 					return SUCCESS;
-				}
 			}
 		}
 
@@ -45,8 +51,7 @@ namespace http {
 	}
 
 	void CGIHandler::sanitize_status_line( const std::pair<std::string, std::string>& header ) {
-		if (header.first != "status")
-			return;
+		if (header.first not_eq "status") return;
 
 		const std::string& value = header.second;
 

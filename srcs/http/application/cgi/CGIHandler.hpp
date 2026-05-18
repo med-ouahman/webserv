@@ -33,7 +33,7 @@ namespace http {
 		enum Type {
 			STATUS_LINE,
 			HEADERS,
-			BODY,
+			BIND_BODY,
 			WRITING_BODY,
 			ERROR,
 		};

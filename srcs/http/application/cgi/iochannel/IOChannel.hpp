@@ -16,14 +16,13 @@ namespace http {
             };
     };
 
-    class IOChannelState {
-        public:
-            enum Type {
-                IDLE,
-                ACTIVE,
-                CLOSED,
-                ERROR,
-            };
+    struct IOChannelState {
+        enum Type {
+            IDLE,
+            ACTIVE,
+            CLOSED,
+            ERROR,
+        };
     };
 
     class IOChannel: public io::Stream {
