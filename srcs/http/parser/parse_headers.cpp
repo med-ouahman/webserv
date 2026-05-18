@@ -3,23 +3,22 @@
 
 namespace http {
 
-    Base::Expected<std::pair<std::string, std::string>, int> Parser::parse_header( const std::string& line ) {
+    Base::Expected<std::pair<std::string, std::string>, int> parser::parse_header( const std::string& line ) {
     
         std::pair<std::string, std::string> header;
 
         size_t name_len = 0;
         size_t cursor = 0;
-        while (cursor < line.size() && line[cursor] != ':') {
+        while (cursor < line.size() and line[cursor] not_eq ':') {
             ++cursor;
             ++name_len;
-            if (name_len > MAX_HEADER_BLOCK_LEN) return ERROR;
         }
 
-        if (cursor == line.size() || line[cursor] != ':') return ERROR;
+        if (cursor == line.size() or line[cursor] not_eq ':') return ERROR;
 
         std::string name = line.substr(0, name_len);
         
-        if (!validate_http_header_name(name)) return ERROR;
+        if (not validate_http_header_name(name)) return ERROR;
     
         normalize_http_header_name(name);
         
@@ -27,11 +26,11 @@ namespace http {
         size_t end = line.size() - 1;
         size_t __n = 0;
         
-        while (::isspace(line[start]) && start < line.size()) ++start;
+        while (::isspace(line[start]) and start < line.size()) ++start;
         
-        while (::isspace(line[end]) && end >= start) --end;
+        while (::isspace(line[end]) and end >= start) --end;
 
-        if (start == end  && !::isspace(line[start])) __n = 1;
+        if (start == end  and !::isspace(line[start])) __n = 1;
 
         else __n = end - start + 1;
 

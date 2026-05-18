@@ -32,8 +32,8 @@ namespace core {
                     return ;
                     break;
                 case RequestPhase::FINAL:
-                    request.reset();
-                    response.reset();
+                    request = http::HTTPRequest();
+                    response = http::HTTPResponse();
                     state = ConnectionState::READING;
                     processing = false;
                     phase = RequestPhase::IDLE;

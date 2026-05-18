@@ -1,5 +1,5 @@
 #include "HTTPDispatcher.hpp"
-#include "HTTPRequestData.hpp"
+#include "HTTPRequest.hpp"
 #include <fcntl.h>
 #include <fcntl.h>
 #include <unistd.h>

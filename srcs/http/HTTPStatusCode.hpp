@@ -5,6 +5,8 @@ namespace http {
 	enum HTTPStatusCode {
 		NONE = 0,
 		OK = 200,
+		CREATED = 201,
+		NO_CONTENT = 204,
 		BAD_REQUEST = 400,
 		FORBIDDEN = 403,
 		NOT_FOUND = 404,
@@ -15,5 +17,10 @@ namespace http {
 		VERSION_NOT_SUPPORTED = 505,
 		BAD_GATEWAY = 502,
 		GATEWAY_TIMEOUT = 504,
+	};
+
+	enum {
+		MIN_HTTP_STATUS_CODE = 100,
+		MAX_HTTP_STATUS_CODE = 599,
 	};
 }

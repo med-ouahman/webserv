@@ -10,7 +10,7 @@ namespace core {
 
     void Connection::request_building() {
 
-        http::ScanResult result = http::Parser::parse_http_request(line_scanner, request);
+        http::ScanResult result = http::parser::parse_http_request(line_scanner, request);
         
         switch (result) {
             case http::NEED_MORE:

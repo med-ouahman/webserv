@@ -1,6 +1,6 @@
 #include "HTTPDispatcher.hpp"
 #include "Config.hpp"
-#include "HTTPRequestData.hpp"
+#include "HTTPRequest.hpp"
 #include <sys/stat.h>
 
 namespace http {
@@ -19,7 +19,7 @@ namespace http {
         return true;
     }
 
-    ResolutionResult HTTPDispatcher::resolve( const HTTPRequestData& req ) {
+    ResolutionResult HTTPDispatcher::resolve( const HTTPRequest& req ) {
         ResolutionResult result(req);
 
         config::ServerConfig server = config::Config::get_config().server;
@@ -29,8 +29,8 @@ namespace http {
         result.type = HTTPResponseType::CGI;
         result.location = &config::Config::get_config().server.locations[0];
         return result;
-        result.location = find_location(req.unparsed_uri(), server.locations);
-        const std::string path = extract_path(req.unparsed_uri());
+        result.location = find_location(req.data().unparsed_uri, server.locations);
+        const std::string path = extract_path(req.data().unparsed_uri);
         bool method_allowed = true;
         
         if (not result.location) {
@@ -47,7 +47,7 @@ namespace http {
             method_allowed = false;
         }
 
-        if (req.method() == DELETE) {
+        if (req.data().method == DELETE) {
             if (!method_allowed) {
             }
 

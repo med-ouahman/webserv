@@ -49,7 +49,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/parser/parse_request_line.cpp \
 	srcs/http/application/body_handler/read_body.cpp \
 	srcs/http/parser/parser_utils.cpp \
-	srcs/http/parser/HTTPRequestData.cpp \
+	srcs/http/parser/HTTPRequest.cpp \
 	srcs/http/parser/parse_http_request.cpp \
 	srcs/http/application/body_handler/detect_body.cpp \
 	srcs/http/application/body_handler/parse_chunk_size.cpp \
@@ -65,6 +65,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/application/response_produce.cpp \
 	srcs/http/application/cgi/CGIHandler.cpp \
 	srcs/http/application/cgi/spawn.cpp \
+	srcs/http/application/cgi/parse_cgi_headers.cpp \
 	srcs/http/application/cgi/cgi_input.cpp \
 	srcs/http/application/cgi/cgi_on_error.cpp \
 	srcs/http/application/cgi/cgi_output.cpp \

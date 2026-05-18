@@ -15,96 +15,107 @@ namespace core {
 	class Connection;
 }
 
-
 namespace http {
 
 	struct ResolutionResult;
 
-	class CGIState {
-		public:
-			enum Type {
-				SPAWN,
-				ACTIVE,
-				WRITING_BODY,
-				FINISHED,
-				ERROR,
-			};
+	struct CGIState {
+		enum Type {
+			SPAWN,
+			ACTIVE,
+			WRITING_BODY,
+			FINISHED,
+			ERROR,
+		};
+	};
+
+	struct CGIOutputState {
+		enum Type {
+			STATUS_LINE,
+			HEADERS,
+			BODY,
+			WRITING_BODY,
+			ERROR,
+		};
 	};
 	
 	struct CGIContext;
 
+	struct CGIProcess {
+		pid_t pid;
+		int   status;
+		Timestamp spawn_time;
+		Timestamp sigterm_sent_at;
+		IOChannel stdin_ch;
+		IOChannel stdout_ch;
+		IOChannel stderr_ch;
+		private:
+			PipeGuard p;
+	};
+
+	struct CGIParseContext {
+		HTTPStatusCode status_code;
+		std::string status_reason;
+		bool	finished;
+		size_t	bytes_parsed;
+		CGIOutputState::Type state;
+		std::vector<std::pair<std::string, std::string> > headers;
+
+		CGIParseContext()
+			: status_code(static_cast<HTTPStatusCode>(0)),
+			finished(false),
+			bytes_parsed(0),
+			state(CGIOutputState::STATUS_LINE) {}
+	};
+
 	class CGIHandler: public IRequestHandler {
-		
-		public:
-			const static std::size_t MAX_CGI_HEADER_LEN = 1024 * 4; 
-			const static std::size_t MAX_CGI_BODY_LEN = 1024 * 1024 * 10; // 10MB
+
+		private:
+			static size_t cgi_timeout_secs;
+			const static char* cgi_metadata[];
+			const static char* stripped_headers[];
 			
+			char** build_cgi_env( const CGIContext& ctx );
+			char* transform( bool http_prefix, std::map<std::string, std::string>::iterator& it );
+			std::map<std::string, std::string> build_cgi_metadata( const CGIContext& context );
+			static bool forbidden_header( const std::string& header_name );
+			ScanResult parse_cgi_headers();
+			void sanitize_status_line( const std::pair<std::string, std::string>& header );
+			void sanitize_header( std::pair<std::string, std::string>& header );
+			CGIHandler( const CGIHandler& );
+			CGIHandler& operator=( const CGIHandler& );
+
+			CGIState::Type cgi_state;
+			/* CGI PROCESS */
+			pid_t	cgi_pid;
+			int		cgi_status;
+			PipeGuard pipe_guard;
+			IOChannel stdin_ch;
+			IOChannel stdout_ch;
+			IOChannel stderr_ch;
+			core::Connection& conn;
+			const ResolutionResult result;
+			LineScanner scanner;
+			Timestamp start_time;
+			Timestamp sigterm_sent_at;
+			CGIParseContext parse_ctx;
+
+		public:
+			const static std::size_t MAX_CGI_HEADER_BLOCK_LEN = 1024 * 4; 
+			const static std::size_t MAX_CGI_BODY_LEN = 1024 * 1024 * 10; // 10MB
 			explicit CGIHandler( core::Connection& conn_, const ResolutionResult result_ );
 			void spawn( const io::EventLoop& loop );
 			void handle();
 			bool done();
 			~CGIHandler();
-			char** build_cgi_env( const CGIContext& ctx );
-			char* transform( bool http_prefix, std::map<std::string, std::string>::iterator& it );
-			std::map<std::string, std::string> build_cgi_metadata( const CGIContext& context );
-			static bool forbidden_header( const std::string& header_name );
-
-		private:
-			void parse_cgi_headers();
-			CGIHandler( const CGIHandler& );
-			CGIHandler& operator=( const CGIHandler& );
-			static size_t cgi_timeout_secs;
-			const static char* cgi_metadata[];
-			const static char* stripped_headers[];
-
-		private:
-			struct CGIOutputState {
-				enum Type {
-					
-					STATUS_LINE,
-					HEADERS,
-					BODY,
-					WRITING_BODY,
-				};
-			};
-			
-			CGIOutputState::Type output_state;
-			CGIState::Type cgi_state;
-
-			enum CGIError {
-				NONE,
-				TIMEOUT,
-				CRASH,
-				PIPE_FAIL,
-			} cgi_error;
-
-			pid_t	cgi_pid;
-			int		cgi_status;
-
-			PipeGuard pipe_guard;
-			
-			IOChannel stdin_ch;
-			IOChannel stdout_ch;
-			IOChannel stderr_ch;
-	
-			core::Connection& conn;
-			const ResolutionResult result;
-			DataView& stdout_ch_view;
-			LineScanner scanner;
-
-			Timestamp start_time;
-			Timestamp sigterm_sent_at;
-
-		public:
 			void on_channel_closed();
 			ScanResult on_input_ready();
 			ssize_t produce_output( BufferWriter* writer );
 			void on_error();
-			DataView& get_stdout_data_view();
 			void on_ch_error();
 			bool finished();
 			bool timedout();
-			/**/
+			DataView& stdout_ch_data_view();
 
 	};
 

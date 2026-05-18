@@ -4,7 +4,7 @@
 
 namespace http {
 
-	Base::Expected<RequestLine, int> Parser::parse_request_line( const std::string& line ) {
+	Base::Expected<RequestLine, int> parser::parse_request_line( const std::string& line ) {
 		
 		RequestLine request_line;
 		
@@ -12,17 +12,17 @@ namespace http {
 		size_t line_offset = 0;
 		size_t method_len = 0;
 
-		while (cursor < line.size() && line[cursor] != ' ' && method_len <= MAX_METHOD_LEN) {
+		while (cursor < line.size() and line[cursor] != ' ' and method_len <= http_limits::MAX_METHOD_LEN) {
 			++method_len;
 			++cursor;
 		}
 		
-		if (cursor == 0 || method_len > MAX_METHOD_LEN) {
+		if (cursor == 0 or method_len > http_limits::MAX_METHOD_LEN) {
 			return ERROR;
 		}
 
 		std::string method = line.substr(line_offset, method_len);
-		request_line.method = HTTPRequestData::get_method(method);
+		request_line.method = HTTPRequest::get_method(method);
 		
 		if (request_line.method == UNKNOWN) {
 			std::cout << "unknown method\n";
@@ -31,12 +31,12 @@ namespace http {
 		++cursor;
 		line_offset = cursor;
 		size_t uri_len = 0;
-		while (cursor < line.size() && line[cursor] != ' ' && uri_len <= MAX_URI_LEN) {
+		while (cursor < line.size() and line[cursor] != ' ' and uri_len <= http_limits::MAX_URI_LEN) {
 			++uri_len;
 			++cursor;
 		}
 
-		if (cursor == line_offset || uri_len > MAX_URI_LEN) {
+		if (cursor == line_offset or uri_len > http_limits::MAX_URI_LEN) {
 			return ERROR;
 		}
 
@@ -46,12 +46,12 @@ namespace http {
 		line_offset = cursor;
 		size_t version_len = 0;
 		
-		while (cursor < line.size() && version_len <= MAX_VERSION_LEN) {
+		while (cursor < line.size() and version_len <= http_limits::MAX_VERSION_LEN) {
 			++version_len;
 			++cursor;
 		}
 
-		if (cursor == line_offset || version_len > MAX_VERSION_LEN) {
+		if (cursor == line_offset or version_len > http_limits::MAX_VERSION_LEN) {
 			return ERROR;
 		}
 

@@ -15,8 +15,7 @@ namespace http {
     const char* CGIHandler::stripped_headers[] = {"transfer-encoding", "content-length", "content-type", "connection", NULL};
 
     CGIHandler::CGIHandler( core::Connection& conn_, const ResolutionResult res_ )
-        : output_state(CGIOutputState::STATUS_LINE),
-        cgi_state(CGIState::SPAWN),
+        : cgi_state(CGIState::SPAWN),
         cgi_pid(-1),
         cgi_status(0),
         pipe_guard(),
@@ -25,21 +24,14 @@ namespace http {
         stderr_ch(pipe_guard.stderr_pipe[0], *this, STDStream::STDERR, EPOLLIN),
         conn(conn_),
         result(res_),
-        stdout_ch_view(stdout_ch.get_view()),
         scanner(stdout_ch.get_view()),
-        sigterm_sent_at(0) {
-    
-        }
+        sigterm_sent_at(0) {}
 
     CGIHandler::~CGIHandler() {
         ::kill(cgi_pid, SIGKILL);
         ::waitpid(cgi_pid, &cgi_status, 0); // blocking
         std::cout << "CGI CLEARED\n";
         std::cout << WEXITSTATUS(cgi_status) << "\n";
-    }
-
-    DataView& CGIHandler::get_stdout_data_view() {
-        return stdout_ch_view;
     }
 
     void CGIHandler::handle() {
@@ -91,5 +83,9 @@ namespace http {
 	bool CGIHandler::finished() {
 		return cgi_state == CGIState::ERROR || cgi_state == CGIState::FINISHED;
 	}
+
+    DataView& CGIHandler::stdout_ch_data_view() {
+        return stdout_ch.get_view();
+    }
 
 }

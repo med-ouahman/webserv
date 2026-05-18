@@ -33,7 +33,7 @@ namespace core {
             size_t body_bytes_received;
             size_t total_bytes_sent;
             http::HTTPResponse response;
-            http::HTTPRequestData request;
+            http::HTTPRequest request;
             http::IRequestHandler* request_handler;
             Timestamp last_;
             Timestamp conn_lifetime;

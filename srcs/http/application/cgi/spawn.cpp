@@ -4,7 +4,7 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <cstdlib>
-#include "HTTPRequestData.hpp"
+#include "HTTPRequest.hpp"
 #include "Timestamp.hpp"
 
 namespace http {
@@ -57,7 +57,7 @@ namespace http {
 
     std::map<std::string, std::string> CGIHandler::build_cgi_metadata( const CGIContext& ctx ) {
         std::map<std::string, std::string> headers;
-        HTTPRequestData& req = const_cast<HTTPRequestData&>(result.request);
+        HTTPRequest& req = const_cast<HTTPRequest&>(result.request);
 
         for ( size_t i(0); cgi_metadata[i] != NULL; ++i ) {
             
@@ -68,7 +68,7 @@ namespace http {
             } else if (s == "SERVER_PROTOCOL") {
                 headers[s] = "HTTP/1.1";
             } else if (s == "QUERY_STRING") {
-                headers[s] = req.query();
+                headers[s] = req.data().query_string;
             } else if (s == "CONTENT_TYPE") {
                 headers[s] = result.mime_type;
             } else if (s == "CONTENT_LENGTH") {
@@ -94,12 +94,12 @@ namespace http {
 
         for ( ; __environ[size] not_eq NULL; ++size );
         
-        HTTPRequestData& req = const_cast<HTTPRequestData&>(result.request);
-        std::map<std::string, std::string>& headers = const_cast<std::map<std::string, std::string>&>(req.headers());
+        HTTPRequest& req = const_cast<HTTPRequest&>(result.request);
+        std::map<std::string, std::string>& headers = const_cast<std::map<std::string, std::string>&>(req.data().headers);
 
         std::map<std::string, std::string>::iterator it = headers.begin();
 
-        for ( ; it != result.request.headers().end(); ++it ) ++size;
+        for ( ; it != headers.end(); ++it ) ++size;
         
         std::map<std::string, std::string> cgi_metadata = build_cgi_metadata(ctx);
         it = cgi_metadata.begin();

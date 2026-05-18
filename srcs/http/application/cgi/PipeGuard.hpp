@@ -20,9 +20,9 @@ namespace http {
             stdout_pipe[0] = stdout_pipe[1] = -1;
             stderr_pipe[0] = stderr_pipe[1] = -1;
         
-            if (::pipe(stdin_pipe) == -1 || ::pipe(stdout_pipe) == -1 || ::pipe(stderr_pipe) == -1) {
+            if (::pipe(stdin_pipe) == -1 or ::pipe(stdout_pipe) == -1 or ::pipe(stderr_pipe) == -1) {
                 close_pipes();
-                throw std::runtime_error("some shit went wrong!");
+                throw std::runtime_error("");
             }
         }
 

@@ -20,7 +20,7 @@ namespace config {
 
 namespace http {
 
-    struct HTTPRequestData;
+    struct HTTPRequest;
     class IRequestHandler;
 
     struct CGIContext {
@@ -42,10 +42,10 @@ namespace http {
         
         std::string mime_type;
         std::string path;
-        const HTTPRequestData& request;
+        const HTTPRequest& request;
         const config::LocationConfig* location;
             
-        ResolutionResult( const HTTPRequestData& r): request(r) {}
+        ResolutionResult( const HTTPRequest& r): request(r) {}
     };
 
     struct BodyConf {
@@ -70,13 +70,13 @@ namespace http {
             static std::string generate_directory_list( const char* dir ); // TO BE MOVED
             static std::string generate_anchor( const char* name ); // TO BE MOVED
         
-            static ResolutionResult resolve( const HTTPRequestData& req );
+            static ResolutionResult resolve( const HTTPRequest& req );
             HTTPDispatcher();
             ~HTTPDispatcher();
             static bool allow_presistance() { return true; };
             static IRequestHandler* create_request_handler( core::Connection& conn, const ResolutionResult& result );
             static CGIContext resolve_cgi_context( const ResolutionResult& result );
-			static BodyType::Type detect_body_type( const HTTPRequestData& request );
-            static BodyConf configure_body( const HTTPRequestData& request, const ResolutionResult& result );
+			static BodyType::Type detect_body_type( const HTTPRequest& request );
+            static BodyConf configure_body( const HTTPRequest& request, const ResolutionResult& result );
     };
 }

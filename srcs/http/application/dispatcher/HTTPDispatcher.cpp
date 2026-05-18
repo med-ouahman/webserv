@@ -1,5 +1,5 @@
 
-#include "HTTPRequestData.hpp"
+#include "HTTPRequest.hpp"
 #include "HTTPDispatcher.hpp"
 #include "Config.hpp"
 #include <iostream>
@@ -34,7 +34,7 @@ namespace http {
         return ctx;
     }
 
-    BodyConf HTTPDispatcher::configure_body( const HTTPRequestData& req, const ResolutionResult& result ) {
+    BodyConf HTTPDispatcher::configure_body( const HTTPRequest& req, const ResolutionResult& result ) {
         BodyConf body;
         
         body.type = detect_body_type(req);
@@ -44,7 +44,7 @@ namespace http {
         }
 
         char* end = NULL;        
-        body.parsed_body_size = ::strtoul(req.get("content-length").c_str(), &end, 10);
+        body.parsed_body_size = ::strtoul(req.data().headers.at("content-length").c_str(), &end, 10);
         
         if (end && *end not_eq '\0') {
             std::cout << "Bad Content length\n";

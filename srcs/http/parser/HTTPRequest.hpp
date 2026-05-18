@@ -33,20 +33,30 @@ namespace http {
 		std::string version;
 		std::string uri;
 		
+		RequestLine(): method(UNKNOWN), version(""), uri("") {}
+
+		~RequestLine() {}
 	};
 
-	class HTTPRequestData {
+	struct HTTPRequestData {
+		HTTPMethod	method;
+		std::string version;
+		std::string unparsed_uri;
+		std::string resource_path;
+		std::string query_string;
+		std::map<std::string, std::string> headers;
+	};
+
+	
+	class HTTPRequest {
 		
 	private:
 		static const size_t MAX_HEADER_COUNT = 100;
-		HTTPMethod method_;
-		std::string version_;
-		std::string unparsed_uri_;
 
-		std::string query_string_;
-
-		std::map<std::string, std::string> headers_;
+		HTTPRequestData data_;
+	
 		RequestState::Type request_state_;
+
 		/* metadata */
 		bool    finished_;
         size_t  leading_crlf_;
@@ -55,8 +65,8 @@ namespace http {
 	public:
 		static HTTPMethod get_method( const std::string& );
 		std::string get_method_name() const;
-		HTTPRequestData();
-		~HTTPRequestData();
+		HTTPRequest();
+		~HTTPRequest();
 		bool want_keep_alive();
 		bool version_supported() const;
 		void add_request_line( RequestLine const& request_line );
@@ -65,10 +75,7 @@ namespace http {
 		void reset();
 		RequestState::Type current_state() const;
 		size_t total_header_bytes() const;
-		const std::string& get( const std::string& key ) const;
-		const std::string& unparsed_uri() const;
-		HTTPMethod method() const;
-		std::map<std::string, std::string> const& headers() const;
-		std::string const& query() const;
+		const HTTPRequestData& data() const;
+		void on_finished();
 	};
 }
