@@ -37,7 +37,7 @@ namespace http {
 			case ChunkState::CHUNK_DATA:
 				chunk_data();
 				writer->update(temp_writer.data(), temp_writer.remaining());
-				data_view.advance(writer->write(data_view.data(), data_view.size()));
+				data_view.advance(writer->write(data_view.read_ptr(), data_view.size()));
 				chunk_state = ChunkState::CHUNK_TRAIL;
 				/* fall through */
 			case ChunkState::CHUNK_TRAIL:

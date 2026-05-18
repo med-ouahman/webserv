@@ -18,6 +18,7 @@ class DataView {
         ~DataView();
         void advance( size_t n );
         const char* data() const;
+        const char* read_ptr() const;
         bool empty() const;
         void rewind( size_t n );
         void shrink( size_t size );

@@ -10,10 +10,10 @@ namespace http {
 
 		while (not parse_ctx.finished and parse_ctx.state not_eq CGIOutputState::ERROR) {
 
-			size_t max_scan_size = MAX_CGI_HEADER_BLOCK_LEN - parse_ctx.bytes_parsed;
+			// size_t max_scan_size = MAX_CGI_HEADER_BLOCK_LEN - parse_ctx.bytes_parsed;
 
 			scanner.reset();
-			ScanResult r = scanner.scan(max_scan_size);
+			ScanResult r = scanner.scan(MAX_CGI_HEADER_BLOCK_LEN);
 			
 			if (r not_eq SUCCESS) return r;
 
@@ -38,6 +38,7 @@ namespace http {
 					sanitize_status_line(header_result.value());
 					break;
 				case CGIOutputState::HEADERS:
+					std::cout << "XXD Headers\n";
 					sanitize_header(header_result.value());
 					break;
 				case CGIOutputState::ERROR:
@@ -88,6 +89,7 @@ namespace http {
 		parse_ctx.status_code  = static_cast<HTTPStatusCode>(code);
 		parse_ctx.status_reason = reason;
 		parse_ctx.state = CGIOutputState::HEADERS;
+		std::cout << "Done\n";
 	}
 
 	void CGIHandler::sanitize_header( std::pair<std::string, std::string>& header ) {

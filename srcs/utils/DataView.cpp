@@ -17,6 +17,10 @@ size_t DataView::size() const {
 }
 
 const char* DataView::data() const {
+	return data_;
+}
+
+const char* DataView::read_ptr() const {
 	return data_ + cursor_;
 }
 
