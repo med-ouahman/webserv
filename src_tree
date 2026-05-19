@@ -1,0 +1,157 @@
+.
+├── cgi
+│   ├── iochannel
+│   │   ├── IOChannel.cpp
+│   │   ├── io_channel_handle_event.cpp
+│   │   ├── IOChannel.hpp
+│   │   ├── io_ch_process.cpp
+│   │   └── io_ch_process_data.cpp
+│   └── process
+│       ├── CGIProcess.cpp
+│       ├── CGIProcess.hpp
+│       ├── iochannel_closed.cpp
+│       ├── on_error.cpp
+│       ├── on_input_ready.cpp
+│       ├── on_output_ready.cpp
+│       ├── parse_headers.cpp
+│       ├── PipeGuard.hpp
+│       └── spawn.cpp
+├── config
+│   ├── Config.hpp
+│   ├── ConfigParser.cpp
+│   ├── ConfigParser.hpp
+│   ├── en.subject.pdf
+│   ├── Lexer.cpp
+│   ├── Lexer.hpp
+│   ├── main.cpp
+│   ├── Makefile
+│   ├── NEED.md
+│   ├── Token.hpp
+│   └── webserv.conf
+├── foundation
+│   ├── baselib
+│   │   ├── Base.hpp
+│   │   ├── Expected.hpp
+│   │   ├── io
+│   │   │   ├── Error.hpp
+│   │   │   ├── Reader.cpp
+│   │   │   ├── Reader.hpp
+│   │   │   ├── Writer.cpp
+│   │   │   └── Writer.hpp
+│   │   ├── memory
+│   │   │   ├── ArenaAllocator.cpp
+│   │   │   ├── ArenaAllocator.hpp
+│   │   │   ├── FixedBufferAllocator.cpp
+│   │   │   ├── FixedBufferAllocator.hpp
+│   │   │   ├── HeapAllocator.cpp
+│   │   │   ├── HeapAllocator.hpp
+│   │   │   └── memory.h
+│   │   ├── Optional.hpp
+│   │   └── types.hpp
+│   ├── BufferWriter.cpp
+│   ├── BufferWriter.hpp
+│   ├── DataView.cpp
+│   ├── DataView.hpp
+│   ├── Error.hpp
+│   ├── Logger.hpp
+│   ├── Result.hpp
+│   └── Timestamp.hpp
+├── http
+│   ├── application
+│   │   ├── SessionManager.cpp
+│   │   └── SessionManager.hpp
+│   ├── common
+│   │   ├── Date.hpp
+│   │   ├── Headers.cpp
+│   │   └── Headers.hpp
+│   ├── execution
+│   │   └── handlers
+│   │       ├── CGIContext.hpp
+│   │       ├── CGIRequestHandler.cpp
+│   │       └── CGIRequestHandler.hpp
+│   ├── parser
+│   │   ├── BodyHandler.cpp
+│   │   ├── BodyHandler.hpp
+│   │   ├── LineScanner.cpp
+│   │   ├── LineScanner.hpp
+│   │   ├── parse_headers.cpp
+│   │   ├── parse_http_request.cpp
+│   │   ├── Parser.cpp
+│   │   ├── parse_request_line.cpp
+│   │   ├── Parser.hpp
+│   │   └── utils.cpp
+│   ├── request
+│   │   ├── Request.cpp
+│   │   └── Request.hpp
+│   ├── response
+│   │   ├── body
+│   │   │   ├── cgi_body_chunked.cpp
+│   │   │   ├── CGIBodyProvider.cpp
+│   │   │   ├── CGIBodyProvider.hpp
+│   │   │   ├── cgi_send_body.cpp
+│   │   │   ├── FileBodyProvider.hpp
+│   │   │   └── IBodyProvider.hpp
+│   │   ├── generate_directory_listing.cpp
+│   │   ├── MimeType.cpp
+│   │   ├── MimeType.hpp
+│   │   ├── Response.cpp
+│   │   ├── Response.hpp
+│   │   ├── response_produce.cpp
+│   │   └── serialize_response.cpp
+│   ├── routing
+│   │   ├── create_request_handler.cpp
+│   │   ├── Dispatcher.cpp
+│   │   ├── Dispatcher.hpp
+│   │   ├── find_location.cpp
+│   │   ├── IRequestHandler.hpp
+│   │   └── resolve.cpp
+│   ├── session
+│   │   ├── HttpSession.cpp
+│   │   └── HttpSession.hpp
+│   └── StatusCode.hpp
+├── io
+│   ├── AEventHandler.hpp
+│   └── stream
+│       ├── Stream.cpp
+│       ├── Stream.hpp
+│       ├── stream_on_event.cpp
+│       ├── stream_on_readable.cpp
+│       ├── stream_on_writeable.cpp
+│       ├── stream_read.cpp
+│       └── stream_write.cpp
+├── net
+│   ├── connection
+│   │   ├── conn_cgi.cpp
+│   │   ├── ConnectionAction.hpp
+│   │   ├── Connection.cpp
+│   │   ├── Connection.hpp
+│   │   ├── ConnectionState.hpp
+│   │   ├── conn_handle_event.cpp
+│   │   ├── conn_process.cpp
+│   │   ├── conn_request_phase.cpp
+│   │   ├── on_cgi_finished.cpp
+│   │   ├── process_incoming_data.cpp
+│   │   └── process_outgoing_data.cpp
+│   └── listener
+│       ├── create_sockets.cpp
+│       ├── ListeningSocket.cpp
+│       ├── ListeningSocket.hpp
+│       └── socket_events.cpp
+├── runtime
+│   ├── epoll
+│   │   ├── AIOHandler.hpp
+│   │   ├── EventLoop.cpp
+│   │   ├── EventLoop.hpp
+│   │   ├── event_loop_sweep.cpp
+│   │   ├── EventType.hpp
+│   │   ├── handle_connections.cpp
+│   │   ├── handle_fds.cpp
+│   │   └── run.cpp
+│   ├── kequeue
+│   └── poll
+└── server
+    ├── limits.hpp
+    ├── main.cpp
+    └── server.h
+
+30 directories, 125 files

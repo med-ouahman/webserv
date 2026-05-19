@@ -1,3 +1,4 @@
+
 #include "EventLoop.hpp"
 #include "ListeningSocket.hpp"
 #include <iostream>
@@ -7,6 +8,7 @@
 #include "CGIBodyProvider.hpp"
 #include "CGIRequestHandler.hpp"
 
+#include "server.h"
 
 namespace config {
     
