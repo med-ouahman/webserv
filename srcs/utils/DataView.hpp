@@ -26,5 +26,6 @@ class DataView {
         void reset();
         size_t cursor() const;
         size_t size() const;
+        size_t remaining() const;
 };
 

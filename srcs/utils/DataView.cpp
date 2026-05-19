@@ -28,6 +28,13 @@ size_t DataView::cursor() const {
 	return cursor_;
 }
 
+size_t DataView::remaining() const {
+
+	if (cursor_ > size_) return 0;
+
+	return size_ - cursor_;
+}
+
 bool DataView::empty() const {
 	return cursor_ >= size_;
 }
@@ -49,3 +56,4 @@ void DataView::reset() {
 	size_ = 0;
 	cursor_ = 0;
 }
+

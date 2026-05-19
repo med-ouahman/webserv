@@ -25,26 +25,29 @@ namespace http {
 		switch (chunk_state) {
 			case ChunkState::CHUNK_HEAD: {
 
-				chunk_head();
-				format_chunk(data_view.size());
-				std::cout << chunk_header << "\n";
+				format_chunk(data_view.remaining());
+				
+				if (writer->bytes_free() < chunk_header.size()) break;
+				
+				writer->write(chunk_header.c_str(), chunk_header.size());
+
+				chunk_header.clear();
+				
 				chunk_state = ChunkState::CHUNK_DATA;
-				temp_writer.update(writer->data(), writer->remaining());
-				writer->update(const_cast<char*>(chunk_header.c_str()), chunk_header.size());
-				return chunk_header.size();
 			}
 		
 			case ChunkState::CHUNK_DATA:
 				chunk_data();
-				writer->update(temp_writer.data(), temp_writer.remaining());
-				data_view.advance(writer->write(data_view.read_ptr(), data_view.size()));
+				size_t w = writer->write(data_view.read_ptr(), data_view.remaining());
+				data_view.advance(w);
 				chunk_state = ChunkState::CHUNK_TRAIL;
 				/* fall through */
 			case ChunkState::CHUNK_TRAIL:
 				std::cout << "sending chunk trail\n";
 				chunk_trail();
-				if (2 == writer->write("\r\n", 2)) {
-					chunk_state = ChunkState::DONE;
+				if (writer->bytes_free() >= 2) {
+					writer->write("\r\n", 2);
+					chunk_state = ChunkState::DONE; 
 				}
 				break;
 			case ChunkState::DONE:
@@ -53,7 +56,7 @@ namespace http {
 				break;
 		}
 
-		return 0;
+		return writer->size();
 	}
 }
 	

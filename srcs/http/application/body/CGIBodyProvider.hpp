@@ -45,7 +45,6 @@ namespace http {
             ChunkState::Type chunk_state;
             CGIHandler& cgi_handler;
             DataView& data_view;
-            BufferWriter temp_writer;
 
             CGIBodyProvider( const CGIBodyProvider& other );
             CGIBodyProvider& operator=( const CGIBodyProvider& other );
