@@ -2,6 +2,7 @@
 #include "EventLoop.hpp"
 #include "Connection.hpp"
 #include <sys/epoll.h>
+#include <sys/socket.h>
 
 namespace io {
 
@@ -24,9 +25,9 @@ namespace io {
                     handler->on_event(READABLE);
                 } else if (events[i].events & EPOLLOUT) {
                     handler->on_event(WRITABLE);
-                } else if (events[i].events & (EPOLLERR | EPOLLHUP)) {
+                } else if (events[i].events & EPOLLERR) {
                     handler->on_event(ERROR);
-                }
+                } else if (events[i].events & (EPOLLHUP | EPOLLRDHUP)) handler->on_event(HUP);
 
             }
         

@@ -62,7 +62,7 @@ namespace http {
                 conn.on_cgi_error(GATEWAY_TIMEOUT);
                 return true;
             }
-
+            // Move to the destructor of CGIHandler
         } else if (sigterm_sent_at.elapsed() >= Limits::MAX_CGI_WAIT_AFTER_SIGTERM) {
             ::kill(cgi_pid, SIGKILL);
 
@@ -76,7 +76,11 @@ namespace http {
     }
 
 
-	void CGIHandler::on_ch_error() {	
+	void CGIHandler::on_ch_error() {
+        std::cout << "IO CHANNEL ERROR\n";
+        stdin_ch.shutdown();
+        stdout_ch.shutdown();
+        stderr_ch.shutdown();
 		cgi_state = CGIState::ERROR;
 	}
 

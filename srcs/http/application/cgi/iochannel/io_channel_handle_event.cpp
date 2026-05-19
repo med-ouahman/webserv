@@ -37,6 +37,7 @@ namespace http {
 				std::cout << c << " IOCHANNLE WRITABLE\n";
 				break;
 			case io::ERROR:
+				std::cout << c << "\n";
 				state = IOChannelState::ERROR;
 				cgi_handler.on_ch_error();
 				break;

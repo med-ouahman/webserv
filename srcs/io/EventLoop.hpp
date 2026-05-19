@@ -34,7 +34,6 @@ namespace io {
 			bool start_listeners();
 			void sweep();
 			void update_epoll_interest( core::Connection* conn );
-			
 		public:
 			explicit EventLoop();
 			~EventLoop();

@@ -6,6 +6,7 @@ namespace io {
         NONE,
         WRITABLE,
         READABLE,
+        HUP,
         ERROR
     };
 }

@@ -8,7 +8,6 @@ namespace io {
         read();
         
         if (bytes_r == 0) {
-            
             on_read_eof();
             return ;
         }
