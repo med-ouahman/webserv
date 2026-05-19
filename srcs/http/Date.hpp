@@ -7,7 +7,7 @@
 
 namespace http {
 
-	class HTTPDate {
+	class Date {
 		
 		public:
 			static std::string format( const Timestamp& ts ) {

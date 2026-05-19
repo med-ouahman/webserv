@@ -1,13 +1,13 @@
-#include "HTTPResponse.hpp"
+#include "Response.hpp"
 
 namespace http {
 
-    HTTPResponse::HTTPResponse()
+    Response::Response()
     : status_code(OK),
     body_provider(NULL),
     serialize_state(RESPONSE_LINE) {}
 
-    HTTPResponse::~HTTPResponse() {
+    Response::~Response() {
         delete body_provider;
     }
 	

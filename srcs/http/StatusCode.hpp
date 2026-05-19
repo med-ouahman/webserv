@@ -2,7 +2,7 @@
 #pragma once
 
 namespace http {
-	enum HTTPStatusCode {
+	enum StatusCode {
 		NONE = 0,
 		OK = 200,
 		CREATED = 201,

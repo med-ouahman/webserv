@@ -1,15 +1,15 @@
 
-#include "HTTPResponse.hpp"
+#include "Response.hpp"
 #include <sstream>
 #include <cstring>
 #include "BufferWriter.hpp"
 
 namespace http {
 
-    const char* HTTPResponse::COLON = ": ";
-    const char* HTTPResponse::CRLF = "\r\n";
+    const char* Response::COLON = ": ";
+    const char* Response::CRLF = "\r\n";
     
-    size_t HTTPResponse::serialize_headers( BufferWriter* writer ) {
+    size_t Response::serialize_headers( BufferWriter* writer ) {
         if (serialize_state == RESPONSE_LINE) {
             std::cout<< "Serializing Response Line\n";
             std::stringstream ss;
@@ -28,7 +28,7 @@ namespace http {
 
             while (current_header != headers.end()) {
                 
-                if (line_buff.size() == 0) line_buff = (*current_header).first + COLON + (*current_header).second + CRLF;
+                if (line_buff.size() == 0) line_buff = (*current_header).name + COLON + (*current_header).value + CRLF;
                 
                 size_t w = writer->write(line_buff.c_str(), line_buff.size());
 

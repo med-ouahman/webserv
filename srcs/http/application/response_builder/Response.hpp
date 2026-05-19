@@ -2,15 +2,14 @@
 #pragma once
 
 #include <string>
-#include <map>
-#include "HTTPStatusCode.hpp"
+#include "StatusCode.hpp"
 #include "IBodyProvider.hpp"
-
-namespace core { class BufferWriter; }
+#include "Headers.hpp"
+#include <map>
 
 namespace http {
 
-    class HTTPResponseType {
+    class ResponseType {
         public:
             enum Type {
                 STATIC_FILE,
@@ -23,23 +22,22 @@ namespace http {
             };
     };
 
-	struct HTTPResponse {
+	struct Response {
 
         static const char*  CRLF;
         static const size_t CRLF_SIZE = 2;
         static const char*  COLON;
 		
-        HTTPStatusCode status_code;
+        StatusCode status_code;
 		
 		IBodyProvider* body_provider;
-		std::map<std::string, std::string> headers;
-
-        HTTPResponse();
-        ~HTTPResponse();
+        Headers        headers;
+        Response();
+        ~Response();
 
         private:
             size_t serialize_headers( BufferWriter* writer ); /* s*/
-            std::map<std::string, std::string>::iterator current_header; /* track the current header */
+            Headers::const_iterator current_header;
             std::string line_buff; /* stores incomplete headers */
             
             enum SerializeState {
@@ -51,6 +49,6 @@ namespace http {
         
         public:
             ssize_t produce( BufferWriter* writer );
-            void build_error_response( HTTPStatusCode code );
+            void build_error_response( StatusCode code );
 	};
 }

@@ -26,7 +26,6 @@ namespace http {
 
             struct ChunkState {
                 enum Type {
-                    NONE,
                     CHUNK_HEAD,
                     CHUNK_DATA,
                     CHUNK_TRAIL,
@@ -48,14 +47,8 @@ namespace http {
 
             CGIBodyProvider( const CGIBodyProvider& other );
             CGIBodyProvider& operator=( const CGIBodyProvider& other );
-            
             void format_chunk( size_t chunk_size );
             ssize_t send_body_content_length( BufferWriter* writer );
             ssize_t send_body_chunked( BufferWriter* writer );
-
-            void chunk_head();
-            void chunk_data();
-            void chunk_trail();
-
     };
 }

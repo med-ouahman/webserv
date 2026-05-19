@@ -32,8 +32,10 @@ namespace core {
                     return ;
                     break;
                 case RequestPhase::FINAL:
-                    request = http::HTTPRequest();
-                    response = http::HTTPResponse();
+                    std::cout << "COnnection done\n";
+                    while (true);
+                    request = http::Request();
+                    response = http::Response();
                     state = ConnectionState::READING;
                     processing = false;
                     phase = RequestPhase::IDLE;

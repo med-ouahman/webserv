@@ -4,7 +4,7 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <cstdlib>
-#include "HTTPRequest.hpp"
+#include "Request.hpp"
 #include "Timestamp.hpp"
 
 namespace http {
@@ -20,10 +20,10 @@ namespace http {
         return false;
     }
 
-    char* CGIHandler::transform( bool has_http_prefix, std::map<std::string, std::string>::iterator& it ) {
+    char* CGIHandler::transform( bool has_http_prefix, Headers::iterator& it ) {
 
-        std::string key = const_cast<std::string&>(it->first);
-        const std::string& value = it->second;
+        std::string key = const_cast<std::string&>(it->name);
+        const std::string& value = it->value;
 
         for (size_t i = 0; i < key.size(); ++i) {
 
@@ -55,34 +55,34 @@ namespace http {
         return var;
     }
 
-    std::map<std::string, std::string> CGIHandler::build_cgi_metadata( const CGIContext& ctx ) {
-        std::map<std::string, std::string> headers;
-        HTTPRequest& req = const_cast<HTTPRequest&>(result.request);
+    Headers CGIHandler::build_cgi_metadata( const CGIContext& ctx ) {
+        Headers headers;
+        Request& req = const_cast<Request&>(result.request);
 
         for ( size_t i(0); cgi_metadata[i] != NULL; ++i ) {
             
             std::string s = std::string(cgi_metadata[i]);
             
             if (s == "REQUEST_METHOD") {
-                headers[s] = req.get_method_name();
+                headers.add(s, req.get_method_name());
             } else if (s == "SERVER_PROTOCOL") {
-                headers[s] = "HTTP/1.1";
+                headers.add(s, "HTTP/1.1");
             } else if (s == "QUERY_STRING") {
-                headers[s] = req.data().query_string;
+                headers.add(s, req.data().query_string);
             } else if (s == "CONTENT_TYPE") {
-                headers[s] = result.mime_type;
+                headers.add(s, result.mime_type);
             } else if (s == "CONTENT_LENGTH") {
-                headers[s] = ""; // calc
+                headers.add(s, ""); // calc
             } else if (s == "GATEWAY_INTERFACE") {
-                headers[s] = "CGI/1.1";
+                headers.add(s, "CGI/1.1");
             } else if (s == "SCRIPT_NAME") {
-                headers[s] = ctx.script_name;
+                headers.add(s, ctx.script_name);
             } else if (s == "PATH_INFO") {
-                headers[s] = ctx.path_info;
+                headers.add(s, ctx.path_info);
             } else if (s == "SERVER_NAME") {
-                headers[s] = ctx.server_name;
+                headers.add(s, ctx.server_name);
             } else if (s == "SERVER_PORT") {
-                headers[s] = ctx.server_port;
+                headers.add(s, "");
             }
         }
 
@@ -94,14 +94,14 @@ namespace http {
 
         for ( ; __environ[size] not_eq NULL; ++size );
         
-        HTTPRequest& req = const_cast<HTTPRequest&>(result.request);
-        std::map<std::string, std::string>& headers = const_cast<std::map<std::string, std::string>&>(req.data().headers);
+        Request& req = const_cast<Request&>(result.request);
+        Headers& headers = const_cast<Headers&>(req.data().headers);
 
-        std::map<std::string, std::string>::iterator it = headers.begin();
+        Headers::iterator it = headers.begin();
 
         for ( ; it != headers.end(); ++it ) ++size;
         
-        std::map<std::string, std::string> cgi_metadata = build_cgi_metadata(ctx);
+        Headers cgi_metadata = build_cgi_metadata(ctx);
         it = cgi_metadata.begin();
 
         for ( ; it != cgi_metadata.end(); ++it ) ++size;
@@ -115,16 +115,16 @@ namespace http {
 
         for (  it = headers.begin(); it != headers.end(); ) {
 
-            if (forbidden_header(it->first)) {
+            if (forbidden_header(it->name)) {
                 continue;
             }
 
-            cgi_variables[i] = transform(true, const_cast<std::map<std::string, std::string>::iterator&>(it));
+            cgi_variables[i] = transform(true, const_cast<Headers::iterator&>(it));
             ++it;
         }
 
         for (  it = cgi_metadata.begin(); it != cgi_metadata.end(); ++it )
-            cgi_variables[i] = transform(false, const_cast<std::map<std::string, std::string>::iterator&>(it));
+            cgi_variables[i] = transform(false, const_cast<Headers::iterator&>(it));
         cgi_variables[i] = NULL;
         return cgi_variables;
     }
@@ -136,7 +136,7 @@ namespace http {
             return ;
         }
 
-        CGIContext context = http::HTTPDispatcher::resolve_cgi_context(result);
+        CGIContext context = http::Dispatcher::resolve_cgi_context(result);
 
         cgi_timeout_secs = context.timeout_seconds;
         

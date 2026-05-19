@@ -1,9 +1,9 @@
 #include "Config.hpp"
-#include "HTTPDispatcher.hpp"
+#include "Dispatcher.hpp"
 
 namespace http {
 
-    const config::LocationConfig* HTTPDispatcher::find_location( const std::string& url, const std::vector<config::LocationConfig>& locations ) {
+    const config::LocationConfig* Dispatcher::find_location( const std::string& url, const std::vector<config::LocationConfig>& locations ) {
     
         config::LocationConfig* location = NULL;
         

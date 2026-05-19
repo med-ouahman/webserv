@@ -5,7 +5,7 @@
 #include <iostream>
 #include <memory>
 #include <stdint.h>
-#include "HTTPResponse.hpp"
+#include "Response.hpp"
 #include "BodyHandler.hpp"
 
 namespace core {
@@ -20,7 +20,7 @@ namespace config {
 
 namespace http {
 
-    struct HTTPRequest;
+    struct Request;
     class IRequestHandler;
 
     struct CGIContext {
@@ -37,15 +37,15 @@ namespace http {
 
     struct ResolutionResult {
         
-        HTTPResponseType::Type type;
-        HTTPStatusCode status_code;
+        ResponseType::Type type;
+        StatusCode status_code;
         
         std::string mime_type;
         std::string path;
-        const HTTPRequest& request;
+        const Request& request;
         const config::LocationConfig* location;
             
-        ResolutionResult( const HTTPRequest& r): request(r) {}
+        ResolutionResult( const Request& r): request(r) {}
     };
 
     struct BodyConf {
@@ -56,7 +56,7 @@ namespace http {
     };
 
 
-    class HTTPDispatcher {
+    class Dispatcher {
         public:
             static const std::size_t MAX_BUFFERED_BODY_SIZE = 1024;
 
@@ -70,13 +70,13 @@ namespace http {
             static std::string generate_directory_list( const char* dir ); // TO BE MOVED
             static std::string generate_anchor( const char* name ); // TO BE MOVED
         
-            static ResolutionResult resolve( const HTTPRequest& req );
-            HTTPDispatcher();
-            ~HTTPDispatcher();
+            static ResolutionResult resolve( const Request& req );
+            Dispatcher();
+            ~Dispatcher();
             static bool allow_presistance() { return true; };
             static IRequestHandler* create_request_handler( core::Connection& conn, const ResolutionResult& result );
             static CGIContext resolve_cgi_context( const ResolutionResult& result );
-			static BodyType::Type detect_body_type( const HTTPRequest& request );
-            static BodyConf configure_body( const HTTPRequest& request, const ResolutionResult& result );
+			static BodyType::Type detect_body_type( const Request& request );
+            static BodyConf configure_body( const Request& request, const ResolutionResult& result );
     };
 }

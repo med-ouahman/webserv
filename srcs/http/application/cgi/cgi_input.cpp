@@ -1,6 +1,6 @@
 #include "CGIHandler.hpp"
 #include "Connection.hpp"
-#include "HTTPResponse.hpp"
+#include "Response.hpp"
 #include "CGIBodyProvider.hpp"
 #include "Parser.hpp"
 

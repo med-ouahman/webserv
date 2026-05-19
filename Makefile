@@ -44,12 +44,13 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/on_cgi_finished.cpp \
 	srcs/utils/DataView.cpp \
 	srcs/utils/BufferWriter.cpp \
+	srcs/http/Headers.cpp \
 	srcs/http/parser/Parser.cpp \
 	srcs/http/parser/parse_headers.cpp \
 	srcs/http/parser/parse_request_line.cpp \
 	srcs/http/application/body_handler/read_body.cpp \
 	srcs/http/parser/parser_utils.cpp \
-	srcs/http/parser/HTTPRequest.cpp \
+	srcs/http/parser/Request.cpp \
 	srcs/http/parser/parse_http_request.cpp \
 	srcs/http/application/body_handler/detect_body.cpp \
 	srcs/http/application/body_handler/parse_chunk_size.cpp \
@@ -57,7 +58,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/application/body_handler/BodyHandler.cpp \
 	srcs/http/application/body_handler/read_body_chunked.cpp \
 	srcs/http/application/body_handler/read_body_content_length.cpp \
-	srcs/http/application/dispatcher/HTTPDispatcher.cpp \
+	srcs/http/application/dispatcher/Dispatcher.cpp \
 	srcs/http/application/dispatcher/serialize_response.cpp \
 	srcs/http/application/dispatcher/create_request_handler.cpp \
 	srcs/http/application/dispatcher/find_location.cpp \
@@ -74,7 +75,7 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/application/cgi/iochannel/io_ch_process.cpp \
 	srcs/http/application/cgi/iochannel/io_ch_process_data.cpp \
 	srcs/http/application/cgi/cgi_iochannel_closed.cpp \
-	srcs/http/application/response_builder/HTTPResponse.cpp \
+	srcs/http/application/response_builder/Response.cpp \
 	srcs/http/application/response_builder/response_produce.cpp \
 	srcs/http/application/response_builder/generate_directory_listing.cpp \
 	srcs/http/application/response_builder/MimeType.cpp \

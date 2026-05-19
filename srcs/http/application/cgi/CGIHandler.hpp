@@ -5,7 +5,8 @@
 #include "LineScanner.hpp"
 #include "IRequestHandler.hpp"
 #include "Timestamp.hpp"
-#include "HTTPDispatcher.hpp"
+#include "Dispatcher.hpp"
+#include "Headers.hpp"
 
 namespace io {
 	class EventLoop;
@@ -54,15 +55,15 @@ namespace http {
 	};
 
 	struct CGIParseContext {
-		HTTPStatusCode status_code;
+		StatusCode status_code;
 		std::string status_reason;
 		bool	finished;
 		size_t	bytes_parsed;
 		CGIOutputState::Type state;
-		std::vector<std::pair<std::string, std::string> > headers;
+		Headers headers;
 
 		CGIParseContext()
-			: status_code(static_cast<HTTPStatusCode>(0)),
+			: status_code(static_cast<StatusCode>(0)),
 			finished(false),
 			bytes_parsed(0),
 			state(CGIOutputState::STATUS_LINE) {}
@@ -76,8 +77,8 @@ namespace http {
 			const static char* stripped_headers[];
 			
 			char** build_cgi_env( const CGIContext& ctx );
-			char* transform( bool http_prefix, std::map<std::string, std::string>::iterator& it );
-			std::map<std::string, std::string> build_cgi_metadata( const CGIContext& context );
+			char* transform( bool http_prefix, Headers::iterator& it );
+			Headers build_cgi_metadata( const CGIContext& context );
 			static bool forbidden_header( const std::string& header_name );
 			ScanResult parse_cgi_headers();
 			void sanitize_status_line( const std::pair<std::string, std::string>& header );
@@ -116,6 +117,7 @@ namespace http {
 			bool finished();
 			bool timedout();
 			DataView& stdout_ch_data_view();
+			const Headers& cgi_headers() const;
 
 	};
 

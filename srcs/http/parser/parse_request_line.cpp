@@ -22,7 +22,7 @@ namespace http {
 		}
 
 		std::string method = line.substr(line_offset, method_len);
-		request_line.method = HTTPRequest::get_method(method);
+		request_line.method = Request::get_method(method);
 		
 		if (request_line.method == UNKNOWN) {
 			std::cout << "unknown method\n";

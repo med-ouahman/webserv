@@ -3,10 +3,13 @@
 
 #include <string>
 #include <map>
+#include <vector>
+#include "Headers.hpp"
 
 namespace http {
 
-	enum HTTPMethod
+
+	enum Method
 	{
 		GET,
 		POST,
@@ -29,7 +32,7 @@ namespace http {
 	};
 
 	struct RequestLine {
-		HTTPMethod method;
+		Method method;
 		std::string version;
 		std::string uri;
 		
@@ -38,22 +41,22 @@ namespace http {
 		~RequestLine() {}
 	};
 
-	struct HTTPRequestData {
-		HTTPMethod	method;
+	struct RequestData {
+		Method	method;
 		std::string version;
 		std::string unparsed_uri;
 		std::string resource_path;
 		std::string query_string;
-		std::map<std::string, std::string> headers;
+		Headers		headers;
 	};
 
 	
-	class HTTPRequest {
+	class Request {
 		
 	private:
 		static const size_t MAX_HEADER_COUNT = 100;
 
-		HTTPRequestData data_;
+		RequestData data_;
 	
 		RequestState::Type request_state_;
 
@@ -63,11 +66,11 @@ namespace http {
 		size_t	total_header_bytes_;
 	
 	public:
-		static HTTPMethod get_method( const std::string& );
+		static Method get_method( const std::string& );
 		std::string get_method_name() const;
-		HTTPRequest();
-		~HTTPRequest();
-		bool want_keep_alive();
+		Request();
+		~Request();
+		bool keep_aliv();
 		bool version_supported() const;
 		void add_request_line( RequestLine const& request_line );
 		void add_request_header( const std::pair<std::string, std::string>& header );
@@ -75,7 +78,7 @@ namespace http {
 		void reset();
 		RequestState::Type current_state() const;
 		size_t total_header_bytes() const;
-		const HTTPRequestData& data() const;
+		const RequestData& data() const;
 		void on_finished();
 	};
 }

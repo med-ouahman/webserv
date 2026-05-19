@@ -35,25 +35,35 @@ namespace http {
 				
 				chunk_state = ChunkState::CHUNK_DATA;
 			}
+
+			/* fall through */
 		
-			case ChunkState::CHUNK_DATA:
-				chunk_data();
+			case ChunkState::CHUNK_DATA: {
+
 				size_t w = writer->write(data_view.read_ptr(), data_view.remaining());
 				data_view.advance(w);
+
+				if (not data_view.empty()) break;
+
 				chunk_state = ChunkState::CHUNK_TRAIL;
-				/* fall through */
-			case ChunkState::CHUNK_TRAIL:
+			}
+
+			/* fall through */
+
+			case ChunkState::CHUNK_TRAIL: {
+
 				std::cout << "sending chunk trail\n";
-				chunk_trail();
-				if (writer->bytes_free() >= 2) {
-					writer->write("\r\n", 2);
-					chunk_state = ChunkState::DONE; 
-				}
+				
+				if (writer->bytes_free() < 2) break;
+				
+				writer->write("\r\n", 2);
+
+				chunk_state = ChunkState::DONE;
 				break;
+			}
+
 			case ChunkState::DONE:
 				return 0;
-			default:
-				break;
 		}
 
 		return writer->size();

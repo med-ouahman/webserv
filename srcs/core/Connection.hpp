@@ -5,8 +5,8 @@
 #include "Parser.hpp"
 #include "CGIHandler.hpp"
 #include "CGIContext.hpp"
-#include "HTTPDispatcher.hpp"
-#include "HTTPResponse.hpp"
+#include "Dispatcher.hpp"
+#include "Response.hpp"
 #include "Stream.hpp"
 #include "BodyHandler.hpp"
 #include "DataView.hpp"
@@ -32,8 +32,8 @@ namespace core {
             size_t num_requests;
             size_t body_bytes_received;
             size_t total_bytes_sent;
-            http::HTTPResponse response;
-            http::HTTPRequest request;
+            http::Response response;
+            http::Request request;
             http::IRequestHandler* request_handler;
             Timestamp last_;
             Timestamp conn_lifetime;
@@ -47,12 +47,12 @@ namespace core {
             void on_cgi_finished();
             void bind_cgi();
             void on_cgi_output_ready();
-            void on_cgi_error( http::HTTPStatusCode c );
+            void on_cgi_error( http::StatusCode c );
             bool timedout();
             ConnectionAction action() const;
             void set_mask( uint32_t new_mask ) { event_mask = new_mask; }
             uint32_t get_mask() const { return event_mask; }
-            http::HTTPResponse& get_response() { return response; };
+            http::Response& get_response() { return response; };
             http::BodyHandler& get_body_handler() { return body_handler;};
             RequestPhase::Type request_phase() const { return phase; }
         private:

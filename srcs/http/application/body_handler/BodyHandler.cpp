@@ -5,7 +5,7 @@
 #include <ostream>
 #include <iostream>
 #include <cstring>
-#include "HTTPDispatcher.hpp"
+#include "Dispatcher.hpp"
 
 namespace http {
 	

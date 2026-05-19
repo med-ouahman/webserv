@@ -17,7 +17,7 @@
 13. [Chunked Transfer-Encoding Body](#13-chunked-transfer-encoding-body)
 14. [Hard Limits](#14-hard-Limits)
 15. [Error Handling](#15-error-handling)
-16. [HTTPRequest Structure](#16-httprequest-structure)
+16. [Request Structure](#16-httprequest-structure)
 17. [Reset Behavior](#17-reset-behavior)
 18. [Separation of Concerns](#18-separation-of-concerns)
 19. [What the Parser Explicitly Rejects](#19-what-the-parser-explicitly-rejects)
@@ -27,7 +27,7 @@
 
 ## 1. Purpose and Scope
 
-The Parser is responsible for one thing: consuming raw bytes from a connection's read buffer and producing a complete, structurally valid `HTTPRequest`. It is a pure HTTP structural parser. It does not perform semantic validation, routing, response generation, or any form of I/O on the connection socket.
+The Parser is responsible for one thing: consuming raw bytes from a connection's read buffer and producing a complete, structurally valid `Request`. It is a pure HTTP structural parser. It does not perform semantic validation, routing, response generation, or any form of I/O on the connection socket.
 
 The parser is designed to be incremental. It may receive data in arbitrarily small or large chunks — a single byte at a time or many kilobytes at once. It must handle all cases identically and produce deterministic results regardless of how the data arrives.
 
@@ -99,7 +99,7 @@ public:
 
     std::size_t            bytes_consumed() const;
     ParseError             get_error()      const;
-    const HTTPRequest&     get_request_data()    const;  // valid after PARSE_COMPLETE
+    const Request&     get_request_data()    const;  // valid after PARSE_COMPLETE
 
     void                   reset();
 };
@@ -283,7 +283,7 @@ Path: `tmp_dir + "/body_" + connection_fd`
 
 The parser opens this file when it first needs to write body bytes, writes incrementally as bytes arrive across multiple `parse()` calls, and closes the file descriptor when the body is complete. The path is stored in `req_.body_path`.
 
-The parser does not delete the temp file. Lifetime management is handled by `HTTPRequest`'s destructor.
+The parser does not delete the temp file. Lifetime management is handled by `Request`'s destructor.
 
 ---
 
@@ -382,10 +382,10 @@ The `Connection` does not inspect `get_error()` when deciding the HTTP response.
 
 ---
 
-## 16. HTTPRequest Structure
+## 16. Request Structure
 
 ```cpp
-struct HTTPRequest
+struct Request
 {
     std::string                        method;
     std::string                        uri;
@@ -394,12 +394,12 @@ struct HTTPRequest
     std::string                        body_path;   // empty if no body
     std::size_t                        body_len;    // 0 if no body
 
-    HTTPRequest();
-    ~HTTPRequest();  // unlinks body_path if non-empty
+    Request();
+    ~Request();  // unlinks body_path if non-empty
 };
 ```
 
-`HTTPRequest` is a plain data container. It owns the temp file lifetime via its destructor. When `body_path` is non-empty, the destructor calls `unlink(body_path.c_str())`. This is the only cleanup that `HTTPRequest` performs.
+`Request` is a plain data container. It owns the temp file lifetime via its destructor. When `body_path` is non-empty, the destructor calls `unlink(body_path.c_str())`. This is the only cleanup that `Request` performs.
 
 The handler accesses the body by opening `body_path` when needed. It does not receive a file descriptor or a memory buffer — just a path. The handler is responsible for opening, reading, and closing the file. CGI passes the path to the child process. Nobody else holds a long-lived file descriptor to the body.
 
@@ -411,7 +411,7 @@ The handler accesses the body by opening `body_path` when needed. It does not re
 
 `parser.reset()` does the following:
 
-- Assigns a fresh `HTTPRequest()` to `req_`. The old instance is destroyed, triggering its destructor, which unlinks the temp file if one exists.
+- Assigns a fresh `Request()` to `req_`. The old instance is destroyed, triggering its destructor, which unlinks the temp file if one exists.
 - Resets `state_` to `STATE_STRIP_LEADING_CRLF`.
 - Resets `error_` to `PARSE_ERR_NONE`.
 - Resets `pos_`, `len_`, `data_` to zero/null.
@@ -422,7 +422,7 @@ The handler accesses the body by opening `body_path` when needed. It does not re
 
 `reset()` does not reallocate. Internal strings retain their capacity. The parser is immediately ready to receive the next request.
 
-`HTTPRequest` does not have a public `reset()` method. Cleanup is handled by the destructor via RAII. The connection never manually cleans up request fields — it replaces the entire instance.
+`Request` does not have a public `reset()` method. Cleanup is handled by the destructor via RAII. The connection never manually cleans up request fields — it replaces the entire instance.
 
 ---
 
@@ -438,7 +438,7 @@ The parser is strictly responsible for structural parsing only. The following ar
 | Content-Type interpretation                  | Handler                        |
 | URI decoding and normalization               | Handler / Router               |
 | Routing                                      | Router                         |
-| Response generation                          | `HTTPDispatcher`          |
+| Response generation                          | `Dispatcher`          |
 | Socket I/O                                   | `Connection` / `EventLoop`     |
 | Keep-alive decision                          | `Connection`                   |
 | Request counting                             | `Connection`                   |

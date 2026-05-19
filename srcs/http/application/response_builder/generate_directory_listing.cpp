@@ -1,4 +1,4 @@
-#include "HTTPDispatcher.hpp"
+#include "Dispatcher.hpp"
 #include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -6,12 +6,12 @@
 
 namespace http {
     
-    std::string HTTPDispatcher::generate_anchor( const char* name ) {
+    std::string Dispatcher::generate_anchor( const char* name ) {
         std::string s = std::string(name);
         return std::string("<li><a href=\"") + s + std::string("\">") + s + std::string("</a></li>");
     }
 
-    std::string HTTPDispatcher::generate_directory_list( const char* dirname ) {
+    std::string Dispatcher::generate_directory_list( const char* dirname ) {
         DIR* dir = ::opendir(dirname);
      
         if (!dir) {

@@ -11,7 +11,7 @@ webserver/
 │   ├── connection_components.txt
 │   │   Connection
 │   │       ├── Parser
-│   │       └── HTTPDispatcher
+│   │       └── Dispatcher
 │   │
 │   └── response_trigger.txt
 │       Response generation should start inside:
@@ -64,7 +64,7 @@ webserver/
 ├── http_request/
 │   │
 │   ├── structure.txt
-│   │   HTTPRequestData
+│   │   RequestData
 │   │       method
 │   │       uri
 │   │       version
@@ -206,9 +206,9 @@ webserver/
 ├── response/
 │   │
 │   ├── handler.txt
-│   │   HTTPDispatcher
+│   │   Dispatcher
 │   │       builds HTTP response
-│   │       based on HTTPRequestData
+│   │       based on RequestData
 │   │
 │   └── response_object.txt
 │       response structure useful for:

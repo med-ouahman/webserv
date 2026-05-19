@@ -1,0 +1,100 @@
+server listening on 0.0.0.0:3000
+REGISTERED FD: 4
+CONNECTION_FD: 5
+REGISTERED FD: 5
+READING EVENT
+cursor: 0I : 16
+to append: 15
+READING EVENT
+cursor: 0I : 9
+to append: 8
+Parsing headesrs
+READING EVENT
+cursor: 0I : 2
+to append: 1
+Parsing headesrs
+headers done
+REGISTERED FD: 8
+REGISTERED FD: 10
+STDOUT IOCHANNEL READBLE
+CGI HEADERS
+cursor: 0I : 16
+to append: 15
+Status: 200 OK
+status | 200 OK
+Done
+cursor: 16I : 41
+to append: 24
+Content-Type: text/html
+content-type | text/html
+XXD Headers
+cursor: 41I : 43
+to append: 1
+CGI BODY TYPE: CHUNKED
+Connection WANTS: WRITING
+MODIFIED FD: 5
+WRITING EVENT
+Begin serializing the response
+Serializing Response Line
+HTTP/1.1 200 OK
+Serializing Headers
+Response Headers done
+Bytes Serialized: 37
+Begin serializing the body
+Begin sending the body using chunks
+current chunk size: 210
+sending chunk trail
+WRITING EVENT
+Begin serializing the response
+Begin serializing the body
+Begin sending the body using chunks
+current chunk size: 210
+Response done
+Write complete
+WRITING EVENT
+Begin serializing the response
+Response done
+Write complete
+WRITING EVENT
+Begin serializing the response
+Response done
+Write complete
+WRITING EVENT
+Begin serializing the response
+Response done
+Write complete
+WRITING EVENT
+Begin serializing the response
+Response done
+Write complete
+WRITING EVENT
+Begin serializing the response
+Response done
+Write complete
+WRITING EVENT
+Begin serializing the response
+Response done
+Write complete
+WRITING EVENT
+Begin serializing the response
+Response done
+Write complete
+WRITING EVENT
+Begin serializing the response
+Response done
+Write complete
+WRITING EVENT
+Begin serializing the response
+Response done
+Write complete
+WRITING EVENT
+Begin serializing the response
+Response done
+Write complete
+WRITING EVENT
+Begin serializing the response
+Response done
+Write complete
+WRITING EVENT
+Begin serializing the response
+Response done

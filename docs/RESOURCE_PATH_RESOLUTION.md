@@ -300,7 +300,7 @@ struct ResolvedPath {
     int error_code;  // 0 if valid, HTTP error code otherwise
 };
 
-ResolvedPath resolve_resource_path(HTTPRequestData& request, Config& config) {
+ResolvedPath resolve_resource_path(RequestData& request, Config& config) {
     
     ResolvedPath result;
     
@@ -624,7 +624,7 @@ Result: DENIED
 ## Integration with Response Type Resolution
 
 ```cpp
-ResponseContext process_request(HTTPRequestData& req, Config& config) {
+ResponseContext process_request(RequestData& req, Config& config) {
     
     ResponseContext ctx;
     

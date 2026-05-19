@@ -1,6 +1,6 @@
 
-#include "HTTPRequest.hpp"
-#include "HTTPDispatcher.hpp"
+#include "Request.hpp"
+#include "Dispatcher.hpp"
 #include "Config.hpp"
 #include <iostream>
 #include <cstdlib>
@@ -9,11 +9,11 @@
 namespace http {
     
     
-    HTTPDispatcher::HTTPDispatcher() {}
+    Dispatcher::Dispatcher() {}
 
-    HTTPDispatcher::~HTTPDispatcher() {}
+    Dispatcher::~Dispatcher() {}
 
-    CGIContext HTTPDispatcher::resolve_cgi_context( const ResolutionResult& result ) {
+    CGIContext Dispatcher::resolve_cgi_context( const ResolutionResult& result ) {
         
         CGIContext ctx;
 
@@ -34,7 +34,7 @@ namespace http {
         return ctx;
     }
 
-    BodyConf HTTPDispatcher::configure_body( const HTTPRequest& req, const ResolutionResult& result ) {
+    BodyConf Dispatcher::configure_body( const Request& req, const ResolutionResult& result ) {
         BodyConf body;
         
         body.type = detect_body_type(req);
@@ -44,7 +44,7 @@ namespace http {
         }
 
         char* end = NULL;        
-        body.parsed_body_size = ::strtoul(req.data().headers.at("content-length").c_str(), &end, 10);
+        body.parsed_body_size = ::strtoul(req.data().headers.get("content-length").c_str(), &end, 10);
         
         if (end && *end not_eq '\0') {
             std::cout << "Bad Content length\n";
@@ -57,7 +57,7 @@ namespace http {
             return body;
         }
 
-        if (result.type == HTTPResponseType::CGI) {
+        if (result.type == ResponseType::CGI) {
             body.storage = BodyStorage::FILE_TEMP;
             return body;
         }

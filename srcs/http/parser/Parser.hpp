@@ -1,6 +1,6 @@
 #pragma once
 
-#include "HTTPRequest.hpp"
+#include "Request.hpp"
 #include "LineScanner.hpp"
 #include "Expected.hpp"
 
@@ -9,7 +9,7 @@ namespace http {
     
     namespace parser {
             
-        ScanResult parse_http_request( LineScanner& scanner, HTTPRequest& request );
+        ScanResult parse_http_request( LineScanner& scanner, Request& request );
       
         Base::Expected<RequestLine, int> parse_request_line( const std::string& line );
         Base::Expected<std::pair<std::string, std::string>, int> parse_header( const std::string& line );

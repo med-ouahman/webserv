@@ -11,9 +11,7 @@ namespace http {
         send_method(b),
         chunk_state(ChunkState::CHUNK_HEAD),
         cgi_handler(h),
-        data_view(h.stdout_ch_data_view()),
-        temp_writer(NULL, 0)
-    {}
+        data_view(h.stdout_ch_data_view()) {}
 
     CGIBodyProvider::~CGIBodyProvider() {
 

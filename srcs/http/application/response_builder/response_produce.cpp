@@ -1,4 +1,4 @@
-#include "HTTPResponse.hpp"
+#include "Response.hpp"
 #include <cstring>
 #include <iostream>
 #include "BufferWriter.hpp"
@@ -6,14 +6,14 @@
 namespace http {
 
 
-	void HTTPResponse::build_error_response( HTTPStatusCode code ) {
+	void Response::build_error_response( StatusCode code ) {
         std::cout << "Sure shit, code: " << code << "\n";
         status_code = code;
-        headers["Connection"] = "close";
+		headers.add("Connection", "close");
     }
 
 
-	ssize_t HTTPResponse::produce( BufferWriter* writer ) {
+	ssize_t Response::produce( BufferWriter* writer ) {
 		
 		ssize_t bytes = 0;
 		
@@ -33,7 +33,11 @@ namespace http {
 			bytes += b;
 		}
 		
-		if (bytes == 0) std::cout << "Response done\n";
+		if (bytes == 0) {
+			std::cout << "Response done\n";
+			serialize_state = DONE;
+		}
+
 		return bytes;
 	}
 

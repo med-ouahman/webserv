@@ -4,7 +4,7 @@
 
 namespace http {
 	
-    ScanResult parser::parse_http_request( LineScanner& scanner, HTTPRequest& request ) {
+    ScanResult parser::parse_http_request( LineScanner& scanner, Request& request ) {
 		
 		while (!request.finished()) {
 			

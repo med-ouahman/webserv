@@ -30,11 +30,11 @@ namespace core {
 
     void Connection::request_resloving() {
 
-        http::ResolutionResult result = http::HTTPDispatcher::resolve(request);
+        http::ResolutionResult result = http::Dispatcher::resolve(request);
 
-        request_handler = http::HTTPDispatcher::create_request_handler(*this, result);
+        request_handler = http::Dispatcher::create_request_handler(*this, result);
         
-        http::BodyConf b = http::HTTPDispatcher::configure_body(request, result);
+        http::BodyConf b = http::Dispatcher::configure_body(request, result);
         
         if (b.type == http::BodyType::ERROR) {
             on_client_error();

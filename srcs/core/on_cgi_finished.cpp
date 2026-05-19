@@ -13,13 +13,16 @@ namespace core {
 
 	void Connection::bind_cgi() {
 
-		bool has_content_len = response.headers["content-length"].size() > 0;
+		http::CGIHandler* h = static_cast<http::CGIHandler*>(request_handler);
+		const http::Headers& headers = h->cgi_headers();
+
+		bool has_content_len = not headers.get("content-length").empty();
 
 		char* end;
 
 		size_t body_size = http::CGIHandler::MAX_CGI_BODY_LEN;
 
-		if (has_content_len) body_size = ::strtoul(response.headers["content-length"].c_str(), &end, 10);
+		if (has_content_len) body_size = ::strtoul(response.headers.get("content-length").c_str(), &end, 10);
 
 		if ((has_content_len && *end != '\0') || body_size > http::CGIHandler::MAX_CGI_BODY_LEN) {
 			state = ConnectionState::WRITING;
@@ -38,7 +41,7 @@ namespace core {
 		std::cout << "CGI BODY TYPE: " << (has_content_len?"CONTENT-LENGTH\n":"CHUNKED\n");
 	}
 
-	void Connection::on_cgi_error(http::HTTPStatusCode c ) {
+	void Connection::on_cgi_error(http::StatusCode c ) {
 		response.status_code = c;
 		state = ConnectionState::WRITING;
 		close_after_write = true;

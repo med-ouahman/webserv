@@ -1,15 +1,15 @@
-#include "HTTPDispatcher.hpp"
+#include "Dispatcher.hpp"
 #include "Config.hpp"
-#include "HTTPRequest.hpp"
+#include "Request.hpp"
 #include <sys/stat.h>
 
 namespace http {
     
-    std::string HTTPDispatcher::extract_path( const std::string& url ) {
+    std::string Dispatcher::extract_path( const std::string& url ) {
         return url;
     }
 
-    bool HTTPDispatcher::file_exists( const char* filename ) {
+    bool Dispatcher::file_exists( const char* filename ) {
         struct stat buf;
 
         if (stat(filename, &buf)) {
@@ -19,14 +19,14 @@ namespace http {
         return true;
     }
 
-    ResolutionResult HTTPDispatcher::resolve( const HTTPRequest& req ) {
+    ResolutionResult Dispatcher::resolve( const Request& req ) {
         ResolutionResult result(req);
 
         config::ServerConfig server = config::Config::get_config().server;
         
         result.path = "";
         result.status_code = http::OK;
-        result.type = HTTPResponseType::CGI;
+        result.type = ResponseType::CGI;
         result.location = &config::Config::get_config().server.locations[0];
         return result;
         result.location = find_location(req.data().unparsed_uri, server.locations);
@@ -35,7 +35,7 @@ namespace http {
         
         if (not result.location) {
             result.status_code = INTERNAL_SERVER_ERROR;
-            result.type = HTTPResponseType::ERROR_RESPONSE;
+            result.type = ResponseType::ERROR_RESPONSE;
             result.path = "";
             return result;
         }
@@ -52,7 +52,7 @@ namespace http {
             }
 
             if (file_exists(path.c_str())) {
-                result.type = HTTPResponseType::FILE_DELETE;
+                result.type = ResponseType::FILE_DELETE;
                 result.path = path;
                 return result;
             }
