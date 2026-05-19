@@ -36,6 +36,9 @@ namespace http {
 			case io::WRITABLE:
 				std::cout << c << " IOCHANNLE WRITABLE\n";
 				break;
+			case io::HUP:
+				shutdown();
+				break;
 			case io::ERROR:
 				std::cout << c << "\n";
 				state = IOChannelState::ERROR;

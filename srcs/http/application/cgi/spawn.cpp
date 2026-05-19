@@ -20,7 +20,7 @@ namespace http {
         return false;
     }
 
-    char* CGIHandler::transform( bool has_http_prefix, Headers::iterator& it ) {
+    char* CGIHandler::transform( bool has_http_prefix, Headers::const_iterator& it ) {
 
         std::string key = const_cast<std::string&>(it->name);
         const std::string& value = it->value;
@@ -92,12 +92,12 @@ namespace http {
     char** CGIHandler::build_cgi_env( const CGIContext& ctx ){
         size_t size = 0;
 
-        for ( ; __environ[size] not_eq NULL; ++size );
+        // for ( ; __environ[size] not_eq NULL; ++size );
         
-        Request& req = const_cast<Request&>(result.request);
-        Headers& headers = const_cast<Headers&>(req.data().headers);
+     
+        const Headers& headers = result.request.data().headers;
 
-        Headers::iterator it = headers.begin();
+        Headers::const_iterator it = headers.begin();
 
         for ( ; it != headers.end(); ++it ) ++size;
         
@@ -111,7 +111,7 @@ namespace http {
         cgi_variables[size - 1] = NULL;
 
         size_t i = 0;
-        for ( ; __environ[i] != NULL; ++i ) cgi_variables[i] = __environ[i];
+        // for ( ; __environ[i] != NULL; ++i ) cgi_variables[i] = __environ[i];
 
         for (  it = headers.begin(); it != headers.end(); ) {
 
@@ -119,18 +119,19 @@ namespace http {
                 continue;
             }
 
-            cgi_variables[i] = transform(true, const_cast<Headers::iterator&>(it));
+            cgi_variables[i] = transform(true, it);
             ++it;
         }
 
-        for (  it = cgi_metadata.begin(); it != cgi_metadata.end(); ++it )
-            cgi_variables[i] = transform(false, const_cast<Headers::iterator&>(it));
+        for (  it = cgi_metadata.begin(); it != cgi_metadata.end(); ++it ) // bALL CANCER
+            cgi_variables[i] = transform(false, it);
         cgi_variables[i] = NULL;
+        std::cout << "size: " << i << "\n";
         return cgi_variables;
     }
 
     void CGIHandler::spawn( const io::EventLoop& loop ) {
-        
+        (void)loop;
         if (cgi_state != CGIState::SPAWN) {
             std::cout << "Already spawned\n";
             return ;
@@ -145,8 +146,8 @@ namespace http {
         cgi_pid = ::fork();
         if (cgi_pid == 0) {
 
-            ::dup2(pipe_guard.stdout_pipe[1], STDOUT_FILENO);
-            ::dup2(pipe_guard.stderr_pipe[1], STDERR_FILENO);
+            // ::dup2(pipe_guard.stdout_pipe[1], STDOUT_FILENO);
+            // ::dup2(pipe_guard.stderr_pipe[1], STDERR_FILENO);
                         
             pipe_guard.close_pipes();
             char* const argv[] = {
@@ -167,8 +168,8 @@ namespace http {
             throw std::runtime_error(strerror(errno));
         }
 
-        loop.add_fd(stdout_ch.fd(), stdout_ch.get_event(), &stdout_ch);
-        loop.add_fd(stderr_ch.fd(), stderr_ch.get_event(), &stderr_ch);
+        // loop.add_fd(stdout_ch.fd(), stdout_ch.get_event(), &stdout_ch);
+        // loop.add_fd(stderr_ch.fd(), stderr_ch.get_event(), &stderr_ch);
     }
 
 }

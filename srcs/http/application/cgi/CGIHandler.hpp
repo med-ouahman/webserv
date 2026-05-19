@@ -77,7 +77,7 @@ namespace http {
 			const static char* stripped_headers[];
 			
 			char** build_cgi_env( const CGIContext& ctx );
-			char* transform( bool http_prefix, Headers::iterator& it );
+			char* transform( bool http_prefix, Headers::const_iterator& it );
 			Headers build_cgi_metadata( const CGIContext& context );
 			static bool forbidden_header( const std::string& header_name );
 			ScanResult parse_cgi_headers();
