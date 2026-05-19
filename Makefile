@@ -30,8 +30,8 @@ INCLUDES = -Isrcs \
 	-Isrcs/http/application/body_handler \
 	-Isrcs/io/stream/ \
 	-Isrcs/config/ \
-	-Isrcs/utils/ \
-	-Isrcs/utils/baselib \
+	-Isrcs/foundation/ \
+	-Isrcs/foundation/baselib \
 
 SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/Connection.cpp \
@@ -42,8 +42,8 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/core/conn_handle_event.cpp \
 	srcs/core/conn_request_phase.cpp \
 	srcs/core/on_cgi_finished.cpp \
-	srcs/utils/DataView.cpp \
-	srcs/utils/BufferWriter.cpp \
+	srcs/foundation/DataView.cpp \
+	srcs/foundation/BufferWriter.cpp \
 	srcs/http/Headers.cpp \
 	srcs/http/parser/Parser.cpp \
 	srcs/http/parser/parse_headers.cpp \

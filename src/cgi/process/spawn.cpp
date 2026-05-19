@@ -138,46 +138,5 @@ namespace http {
         return cgi_variables;
     }
 
-    void CGIRequestHandler::spawn( const io::EventLoop& loop ) {
-        (void)loop;
-        if (cgi_state != CGIState::SPAWN) {
-            std::cout << "Already spawned\n";
-            return ;
-        }
-
-        CGIContext context = http::Dispatcher::resolve_cgi_context(result);
-
-        cgi_timeout_secs = context.timeout_seconds;
-        
-        cgi_state = CGIState::ACTIVE;
-        start_time.update();
-        cgi_pid = ::fork();
-        if (cgi_pid == 0) {
-
-            // ::dup2(pipe_guard.stdout_pipe[1], STDOUT_FILENO);
-            // ::dup2(pipe_guard.stderr_pipe[1], STDERR_FILENO);
-                        
-            pipe_guard.close_pipes();
-            char* const argv[] = {
-               const_cast<char*>( context.interpreter_path.c_str()), 
-               const_cast<char*>(context.script_filename.c_str()),
-               NULL};
-               
-            ::execve(context.interpreter_path.c_str(), argv, build_cgi_env(context));
-            LOG_ERROR(MAKE_ERRNO_ERROR("execve()"));
-            ::exit(EXIT_FAILURE);
-        }
-
-        CLOSE_FD(pipe_guard.stdin_pipe[0]);
-        CLOSE_FD(pipe_guard.stdout_pipe[1]);
-        CLOSE_FD(pipe_guard.stderr_pipe[1]);
-        
-        if (cgi_pid < 0) {
-            throw std::runtime_error(strerror(errno));
-        }
-
-        // loop.add_fd(stdout_ch.fd(), stdout_ch.get_event(), &stdout_ch);
-        // loop.add_fd(stderr_ch.fd(), stderr_ch.get_event(), &stderr_ch);
-    }
 
 }
