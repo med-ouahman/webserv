@@ -3,7 +3,7 @@
 namespace io {
     
     Stream::Stream( int fd )
-        : AIOHandler(fd),
+        : AEventHandler(fd),
         readbuf(),
         writebuff(),
         bytes_r(0),

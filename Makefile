@@ -63,25 +63,24 @@ SRCS = $(SRCDIR)/main.cpp \
 	srcs/http/application/dispatcher/create_request_handler.cpp \
 	srcs/http/application/dispatcher/find_location.cpp \
 	srcs/http/application/dispatcher/resolve.cpp \
-	srcs/http/application/cgi/CGIHandler.cpp \
+	srcs/http/application/cgi/CGIRequestHandler.cpp \
 	srcs/http/application/cgi/spawn.cpp \
-	srcs/http/application/cgi/parse_cgi_headers.cpp \
-	srcs/http/application/cgi/cgi_input.cpp \
-	srcs/http/application/cgi/cgi_on_error.cpp \
-	srcs/http/application/cgi/cgi_output.cpp \
-	srcs/http/application/cgi/cgi_pull.cpp \
+	srcs/http/application/cgi/parse_headers.cpp \
+	srcs/http/application/cgi/on_input_ready.cpp \
+	srcs/http/application/cgi/on_error.cpp \
+	srcs/http/application/cgi/on_output_ready.cpp \
 	srcs/http/application/cgi/iochannel/IOChannel.cpp \
 	srcs/http/application/cgi/iochannel/io_channel_handle_event.cpp \
 	srcs/http/application/cgi/iochannel/io_ch_process.cpp \
 	srcs/http/application/cgi/iochannel/io_ch_process_data.cpp \
-	srcs/http/application/cgi/cgi_iochannel_closed.cpp \
+	srcs/http/application/cgi/iochannel_closed.cpp \
 	srcs/http/application/response_builder/Response.cpp \
 	srcs/http/application/response_builder/response_produce.cpp \
 	srcs/http/application/response_builder/generate_directory_listing.cpp \
 	srcs/http/application/response_builder/MimeType.cpp \
 	srcs/http/application/body/CGIBodyProvider.cpp \
-	srcs/http/application/body/cgi_send_body.cpp \
-	srcs/http/application/body/cgi_body_chunked.cpp \
+	srcs/http/application/body/send_body.cpp \
+	srcs/http/application/body/body_chunked.cpp \
 	srcs/io/create_sockets.cpp \
 	srcs/io/EventLoop.cpp \
 	srcs/io/handle_fds.cpp \

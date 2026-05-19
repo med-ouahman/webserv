@@ -10,10 +10,9 @@ namespace io {
     typedef uint32_t EventMask;
 
     class AEventHandler {
-        private:
+        protected:
             int fd_;
             EventMask mask_;
-            
         public:
             AEventHandler( int fd__ ): fd_(fd__) {};
             virtual void on_event( EventType event ) = 0;

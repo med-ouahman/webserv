@@ -7,17 +7,19 @@
 namespace http {
     struct CGIParseContext;
     
-    namespace parser {
-            
-        ScanResult parse_http_request( LineScanner& scanner, Request& request );
-      
-        Base::Expected<RequestLine, int> parse_request_line( const std::string& line );
-        Base::Expected<std::pair<std::string, std::string>, int> parse_header( const std::string& line );
-        bool validate_http_version( std::string const& s );
-        void normalize_http_header_name( std::string& name );
-        void capitalize_http_header_name( std::string& header );
-        bool validate_http_header_name( const std::string& name );
-    }
+    class Parser {
+        private:
+            Request request;
+            LineScanner scanner;
+        public:
+            ScanResult parse_http_request();
+            static Base::Expected<RequestLine, int> parse_request_line( const std::string& line );
+            static Base::Expected<std::pair<std::string, std::string>, int> parse_header( const std::string& line );
+            static bool validate_http_version( std::string const& s );
+            static void normalize_http_header_name( std::string& name );
+            static void capitalize_http_header_name( std::string& header );
+            static bool validate_http_header_name( const std::string& name );
+    };
 
     namespace http_limits {
         const std::size_t MAX_METHOD_LEN       = 16;

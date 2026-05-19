@@ -169,7 +169,7 @@ When `produce()` finishes copying the last header bytes and still has space rema
 ```
 STATIC_FILE    → FileBodyProvider (file descriptor)
 DIRECTORY      → temp file → FileBodyProvider (file descriptor)
-CGI            → CGIHandler → temp file → FileBodyProvider (file descriptor)
+CGI            → CGIRequestHandler → temp file → FileBodyProvider (file descriptor)
 FILE_UPLOAD    → no body (headers only)
 FILE_DELETE    → no body (headers only)
 REDIRECT       → no body (headers only)
@@ -214,32 +214,32 @@ The auto-index HTML is generated in full as a string, written to a temp file via
 
 ## 7. CGI Architecture
 
-CGI is the only response type that involves a child process. It uses the existing `AIOHandler` polymorphism — the same interface the EventLoop uses for client sockets.
+CGI is the only response type that involves a child process. It uses the existing `AEventHandler` polymorphism — the same interface the EventLoop uses for client sockets.
 
-### `AIOHandler` interface
+### `AEventHandler` interface
 
 ```cpp
 namespace io {
-class AIOHandler {
+class AEventHandler {
 public:
     virtual void on_event(EventType event) = 0;
-    virtual ~AIOHandler() {}
+    virtual ~AEventHandler() {}
 };
 }
 ```
 
-The EventLoop maps `fd → AIOHandler*` and dispatches blindly:
+The EventLoop maps `fd → AEventHandler*` and dispatches blindly:
 
 ```cpp
-AIOHandler* handler = static_cast<AIOHandler*>(events[i].data.ptr);
+AEventHandler* handler = static_cast<AEventHandler*>(events[i].data.ptr);
 if (events[i].events & EPOLLIN)       handler->on_event(READABLE);
 else if (events[i].events & EPOLLOUT) handler->on_event(WRITABLE);
 else if (events[i].events & (EPOLLERR | EPOLLHUP)) handler->on_event(ERROR);
 ```
 
-### `CGIHandler`
+### `CGIRequestHandler`
 
-A derived `AIOHandler` registered with epoll on the CGI process's stdout pipe fd.
+A derived `AEventHandler` registered with epoll on the CGI process's stdout pipe fd.
 
 **Members:**
 - `int _pipe_fd` — non-blocking stdout pipe from CGI process
@@ -287,7 +287,7 @@ These are covered by prior minishell experience. Key CGI-specific requirements:
 
 ```
 EventLoop   → fd readiness only (add / modify / remove)
-CGIHandler  → pipe draining, temp file writing, process reaping
+CGIRequestHandler  → pipe draining, temp file writing, process reaping
 Connection  → unaware of CGI internals, woken via epoll modify
 ```
 
@@ -304,7 +304,7 @@ int n = epoll_wait(epoll_fd, events, MAX_EVENTS, CGI_TIMEOUT_MS);
 
 // handle the n returned events, mark each handler ACTIVE
 
-// sweep all registered CGIHandlers
+// sweep all registered CGIRequestHandlers
 for each cgi_handler in active_cgi_handlers:
     if cgi_handler.state == IDLE:
         kill(cgi_handler.pid, SIGKILL)
@@ -335,7 +335,7 @@ The zero value of `bytes_in_buff` is the trigger that causes the first `on_write
 - `advance()` is the only caller of `produce()`
 - `on_writeable()` is the only caller of `advance()`
 - `EventLoop` is the only entity that calls `epoll_ctl`
-- `CGIHandler` communicates with `Connection` only through `EventLoop` fd registration
+- `CGIRequestHandler` communicates with `Connection` only through `EventLoop` fd registration
 - `errno` is never checked after any I/O operation
 - Regular disk file reads never go through epoll
 - `CLOSING` is a terminal state — no further transitions occur once set

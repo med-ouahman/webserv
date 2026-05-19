@@ -5,7 +5,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include "CGIBodyProvider.hpp"
-#include "CGIHandler.hpp"
+#include "CGIRequestHandler.hpp"
 
 
 namespace config {
