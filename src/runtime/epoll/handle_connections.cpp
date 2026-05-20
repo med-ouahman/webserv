@@ -11,7 +11,7 @@ namespace io {
     bool EventLoop::add_connection( int client_fd ) {
 
         conns.push_back(new core::Connection(client_fd, EPOLLIN, *this));
-        if (not register_fd(client_fd, EPOLLIN, conns.back())) {
+        if (not register_handler(client_fd, EPOLLIN, conns.back())) {
             conns.pop_back();
             return false;
         }
@@ -33,7 +33,7 @@ namespace io {
         
         if (new_mask != conn->mask()) {
             std::cout << "Connection WANTS: " << (action.want_write ? "WRITING\n":"READING\n");
-            modify_fd(conn->fd(), new_mask, conn);
+            modify_handler(conn->fd(), new_mask, conn);
             conn->set_mask(new_mask);
         }
     }

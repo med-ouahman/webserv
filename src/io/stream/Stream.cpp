@@ -2,66 +2,65 @@
 
 namespace io {
     
-    Stream::Stream( int fd )
-        : AEventHandler(fd),
+    Stream::Stream( int fd, EventMask mask )
+        : AEventHandler(fd, mask),
         readbuf(),
-        writebuff(),
-        bytes_r(0),
-        data_view(readbuf),
-        writer(writebuff, WRITE_BUFFER_SIZE) {}
+        writer() {}
 
 
     void Stream::on_event( EventType event ) {
         
-        io_event = event;
-        handle_event();
-        process();
+        switch (event) {
+            case READABLE:
+                on_readable();
+                break;
+            case WRITABLE:
+                on_writeable();
+                break;
+            case HUP: case RHUP:
+                delegate->on_stream_closed();
+                break;
+            case ERROR:
+                delegate->on_stream_error();
+                break;
+            default:
+                break;
+        }
+        
     }
 
     void Stream::on_readable() {
     
-        data_view.reset();
-        read();
-        
-        if (bytes_r == 0) {
-            on_read_eof();
+        ssize_t n = ::read(fd(), readbuf, READ_BUFFER_SIZE);
+
+        if (n == 0) {
+            delegate->on_stream_closed();
             return ;
         }
         
-        if (bytes_r < 0) {
-            on_read_error();
+        if (n < 0) {
+            delegate->on_stream_error();
             return ;
         }
         
-        data_view.update(bytes_r);
-        process_incoming_data();
+        DataView view(readbuf, n);
+
+        delegate->consume(view);
     }
 
     void Stream::on_writeable() {
 
-        process_outgoing_data();
+        if (writer.remaining() == 0) delegate->produce(writer);
         
-        if (writer.size() == 0) {
-            on_write_complete();
+        if (writer.size() == 0) return ;
+
+        ssize_t n = ::write(fd(), writer.data(), writer.remaining());
+
+        if (n < 0) {
+            delegate->on_stream_error();
             return ;
         }
 
-
-        write();
-        if (bytes_r < 0) {
-            on_write_error();
-            return ;
-        }
-
-        writer.advance(bytes_r);
-        
-    }
-
-    void Stream::read() {
-        bytes_r = ::read(fd_, readbuf, READ_BUFFER_SIZE);
-    }
-    
-    void Stream::write() {
-        bytes_r = ::write(fd_, writer.data(), writer.remaining());
+        writer.advance(n);   
     }
 }

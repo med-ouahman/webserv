@@ -1,9 +1,9 @@
 #include "DataView.hpp"
 
 
-DataView::DataView( const char* data_p )
+DataView::DataView( const char* data_p, size_t size )
 	: data_(data_p),
-	size_(0),
+	size_(size),
 	cursor_(0) {}
 
 DataView::~DataView() {}

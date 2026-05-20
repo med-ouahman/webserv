@@ -1,26 +1,11 @@
+
 #include "BufferWriter.hpp"
 #include <cstring>
+#include <iostream>
 
+BufferWriter::BufferWriter(): offset_(0), size_(0) {}
 
-
-
-BufferWriter::BufferWriter( char* b, size_t cap )
-    : buff_(b), capacity_(cap), offset_(0), size_(0) {}
-
-BufferWriter::~BufferWriter() {
-    
-}
-
-void BufferWriter::update( char* buf, size_t n ) {
-    buff_ = buf;
-    size_ = n;
-    offset_ = 0;
-}
-
-void BufferWriter::update( size_t n ) {
-    size_ = n;
-    offset_ = 0;
-}
+BufferWriter::~BufferWriter() {}
 
 size_t BufferWriter::size() {
     return size_;

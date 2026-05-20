@@ -1,23 +1,21 @@
 #pragma once
 
-#include <iostream>
-
+#include <stddef.h>
 
 class BufferWriter {
 
 	private:
-		char* buff_;
-		size_t capacity_;
+		const static size_t BUFFER_SIZE = 1024 * 4;
+		char buff_[BUFFER_SIZE];
+		const size_t capacity_ = BUFFER_SIZE;
 		size_t offset_;
 		size_t size_;
 		BufferWriter( const BufferWriter& other );
 		BufferWriter& operator=( const BufferWriter& other );
 	
 	public:
-		explicit BufferWriter( char* b, size_t cap );
+		BufferWriter();
 		~BufferWriter();
-		void update( char* buff, size_t size );
-		void update( size_t n );
 		char* data();
 		char* write_ptr();
 		size_t offset();

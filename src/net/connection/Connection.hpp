@@ -3,8 +3,9 @@
 #include "ConnectionState.hpp"
 #include "ConnectionAction.hpp"
 #include "Timestamp.hpp"
-#include "Limits.hpp"
+#include "limits.hpp"
 #include "HttpSession.hpp"
+#include "Stream.hpp"
 
 namespace config {
     struct ServerConfig;
@@ -12,16 +13,17 @@ namespace config {
 
 namespace net {
 
-    class Connection: io::IStreamDelegate {
+    class Connection: public io::IStreamDelegate {
         
         public:
             explicit Connection( int fd, io::EventMask mask );
             ~Connection();
             bool timedout();
             ConnectionAction action() const;
-            void on_stream_writeable();
-            void on_stream_readable();
+            void consume( DataView& view );
+            void produce( BufferWriter& writer );
             void on_stream_error();
+            void on_stream_closed();
 
         private:
             io::Stream stream;

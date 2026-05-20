@@ -1,6 +1,8 @@
 #pragma once
 #include <cerrno>
-namespace error
+#include <iostream>
+
+namespace Base
 {
 
 struct Error {

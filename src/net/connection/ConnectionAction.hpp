@@ -1,6 +1,6 @@
 #pragma once
 
-namespace core {
+namespace net {
 	
 	enum ConnectionAction {
 		READ,

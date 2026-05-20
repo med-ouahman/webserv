@@ -3,10 +3,10 @@
 #include <string.h>
 
 #define MAKE_ERROR(code, context, message) \
-        error::Error(code, context, message, __FILE__, __LINE__)
+        Base::Error(code, context, message, __FILE__, __LINE__)
 
 #define MAKE_ERRNO_ERROR(context) \
-        error::Error(errno, context, strerror(errno), __FILE__, __LINE__) 
+        Base::Error(errno, context, strerror(errno), __FILE__, __LINE__) 
         
 #define LOG_ERROR(error) \
         std::cerr << "[ERROR] " << error.context << " | code=" \
@@ -14,7 +14,7 @@
         << error.message << " | " \
         << error.file << ":" << error.line << "\n"
 
-namespace error {
+namespace Base {
 
 template <typename T> struct Result {
         bool ok;

@@ -15,7 +15,7 @@ namespace io {
             EventMask mask_;
             
         public:
-            AEventHandler( int fd__ ): fd_(fd__) {};
+            AEventHandler( int fd__, EventMask msk ): fd_(fd__), mask_(msk) {};
             virtual void on_event( EventType event ) = 0;
             virtual ~AEventHandler() {
                 if (fd_ >= 0) {

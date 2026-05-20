@@ -1,14 +1,8 @@
 
-#include "EventLoop.hpp"
-#include "ListeningSocket.hpp"
-#include <iostream>
+#include "Config.hpp"
 #include "ConfigParser.hpp"
-#include <signal.h>
-#include <stdlib.h>
-#include "CGIBodyProvider.hpp"
-#include "CGIRequestHandler.hpp"
-
-#include "server.h"
+#include "Server.hpp"
+#include "sys.h"
 
 namespace config {
     
@@ -24,18 +18,15 @@ int main( int argc, const char* argv[] ) {
         return 1;
     }
 
-    signal(SIGPIPE, SIG_IGN);
+    sys::handle_signals();
     
-    const char* config_file = argv[1];
-    if (not config_file) {
-        config_file = "./config/default.conf";
-    }
-    
+    std::string config_file = argv[1] != NULL ? argv[1]: "config/webserv.conf";
+
     #ifdef DEV_MODE
     config::Config conf = config::ConfigParser::build_default_config();
     config::Config::set_config(conf);
     #endif
-    
-    io::EventLoop loop;
-    return loop.run();
+
+    Server webserv;
+    return webserv.start();
 }

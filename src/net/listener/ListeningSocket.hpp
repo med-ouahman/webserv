@@ -1,6 +1,7 @@
 #pragma once
-#include <iostream>
+
 #include "AEventHandler.hpp"
+#include "Result.hpp"
 
 #ifndef NDEBUG
 #define NDEBUG 4
@@ -8,12 +9,12 @@
 #include <cassert>
 #define BACKLOG 5
 
-namespace io {
+namespace net {
+
 	class EventLoop;
 
-	class ListeningSocket: public AEventHandler {
+	class ListeningSocket: public io::AEventHandler {
 		private:
-			EventLoop& loop;
 			ListeningSocket& operator=( const ListeningSocket& socket );
 			bool accept_clients();
 			bool on_error();
@@ -22,7 +23,9 @@ namespace io {
 			ListeningSocket( const ListeningSocket& socket );
 			explicit ListeningSocket( EventLoop& loop, int fd );
 			~ListeningSocket();
-			void on_event( EventType event );
+			void on_event( io::EventType event );
 			void release();
 	};
+
+	Base::Result<std::vector<ListeningSocket> > create_listening_sockets( const std::vector<config::ListenEndPoint> endpoints );
 }

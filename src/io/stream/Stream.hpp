@@ -10,21 +10,15 @@
 
 namespace io {
 
-	class IOState {
-		public:
-			enum Type {
-				READING,
-				WRITING,
-				ERROR,
-			};
-	};
-
 	class IStreamDelegate {
 
 		public:
-			virtual void on_stream_writeable() = 0;
-			virtual void on_stream_readable() = 0;
+			virtual void consume( DataView& view ) = 0;
+			virtual void produce( BufferWriter& w ) = 0;
 			virtual void on_stream_error() = 0;
+			virtual void on_stream_closed() = 0;
+
+			virtual ~IStreamDelegate() {};
 	};
 
 	class Stream: public AEventHandler {
@@ -32,23 +26,18 @@ namespace io {
 		public:
 			const static std::size_t READ_BUFFER_SIZE = 1024 * 4;
 			const static std::size_t WRITE_BUFFER_SIZE = 1024 * 4;
-			Stream( int fd );
+			Stream( int fd, EventMask mask );
 			virtual ~Stream() {};
 			void on_event( EventType type );
 		private:
-			char readbuf[READ_BUFFER_SIZE];
-			char writebuff[WRITE_BUFFER_SIZE];
+
+			IStreamDelegate* delegate;
 			
-		protected:
-			EventType io_event;
-			ssize_t bytes_r;
-			DataView data_view;
+			char readbuf[READ_BUFFER_SIZE];
+			
 			BufferWriter writer;
-			void read();
-			void write();
+
 			void on_readable();
 			void on_writeable();
-			void on_error();
-
 	};
 }

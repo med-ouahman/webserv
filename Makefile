@@ -16,21 +16,21 @@ OBJDIR := obj
 
 NAME = webserv
 
-INCLUDES = -Isrcs \
-	-Isrcs/core/ \
-	-Isrcs/io/ \
-	-Isrcs/http/ \
-	-Isrcs/http/parser \
-	-Isrcs/http/application \
-	-Isrcs/http/application/body \
-	-Isrcs/http/application/cgi \
-	-Isrcs/http/application/dispatcher \
-	-Isrcs/http/application/response_builder \
-	-Isrcs/http/application/cgi/iochannel \
-	-Isrcs/http/application/body_handler \
+INCLUDES = -Isrc \
+	-Isrc/net/ \
+	-Isrc/net/connection/ \
+	-Isrc/net/listener/ \
+	-Isrc/cgi/ \
+	-Isrc/cgi/process/ \
+	-Isrc/io/ \
 	-Isrcs/io/stream/ \
-	-Isrcs/config/ \
-	-Isrcs/foundation/ \
+	-Isrc/runtime/ \
+	-Isrc/runtime/epoll/ \
+	-Isrc/server/ \
+	-Isrc/http/ \
+	-Isrcs/http/ \
+	-Isrc/config/ \
+	-Isrc/foundation/ \
 	-Isrcs/foundation/baselib \
 
 SRCS = $(SRCDIR)/main.cpp \

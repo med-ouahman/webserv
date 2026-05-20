@@ -1,7 +1,7 @@
 
 #pragma once
 
-namespace core {
+namespace net {
 
 	enum ConnectionState {
 		READING,

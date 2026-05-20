@@ -4,17 +4,17 @@
 
 
 class DataView {
-    private:
-        const char* data_;
-        size_t size_;
 
+    private:
+        const char* data_;        
+        size_t size_;
         size_t cursor_;
 
         DataView( const DataView& v );
         DataView& operator=( const DataView& v );
 
     public:
-        DataView( const char* data );
+        DataView( const char* data, size_t size );
         ~DataView();
         void advance( size_t n );
         const char* data() const;
