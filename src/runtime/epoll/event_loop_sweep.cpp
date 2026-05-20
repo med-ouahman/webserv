@@ -11,7 +11,7 @@ namespace io {
             drop = drop or conns[i]->timedout();
             if (drop)
             {
-                del_fd(conns[i]->fd());
+                delete_fd(conns[i]->fd());
                 delete conns[i];
                 conns.erase(conns.begin() + i);
             }

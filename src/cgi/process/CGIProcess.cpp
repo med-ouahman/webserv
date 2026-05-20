@@ -11,8 +11,7 @@ namespace cgi {
     }
 
 
-    void CGIProcess::spawn( const CGIContext& ctx, const io::EventLoop loop ) {
-        (void)loop;
+    void CGIProcess::spawn( const CGIContext& ctx ) {
         if (cgi_state != CGIState::SPAWN) {
             std::cout << "Already spawned\n";
             return ;
@@ -48,9 +47,34 @@ namespace cgi {
         if (pid < 0) {
             throw std::runtime_error(strerror(errno));
         }
-
-        loop.add_fd(stdout_.fd(), stdout_.get_event(), &stdout_);
-        loop.add_fd(stderr_.fd(), stderr_.get_event(), &stderr_);
     }
 
+    void CGIProcess::on_stdout_readable() {
+        
+    }
+
+    void CGIProcess::on_stdin_writeable() {
+
+    }
+
+    void CGIProcess::on_stderr_readable() {
+
+    }
+
+    void CGIProcess::on_error() {
+
+    }
+
+    io::Stream const& CGIProcess::stdin() const {
+
+        return stdin_;
+    }
+
+    io::Stream const& CGIProcess::stdout() const {
+        return stdout_;
+    }
+
+    io::Stream const& CGIProcess::stderr() const {
+        return stderr_;
+    }
 }

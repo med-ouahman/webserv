@@ -4,7 +4,7 @@
 #include <fcntl.h>
 
 namespace io {
-	bool EventLoop::add_fd( int fd, uint32_t events, AEventHandler* handler ) const {
+	bool EventLoop::register_fd( int fd, uint32_t events, AEventHandler* handler ) const {
 		
 		epoll_event event;
 		event.events = events;
@@ -33,7 +33,7 @@ namespace io {
 		return true;
 	}
 
-	bool EventLoop::mod_fd( int fd, uint32_t events, AEventHandler* handler ) const {
+	bool EventLoop::modify_fd( int fd, uint32_t events, AEventHandler* handler ) const {
 		epoll_event event;
 		event.events = events;
 		event.data.ptr = handler;
@@ -49,7 +49,7 @@ namespace io {
 		return true;
 	}
 
-	bool EventLoop::del_fd( int fd ) const {
+	bool EventLoop::delete_fd( int fd ) const {
 		
 		if (::epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL)) {
 			LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_ctl(EPOLL_CTL_DEL)"));

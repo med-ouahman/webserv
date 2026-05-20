@@ -1,6 +1,6 @@
 #include "Connection.hpp"
 
-namespace core {
+namespace net {
 
 	void Connection::handle_event() {
 

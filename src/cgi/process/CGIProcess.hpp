@@ -3,7 +3,6 @@
 #include "Stream.hpp"
 #include <unistd.h>
 #include "Timestamp.hpp"
-#include "EventLoop.hpp"
 
 namespace cgi {
 
@@ -20,17 +19,21 @@ namespace cgi {
             Timestamp start_time;
 			Timestamp sigterm_sent_at;
 
-			static size_t cgi_timeout_secs;
+			static time_t timeout_secs;
 
             CGIProcess( const CGIProcess& );
             CGIProcess& operator=( const CGIProcess& );
 
         public:
-            void spawn( const CGIContext& ctx, const io::EventLoop& loop );
+            void spawn( const CGIContext& ctx );
 
             void on_stdout_readable();
             void on_stdin_writeable();
             void on_stderr_readable();
             void on_error();
+
+            io::Stream const& stdin() const;
+            io::Stream const& stdout() const;
+            io::Stream const& stderr() const;
     };
 }

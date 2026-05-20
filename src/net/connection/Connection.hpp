@@ -10,34 +10,27 @@ namespace config {
     struct ServerConfig;
 }
 
-namespace core {
+namespace net {
 
-    class Connection: public io::Stream {
-        
-        private:
-            ConnectionState state;
-           
-            bool close_after_write;
-            size_t num_requests;
-            
-            Timestamp last_;
-            Timestamp conn_lifetime;
-            http::HttpSession session;
+    class Connection: io::IStreamDelegate {
         
         public:
-            io::EventLoop& loop;
-            explicit Connection( int fd, io::EventMask mask, io::EventLoop& loop );
+            explicit Connection( int fd, io::EventMask mask );
             ~Connection();
-            void release_cgi_handler();
-            void on_cgi_finished();
-            void bind_cgi();
-            void on_cgi_output_ready();
-            void on_cgi_error( http::StatusCode c );
             bool timedout();
             ConnectionAction action() const;
-            
+            void on_stream_writeable();
+            void on_stream_readable();
+            void on_stream_error();
+
         private:
-            void handle_event();
-    
+            io::Stream stream;
+
+            ConnectionState state;
+            bool            close_after_write;
+            Timestamp       last_;
+            Timestamp       conn_lifetime;
+            http::HttpSession session;
+        
     };
 }

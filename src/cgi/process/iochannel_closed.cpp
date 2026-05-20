@@ -15,8 +15,8 @@ namespace http {
 		stdout_ch.shutdown();
 		stderr_ch.shutdown();
 		
-		conn.loop.del_fd(stdout_ch.fd());		
-		conn.loop.del_fd(stderr_ch.fd());
+		conn.loop.delete_fd(stdout_ch.fd());		
+		conn.loop.delete_fd(stderr_ch.fd());
 		
 		conn.on_cgi_finished();
 	}

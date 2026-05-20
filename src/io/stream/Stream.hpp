@@ -19,6 +19,14 @@ namespace io {
 			};
 	};
 
+	class IStreamDelegate {
+
+		public:
+			virtual void on_stream_writeable() = 0;
+			virtual void on_stream_readable() = 0;
+			virtual void on_stream_error() = 0;
+	};
+
 	class Stream: public AEventHandler {
 
 		public:

@@ -1,13 +1,11 @@
 #pragma once
 
-#include "limits.hpp"
 #include <vector>
 #include "ListeningSocket.hpp"
 #include "Config.hpp"
 #include "Result.hpp"
-#include <ctime>
 
-namespace core {
+namespace net {
 	class Connection;
 }
 
@@ -18,15 +16,13 @@ namespace http {
 namespace io {
 	class AEventHandler;
 
-	typedef int second_t;
-
 	class EventLoop {
 		private:
 			int epoll_fd;
 			bool running;
 			std::vector<core::Connection*> conns;
 			std::vector<ListeningSocket> listeners;
-			std::vector<http::CGIRequestHandler*> cgi_bin;
+			std::vector<cgi::CGIProcess*> current_cgi_running;
 			
 			EventLoop( const EventLoop& other );
 			EventLoop& operator=( const EventLoop& other );
@@ -40,9 +36,9 @@ namespace io {
 			int run(); 
 			bool add_connection( int client_fd );
 			
-			bool add_fd( int fd, uint32_t events, AEventHandler* handler ) const;
-			bool mod_fd( int fd, uint32_t events, AEventHandler* handler ) const;
-			bool del_fd( int fd ) const;
+			bool register_fd( int fd, uint32_t events, AEventHandler* handler ) const;
+			bool modify_fd( int fd, uint32_t events, AEventHandler* handler ) const;
+			bool delete_fd( int fd ) const;
 			void add_cgi_handler( http::CGIRequestHandler* h );
 		
 	};
