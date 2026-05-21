@@ -1,4 +1,6 @@
 #include "CGIProcess.hpp"
+#include <csignal>
+#include <sys/wait.h>
 
 namespace cgi {
 
@@ -6,8 +8,8 @@ namespace cgi {
         : pid(-1),
         status(0x0),
         pipe_guard(),
-        stdout_(pipe_guard.stdout_pipe[1], io::READABLE),
-        stderr_(pipe_guard.stderr_pipe[1], io::READABLE),
+        stdout_(pipe_guard.stdout_pipe[0], io::READABLE),
+        stderr_(pipe_guard.stderr_pipe[0], io::READABLE),
         spawn_time(),
         sigterm_sent_at(0) {
         
@@ -39,6 +41,7 @@ namespace cgi {
 
     CGIProcess::~CGIProcess() {
 
+        ::waitpid(pid, &status, 0);  // should be blocking to ensuer the process is reaped
         
     }
 
@@ -58,11 +61,6 @@ namespace cgi {
 
     }
 
-    io::Stream const& CGIProcess::stdin() const {
-
-        return stdin_;
-    }
-
     io::Stream const& CGIProcess::stdout() const {
         return stdout_;
     }
@@ -70,4 +68,24 @@ namespace cgi {
     io::Stream const& CGIProcess::stderr() const {
         return stderr_;
     }
+
+
+    bool CGIProcess::timedout() {
+    
+        if (sigterm_sent_at.seconds() == 0) {
+            if (spawn_time.elapsed() >= timeout_secs) {
+                sigterm_sent_at.update();
+                ::kill(pid, SIGTERM);
+                if (0 == ::waitpid(pid, &status, WNOHANG)) return false;
+                return true;
+            }
+    }
+
+    if (sigterm_sent_at.elapsed() >= 2) {
+        ::kill(pid, SIGKILL);
+    }
+
+    return false;
+}
+
 }

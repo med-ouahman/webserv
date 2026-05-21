@@ -42,6 +42,7 @@ namespace cgi {
             void on_stdin_writeable();
             void on_stderr_readable();
             void on_error();
+            bool timedout();
             
             io::Stream const& stdout() const;
             io::Stream const& stderr() const;
