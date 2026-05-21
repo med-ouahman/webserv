@@ -14,7 +14,7 @@ namespace net {
 		return *this;
 	}
 
-	ListeningSocket::ListeningSocket( int fd, io::EventMask mask, AcceptCallback cb, AcceptContext* ctx )
+	ListeningSocket::ListeningSocket( int fd, io::EventMask mask, AcceptCallback cb, AcceptContext ctx )
 		: AEventHandler(fd, mask),
 		callback_(cb),
 		context_(ctx) {}

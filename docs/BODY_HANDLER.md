@@ -1,4 +1,4 @@
-# BodyHandler — Response Body Architecture
+# BodyReader — Response Body Architecture
 
 
 ## 1. Overview

@@ -4,7 +4,7 @@
 #include "ConnectionAction.hpp"
 #include "Timestamp.hpp"
 #include "limits.hpp"
-#include "HttpSession.hpp"
+#include "http/session/HttpSession.hpp"
 #include "Stream.hpp"
 
 namespace config {
@@ -24,9 +24,10 @@ namespace net {
             void produce( BufferWriter& writer );
             void on_stream_error();
             void on_stream_closed();
+            const io::Stream& stream() const;
 
         private:
-            io::Stream stream;
+            io::Stream stream_;
 
             ConnectionState state;
             bool            close_after_write;

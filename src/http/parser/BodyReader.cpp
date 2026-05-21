@@ -1,10 +1,10 @@
-#include "BodyHandler.hpp"
+#include "BodyReader.hpp"
 
 namespace http {
 	
-	const std::string BodyHandler::hexas = "0123456789abcdef";
+	const std::string BodyReader::hexas = "0123456789abcdef";
 	
-	BodyHandler::BodyHandler( int fd, DataView& v )
+	BodyReader::BodyReader( int fd, DataView& v )
 		: body_storage(BodyStorage::NONE),
 		body_state(BodyState::PREPARING),
 		data_view(v),
@@ -20,7 +20,7 @@ namespace http {
 		current_chunk_size(0),
 		sc(v) {}
 
-	BodyHandler::~BodyHandler() {
+	BodyReader::~BodyReader() {
 
 		if (body_fd >= 0) ::close(body_fd);
 
@@ -29,7 +29,7 @@ namespace http {
 		}
 	}
 
-	ssize_t BodyHandler::produce_body_chunk( BufferWriter* writer ) {
+	ssize_t BodyReader::produce_body_chunk( BufferWriter* writer ) {
 		
 		if (body_storage == BodyStorage::FILE_TEMP || body_storage == BodyStorage::FILE_PERM) {
 
@@ -49,7 +49,7 @@ namespace http {
 		return to_copy;
 	}
 
-	void BodyHandler::prepare_body( BodyConf& p ) {
+	void BodyReader::prepare_body( BodyConf& p ) {
 		std::cout << "Preparing body\n";
 		body_type = p.type;
 		body_storage = p.storage;
@@ -79,7 +79,7 @@ namespace http {
 
 
 
-	size_t BodyHandler::parse_chunk_size( const std::string& line_buff ) {
+	size_t BodyReader::parse_chunk_size( const std::string& line_buff ) {
 		
 		size_t chunk_size = 0;
 		
@@ -135,7 +135,7 @@ namespace http {
 	}
 
 
-    ::size_t BodyHandler::parse_chunk_size( const std::string& line_buff ) {
+    ::size_t BodyReader::parse_chunk_size( const std::string& line_buff ) {
 		
 		::size_t chunk_size = 0;
 	
@@ -161,7 +161,7 @@ namespace http {
 	}
 
 
-    ScanResult BodyHandler::read_body_chunked() {
+    ScanResult BodyReader::read_body_chunked() {
 
         if (chunk_state == ChunkState::CHUNK_SIZE) {
 
@@ -209,7 +209,7 @@ namespace http {
     }
 
 
-    ScanResult BodyHandler::read_body_content_length() {
+    ScanResult BodyReader::read_body_content_length() {
         
         write_body();
         
@@ -232,7 +232,7 @@ namespace http {
         return SUCCESS;
     }
 
-    void BodyHandler::write_body() {
+    void BodyReader::write_body() {
 
         size_t remaining = body_len - body_bytes_parsed;
         size_t available = data_view.size() - data_view.cursor();
@@ -256,11 +256,11 @@ namespace http {
     }
 
     
-    bool BodyHandler::is_valid_hexa( const char c ) {
+    bool BodyReader::is_valid_hexa( const char c ) {
 		return hexas.find(c) != std::string::npos;
 	}
     
-   ScanResult BodyHandler::read_body() {
+   ScanResult BodyReader::read_body() {
 
         if (body_type == BodyType::NONE) return SUCCESS;
         
@@ -288,7 +288,7 @@ namespace http {
         return result;
     }
 
-    void BodyHandler::reset() {
+    void BodyReader::reset() {
         
         body_bytes_parsed = 0;
         

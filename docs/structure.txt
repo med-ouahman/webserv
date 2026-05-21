@@ -108,8 +108,8 @@
 │   │   │       ├── CGIRequestHandler.cpp
 │   │   │       └── CGIRequestHandler.hpp
 │   │   ├── parser
-│   │   │   ├── BodyHandler.cpp
-│   │   │   ├── BodyHandler.hpp
+│   │   │   ├── BodyReader.cpp
+│   │   │   ├── BodyReader.hpp
 │   │   │   ├── LineScanner.cpp
 │   │   │   ├── LineScanner.hpp
 │   │   │   ├── parse_headers.cpp

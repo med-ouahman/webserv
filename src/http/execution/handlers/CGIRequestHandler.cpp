@@ -1,31 +1,17 @@
-#include "CGIRequestHandler.hpp"
-#include "EventLoop.hpp"
-#include "Connection.hpp"
 #include <signal.h>
 #include <sys/wait.h>
 #include <sys/epoll.h>
 #include "Timestamp.hpp"
+#include "CGIRequestHandler.hpp"
 
 namespace http {
-
-    size_t CGIRequestHandler::cgi_timeout_secs;
 
     const char* CGIRequestHandler::cgi_metadata[] = {"REQUEST_METHOD", "SERVER_PROTOCOL", "QUERY_STRING", NULL};
 
     const char* CGIRequestHandler::stripped_headers[] = {"transfer-encoding", "content-length", "content-type", "connection", NULL};
 
-    CGIRequestHandler::CGIRequestHandler( core::Connection& conn_, const ResolutionResult res_ )
-        : cgi_state(CGIState::SPAWN),
-        cgi_pid(-1),
-        cgi_status(0),
-        pipe_guard(),
-        stdin_ch(pipe_guard.stdin_pipe[1], *this, STDStream::STDIN, EPOLLOUT),
-        stdout_ch(pipe_guard.stdout_pipe[0], *this, STDStream::STDOUT, EPOLLIN),
-        stderr_ch(pipe_guard.stderr_pipe[0], *this, STDStream::STDERR, EPOLLIN),
-        conn(conn_),
-        result(res_),
-        scanner(stdout_ch.get_view()),
-        sigterm_sent_at(0) {}
+    CGIRequestHandler::CGIRequestHandler(  const ResolutionResult res_ )
+       ) {}
 
     CGIRequestHandler::~CGIRequestHandler() {
         ::kill(cgi_pid, SIGKILL);

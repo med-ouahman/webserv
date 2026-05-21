@@ -1,18 +1,19 @@
 #pragma once
 
 #include "CGIProcess.hpp"
-
-namespace io {
-	class EventLoop;
-}
-
-namespace core {
-	class Connection;
-}
+#include "IRequestHandler.hpp"
 
 namespace http {
 
 	struct ResolutionResult;
+
+	struct CGIContext {
+
+	};
+
+	struct CGIParseContext {
+
+	};
 
 	struct CGIState {
 		enum Type {
@@ -33,23 +34,7 @@ namespace http {
 			ERROR,
 		};
 	};
-	
-	struct CGIContext;
 
-	struct CGIParseContext {
-		StatusCode status_code;
-		std::string status_reason;
-		bool	finished;
-		size_t	bytes_parsed;
-		CGIOutputState::Type state;
-		Headers headers;
-
-		CGIParseContext()
-			: status_code(static_cast<StatusCode>(0)),
-			finished(false),
-			bytes_parsed(0),
-			state(CGIOutputState::STATUS_LINE) {}
-	};
 
 	class CGIRequestHandler: public IRequestHandler {
 
@@ -67,26 +52,20 @@ namespace http {
 			CGIRequestHandler( const CGIRequestHandler& );
 			CGIRequestHandler& operator=( const CGIRequestHandler& );
 
-			CGIState::Type cgi_state;
-			/* CGI PROCESS */
-		
-		
-			core::Connection& conn;
-			const ResolutionResult result;
-			
+			cgi::CGIProcess process;
+					
 			CGIParseContext parse_ctx;
 
 		public:
 			const static std::size_t MAX_CGI_HEADER_BLOCK_LEN = 1024 * 4; 
 			const static std::size_t MAX_CGI_BODY_LEN = 1024 * 1024 * 10; // 10MB
-			explicit CGIRequestHandler( core::Connection& conn_, const ResolutionResult result_ );
+			explicit CGIRequestHandler( const ResolutionResult result_ );
 			
 			void handle();
 			bool done();
 			~CGIRequestHandler();
 			bool timedout();
 			const Headers& cgi_headers() const;
-
 	};
 
 }

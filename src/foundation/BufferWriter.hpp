@@ -7,7 +7,7 @@ class BufferWriter {
 	private:
 		const static size_t BUFFER_SIZE = 1024 * 4;
 		char buff_[BUFFER_SIZE];
-		const size_t capacity_ = BUFFER_SIZE;
+		const size_t capacity_;
 		size_t offset_;
 		size_t size_;
 		BufferWriter( const BufferWriter& other );

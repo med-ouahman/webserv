@@ -2,51 +2,44 @@
 
 namespace cgi {
 
-    CGIProcess::CGIProcess() {
-
-    }
-
-    CGIProcess::~CGIProcess() {
-
-    }
-
-
-    void CGIProcess::spawn( const CGIContext& ctx ) {
-        if (cgi_state != CGIState::SPAWN) {
-            std::cout << "Already spawned\n";
-            return ;
-        }
-
-        CGIContext context = http::Dispatcher::resolve_cgi_context(result);
-
-        cgi_timeout_secs = context.timeout_seconds;
+    CGIProcess::CGIProcess( const CGIExecContext& ctx )
+        : pid(-1),
+        status(0x0),
+        pipe_guard(),
+        stdout_(pipe_guard.stdout_pipe[1], io::READABLE),
+        stderr_(pipe_guard.stderr_pipe[1], io::READABLE),
+        spawn_time(),
+        sigterm_sent_at(0) {
         
-        cgi_state = CGIState::ACTIVE;
-        start_time.update();
+
+        timeout_secs = ctx.timeout_seconds;
+        spawn_time.update();
+
         pid = ::fork();
         if (pid == 0) {
 
+            ::dup2(ctx.stdin_fd, STDIN_FILENO);
             ::dup2(stdout_.fd(), STDOUT_FILENO);
             ::dup2(stderr_.fd(), STDERR_FILENO);
-                        
             pipe_guard.close_pipes();
+
             char* const argv[] = {
-               const_cast<char*>( context.interpreter_path.c_str()), 
-               const_cast<char*>(context.script_filename.c_str()),
-               NULL};
-               
-            ::execve(context.interpreter_path.c_str(), argv, build_cgi_env(context));
+               const_cast<char*>( ctx.interpreter_path.c_str()), 
+               NULL };
+            ::execve(ctx.interpreter_path.c_str(), argv, ctx.envp);
             LOG_ERROR(MAKE_ERRNO_ERROR("execve()"));
             ::exit(EXIT_FAILURE);
         }
 
-        CLOSE_FD(pipe_guard.stdin_pipe[0]);
         CLOSE_FD(pipe_guard.stdout_pipe[1]);
         CLOSE_FD(pipe_guard.stderr_pipe[1]);
         
-        if (pid < 0) {
-            throw std::runtime_error(strerror(errno));
-        }
+        if (pid < 0) throw std::runtime_error(strerror(errno));
+    }
+
+    CGIProcess::~CGIProcess() {
+
+        
     }
 
     void CGIProcess::on_stdout_readable() {

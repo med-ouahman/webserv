@@ -6,7 +6,7 @@
 #include <memory>
 #include <stdint.h>
 #include "Response.hpp"
-#include "BodyHandler.hpp"
+#include "BodyReader.hpp"
 
 namespace core {
     class Connection;
@@ -25,16 +25,16 @@ namespace http {
 
     struct CGIContext {
         std::string temp_body_path;
-        size_t      body_content_length;
+        int stdin_;
+    
 
         std::string script_filename;      
         std::string interpreter_path;     
         std::string path_info;
         std::string script_name;          
         std::string working_directory;
-        std::string server_name;          
         uint32_t    timeout_seconds;
-        uint16_t    server_port;
+        char** env;
     };
 
     struct ResolutionResult {

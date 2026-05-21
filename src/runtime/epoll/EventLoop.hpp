@@ -34,9 +34,9 @@ namespace runtime {
 			int run(); 
 			bool add_connection( int client_fd );
 		
-			bool register_handler( io::AEventHandler* handler ) const;
-			bool modify_handler( io::AEventHandler* handler ) const;
-			bool del_handler( io::AEventHandler* handler ) const;
+			bool register_handler( const io::AEventHandler* handler ) const;
+			bool modify_handler( const io::AEventHandler* handler ) const;
+			bool del_handler( const io::AEventHandler* handler ) const;
 		};
 	}
 }

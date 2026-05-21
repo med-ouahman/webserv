@@ -1,14 +1,15 @@
 
 #pragma once
 
+#include <sys/epoll.h>
+
 namespace io {
     enum EventType {
-        NONE,
-        WRITABLE,
-        READABLE,
-        HUP,
-        RHUP,
-        ERROR
+        WRITABLE = EPOLLOUT,
+        READABLE = EPOLLIN,
+        HUP = EPOLLHUP,
+        RHUP = EPOLLRDHUP,
+        ERROR = EPOLLERR,
     };
 }
 

@@ -51,7 +51,7 @@ namespace http {
         };
     };
 
-	class BodyHandler {
+	class BodyReader {
 
         private:
             static const std::size_t MAX_HEADER_BLOCK_LEN = 16384;
@@ -61,12 +61,12 @@ namespace http {
             static const std::size_t MAX_BODY_BUFF_SIZE   = 1024L; // 1KB
             static const std::string hexas;
 
-            BodyHandler( const BodyHandler& );
-            BodyHandler& operator=( const BodyHandler& );
+            BodyReader( const BodyReader& );
+            BodyReader& operator=( const BodyReader& );
             
 		public:
-			explicit BodyHandler( int fd, DataView& v );
-			~BodyHandler();
+			explicit BodyReader( );
+			~BodyReader();
 			ssize_t produce_body_chunk( BufferWriter* writer );
             void prepare_body( BodyConf& p );
             ScanResult read_body();

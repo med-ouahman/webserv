@@ -6,7 +6,7 @@
 namespace net {
     
     Connection::Connection( int _fd, io::EventMask mask )
-        : stream(_fd, mask),
+        : stream_(_fd, mask),
         state(READING) {}
 
     Connection::~Connection() {}
@@ -14,11 +14,11 @@ namespace net {
     ConnectionAction Connection::action() const {
 
         switch (state) {
-            case ConnectionState::READING:
+            case READING:
                 return READ;
-            case ConnectionState::WRITING:
+            case WRITING:
                 return WRITE;
-            case ConnectionState::CLOSING:
+            case CLOSING:
                 return CLOSE;
             default:
                 break;
@@ -47,4 +47,7 @@ namespace net {
         state = CLOSING;
     }
     
+    const io::Stream& Connection::stream() const {
+        return stream_;
+    }
 }

@@ -3,7 +3,7 @@
 #include <cstring>
 #include <iostream>
 
-BufferWriter::BufferWriter(): offset_(0), size_(0) {}
+BufferWriter::BufferWriter(): capacity_(BUFFER_SIZE), offset_(0), size_(0) {}
 
 BufferWriter::~BufferWriter() {}
 

@@ -8,7 +8,7 @@
         if (FD >= 0) { ::close(FD); FD = -1; } \
     } while (0) \
 
-namespace http {
+namespace cgi {
      struct PipeGuard {
 
         int stdin_pipe[2];

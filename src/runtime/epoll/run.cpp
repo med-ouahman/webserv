@@ -10,6 +10,8 @@ namespace runtime {
 
         int EventLoop::run() {
             
+            if (epoll_fd < 0)  return 1;
+
             struct epoll_event events[Limits::MAX_EVENTS];
             
             size_t cycles = 0;

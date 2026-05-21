@@ -1,6 +1,12 @@
 
 #pragma once
 
+/*
+
+
+*/
+
+
 #include <iostream>
 #include "AEventHandler.hpp"
 #include <unistd.h>
@@ -27,7 +33,7 @@ namespace io {
 			const static std::size_t READ_BUFFER_SIZE = 1024 * 4;
 			const static std::size_t WRITE_BUFFER_SIZE = 1024 * 4;
 			Stream( int fd, EventMask mask );
-			virtual ~Stream() {};
+			~Stream();
 			void on_event( EventType type );
 		private:
 

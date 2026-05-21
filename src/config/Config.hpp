@@ -102,7 +102,7 @@ struct Config {
 
     }
 
-    static Config get_config() {
+    static const Config& get_config() {
         return instance;
     }
 

@@ -9,16 +9,24 @@
 class Server {
 
     private:
+        bool running_;
+
         std::vector<net::Connection*> connections;
         std::vector<net::ListeningSocket*> listeners;
+
+        runtime::epoll::EventLoop event_loop;
+        
         Server(const Server& );
         Server& operator=( const Server& );
 
+        void start_listeners();
+        void add_connection( int client_fd );
+        
     public:
         Server();
         ~Server();
         int start();
-        static void server_accept( int conn_fd, Server* server );
+        static void server_accept( int conn_fd, net::AcceptContext server );
 };
 
 #endif

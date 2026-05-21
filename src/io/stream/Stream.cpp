@@ -7,6 +7,8 @@ namespace io {
         readbuf(),
         writer() {}
 
+    Stream::~Stream() {}
+
 
     void Stream::on_event( EventType event ) {
         

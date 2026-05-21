@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BodyHandler.hpp"
+#include "BodyReader.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
 #include "Parser.hpp"
@@ -18,15 +18,16 @@ namespace http {
 		WRITING_RESPONSE,
 		FINAL,
 		IDLE,
-		ERROR
+		SESSION_ERROR
 	};
 
 	class HttpSession {
 		
 		private:
+			Parser				parser;
 			Request				request;
 			Response			response;
-			BodyHandler 		body_handler;
+			BodyReader 			body_reader;
 			IRequestHandler*	request_handler;
 			Dispatcher			dispatcher;
 

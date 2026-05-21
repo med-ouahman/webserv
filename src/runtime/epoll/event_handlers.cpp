@@ -7,11 +7,11 @@ namespace runtime {
 
 	namespace epoll {
 
-		bool EventLoop::register_handler( io::AEventHandler* handler ) const {
+		bool EventLoop::register_handler( const io::AEventHandler* handler ) const {
 			
 			epoll_event event;
 			event.events = handler->mask();
-			event.data.ptr = handler;
+			event.data.ptr = const_cast<io::AEventHandler*>(handler);
 			
 			int flags = ::fcntl(handler->fd(), F_GETFL);
 			if (flags < 0 || ::fcntl(handler->fd(), F_SETFL, flags | O_NONBLOCK)) {
@@ -31,15 +31,15 @@ namespace runtime {
 			}
 			
 			#ifdef DEBUG
-			std::cout << "REGISTERED FD: " << fd << "\n";
+			std::cout << "REGISTERED FD: " << handler->fd() << "\n";
 			#endif
 			return true;
 		}
 		
-		bool EventLoop::modify_handler( io::AEventHandler* handler ) const {
+		bool EventLoop::modify_handler( const io::AEventHandler* handler ) const {
 			epoll_event event;
 			event.events = handler->fd();
-			event.data.ptr = handler;
+			event.data.ptr = const_cast<io::AEventHandler*>(handler);
 			
 			if (::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, handler->fd(), &event)) {
 				LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_ctl(EPOLL_CTL_MOD)"));
@@ -47,12 +47,12 @@ namespace runtime {
 			}
 			
 			#ifdef DEBUG 
-			std::cout << "MODIFIED FD: " << fd << "\n";
+			std::cout << "MODIFIED FD: " << handler->fd() << "\n";
 			#endif
 			return true;
 		}
 		
-		bool EventLoop::del_handler( io::AEventHandler* handler ) const {
+		bool EventLoop::del_handler( const io::AEventHandler* handler ) const {
 			
 			if (::epoll_ctl(epoll_fd, EPOLL_CTL_DEL, handler->fd(), NULL)) {
 			LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_ctl(EPOLL_CTL_DEL)"));
@@ -60,7 +60,7 @@ namespace runtime {
 		}
 		
 		#ifdef DEBUG
-		std::cout << "DELETED FD: " << fd << std::endl;
+		std::cout << "DELETED FD: " << handler->fd() << std::endl;
 		#endif
 		
 		return true;

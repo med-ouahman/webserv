@@ -15,7 +15,7 @@ namespace net {
 
 	typedef void* AcceptContext;
 
-	typedef void (*AcceptCallback)( int client_fd, AcceptContext* context );
+	typedef void (*AcceptCallback)( int client_fd, AcceptContext context );
 
 	class ListeningSocket: public io::AEventHandler {
 		private:
@@ -24,19 +24,19 @@ namespace net {
 			bool on_error();
 
 			AcceptCallback callback_;
-			AcceptContext* context_;
+			AcceptContext context_;
 
 
 		public:
 			ListeningSocket( const ListeningSocket& socket );
-			explicit ListeningSocket( int fd, io::EventMask mask, AcceptCallback cb, AcceptContext* ctx );
+			explicit ListeningSocket( int fd, io::EventMask mask, AcceptCallback cb, AcceptContext ctx );
 			~ListeningSocket();
 			void on_event( io::EventType event );
 	};
 
-	Base::Result<std::vector<ListeningSocket*> >
-	create_listening_sockets(
-		const std::vector<config::ListenEndPoint>& endpoints,
+	Base::Result<ListeningSocket*>
+	create_listening_socket(
+		const config::ListenEndPoint& endpoints,
 		AcceptCallback cb,
-		AcceptContext* ctx );
+		AcceptContext ctx );
 }
