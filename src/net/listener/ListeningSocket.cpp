@@ -1,10 +1,10 @@
 #include "ListeningSocket.hpp"
-#include "EventLoop.hpp"
 #include "EventType.hpp"
 
-namespace io {
+class Server;
+namespace net {
 
-	ListeningSocket::ListeningSocket( const ListeningSocket& socket ): AEventHandler(socket.fd_), loop(socket.loop) {
+	ListeningSocket::ListeningSocket( const ListeningSocket& socket ): AEventHandler(socket.fd(), socket.mask()){
 		
 	}
 
@@ -14,9 +14,10 @@ namespace io {
 		return *this;
 	}
 
-	ListeningSocket::ListeningSocket( EventLoop& loop, int fd ): AEventHandler(fd), loop(loop) {
-	
-	}
+	ListeningSocket::ListeningSocket( int fd, io::EventMask mask, AcceptCallback cb, AcceptContext* ctx )
+		: AEventHandler(fd, mask),
+		callback_(cb),
+		context_(ctx) {}
 
 	ListeningSocket::~ListeningSocket() {
 
@@ -24,17 +25,13 @@ namespace io {
 
 	void ListeningSocket::on_event( io::EventType event ) {
 		switch (event) {
-			case READABLE:
+			case io::READABLE:
 				accept_clients();
 				break;
-			case ERROR:
+			case io::ERROR:
 				on_error();
 			default:
 				break;
 		}
 	};
-
-	void ListeningSocket::release() {
-		fd_ = -1;
-	}
 }

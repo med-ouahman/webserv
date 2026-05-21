@@ -13,6 +13,8 @@ namespace io {
         private:
             int fd_;
             EventMask mask_;
+            AEventHandler( const AEventHandler& );
+            AEventHandler& operator=( const AEventHandler& );
             
         public:
             AEventHandler( int fd__, EventMask msk ): fd_(fd__), mask_(msk) {};

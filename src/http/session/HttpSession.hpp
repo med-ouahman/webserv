@@ -5,6 +5,7 @@
 #include "Response.hpp"
 #include "Parser.hpp"
 #include "IRequestHandler.hpp"
+#include "Dispatcher.hpp"
 
 namespace http {
 
@@ -21,6 +22,7 @@ namespace http {
 	};
 
 	class HttpSession {
+		
 		private:
 			Request				request;
 			Response			response;
@@ -34,6 +36,7 @@ namespace http {
 
 			HttpSession( const HttpSession& );
 			HttpSession& operator=( const HttpSession& );
+			
 		public:
 			HttpSession();
 			~HttpSession();

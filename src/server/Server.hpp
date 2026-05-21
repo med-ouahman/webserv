@@ -10,6 +10,7 @@ class Server {
 
     private:
         std::vector<net::Connection*> connections;
+        std::vector<net::ListeningSocket*> listeners;
         Server(const Server& );
         Server& operator=( const Server& );
 
@@ -17,6 +18,7 @@ class Server {
         Server();
         ~Server();
         int start();
+        static void server_accept( int conn_fd, Server* server );
 };
 
 #endif

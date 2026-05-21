@@ -1,6 +1,6 @@
 #pragma once
 #include "Error.hpp"
-#include <string.h>
+#include <cstring>
 
 #define MAKE_ERROR(code, context, message) \
         Base::Error(code, context, message, __FILE__, __LINE__)

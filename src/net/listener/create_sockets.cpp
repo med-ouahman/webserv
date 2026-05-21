@@ -14,8 +14,13 @@
 
 namespace net {
 
-	Base::Result<std::vector<ListeningSocket> > create_listening_sockets( const std::vector<config::ListenEndPoint>& endpoints ) {
-		std::vector<ListeningSocket> listeners;
+	Base::Result<std::vector<ListeningSocket*> > create_listening_sockets(
+		const std::vector<config::ListenEndPoint>& endpoints,
+		AcceptCallback cb,
+		AcceptContext* ctx
+		) {
+
+		std::vector<ListeningSocket*> listeners;
 
 		struct sockaddr_in server_addr;
 		::memset(&server_addr, 0, sizeof server_addr);
@@ -43,6 +48,8 @@ namespace net {
 			if (::listen(socket_fd, BACKLOG) < 0)
 				return MAKE_ERRNO_ERROR("EventLoop::create_listening_socket::listen()");
 			
+			listeners.push_back(new ListeningSocket(socket_fd, EPOLLIN, cb, ctx));
+
 			std::cout << "server listening on " <<  ::inet_ntoa((struct in_addr){ .s_addr = endpoint.host }) << ":"<< endpoint.port << '\n';
 		}
 

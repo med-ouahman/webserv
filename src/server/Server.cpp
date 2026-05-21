@@ -3,6 +3,12 @@
 
 Server::Server() {
 
+    Base::Result<std::vector<net::ListeningSocket*> > result
+        = net::create_listening_sockets(config::Config::get_config().server.listens, server_accept, this);
+    
+    if (!result.ok) return 1;
+
+    std::vector<net::ListeningSocket*>& listeners = result.result;
 }
 
 Server::~Server() {
@@ -11,12 +17,6 @@ Server::~Server() {
 
 int Server::start() {
 
-    Base::Result<std::vector<net::ListeningSocket> > result
-        = net::create_listening_sockets(config::Config::get_config().server.listens);
-    
-    if (!result.ok) return 1;
-
-    std::vector<net::ListeningSocket>& listeners = result.result;
 
     runtime::epoll::EventLoop event_loop;
     
@@ -26,3 +26,6 @@ int Server::start() {
 }
 
 
+void Server::server_accept( int conn_fd, Server* webserv ) {
+    webserv->add_new_connection(conn_fd);
+}

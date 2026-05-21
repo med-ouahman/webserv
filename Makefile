@@ -28,7 +28,7 @@ INCLUDES = -Isrc \
 	-Isrc/runtime/epoll/ \
 	-Isrc/server/ \
 	-Isrc/http/ \
-	-Isrcs/http/ \
+	-Isrcs/http/session \
 	-Isrc/config/ \
 	-Isrc/foundation/ \
 	-Isrcs/foundation/baselib \
