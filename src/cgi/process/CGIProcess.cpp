@@ -4,15 +4,21 @@
 
 namespace cgi {
 
+
     CGIProcess::CGIProcess( const CGIExecContext& ctx )
         : pid(-1),
         status(0x0),
-        pipe_guard(),
-        stdout_(pipe_guard.stdout_pipe[0], io::READABLE),
-        stderr_(pipe_guard.stderr_pipe[0], io::READABLE),
+        stdout_set(),
+        stderr_set(),
+        stdout_(stdout_set.read_end.get(), io::READABLE),
+        stderr_(stderr_set.read_end.get(), io::READABLE),
         spawn_time(),
         sigterm_sent_at(0) {
         
+        if (!stderr_set || !stdout_set) {
+            state = ERROR;
+            return;
+        }
 
         timeout_secs = ctx.timeout_seconds;
         spawn_time.update();
@@ -21,10 +27,11 @@ namespace cgi {
         if (pid == 0) {
 
             ::dup2(ctx.stdin_fd, STDIN_FILENO);
-            ::dup2(stdout_.fd(), STDOUT_FILENO);
-            ::dup2(stderr_.fd(), STDERR_FILENO);
-            pipe_guard.close_pipes();
+            ::dup2(stdout_set.write_end.get(), STDOUT_FILENO);
+            ::dup2(stderr_set.write_end.get(), STDERR_FILENO);
 
+            stdout_set.close();
+            stderr_set.close();
             char* const argv[] = {
                const_cast<char*>( ctx.interpreter_path.c_str()), 
                NULL };
@@ -33,8 +40,8 @@ namespace cgi {
             ::exit(EXIT_FAILURE);
         }
 
-        CLOSE_FD(pipe_guard.stdout_pipe[1]);
-        CLOSE_FD(pipe_guard.stderr_pipe[1]);
+        stdout_set.write_end.reset();
+        stderr_set.write_end.reset();
         
         if (pid < 0) throw std::runtime_error(strerror(errno));
     }

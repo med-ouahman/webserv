@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PipeGuard.hpp"
+#include "PipeSet.hpp"
 #include "Stream.hpp"
 #include <unistd.h>
 #include "Timestamp.hpp"
@@ -12,19 +12,17 @@ namespace cgi {
         std::string interpreter_path;
         std::string working_dir;
         int         stdin_fd;
-
         uint32_t timeout_seconds;
-
         char* const* envp;
     };
-
 
     class CGIProcess {
 
         private:
         	pid_t       pid;
 			int         status;
-			PipeGuard   pipe_guard;
+            PipeSet     stdout_set;
+            PipeSet     stderr_set;
             io::Stream  stdout_;
             io::Stream  stderr_;
 
