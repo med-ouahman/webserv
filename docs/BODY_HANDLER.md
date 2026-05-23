@@ -222,7 +222,7 @@ CGI is the only response type that involves a child process. It uses the existin
 namespace io {
 class AEventHandler {
 public:
-    virtual void on_event(EventType event) = 0;
+    virtual void on_event(Event event) = 0;
     virtual ~AEventHandler() {}
 };
 }

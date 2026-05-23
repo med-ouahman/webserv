@@ -2,28 +2,6 @@
 #pragma once
 
 namespace http {
-<<<<<<< HEAD
-	enum StatusCode {
-		OK = 200,
-		CREATED = 201,
-		NO_CONTENT = 204,
-		BAD_REQUEST = 400,
-		FORBIDDEN = 403,
-		NOT_FOUND = 404,
-		METHOD_NOT_ALLOWED,
-		PAYLOAD_TOO_LARGE = 413,
-		INTERNAL_SERVER_ERROR = 500,
-		NOT_IMPLEMENTED = 501,
-		VERSION_NOT_SUPPORTED = 505,
-		BAD_GATEWAY = 502,
-		GATEWAY_TIMEOUT = 504,
-	};
-
-	enum {
-		MIN_HTTP_STATUS_CODE = 100,
-		MAX_HTTP_STATUS_CODE = 599,
-	};
-=======
 
 /**
 	* enum StatusCode - HTTP status codes emitted by the server
@@ -85,5 +63,4 @@ inline const char* status_msg(StatusCode code) {
 	return "Internal Server Error";
 }
 
->>>>>>> 2a4fb87 (s)
 }

@@ -31,7 +31,7 @@ namespace net {
 			ListeningSocket( const ListeningSocket& socket );
 			explicit ListeningSocket( int fd, io::EventMask mask, AcceptCallback cb, AcceptContext ctx );
 			~ListeningSocket();
-			void on_event( io::EventType event );
+			void on_event( runtime::epoll::Event event );
 	};
 
 	Base::Result<ListeningSocket*>

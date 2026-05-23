@@ -2,7 +2,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "EventType.hpp"
+#include "Event.hpp"
 #include <unistd.h>
 
 namespace io {
@@ -18,7 +18,7 @@ namespace io {
             
         public:
             AEventHandler( int fd__, EventMask msk ): fd_(fd__), mask_(msk) {};
-            virtual void on_event( EventType event ) = 0;
+            virtual void on_event( runtime::epoll::Event event ) = 0;
             virtual ~AEventHandler() {
                 if (fd_ >= 0) {
                     ::close(fd_);

@@ -185,7 +185,7 @@
 │   │   │   ├── EventLoop.cpp
 │   │   │   ├── EventLoop.hpp
 │   │   │   ├── event_loop_sweep.cpp
-│   │   │   ├── EventType.hpp
+│   │   │   ├── Event.hpp
 │   │   │   ├── handle_connections.cpp
 │   │   │   ├── handle_fds.cpp
 │   │   │   └── run.cpp

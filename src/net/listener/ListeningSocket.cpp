@@ -1,5 +1,5 @@
 #include "ListeningSocket.hpp"
-#include "EventType.hpp"
+#include "Event.hpp"
 
 class Server;
 namespace net {
@@ -23,7 +23,7 @@ namespace net {
 
 	}
 
-	void ListeningSocket::on_event( io::EventType event ) {
+	void ListeningSocket::on_event( runtime::epoll::Event event ) {
 		switch (event) {
 			case io::READABLE:
 				accept_clients();

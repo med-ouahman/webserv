@@ -6,6 +6,7 @@
 #include "base/base.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
+#include "Error.hpp"
 
 namespace http {
 
