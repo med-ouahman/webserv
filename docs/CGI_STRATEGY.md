@@ -188,7 +188,7 @@ This document outlines the complete strategy for implementing CGI (Common Gatewa
 - Resolves script filesystem path
 - Validates file existence and permissions
 - Extracts PATH_INFO from URI
-- Builds CGIContext with all necessary information
+- Builds CGIRequestContext with all necessary information
 - Returns action for Connection to execute
 
 **CGIRequestHandler Responsibilities:**
@@ -211,17 +211,17 @@ This document outlines the complete strategy for implementing CGI (Common Gatewa
 **After CGI Detection:**
 1. Handler detects CGI requirement during routing
 2. Handler validates script file exists and is readable
-3. Handler builds CGIContext structure
+3. Handler builds CGIRequestContext structure
 4. Handler returns ResponseAction with EXECUTE_CGI type
-5. Connection receives action and extracts CGIContext
+5. Connection receives action and extracts CGIRequestContext
 6. Connection allocates CGIRequestHandler instance
-7. Connection passes CGIContext to CGIRequestHandler.spawn()
+7. Connection passes CGIRequestContext to CGIRequestHandler.spawn()
 8. Connection transitions to CGI_SPAWNING state
 9. CGIRequestHandler reports events back to Connection
 10. Connection makes state transition decisions
 
 **Handoff Interface:**
-- Handler produces CGIContext (routing decision)
+- Handler produces CGIRequestContext (routing decision)
 - Connection receives ResponseAction (execution command)
 - Connection delegates to CGIRequestHandler (process management)
 - CGIRequestHandler reports outcomes via events
@@ -297,7 +297,7 @@ Connection
 
 ---
 
-## 6. CGIContext Structure
+## 6. CGIRequestContext Structure
 
 ### Purpose
 
@@ -305,7 +305,7 @@ Encapsulates all information needed to spawn and execute a CGI process. Produced
 
 ### Members
 
-**CGIContext:**
+**CGIRequestContext:**
 - `script_filename` - absolute filesystem path to script file
 - `interpreter_path` - absolute path to interpreter binary
 - `script_name` - URI path to script (for SCRIPT_NAME variable)

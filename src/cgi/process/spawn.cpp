@@ -1,5 +1,5 @@
 #include "CGIRequestHandler.hpp"
-#include "CGIContext.hpp"
+#include "CGIRequestContext.hpp"
 #include "EventLoop.hpp"
 #include <sys/wait.h>
 #include <fcntl.h>
@@ -56,7 +56,7 @@ namespace http {
         return var;
     }
 
-    Headers CGIRequestHandler::build_cgi_metadata( const CGIContext& ctx ) {
+    Headers CGIRequestHandler::build_cgi_metadata( const CGIRequestContext& ctx ) {
         Headers headers;
         Request& req = const_cast<Request&>(result.request);
 
@@ -94,7 +94,7 @@ namespace http {
         return headers;
     }
 
-    char** CGIRequestHandler::build_cgi_env( const CGIContext& ctx ){
+    char** CGIRequestHandler::build_cgi_env( const CGIRequestContext& ctx ){
         size_t size = 0;
 
         // for ( ; __environ[size] not_eq NULL; ++size );

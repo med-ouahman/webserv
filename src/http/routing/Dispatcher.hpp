@@ -5,41 +5,32 @@
 #include <iostream>
 #include <memory>
 #include <stdint.h>
+#include "Config.hpp"
 #include "Response.hpp"
-#include "BodyReader.hpp"
-
-namespace core {
-    class Connection;
-}
-
-namespace config {
-    struct ServerConfig;
-    struct LocationConfig;
-    struct Config;
-}
+#include "Response.hpp"
 
 namespace http {
 
-    struct Request;
+    class Request;
     class IRequestHandler;
 
-    struct CGIContext {
+    struct CGIRequestContext {
         std::string temp_body_path;
-        int stdin_;
-    
 
         std::string script_filename;      
         std::string interpreter_path;     
         std::string path_info;
-        std::string script_name;          
+        std::string script_name;
         std::string working_directory;
-        uint32_t    timeout_seconds;
-        char** env;
+
+        std::string server_name;
+        uint32_t    server_port;
+        time_t      timeout_seconds;
     };
 
     struct ResolutionResult {
         
-        ResponseType::Type type;
+        ResponseType type;
         StatusCode status_code;
         
         std::string mime_type;
@@ -48,13 +39,6 @@ namespace http {
         const config::LocationConfig* location;
             
         ResolutionResult( const Request& r): request(r) {}
-    };
-
-    struct BodyConf {
-        BodyType::Type type;
-        BodyStorage::Type storage;
-        size_t parsed_body_size;
-        std::string path;
     };
 
 
@@ -72,13 +56,9 @@ namespace http {
             static std::string generate_directory_list( const char* dir ); // TO BE MOVED
             static std::string generate_anchor( const char* name ); // TO BE MOVED
             static ResolutionResult resolve( const Request& req );
-            Dispatcher();
-            ~Dispatcher();
             static bool allow_presistance() { return true; };
-            static IRequestHandler* create_request_handler( core::Connection& conn, const ResolutionResult& result );
-            static CGIContext resolve_cgi_context( const ResolutionResult& result );
-			static BodyType::Type detect_body_type( const Request& request );
-            static BodyConf configure_body( const Request& request, const ResolutionResult& result );
+            static IRequestHandler* create_request_handler( const ResolutionResult& result );
+            static CGIRequestContext resolve_cgi_context( const ResolutionResult& result );
             static size_t file_size( const std::string & filename );
     };
 }

@@ -7,7 +7,7 @@
 class Pipe {
     
     private:
-        bool     created_;
+        bool created_;
         UniqueFd read_end_;
         UniqueFd write_end_;
 
@@ -28,19 +28,29 @@ class Pipe {
         write_end_.reset();
     }
 
-    const UniqueFd& read_end() const {
+    UniqueFd& read_end() {
         return read_end_;
     }
 
-    const UniqueFd& write_end() const {
+    UniqueFd& write_end() {
         return write_end_;
+    }
+
+    void reset() {
+        read_end_.reset();
+        write_end_.reset();
     }
 
     Pipe(): created_(create(*this)) {}
 
+
     ~Pipe() {
         read_end_.reset();
         write_end_.reset();
+    }
+
+    operator bool() {
+        return created_;
     }
 };
 

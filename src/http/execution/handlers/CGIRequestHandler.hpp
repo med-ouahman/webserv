@@ -2,70 +2,72 @@
 
 #include "CGIProcess.hpp"
 #include "IRequestHandler.hpp"
+#include "CStringArray.hpp"
+#include "LineScanner.hpp"
 
 namespace http {
 
-	struct ResolutionResult;
+struct ResolutionResult;
 
-	struct CGIContext {
+enum CGIParseState {
+	STATUS_LINE,
+	HEADERS,
+	HEADERS_DONE,
+	CGI_ERROR
+};
 
-	};
+enum ParseResult {
+	PARSE_SUCCESS,
+	PARSE_ERROR,
+	PARSE_CONTINUE,
+};
 
-	struct CGIParseContext {
+struct CGIParseContext {
+	static const std::size_t MAX_CGI_HEADER_BLOCK_LEN = 4096;
+	LineScanner 	sc_;
+	size_t			header_bytes_;
+	CGIParseState 	state_;
+};
 
-	};
+class CGIRequestHandler: public io::IStreamDelegate, public IRequestHandler {
 
-	struct CGIState {
-		enum Type {
-			SPAWN,
-			ACTIVE,
-			WRITING_BODY,
-			FINISHED,
-			ERROR,
-		};
-	};
+private:
+	const ResolutionResult result;
+	cgi::CGIProcess process;
+	CGIParseContext ctx;
+	Headers			headers_;
+	io::Stream 		stdout_;
+	io::Stream 		stderr_;
 
-	struct CGIOutputState {
-		enum Type {
-			STATUS_LINE,
-			HEADERS,
-			BIND_BODY,
-			WRITING_BODY,
-			ERROR,
-		};
-	};
+	/* envp */
+	const static char* cgi_metadata[];
+	const static char* stripped_headers[];
 
+	CStringArray build_envp( const CGIRequestContext& ctx );
+	char* 		transform( bool http_prefix, Headers::const_iterator& it );
+	Headers 	build_metadata( const CGIRequestContext& context );
+	static bool forbidden_header( const std::string& header_name );
+	/* parsing cgi output */
 
-	class CGIRequestHandler: public IRequestHandler {
+	ParseResult parse_headers( DataView& view );
 
-		private:
-			const static char* cgi_metadata[];
-			const static char* stripped_headers[];
-			
-			char** build_cgi_env( const CGIContext& ctx );
-			char* transform( bool http_prefix, Headers::const_iterator& it );
-			Headers build_cgi_metadata( const CGIContext& context );
-			static bool forbidden_header( const std::string& header_name );
-			ScanResult parse_cgi_headers();
-			void sanitize_status_line( const std::pair<std::string, std::string>& header );
-			void sanitize_header( std::pair<std::string, std::string>& header );
-			CGIRequestHandler( const CGIRequestHandler& );
-			CGIRequestHandler& operator=( const CGIRequestHandler& );
+	void sanitize_status_line( const std::pair<std::string, std::string>& header );
+	void sanitize_header( std::pair<std::string, std::string>& header );
 
-			cgi::CGIProcess process;
-					
-			CGIParseContext parse_ctx;
+	CGIRequestHandler( const CGIRequestHandler& );
+	CGIRequestHandler& operator=( const CGIRequestHandler& );
 
-		public:
-			const static std::size_t MAX_CGI_HEADER_BLOCK_LEN = 1024 * 4; 
-			const static std::size_t MAX_CGI_BODY_LEN = 1024 * 1024 * 10; // 10MB
-			explicit CGIRequestHandler( const ResolutionResult result_ );
-			
-			void handle();
-			bool done();
-			~CGIRequestHandler();
-			bool timedout();
-			const Headers& cgi_headers() const;
-	};
+public:
+	CGIRequestHandler( const ResolutionResult result_ );
+	void handle();
+	bool done();			
+	void consume( DataView& view );
+	void produce( BufferWriter& w );
+	void on_stream_error();
+	void on_stream_closed();
+	~CGIRequestHandler();
+	cgi::CGIExecContext create_exec_context();
+	const Headers& headers() const;
+};
 
 }

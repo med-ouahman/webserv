@@ -29,7 +29,7 @@ INCLUDES = -Isrc \
 	-Isrc/runtime/epoll/ \
 	-Isrc/server/ \
 	-Isrc/http/ \
-	-Isrc/http/session \
+	-Isrc/http/session/ \
 	-Isrc/http/request/ \
 	-Isrc/http/response/ \
 	-Isrc/http/response/body/ \
@@ -57,6 +57,7 @@ SRCS = src/server/main.cpp \
 	src/config/Lexer.cpp \
 	src/foundation/DataView.cpp \
 	src/foundation/BufferWriter.cpp \
+	src/http/session/HttpSession.cpp \
 
 OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 

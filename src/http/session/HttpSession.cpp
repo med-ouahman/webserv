@@ -3,20 +3,28 @@
 
 namespace http {
 
-	HttpSession::HttpSession() {
-
-    }
+	HttpSession::HttpSession():
+        state(INITIAL),
+        num_requests(0),
+        keep_alive(false) {}
 
     HttpSession::~HttpSession() {
 
     }
 
     void HttpSession::consume( DataView& data_view ) {
+        ScanResult r = parser.parse_http_request(data_view);
+w
+        if (r == SUCCESS) {
+
+        }
+
+        
 
     }
 
     void HttpSession::produce( BufferWriter& writer ) {
-        parser.parse_http_request();
+        response.produce(writer);
     }
 
     void HttpSession::reset() {

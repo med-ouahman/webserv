@@ -1,6 +1,5 @@
 #pragma once
 
-#include "BodyReader.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
 #include "Parser.hpp"
@@ -27,13 +26,13 @@ namespace http {
 			Parser				parser;
 			Request				request;
 			Response			response;
-			BodyReader 			body_reader;
+			BodyReader*			body_reader;
 			IRequestHandler*	request_handler;
 			Dispatcher			dispatcher;
 
-			bool	keep_alive_;
-			size_t	num_requests_;
 			State	state;
+			size_t	num_requests;
+			bool	keep_alive;
 
 			HttpSession( const HttpSession& );
 			HttpSession& operator=( const HttpSession& );

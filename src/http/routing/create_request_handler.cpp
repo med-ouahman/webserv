@@ -13,31 +13,31 @@
 
 namespace http {
 
-    IRequestHandler* Dispatcher::create_request_handler( core::Connection& conn, const ResolutionResult& result ) {
+    IRequestHandler* Dispatcher::create_request_handler( const ResolutionResult& result ) {
         
         switch (result.type) {
-            case ResponseType::ERROR_RESPONSE:
+            case ERROR_RESPONSE:
                 // build_error_response(result.status_code);
                 // reutnr ErrorHandler()
                 break;
-            case ResponseType::STATIC_FILE:
+            case STATIC_FILE:
                 /* static file handler */
                 // return new StaticFileHandler()
                 break;
-            case ResponseType::DIRECTORY:
+            case DIRECTORY:
                 generate_directory_list(result.path.c_str());
                 break;
                 // return new DirectoryHandler()
-            case ResponseType::REDIRECT:
+            case REDIRECT:
                 /* redirect handler */
                 // return new RedirectHandler();
                 break;
-            case ResponseType::FILE_UPLOAD:
+            case FILE_UPLOAD:
                 /* upload file handler */
                 // return new FileUploadHandler()
                 break;
-            case ResponseType::CGI:
-                return new CGIRequestHandler(conn, result);
+            case CGI:
+                return new CGIRequestHandler(result);
             default:
                 break;
         };

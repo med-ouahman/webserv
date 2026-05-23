@@ -35,7 +35,7 @@ namespace http {
 		
 	Request::Request()
 	: data_(),
-	request_state_(RequestState::REQUEST_LINE),
+	request_state_(REQUEST_LINE),
 	finished_(false),
 	leading_crlf_(0),
 	total_header_bytes_(0) {}
@@ -69,7 +69,7 @@ namespace http {
 
 		data_.headers.add(header.first, header.second);
 
-		if (data_.headers.size() > MAX_HEADER_COUNT) request_state_ = RequestState::REQUEST_ERROR;
+		if (data_.headers.size() > MAX_HEADER_COUNT) request_state_ = REQ_ERROR;
 	}
 
 	void Request::add_request_line( const RequestLine& request_line ) {
@@ -77,21 +77,18 @@ namespace http {
 		data_.version = request_line.version;
 		data_.unparsed_uri = request_line.uri;
 		/* split the unparsed uri and extract the quer string*/
+		
 		data_.query_string = "";
 		data_.resource_path = "";
 
-		request_state_ = RequestState::HEADERS;
+		request_state_ = REQ_HEADERS;
 	}
 	
 	bool Request::finished() const {
 		return finished_;
 	}
 
-	void Request::reset() {
-		finished_ = false;
-	}
-
-	RequestState::Type Request::current_state() const {
+	RequestState Request::current_state() const {
 		return request_state_;
 	}
 
@@ -103,7 +100,4 @@ namespace http {
 		return data_;
 	}
 
-	void Request::on_finished() {
-		finished_ = true;
-	}
 }

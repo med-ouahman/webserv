@@ -1,6 +1,5 @@
 #pragma once
 
-#include <fcntl.h>
 #include <unistd.h>
 
 class UniqueFd {
@@ -9,26 +8,34 @@ private:
 
 public:
     UniqueFd() : fd_(-1) {}
-    explicit UniqueFd(int fd) : fd_(fd) {}
 
-    ~UniqueFd() {
-        reset();
+    explicit UniqueFd( int fd ) : fd_(fd) {}
+
+    ~UniqueFd() { reset(); }
+
+    UniqueFd( UniqueFd& other ): fd_(other.fd_) { other.fd_ = -1; }
+
+    UniqueFd& operator=( UniqueFd& other ) {
+        if (this != &other) {
+            reset();
+            fd_ = other.fd_;
+            other.fd_ = -1;
+        }
+        return *this;
     }
 
     int get() const {
         return fd_;
     }
 
-    void reset() {
-        if (fd_ >= 0) {
-            ::close(fd_);
-            fd_ = -1;
-        }
+    bool valid() const {
+        return fd_ >= 0;
     }
 
-    void set(int fd) {
-        reset();
-        fd_ = fd;
+    void reset(int newfd = -1) {
+        if (fd_ >= 0)
+            ::close(fd_);
+        fd_ = newfd;
     }
 
     int release() {
@@ -36,13 +43,4 @@ public:
         fd_ = -1;
         return tmp;
     }
-
-    bool valid() const {
-        return fd_ >= 0;
-    }
-
-private:
-    UniqueFd( const UniqueFd& );
-    UniqueFd& operator=( const UniqueFd& );
 };
-

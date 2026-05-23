@@ -14,9 +14,9 @@ namespace http {
 
     Dispatcher::~Dispatcher() {}
 
-    CGIContext Dispatcher::resolve_cgi_context( const ResolutionResult& result ) {
+    CGIRequestContext Dispatcher::resolve_cgi_context( const ResolutionResult& result ) {
         
-        CGIContext ctx;
+        CGIRequestContext ctx;
 
         (void)result;
         char* d = getcwd(NULL, 0);
@@ -31,8 +31,6 @@ namespace http {
         ctx.server_name       = "localhost";
         ctx.server_port       = 8080; // LATER
         ctx.timeout_seconds   = result.location->cgi_timeout;
-
-        ctx.body_content_length = file_size(ctx.temp_body_path);
 
         return ctx;
     }

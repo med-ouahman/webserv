@@ -3,52 +3,63 @@
 #include <sstream>
 #include <cstring>
 #include "BufferWriter.hpp"
+#include <iostream>
 
 namespace http {
 
     const char* Response::COLON = ": ";
     const char* Response::CRLF = "\r\n";
     
-    size_t Response::serialize( BufferWriter* writer ) {
-        if (serialize_state == RESPONSE_LINE) {
-            std::cout<< "Serializing Response Line\n";
-            std::stringstream ss;
-            ss << status_code;
+    void Response::serialize_response_line( BufferWriter& writer ) {
+        std::stringstream ss;
         
-            line_buff = "HTTP/1.1 " + ss.str() + " " + "OK" + CRLF;
-            std::cout << line_buff;
-            writer->write(line_buff.c_str(), line_buff.size());
-            serialize_state = HEADERS;
-            line_buff.clear();
-            current_header = headers.begin();
-        }
+        ss << status_code;
+    
+        line_buff = "HTTP/1.1 " + ss.str() + " " + "OK" + CRLF;
+
+        std::cout << line_buff;
         
-        if (HEADERS == serialize_state) {
-            std::cout << "Serializing Headers\n";
+        writer.write(line_buff.c_str(), line_buff.size());
+        
+        state = HEADERS;
+        
+        line_buff.clear();
+        
+        current_header = headers.begin();
+    }
 
-            while (current_header != headers.end()) {
-                
-                if (line_buff.size() == 0) line_buff = (*current_header).name + COLON + (*current_header).value + CRLF;
-                
-                size_t w = writer->write(line_buff.c_str(), line_buff.size());
+    void Response::serialize_headers( BufferWriter& writer ) {
+        std::cout << "Serializing Headers\n";
 
-                line_buff.erase(0, w);
+        while (current_header != headers.end()) {
+            
+            if (line_buff.size() == 0) line_buff = (*current_header).name + COLON + (*current_header).value + CRLF;
+            
+            size_t w = writer.write(line_buff.c_str(), line_buff.size());
 
-                if (not line_buff.empty()) break;
+            line_buff.erase(0, w);
 
-                else ++current_header;
-            }
+            if (not line_buff.empty()) break;
 
-            if (current_header == headers.end()) {
-                
-                if (writer->remaining() >= CRLF_SIZE) {
-                    std::cout << "Response Headers done\n";
-                    writer->write(CRLF, CRLF_SIZE);
-                    serialize_state = BODY;
-                }
-            }
+            else ++current_header;
         }
 
-        return writer->size();
+        if (current_header == headers.end()) {
+            
+            if (writer.remaining() >= CRLF_SIZE) {
+                std::cout << "Response Headers done\n";
+                writer.write(CRLF, CRLF_SIZE);
+                state = BODY;
+            }
+        }
+    }
+
+    size_t Response::serialize( BufferWriter& writer ) {
+        
+        if (state == RESPONSE_LINE) serialize_response_line(writer);
+        
+        if (HEADERS == state) serialize_headers(writer);
+
+        return writer.size();
     }
 }

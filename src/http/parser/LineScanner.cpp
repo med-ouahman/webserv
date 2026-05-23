@@ -3,8 +3,8 @@
 
 namespace http {
 
-	LineScanner::LineScanner( DataView& v )
-	:data_view(v),
+	LineScanner::LineScanner(  )
+:
 	cr_found(false)
 	{}
 
@@ -20,22 +20,22 @@ namespace http {
 		cr_found = false;
 	}
 
-    ScanResult LineScanner::scan( size_t max_block_len ) {
+    ScanResult LineScanner::scan( DataView& view, size_t max_block_len ) {
         size_t line_offset = linebuff.size();
-        size_t i = data_view.cursor();
+        size_t i = view.cursor();
         bool nl_found = false;
 
-        if (i == data_view.size()) {
+        if (i == view.size()) {
             return NEED_MORE;
         }
         
-        while (i < data_view.size()) {
+        while (i < view.size()) {
             if (line_offset >= max_block_len) {
-                return ERROR;
+                return LIMIT_EXCEEDED;
             }
             line_offset++;
 
-            char current_char = data_view.data()[i];
+            char current_char = view.data()[i];
 
             if (current_char == '\r') {
                 cr_found = true;
@@ -51,23 +51,22 @@ namespace http {
             }
         }
        
-        size_t to_advance = i - data_view.cursor();
+        size_t to_advance = i - view.cursor();
         size_t to_append = to_advance - (nl_found ? 1 : 0);
 
-        std::cout << "cursor: " << data_view.cursor() << "I : " << i << "\n";
+        std::cout << "cursor: " << view.cursor() << "I : " << i << "\n";
         std::cout << "to append: " << to_append << "\n";
         
         if (to_append > 0) {
-            linebuff.append(data_view.read_ptr(), to_append);
+            linebuff.append(view.read_ptr(), to_append);
         }
         
-        data_view.advance(to_advance);
+        view.advance(to_advance);
 
-        if (!nl_found) {
-            return NEED_MORE;
-        }
+        if (!nl_found) return NEED_MORE;
         
         if (linebuff[linebuff.size() - 1] == '\r') linebuff.erase(linebuff.size() - 1, 1);
+        
         return SUCCESS;
     }
 }

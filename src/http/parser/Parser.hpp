@@ -9,12 +9,16 @@ namespace http {
     
     class Parser {
         private:
-            Request request;
             LineScanner scanner;
         public:
-            ScanResult parse_http_request();
+            Parser();
+            ~Parser();
+            ScanResult parse_http_request( DataView& view );
+
             static Base::Expected<RequestLine, int> parse_request_line( const std::string& line );
+
             static Base::Expected<std::pair<std::string, std::string>, int> parse_header( const std::string& line );
+
             static bool validate_http_version( std::string const& s );
             static void normalize_http_header_name( std::string& name );
             static void capitalize_http_header_name( std::string& header );

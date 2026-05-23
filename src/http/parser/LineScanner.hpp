@@ -8,22 +8,20 @@ namespace http {
 	enum ScanResult {
 		SUCCESS,
 		NEED_MORE,
-		ERROR,
+		LIMIT_EXCEEDED,
 	};
 
 	class LineScanner {
 		private:
 			std::string linebuff;
-			DataView& 	data_view;
 			bool		cr_found;
 
 		public:
 			void reset();
 			std::string const& line();
-			ScanResult scan( size_t max_block_len );
-			bool empty() { return data_view.empty(); };
+			ScanResult scan( DataView& view, size_t max_block_len );
 			
-			LineScanner( DataView& v );
+			LineScanner();
 			~LineScanner();
 	};
 }
