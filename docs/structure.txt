@@ -104,7 +104,11 @@
 │   │   │   └── Headers.hpp
 │   │   ├── execution
 │   │   │   └── handlers
+<<<<<<< HEAD
 │   │   │       ├── CGIRequestContext.hpp
+=======
+│   │   │       ├── CGIContext.hpp
+>>>>>>> 2a4fb87 (s)
 │   │   │       ├── CGIRequestHandler.cpp
 │   │   │       └── CGIRequestHandler.hpp
 │   │   ├── parser

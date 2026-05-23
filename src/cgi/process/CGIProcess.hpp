@@ -1,5 +1,6 @@
 #pragma once
 
+<<<<<<< HEAD
 #include "Pipe.hpp"
 #include "Stream.hpp"
 #include <unistd.h>
@@ -7,6 +8,12 @@
 #include <vector>
 #include "CStringArray.hpp"
 #include "Fd.hpp"
+=======
+#include "PipeGuard.hpp"
+#include "Stream.hpp"
+#include <unistd.h>
+#include "Timestamp.hpp"
+>>>>>>> 2a4fb87 (s)
 
 namespace cgi {
 
@@ -14,6 +21,7 @@ namespace cgi {
 
         std::string interpreter_path;
         std::string working_dir;
+<<<<<<< HEAD
         Fd          stdin_fd;
         uint32_t    timeout_seconds;
         CStringArray argv;
@@ -24,13 +32,29 @@ namespace cgi {
         }
     };
 
+=======
+        int         stdin_fd;
+
+        uint32_t timeout_seconds;
+
+        char* const* envp;
+    };
+
+
+>>>>>>> 2a4fb87 (s)
     class CGIProcess {
 
         private:
         	pid_t       pid;
 			int         status;
+<<<<<<< HEAD
             Pipe     stdout_pipe_;
             Pipe     stderr_pipe_;
+=======
+			PipeGuard   pipe_guard;
+            io::Stream  stdout_;
+            io::Stream  stderr_;
+>>>>>>> 2a4fb87 (s)
 
             Timestamp spawn_time;
 			Timestamp sigterm_sent_at;
@@ -42,6 +66,7 @@ namespace cgi {
 
         public:
             CGIProcess( const CGIExecContext& ctx );
+<<<<<<< HEAD
 
             bool timedout();
             Pipe& stdout_pipe() const;
@@ -53,5 +78,15 @@ namespace cgi {
                 RUNNING,
                 ERROR
             } state;
+=======
+            void on_stdout_readable();
+            void on_stdin_writeable();
+            void on_stderr_readable();
+            void on_error();
+            bool timedout();
+            
+            io::Stream const& stdout() const;
+            io::Stream const& stderr() const;
+>>>>>>> 2a4fb87 (s)
     };
 }
