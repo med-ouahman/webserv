@@ -32,12 +32,13 @@ class Stream: public AEventHandler {
 public:
 	const static std::size_t READ_BUFFER_SIZE = 1024 * 4;
 	const static std::size_t WRITE_BUFFER_SIZE = 1024 * 4;
-	Stream( int fd, EventMask mask );
+	Stream( int fd, Event mask, IStreamDelegate& de );
 	~Stream();
-	void on_event( runtime::epoll::Event type );
+	void on_event( io::Event event_ );
+
 private:
 
-	IStreamDelegate* delegate;
+	IStreamDelegate& delegate;
 	
 	char readbuf[READ_BUFFER_SIZE];
 	

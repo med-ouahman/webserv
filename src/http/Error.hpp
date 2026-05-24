@@ -8,18 +8,18 @@ enum Error {
 	NONE = 0,
 
 	/* parser/request */
-	BAD_REQUEST,
-	HEADER_TOO_LARGE,
-	BODY_TOO_LARGE,
+	// BAD_REQUEST,
+	// HEADER_TOO_LARGE,
+	// BODY_TOO_LARGE,
 
-	/* handlers */
-	NOT_FOUND,
-	FORBIDDEN,
-	METHOD_NOT_ALLOWED,
+	// /* handlers */
+	// NOT_FOUND,
+	// FORBIDDEN,
+	// METHOD_NOT_ALLOWED,
 
-	/* cgi */
-	CGI_FAILED,
-	CGI_TIMEOUT,
+	// /* cgi */
+	// CGI_FAILED,
+	// CGI_TIMEOUT,
 
 	INTERNAL,
 };

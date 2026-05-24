@@ -13,30 +13,30 @@
 
 namespace net {
 
-	typedef void* AcceptContext;
+typedef void* AcceptContext;
+typedef void (*AcceptCallback)( int client_fd, AcceptContext context );
 
-	typedef void (*AcceptCallback)( int client_fd, AcceptContext context );
+class ListeningSocket: public io::AEventHandler {
 
-	class ListeningSocket: public io::AEventHandler {
-		private:
-			ListeningSocket& operator=( const ListeningSocket& socket );
-			bool accept_clients();
-			bool on_error();
+private:
+	ListeningSocket& operator=( const ListeningSocket& socket );
+	bool accept_clients();
+	bool on_error();
+	AcceptCallback callback_;
+	AcceptContext context_;
 
-			AcceptCallback callback_;
-			AcceptContext context_;
+public:
+	ListeningSocket( const ListeningSocket& socket );
+	explicit ListeningSocket( int fd, io::Event mask, AcceptCallback cb, AcceptContext ctx );
+	~ListeningSocket();
+	void on_event( io::Event event );
+	
+};
 
+Base::Result<ListeningSocket*>
+create_listening_socket(
+	const config::ListenEndPoint& endpoints,
+	AcceptCallback cb,
+	AcceptContext ctx );
 
-		public:
-			ListeningSocket( const ListeningSocket& socket );
-			explicit ListeningSocket( int fd, io::EventMask mask, AcceptCallback cb, AcceptContext ctx );
-			~ListeningSocket();
-			void on_event( runtime::epoll::Event event );
-	};
-
-	Base::Result<ListeningSocket*>
-	create_listening_socket(
-		const config::ListenEndPoint& endpoints,
-		AcceptCallback cb,
-		AcceptContext ctx );
 }

@@ -43,6 +43,6 @@ namespace net {
 			return MAKE_ERRNO_ERROR("EventLoop::create_listening_socket::listen()");
 		
 		std::cout << "server listening on " <<  ::inet_ntoa((struct in_addr){ .s_addr = endpoint.host }) << ":"<< endpoint.port << '\n';
-		return new ListeningSocket(socket_fd, EPOLLIN, cb, ctx);
+		return new ListeningSocket(socket_fd, io::READABLE, cb, ctx);
 	}
 }

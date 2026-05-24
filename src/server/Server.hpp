@@ -19,13 +19,15 @@ class Server {
         Server(const Server& );
         Server& operator=( const Server& );
 
-        void start_listeners();
+        bool start_listeners();
         void add_connection( int client_fd );
+        void remove_connection( net::Connection* conn );
         
     public:
         Server();
         ~Server();
         int start();
+        static void server_disconnect( net::ServerContext ctx, net::Connection* conn );
         static void server_accept( int conn_fd, net::AcceptContext server );
 };
 

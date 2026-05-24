@@ -3,49 +3,64 @@
 #include <cstring>
 #include <cerrno>
 
-namespace net {   
-Connection::Connection( int _fd, io::EventMask mask )
-    : stream_(_fd, mask),
-    state(READING) {}
+namespace net { 
+    
+Connection::Connection( int _fd, io::Event mask, ServerContext ctx, DisconnectCallback cb_ )
+    : stream_(_fd, mask, *this),
+    state(READING),
+    server(ctx),
+    disconnect_(cb_),
+    close_after_write(false),
+    last_activity_(),
+    lifetime_()
+  /*  ctx() */{}
 
 Connection::~Connection() {}
 
-ConnectionAction Connection::action() const {
-
+void Connection::update_stream() {
     switch (state) {
         case READING:
-            return READ;
+            stream_.update_mask(io::READABLE);
+            break;
         case WRITING:
-            return WRITE;
+            stream_.update_mask(io::WRITABLE);
+            break;
         case CLOSING:
-            return CLOSE;
+            stream_.update_mask(io::NONE);
+            break;
         default:
             break;
     }
-    
-    return CLOSE;
 }
 
 bool Connection::timedout() {
 
+    /* in development */
+    
+    /*
     switch (ctx.state()) {
         case http::REQUEST_LINE:
-            /* timeout logic here */        
+        // timeout logic here      
         default:
-            return false;
+        return false;
     }
+    */
 
     return false;
 }
 
 void Connection::consume( DataView& view ) {
-    ctx.consume(view.data(), view.size());
+    /* in development */
+    // ctx.consume(view.data(), view.size());
+    std::cout << view.data(), view.size();
 }
 
 void Connection::produce( BufferWriter& writer ) {
-    base::io::Writer w(writer.data(), writer.size());
-
-    ctx.produce(w);
+    Base::io::Writer w(writer.data(), writer.size());
+    /* in development */
+    // ctx.produce(w);
+    w.write("Hello from the client\n");
+    std::cout << writer.data(), writer.size();
 }
 
 void Connection::on_stream_error() {
@@ -56,7 +71,8 @@ void Connection::on_stream_closed() {
     state = CLOSING;
 }
 
-const io::Stream& Connection::stream() const {
+io::Stream& Connection::stream() {
     return stream_;
 }
+
 }

@@ -4,17 +4,11 @@
 #include "Timestamp.hpp"
 #include "CGIRequestHandler.hpp"
 #include "Dispatcher.hpp"
-#include "BodyProvider.hpp"
 
 namespace http {
 
-    const char* CGIRequestHandler::cgi_metadata[] = {"REQUEST_METHOD", "SERVER_PROTOCOL", "QUERY_STRING", NULL};
-
-    const char* CGIRequestHandler::stripped_headers[] = {"transfer-encoding", "content-length", "content-type", "connection", NULL};
-
     CGIRequestHandler::CGIRequestHandler(  const ResolutionResult res_ )
-        : result(res_),
-        process(create_exec_context()),
+        : process(create_exec_context(res_)),
         stdout_(process.stdout_pipe().read_end().get(), io::READABLE),
         stderr_(process.stderr_pipe().read_end().get(), io::READABLE) {
 
@@ -49,7 +43,7 @@ namespace http {
     }
 
 
-    cgi::CGIExecContext CGIRequestHandler::create_exec_context() {
+    cgi::CGIExecContext CGIRequestHandler::create_exec_context( const ResolutionResult result ) {
 
         cgi::CGIExecContext ctx;
 

@@ -3,17 +3,18 @@
 
 #include <map>
 #include "StatusCode.hpp"
-#include "base/base.hpp"
+#include "foundation/baselib/Base.hpp"
+
 #include "Base.hpp"
 
 namespace http {
 
-struct Response {
+struct Request {
 	std::map<std::string, std::string> headers;
 	std::string body;
 
-	Response();
-	static Response error(StatusCode code);
+	Request();
+	static Request error(StatusCode code);
 	isize produce(Base::io::Writer* writer);
 };
 

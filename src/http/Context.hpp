@@ -3,14 +3,15 @@
 
 #include <string>
 
-#include "base/base.hpp"
+#include "foundation/baselib/Base.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
 #include "Error.hpp"
+#include "Config.hpp"
 
 namespace http {
 
-enum ContextState : char {
+enum ContextState {
 	REQUEST_LINE,
 	HEADERS,
 	BODY,
@@ -56,7 +57,7 @@ public:
 
 	Error consume(const char* data, usize size);
 	Error process(const config::ServerConfig& config);
-	Error produce(base::io::Writer& writer);
+	Error produce(Base::io::Writer& writer);
 
 	ContextState state() const;
 };
