@@ -83,7 +83,7 @@ struct ServerConfig {
     {}
 };
 
-struct Config {
+struct ServerConfig {
     std::vector<ServerConfig> servers;
     ServerConfig server;
 
