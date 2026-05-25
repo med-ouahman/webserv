@@ -32,10 +32,19 @@ public:
         return fd_ >= 0;
     }
 
+    void close() {
+        ::close(fd_);
+        fd_ = -1;
+    }
+
     void reset(int newfd = -1) {
         if (fd_ >= 0)
             ::close(fd_);
         fd_ = newfd;
+    }
+
+    void set( int newfd ) {
+        reset(newfd);
     }
 
     int release() {

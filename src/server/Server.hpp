@@ -4,7 +4,7 @@
 
 #include "EventLoop.hpp"
 #include "Connection.hpp"
-#include "ListeningSocket.hpp"
+#include "Listener.hpp"
 
 class Server {
 
@@ -12,7 +12,7 @@ class Server {
         bool running_;
 
         std::vector<net::Connection*> connections;
-        std::vector<net::ListeningSocket*> listeners;
+        std::vector<net::Listener*> listeners;
 
         runtime::epoll::EventLoop event_loop;
         

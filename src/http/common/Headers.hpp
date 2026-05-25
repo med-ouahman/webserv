@@ -12,7 +12,7 @@ private:
 		std::string value;
 		Header( const std::string& _name, const std::string& _value ): name(_name), value(_value) {}
 	};
-
+	
 	std::vector<Header> headers_;
 
 public:

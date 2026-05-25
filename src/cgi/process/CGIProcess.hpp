@@ -6,7 +6,6 @@
 #include "Timestamp.hpp"
 #include <vector>
 #include "CStringArray.hpp"
-#include "Fd.hpp"
 
 namespace cgi {
 
@@ -14,24 +13,26 @@ struct CGIExecContext;
 
 class CGIProcess {
 private:
+    static time_t timeout_secs;
     pid_t     pid;
     int       status;
     
+    Pipe     stdin_pipe_;
     Pipe     stdout_pipe_;
     Pipe     stderr_pipe_;
     
     Timestamp spawn_time;
     Timestamp sigterm_sent_at;
-    static time_t timeout_secs;
 
     CGIProcess( const CGIProcess& );
     CGIProcess& operator=( const CGIProcess& );
 
 public:
-    CGIProcess( const CGIExecContext& ctx );
+    CGIProcess( const CGIResolver::Context& ctx );
     bool timedout();
-    Pipe& stdout_pipe() const;
-    Pipe& stderr_pipe() const;
+    Pipe& stdin_pipe();
+    Pipe& stdout_pipe();
+    Pipe& stderr_pipe();
     
 private:
     enum ProcessState {

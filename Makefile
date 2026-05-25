@@ -30,6 +30,7 @@ INCLUDES = -Isrc \
 	-Isrc/runtime/epoll/ \
 	-Isrc/server/ \
 	-Isrc/http/ \
+	-Isrc/http/pipeline/ \
 	-Isrc/http/common/ \
 	-Isrc/config/ \
 	-Isrc/foundation/ \
@@ -38,14 +39,16 @@ INCLUDES = -Isrc \
 SRCS = src/server/main.cpp \
 	src/sys/signals.cpp \
 	src/server/Server.cpp \
-	src/net/listener/create_sockets.cpp \
-	src/net/listener/listener_events.cpp \
 	src/net/connection/Connection.cpp \
-	src/net/listener/ListeningSocket.cpp \
+	src/net/listener/Listener.cpp \
 	src/runtime/epoll/EventLoop.cpp \
 	src/runtime/epoll/run.cpp \
 	src/runtime/epoll/event_handlers.cpp \
+	src/cgi/CGIResolver.cpp \
+	src/cgi/CGIResponseBuilder.cpp \
+	src/cgi/CGIRequestHandler.cpp \
 	src/io/stream/Stream.cpp \
+	src/http/common/LineScanner.cpp \
 	src/config/ConfigParser.cpp \
 	src/config/Lexer.cpp \
 	src/foundation/DataView.cpp \
@@ -73,8 +76,7 @@ clean:
 	@rm -fr $(OBJDIR)
 
 fclean: clean
-	rm -f $(NAME)
-	rm -fr $(BODY_DIR)
+	@rm -f $(NAME)
 
 re: fclean all
 

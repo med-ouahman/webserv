@@ -4,7 +4,7 @@ namespace http {
 class IRequestHandler {
 
 public:
-	void handle() = 0;
-	bool done() = 0;
+	virtual void handle() = 0;
+	virtual bool done() = 0;
 };
 }

@@ -40,12 +40,12 @@ bool Server::start_listeners() {
 
     for ( size_t i(0); i < endpoints.size(); ++i ) {
 
-        Base::Result<net::ListeningSocket*> result = net::create_listening_socket(endpoints[i],
+        Base::Result<net::Listener*> result = net::create_listening_socket(endpoints[i],
             server_accept,
             this);
 
         if (!result.ok) return false;
-        net::ListeningSocket* sock = result.result;
+        net::Listener* sock = result.result;
         if (!event_loop.register_handler(sock)) return false;
         listeners.push_back(sock);
     }

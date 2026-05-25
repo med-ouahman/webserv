@@ -1,9 +1,6 @@
 #pragma once
 
-#include "ConnectionState.hpp"
-#include "ConnectionAction.hpp"
 #include "Timestamp.hpp"
-#include "limits.hpp"
 #include "Context.hpp"
 #include "Stream.hpp"
 
@@ -36,7 +33,7 @@ typedef void (*DisconnectCallback)( ServerContext ctx, Connection* );
 class Connection: public io::IStreamDelegate {
 
 public:
-    explicit Connection( int fd, io::Event mask, ServerContext ctx, DisconnectCallback cb_ );
+    explicit Connection( int fd, io::Event events, ServerContext server_ctx, DisconnectCallback cb_ );
     ~Connection();
     bool timedout();
     void  update_stream();

@@ -1,18 +1,23 @@
 #include "CGIProcess.hpp"
 #include <csignal>
 #include <sys/wait.h>
+#include "CGIResolver.hpp"
 
 namespace cgi {
 
-CGIProcess::CGIProcess( const CGIExecContext& ctx )
+        /* this a temporay function before we shift to Headers entierly */
+
+
+CGIProcess::CGIProcess( const CGIResolver::Context& ctx )
     : pid(-1),
     status(0x0),
+    stdin_pipe_(),
     stdout_pipe_(),
     stderr_pipe_(),
     spawn_time(),
     sigterm_sent_at(0), state(SPAWN) {
     
-    if (!stderr_pipe_ || !stdout_pipe_) {
+    if (!stderr_pipe_ || !stdout_pipe_  || !stdin_pipe_) {
         state = ERROR;
         return;
     }
@@ -32,8 +37,9 @@ CGIProcess::CGIProcess( const CGIExecContext& ctx )
         ::exit(EXIT_FAILURE);
     }
 
-    stdout_pipe_.write_end().reset();
-    stderr_pipe_.write_end().reset();
+    stdin_pipe_.read_end().close();
+    stdout_pipe_.write_end().close();
+    stderr_pipe_.write_end().close();
     
     if (pid < 0) state = ERROR;
 }
@@ -57,4 +63,17 @@ bool CGIProcess::timedout() {
     }
     return false;
 }
+
+Pipe& CGIProcess::stdin_pipe() {
+    return stdin_pipe_;
+}
+
+Pipe& CGIProcess::stdout_pipe() {
+    return stdout_pipe_;
+}
+
+Pipe& CGIProcess::stderr_pipe() {
+    return stderr_pipe_;
+}
+
 }

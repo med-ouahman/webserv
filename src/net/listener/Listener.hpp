@@ -16,24 +16,24 @@ namespace net {
 typedef void* AcceptContext;
 typedef void (*AcceptCallback)( int client_fd, AcceptContext context );
 
-class ListeningSocket: public io::AEventHandler {
+class Listener: public io::AEventHandler {
 
 private:
-	ListeningSocket& operator=( const ListeningSocket& socket );
+	Listener& operator=( const Listener& socket );
 	bool accept_clients();
 	bool on_error();
 	AcceptCallback callback_;
 	AcceptContext context_;
 
 public:
-	ListeningSocket( const ListeningSocket& socket );
-	explicit ListeningSocket( int fd, io::Event mask, AcceptCallback cb, AcceptContext ctx );
-	~ListeningSocket();
+	Listener( const Listener& socket );
+	explicit Listener( int fd, io::Event mask, AcceptCallback cb, AcceptContext ctx );
+	~Listener();
 	void on_event( io::Event event );
 	
 };
 
-Base::Result<ListeningSocket*>
+Base::Result<Listener*>
 create_listening_socket(
 	const config::ListenEndPoint& endpoints,
 	AcceptCallback cb,

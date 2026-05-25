@@ -26,7 +26,7 @@ struct CGIParseContext {
 	CGIParseState 	state_;
 };
 
-class CGIResponseParser {
+class CGIResponseBuilder {
 private:
     http::Headers headers_;
     CGIParseContext ctx_;

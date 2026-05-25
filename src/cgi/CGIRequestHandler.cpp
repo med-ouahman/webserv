@@ -4,63 +4,48 @@
 #include "Timestamp.hpp"
 #include "CGIRequestHandler.hpp"
 #include "Dispatcher.hpp"
+#include "Request.hpp"
+#include "CGIResolver.hpp"
 
 namespace http {
 
-    CGIRequestHandler::CGIRequestHandler(  const ResolutionResult res_ )
-        : process(create_exec_context(res_)),
-        stdout_(process.stdout_pipe().read_end().get(), io::READABLE),
-        stderr_(process.stderr_pipe().read_end().get(), io::READABLE) {
 
-        }
+CGIRequestHandler::CGIRequestHandler(  const ResolutionResult& res, http::Request const& req )
+    : process_(cgi::CGIResolver::resolve(req, res)),
+    stdin_(process_.stdin_pipe().write_end().get(), io::WRITABLE, *this),
+    stdout_(process_.stdout_pipe().read_end().get(), io::READABLE, *this),
+    stderr_(process_.stderr_pipe().read_end().get(), io::READABLE, *this) {
 
-    CGIRequestHandler::~CGIRequestHandler() {
-        
-    }
+}
 
-    void CGIRequestHandler::handle() {
+CGIRequestHandler::~CGIRequestHandler() {
     
-    }
+}
 
-    bool CGIRequestHandler::done() {
-        return true;
-    }
+void CGIRequestHandler::handle() {
 
-    void CGIRequestHandler::consume( DataView& view ) {
-        parse_headers(view);
-    }
+}
 
-    void CGIRequestHandler::produce( BufferWriter& w ) {
-        // read body from the request body
-    }
+bool CGIRequestHandler::done() {
+    return true;
+}
 
-    void CGIRequestHandler::on_stream_error() {
-        // close
-    }
+void CGIRequestHandler::consume( DataView& view ) {
+    builder_.parse_headers(view);
 
-    void CGIRequestHandler::on_stream_closed() {
-        // finished;
-    }
+}
 
+void CGIRequestHandler::produce( BufferWriter& w ) {
+    // read body from the request body
+    
+}
 
-    cgi::CGIExecContext CGIRequestHandler::create_exec_context( const ResolutionResult result ) {
+void CGIRequestHandler::on_stream_error() {
+    // close
+}
 
-        cgi::CGIExecContext ctx;
+void CGIRequestHandler::on_stream_closed() {
+    // finished;
+}
 
-        CGIRequestContext request_context = Dispatcher::resolve_cgi_context(result);
-
-        ctx.interpreter_path = request_context.interpreter_path;
-
-        ctx.working_dir = request_context.working_directory;
-
-        ctx.stdin_fd = Fd(open(request_context.temp_body_path.c_str(), O_RDONLY));
-        
-        ctx.timeout_seconds = request_context.timeout_seconds;
-
-        ctx.argv.push(ctx.interpreter_path.c_str());
-
-        ctx.envp = build_envp(request_context);
-
-        return ctx; 
-    }
 }

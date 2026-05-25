@@ -1,3 +1,50 @@
+#include "Listener.hpp"
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+class Server;
+
+namespace net {
+
+Listener::Listener( int fd, io::Event mask, AcceptCallback cb, AcceptContext ctx )
+	: AEventHandler(fd, mask),
+	callback_(cb),
+	context_(ctx) {}
+
+Listener::~Listener() {}
+
+void Listener::on_event( io::Event event ) {
+	
+	switch (event) {
+		case io::READABLE:
+			std::cout << "Listener readable\n";
+			accept_clients();
+			break;
+		case io::ERROR:
+			on_error();
+		default:
+			break;
+	}
+}
+
+bool Listener::accept_clients() {
+
+	struct sockaddr_in client_addr;
+	socklen_t client_addr_len = sizeof(client_addr);
+	int client_fd = ::accept(fd(), (struct sockaddr* )&client_addr, &client_addr_len);
+	if (client_fd < 0) return false;
+	if (callback_) callback_(client_fd, context_);
+	std::cout << "CONNECTION_FD: " << client_fd << "\n";
+	return true;
+}
+
+bool Listener::on_error() {
+	LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::accept()"));
+	return false;
+}
+
+}
+
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -7,14 +54,14 @@
 #include "Error.hpp"
 #include "Result.hpp"
 #include <vector>
-#include "ListeningSocket.hpp"
+#include "Listener.hpp"
 #include "Config.hpp"
 
 #include <iostream>
 
 namespace net {
 
-	Base::Result<ListeningSocket*> create_listening_socket(
+	Base::Result<Listener*> create_listening_socket(
 		const config::ListenEndPoint& endpoint,
 		AcceptCallback cb,
 		AcceptContext ctx
@@ -43,6 +90,6 @@ namespace net {
 			return MAKE_ERRNO_ERROR("EventLoop::create_listening_socket::listen()");
 		
 		std::cout << "server listening on " <<  ::inet_ntoa((struct in_addr){ .s_addr = endpoint.host }) << ":"<< endpoint.port << '\n';
-		return new ListeningSocket(socket_fd, io::READABLE, cb, ctx);
+		return new Listener(socket_fd, io::READABLE, cb, ctx);
 	}
 }
