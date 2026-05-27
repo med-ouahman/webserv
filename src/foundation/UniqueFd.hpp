@@ -5,6 +5,8 @@
 class UniqueFd {
 private:
     int fd_;
+    UniqueFd( const UniqueFd& other );
+    UniqueFd& operator=( const UniqueFd& other );
 
 public:
     UniqueFd() : fd_(-1) {}
@@ -12,17 +14,6 @@ public:
     explicit UniqueFd( int fd ) : fd_(fd) {}
 
     ~UniqueFd() { reset(); }
-
-    UniqueFd( UniqueFd& other ): fd_(other.fd_) { other.fd_ = -1; }
-
-    UniqueFd& operator=( UniqueFd& other ) {
-        if (this != &other) {
-            reset();
-            fd_ = other.fd_;
-            other.fd_ = -1;
-        }
-        return *this;
-    }
 
     int get() const {
         return fd_;

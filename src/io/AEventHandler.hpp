@@ -1,8 +1,6 @@
 
 #pragma once
 
-#include <stdint.h>
-
 #include <unistd.h>
 
 namespace io {
@@ -19,14 +17,13 @@ enum Event {
 class AEventHandler {
 private:
     int fd_;
-    Event mask_;
-    Event applied_mask_;
-
+    Event events_;
+    Event applied_events_;
     AEventHandler( const AEventHandler& );
     AEventHandler& operator=( const AEventHandler& );
     
 public:
-    AEventHandler( int fd__, Event msk ): fd_(fd__), mask_(msk), applied_mask_(msk) {};
+    AEventHandler( int __fd, Event events ): fd_(__fd), events_(events), applied_events_(events) {};
     virtual void on_event( Event event ) = 0;
     virtual ~AEventHandler() {
         if (fd_ >= 0) {
@@ -36,14 +33,14 @@ public:
     };
 
     int fd() const { return fd_; }
-    Event mask() const { return mask_; }
-    void update_mask( Event m ) { mask_ = m; }
-    bool is_synced() const {
-        return applied_mask_ == mask_; 
+    Event events() const { return events_; }
+    void update_events( Event new_ev ) { events_ = new_ev; }
+    bool synced() const {
+        return applied_events_ == events_; 
     }
 
     void sync() {
-        applied_mask_ = mask_;
+        applied_events_ = events_;
     }
 };
 }

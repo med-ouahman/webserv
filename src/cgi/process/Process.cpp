@@ -1,14 +1,13 @@
-#include "CGIProcess.hpp"
+#include "Process.hpp"
 #include <csignal>
 #include <sys/wait.h>
-#include "CGIResolver.hpp"
+#include <cstdlib>
 
 namespace cgi {
 
-        /* this a temporay function before we shift to Headers entierly */
+time_t Process::timeout_secs;
 
-
-CGIProcess::CGIProcess( const CGIResolver::Context& ctx )
+Process::Process( const resolver::CGIExecContext& ctx )
     : pid(-1),
     status(0x0),
     stdin_pipe_(),
@@ -27,12 +26,12 @@ CGIProcess::CGIProcess( const CGIResolver::Context& ctx )
     pid = ::fork();
     if (pid == 0)
     {
-        ::dup2(ctx.stdin_fd.fd(), STDIN_FILENO);
+        ::dup2(ctx.stdin_fd.get(), STDIN_FILENO);
         ::dup2(stdout_pipe_.write_end().get(), STDOUT_FILENO);
         ::dup2(stderr_pipe_.write_end().get(), STDERR_FILENO);
         stdout_pipe_.close();
         stderr_pipe_.close();
-        ::execve(ctx.interpreter_path.c_str(), ctx.argv.data(), ctx.envp.data());
+        ::execve(ctx.interpreter.c_str(), ctx.argv.argv(), ctx.envp.argv());
         LOG_ERROR(MAKE_ERRNO_ERROR("execve()"));
         ::exit(EXIT_FAILURE);
     }
@@ -44,11 +43,11 @@ CGIProcess::CGIProcess( const CGIResolver::Context& ctx )
     if (pid < 0) state = ERROR;
 }
 
-CGIProcess::~CGIProcess() {
+Process::~Process() {
     ::waitpid(pid, &status, 0);  // should be blocking to ensuer the process is reaped   
 }
 
-bool CGIProcess::timedout() {
+bool Process::timedout() {
     if (sigterm_sent_at.seconds() == 0) {
         if (spawn_time.elapsed() >= timeout_secs) {
             sigterm_sent_at.update();
@@ -64,15 +63,15 @@ bool CGIProcess::timedout() {
     return false;
 }
 
-Pipe& CGIProcess::stdin_pipe() {
+Pipe& Process::stdin_pipe() {
     return stdin_pipe_;
 }
 
-Pipe& CGIProcess::stdout_pipe() {
+Pipe& Process::stdout_pipe() {
     return stdout_pipe_;
 }
 
-Pipe& CGIProcess::stderr_pipe() {
+Pipe& Process::stderr_pipe() {
     return stderr_pipe_;
 }
 

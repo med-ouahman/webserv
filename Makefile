@@ -24,6 +24,7 @@ INCLUDES = -Isrc \
 	-Isrc/net/listener/ \
 	-Isrc/cgi/ \
 	-Isrc/cgi/process/ \
+	-Isrc/cgi/handler/ \
 	-Isrc/io/ \
 	-Isrc/io/stream/ \
 	-Isrc/runtime/ \
@@ -44,11 +45,16 @@ SRCS = src/server/main.cpp \
 	src/runtime/epoll/EventLoop.cpp \
 	src/runtime/epoll/run.cpp \
 	src/runtime/epoll/event_handlers.cpp \
-	src/cgi/CGIResolver.cpp \
-	src/cgi/CGIResponseBuilder.cpp \
-	src/cgi/CGIRequestHandler.cpp \
+	src/cgi/process/Process.cpp \
+	src/cgi/resolve.cpp \
+	src/cgi/build_envp.cpp \
+	src/cgi/response_builder.cpp \
+	src/cgi/handler/CGIRequestHandler.cpp \
 	src/io/stream/Stream.cpp \
 	src/http/common/LineScanner.cpp \
+	src/http/common/Headers.cpp \
+	src/http/parser/parse_headers.cpp \
+	src/http/parser/utils.cpp \
 	src/config/ConfigParser.cpp \
 	src/config/Lexer.cpp \
 	src/foundation/DataView.cpp \

@@ -2,48 +2,38 @@
 #include "Parser.hpp"
 
 namespace http {
-	
-	bool parser::validate_http_version( std::string const& s ) {
-		return s == "HTTP/1.1" || s == "HTTP/1.0";
+namespace parser {
+
+bool validate_version( std::string const& s ) {
+	return s == "HTTP/1.1" || s == "HTTP/1.0";
+}
+
+void normalize_header_name( std::string& name ) {
+	for ( size_t i = 0; i < name.length(); i++ ) {
+		if (name[i] >= 'A' && name[i] <= 'Z') name[i] = tolower(name[i]);
 	}
+}
 
-	void parser::normalize_http_header_name( std::string& name ) {
-		for ( size_t i = 0; i < name.length(); i++ ) {
-			if (name[i] >= 'A' && name[i] <= 'Z') name[i] = tolower(name[i]);
-		}
+bool validate_header_name( const std::string& name ) {
+	for ( size_t i = 0; i < name.length(); i++ ) {
+		if (!isascii(name[i]) or !isprint(name[i]))	return false;
 	}
+	return true;
+}
 
-	bool parser::validate_http_header_name( const std::string& name ) {
-
-		for ( size_t i = 0; i < name.length(); i++ ) {
-			if (!isascii(name[i]) or !isprint(name[i]))	return false;
-		}
-
-		return true;
+std::string capitalize_header_name( const std::string& name ) {
+	bool _cap = true;
+	std::string capitalized;
+	capitalized.reserve(name.size());
+	for ( size_t i(0); i < name.size(); ++i ) {
+		const char& c = name[i];
+		if (_cap)
+			capitalized[i] = ::toupper(c);
+		if (c == '-') _cap = true;
+		else _cap = false;
 	}
+	return capitalized;
+}
 
-
-	void parser::capitalize_http_header_name( std::string& name ) {
-
-		bool cap = true;
-
-		size_t pos = 0;
-		
-		while (pos < name.size()) {
-			
-			if (not cap && (name[pos] == '-')) {
-				cap = true;
-				++pos;
-				continue;
-			}
-
-			if (cap) {
-				name[pos] = std::toupper(name[pos]);
-				cap = false;
-			}
-			
-			++pos;
-		}
-	}
-
+}
 }

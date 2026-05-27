@@ -32,15 +32,14 @@ void Stream::on_event( io::Event event ) {
 
 void Stream::on_readable() {
 
-    std::cout << "let's get the party started\n";
     ssize_t n = ::read(fd(), readbuf, READ_BUFFER_SIZE);
-
     if (n == 0) {
         delegate.on_stream_closed();
         return ;
     }
     
     if (n < 0) {
+         LOG_ERROR(MAKE_ERRNO_ERROR("Sream::on_readable()"));
         delegate.on_stream_error();
         return ;
     }
@@ -51,18 +50,20 @@ void Stream::on_readable() {
 }
 
 void Stream::on_writeable() {
+    std::cout << "writing...\n";
+    delegate.produce(writer);
 
-    if (writer.remaining() == 0) delegate.produce(writer);
-    
     if (writer.size() == 0) return ;
-
+    
     ssize_t n = ::write(fd(), writer.data(), writer.remaining());
-
+    
     if (n < 0) {
+        LOG_ERROR(MAKE_ERRNO_ERROR("Sream::on_writeable()"));
         delegate.on_stream_error();
         return ;
     }
 
     writer.advance(n);   
 }
+
 }

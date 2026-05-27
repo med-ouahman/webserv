@@ -1,15 +1,15 @@
 
-#include "CGIEnvBuilder.hpp"
-#include "CGIResolver.hpp"
-#include <sstream>
+#include "cgi.hpp"
 #include <iomanip>
+#include <sstream>
 
 namespace cgi {
+namespace envp {
 
-const char* CGIEnvBuilder::metadata[] = {"REQUEST_METHOD", "SERVER_PROTOCOL", "QUERY_STRING", NULL};
-const char* CGIEnvBuilder::stripped_headers[] = {"transfer-encoding", "content-length", "content-type", "connection", NULL};
+const char* Builder::metadata[] = {"REQUEST_METHOD", "SERVER_PROTOCOL", "QUERY_STRING", NULL};
+const char* Builder::stripped_headers[] = {"transfer-encoding", "content-length", "content-type", "connection", NULL};
 
-bool CGIEnvBuilder::forbidden_header( const std::string& header_name ) {
+bool Builder::forbidden_header( const std::string& header_name ) {
 
     for ( size_t i(0); stripped_headers[i] != NULL; ++i ) {
         if (stripped_headers[i] == header_name) return true;
@@ -18,20 +18,24 @@ bool CGIEnvBuilder::forbidden_header( const std::string& header_name ) {
     return false;
 }
 
-std::string CGIEnvBuilder::transform( bool has_http_prefix, http::Headers::const_iterator& it ) {
+std::string Builder::transform( bool has_http_prefix, http::Headers::const_iterator& it ) {
 
-    std::string key = const_cast<std::string&>(it->name);
-    const std::string& value = it->value;
-    for ( size_t i = 0; i < key.size(); ++i ) {
-        char c = key[i];
-        if (c == '-') key[i] = '_';
-        else key[i] = std::toupper(static_cast<unsigned char>(c));
+    std::string result;
+    const std::string http_prefix = has_http_prefix ? "HTTP_": "";
+
+    size_t size = it->name.size() + it->value.size() + http_prefix.size();
+    result.reserve(size);
+    result.append(http_prefix);
+    for ( size_t i = 0; i < it->name.size(); ++i ) {
+        char c = it->name[i];
+        if (c == '-') result[i] = '_';
+        else result[i] = std::toupper(static_cast<unsigned char>(c));
     }
-
-    return has_http_prefix ? "HTTP_" + key : key;
+    result.append(it->name);
+    return result;
 }
 
-http::Headers CGIEnvBuilder::build_metadata( const CGIResolver::CGIRequestContext& ctx ) {
+http::Headers Builder::build_metadata( const resolver::CGIRequestContext& ctx ) {
 
     http::Headers headers;
 
@@ -66,7 +70,7 @@ http::Headers CGIEnvBuilder::build_metadata( const CGIResolver::CGIRequestContex
     return headers;
 }
 
-CStringArray CGIEnvBuilder::build( const CGIResolver::CGIRequestContext& ctx,
+CStringArray Builder::build( const resolver::CGIRequestContext& ctx,
     http::Headers const& request_headers ) {
 
     http::Headers headers = build_metadata(ctx);
@@ -87,4 +91,5 @@ CStringArray CGIEnvBuilder::build( const CGIResolver::CGIRequestContext& ctx,
 }
 
 
+}
 }

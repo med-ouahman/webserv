@@ -1,8 +1,7 @@
 #pragma once
 
-#include "CGIProcess.hpp"
-#include "CGIEnvBuilder.hpp"
-#include "CGIResponseBuilder.hpp"
+#include "Process.hpp"
+#include "cgi.hpp"
 #include "IRequestHandler.hpp"
 
 namespace http {
@@ -13,8 +12,8 @@ struct Request;
 class CGIRequestHandler: public io::IStreamDelegate, public IRequestHandler {
 
 private:
-	cgi::CGIProcess 		process_;
-	cgi::CGIResponseBuilder builder_;
+	cgi::Process process_;
+	cgi::parser::ResponseBuilder builder_;
 
 	io::Stream				stdin_;
 	io::Stream 				stdout_;

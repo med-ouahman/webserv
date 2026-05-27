@@ -13,30 +13,38 @@
 
 namespace net {
 
-typedef void* AcceptContext;
-typedef void (*AcceptCallback)( int client_fd, AcceptContext context );
+enum ListenerState {
+	LISTENING,
+	LISTENER_ERROR
+};
+
+typedef void (*AcceptCallback)( int client_fd, void* server_ctx );
+
+struct AcceptContext {
+	void* server_ctx;
+	AcceptCallback callback;
+};
 
 class Listener: public io::AEventHandler {
 
 private:
+	ListenerState state_;
+	Listener( const Listener& socket );
 	Listener& operator=( const Listener& socket );
 	bool accept_clients();
 	bool on_error();
-	AcceptCallback callback_;
-	AcceptContext context_;
+	AcceptContext accept_ctx;
 
 public:
-	Listener( const Listener& socket );
-	explicit Listener( int fd, io::Event mask, AcceptCallback cb, AcceptContext ctx );
+	explicit Listener( int fd, io::Event mask, AcceptContext ctx );
 	~Listener();
 	void on_event( io::Event event );
-	
+	bool error() const;
 };
 
 Base::Result<Listener*>
 create_listening_socket(
 	const config::ListenEndPoint& endpoints,
-	AcceptCallback cb,
 	AcceptContext ctx );
 
 }

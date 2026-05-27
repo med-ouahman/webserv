@@ -5,13 +5,14 @@
 #include <unistd.h>
 #include "Timestamp.hpp"
 #include <vector>
+#include "cgi.hpp"
 #include "CStringArray.hpp"
 
 namespace cgi {
 
 struct CGIExecContext;
 
-class CGIProcess {
+class Process {
 private:
     static time_t timeout_secs;
     pid_t     pid;
@@ -24,11 +25,12 @@ private:
     Timestamp spawn_time;
     Timestamp sigterm_sent_at;
 
-    CGIProcess( const CGIProcess& );
-    CGIProcess& operator=( const CGIProcess& );
+    Process( const Process& );
+    Process& operator=( const Process& );
 
 public:
-    CGIProcess( const CGIResolver::Context& ctx );
+    Process( const resolver::CGIExecContext& ctx );
+    ~Process();
     bool timedout();
     Pipe& stdin_pipe();
     Pipe& stdout_pipe();

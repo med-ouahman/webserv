@@ -10,7 +10,7 @@ namespace epoll {
 
 bool EventLoop::register_handler( io::AEventHandler* handler ) {
 	epoll_event event;
-	event.events = decode_events(handler->mask());
+	event.events = decode_events(handler->events());
 	event.data.ptr = handler;
 	
 	int flags = ::fcntl(handler->fd(), F_GETFL);
@@ -39,7 +39,7 @@ bool EventLoop::register_handler( io::AEventHandler* handler ) {
 bool EventLoop::modify_handler( io::AEventHandler* handler ) {
 	
 	epoll_event event;
-	event.events = handler->mask();
+	event.events = decode_events(handler->events());
 	event.data.ptr = const_cast<io::AEventHandler*>(handler);
 	
 	if (::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, handler->fd(), &event)) {
@@ -67,12 +67,12 @@ bool EventLoop::del_handler( io::AEventHandler* handler ) {
 
 void EventLoop::sync( io::AEventHandler* handler ) {
 
-	if (handler->mask() == 0) {
+	if (handler->events() == 0) {
 		del_handler(handler);
 		return;
 	}
 
-	if (handler->is_synced()) return;
+	if (handler->synced()) return;
 
 	modify_handler(handler);
 	handler->sync();
@@ -99,7 +99,7 @@ io::Event EventLoop::encode_events( EpollEvent epoll_event ) {
     return event;
 }
 
-EpollEvent EventLoop::decode_events(io::Event event) {
+EpollEvent EventLoop::decode_events( io::Event event ) {
     EpollEvent ev = 0;
 
     if (event & io::READABLE)
@@ -119,4 +119,5 @@ EpollEvent EventLoop::decode_events(io::Event event) {
 
     return ev;
 }
+
 }}

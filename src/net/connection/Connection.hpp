@@ -4,10 +4,6 @@
 #include "Context.hpp"
 #include "Stream.hpp"
 
-namespace config {
-    struct ServerConfig;
-}
-
 namespace net {
 
 enum ConnectionState {
@@ -16,27 +12,14 @@ enum ConnectionState {
     CLOSING,
 };
 
-enum ConnectionAction {
-    READ,
-    WRITE,
-    CLOSE,
-};
-
-struct ServerContext {
-    void* context;
-};
-
-class Connection;
-
-typedef void (*DisconnectCallback)( ServerContext ctx, Connection* );
-
 class Connection: public io::IStreamDelegate {
 
 public:
-    explicit Connection( int fd, io::Event events, ServerContext server_ctx, DisconnectCallback cb_ );
+    explicit Connection( int fd, io::Event events );
     ~Connection();
     bool timedout();
     void  update_stream();
+    ConnectionState state() const;
     void consume( DataView& view );
     void produce( BufferWriter& writer );
     void on_stream_error();
@@ -45,10 +28,7 @@ public:
 
 private:
     io::Stream      stream_;
-    ConnectionState state;
-
-    ServerContext   server;
-    DisconnectCallback disconnect_;
+    ConnectionState state_;
     
     bool            close_after_write;
     Timestamp       last_activity_;

@@ -5,7 +5,6 @@
 #include "sys.h"
 
 namespace config {
-    
     bool Config::has_instance = false;
     Config Config::instance;
 }
