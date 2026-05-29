@@ -11,7 +11,7 @@ class Context;
 
 namespace parser {
 
-bool	get_chunk(Context& ctx, std::string& out);
+Error	get_chunk(Context& ctx, std::string& out, bool& found);
 
 Error	parse(Context& ctx);
 Error	parse_request_line(Context& ctx);

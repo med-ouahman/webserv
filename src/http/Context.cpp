@@ -11,10 +11,11 @@ Context::Context()
 	  parse_offset(0),
 	  header_bytes(0),
 	  body_received(0),
-	  content_length(0),
 	  state_(REQUEST_LINE) {
 	request.method = UNKNOWN;
 	request.version = HTTP_UNKNOWN;
+	request.transfer_encoding = TE_NONE;
+	request.connection = CONNECTION_DEFAULT;
 	response.status = OK;
 }
 

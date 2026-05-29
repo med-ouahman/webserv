@@ -32,7 +32,6 @@ enum ContextState : char {
  * @parse_offset:	current reading position in raw_buffer.
  * @header_bytes:	number of parsed bytes.
  * @body_received:	number of parsed bytes.
- * @content_length:	expected body size.
  *
  * Context's role consists of the following steps:
  * 		- parsing the received data into a 'Request' object.
@@ -51,11 +50,10 @@ private:
 	usize parse_offset;
 	usize header_bytes;
 	usize body_received;
-	usize content_length;
 
 	ContextState state_;
 
-	friend bool		parser::get_chunk(Context& ctx, std::string& out);
+	friend Error	parser::get_chunk(Context& ctx, std::string& out, bool& found);
 	friend Error	parser::parse(Context& ctx);
 	friend Error	parser::parse_request_line(Context& ctx);
 	friend Error	parser::parse_headers(Context& ctx);
