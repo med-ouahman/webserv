@@ -158,12 +158,12 @@ async function testContentLengthZero() {
   suite('Content-Length: 0 (no body hang)');
   const resp = await rawRequest(
     'POST /empty HTTP/1.1\r\nHost: localhost\r\nContent-Length: 0\r\n\r\n'
-  );
+ );
   check(
     'CL:0 — server responds (no hang)',
     resp.length > 0,
     'got no response — parser likely stuck in NEED_MORE'
-  );
+ );
   check('CL:0 — valid status code', parseStatus(resp) > 0);
 }
 
@@ -171,7 +171,7 @@ async function testLeadingCRLF() {
   suite('Leading CRLF before request (telnet artifact)');
   const resp = await rawRequest(
     '\r\nGET /telnet-crlf HTTP/1.1\r\nHost: localhost\r\n\r\n'
-  );
+ );
   const code = parseStatus(resp);
   check('Leading CRLF — server responds', resp.length > 0);
   check('Leading CRLF — not 400',         code !== 400, code);
@@ -233,7 +233,7 @@ async function testLargeBody() {
   const body   = Buffer.alloc(65536, 0x4a); // 'J'
   const header = Buffer.from(
     `POST /large HTTP/1.1\r\nHost: localhost\r\nContent-Length: ${body.length}\r\n\r\n`
-  );
+ );
   const resp = await rawRequest(Buffer.concat([header, body]), 5000);
   const code = parseStatus(resp);
   check('Large body — server responds', resp.length > 0);

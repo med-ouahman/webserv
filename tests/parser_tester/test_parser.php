@@ -195,7 +195,7 @@ function test_keep_alive(string $host, int $port): void {
             "GET /ka/php/{$i} HTTP/1.1\r\n"
             . "Host: localhost\r\n"
             . "Connection: {$conn}\r\n\r\n"
-        );
+       );
     }
 
     $resp  = recv_all($s);
@@ -232,7 +232,7 @@ function test_pipelined(string $host, int $port): void {
     fwrite($s,
         "GET /pipe/php/1 HTTP/1.1\r\nHost: localhost\r\n\r\n"
         . "GET /pipe/php/2 HTTP/1.1\r\nHost: localhost\r\n\r\n"
-    );
+   );
     $resp  = recv_all($s);
     fclose($s);
     $count = count_substr($resp, 'HTTP/1.');
@@ -264,7 +264,7 @@ function test_content_length_variants(string $host, int $port): void {
         $body = 'test';
         fwrite($s,
             "POST /case HTTP/1.1\r\nHost: localhost\r\n{$v}: " . strlen($body) . "\r\n\r\n{$body}"
-        );
+       );
         $resp = recv_all($s);
         fclose($s);
         $code = parse_status($resp);

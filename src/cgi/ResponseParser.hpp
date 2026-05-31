@@ -1,12 +1,12 @@
 #pragma once
 
-#include "LineScanner.hpp"
 #include "http/common/Headers.hpp"
+#include "LineScanner.hpp"
 
 namespace cgi {
+namespace parser {
 
 enum CGIParseState {
-	STATUS_LINE,
 	HEADERS,
 	HEADERS_DONE,
 	CGI_ERROR
@@ -26,16 +26,18 @@ struct CGIParseContext {
 	CGIParseState 	state_;
 };
 
-class CGIResponseBuilder {
+class ResponseParser {
 private:
     http::Headers headers_;
-    CGIParseContext ctx_;
+    CGIParseContext parse_ctx;
 
 public:
 	ParseResult parse_headers( DataView& view );
 	void sanitize_status_line( const std::pair<std::string, std::string>& header );
 	void sanitize_header( std::pair<std::string, std::string>& header );
-
+    const http::Headers& headers() const;
+    bool finished() const;
 };
 
+}
 }

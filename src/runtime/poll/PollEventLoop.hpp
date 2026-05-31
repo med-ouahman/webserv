@@ -13,10 +13,10 @@ private:
 	pollfd fds[MAX_FDS];
 	size_t nfds;
 
-	PollEventLoop( const PollEventLoop& );
-	PollEventLoop& operator=( const PollEventLoop& );
+	PollEventLoop(const PollEventLoop&);
+	PollEventLoop& operator=(const PollEventLoop&);
 public:
-	void add_fd( const pollfd* fd );
+	void add_fd(const pollfd* fd);
 	int run();
 	PollEventLoop();
 	~PollEventLoop();

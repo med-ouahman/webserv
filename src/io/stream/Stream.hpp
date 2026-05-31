@@ -18,8 +18,8 @@ namespace io {
 
 class IStreamDelegate {
 public:
-	virtual void consume( DataView& view ) = 0;
-	virtual void produce( BufferWriter& w ) = 0;
+	virtual void consume(DataView& view) = 0;
+	virtual void produce(BufferWriter& w) = 0;
 	virtual void on_stream_error() = 0;
 	virtual void on_stream_closed() = 0;
 	virtual ~IStreamDelegate() {};
@@ -30,9 +30,9 @@ class Stream: public AEventHandler {
 public:
 	const static std::size_t READ_BUFFER_SIZE = 1024 * 4;
 	const static std::size_t WRITE_BUFFER_SIZE = 1024 * 4;
-	Stream( int fd, Event events_, IStreamDelegate& de );
+	Stream(int fd, Event events_, IStreamDelegate& de);
 	~Stream();
-	void on_event( io::Event events_ );
+	void on_event(io::Event events_);
 
 private:
 	IStreamDelegate& delegate;

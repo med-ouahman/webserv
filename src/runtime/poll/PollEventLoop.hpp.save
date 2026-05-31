@@ -7,8 +7,8 @@ namespace poll {
 
 class PollEventLoop {
 private:
-	PollEventLoop( const PollEventLoop& );
-	PollEventLoop& operator=( const PollEventLoop& );
+	PollEventLoop(const PollEventLoop&);
+	PollEventLoop& operator=(const PollEventLoop&);
 public:
 	PollEventLoop();
 	~PollEventLoop();

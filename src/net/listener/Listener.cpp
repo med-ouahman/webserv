@@ -9,14 +9,14 @@
 
 namespace net {
 	
-Listener::Listener( int fd, io::Event mask, AcceptContext ctx )
+Listener::Listener(int fd, io::Event mask, AcceptContext ctx)
 	: AEventHandler(fd, mask),
 	state_(LISTENING),
 	accept_ctx(ctx) {}
 
 Listener::~Listener() {}
 
-void Listener::on_event( io::Event event ) {
+void Listener::on_event(io::Event event) {
 	
 	switch (event) {
 		case io::READABLE:
@@ -39,7 +39,7 @@ bool Listener::accept_clients() {
 
 	struct sockaddr_in client_addr;
 	socklen_t client_addr_len = sizeof(client_addr);
-	int client_fd = ::accept(fd(), (struct sockaddr* )&client_addr, &client_addr_len);
+	int client_fd = ::accept(fd(), (struct sockaddr*)&client_addr, &client_addr_len);
 	
 	if (client_fd < 0) return false;
 	
@@ -64,7 +64,7 @@ Base::Result<Listener*> create_listening_socket(
 	::memset(&server_addr, 0, sizeof server_addr);
 	server_addr.sin_family = AF_INET;
 		
-	if (!::inet_pton(AF_INET, ::inet_ntoa((in_addr ){ .s_addr = endpoint.host }), &server_addr.sin_addr))
+	if (!::inet_pton(AF_INET, ::inet_ntoa((in_addr){ .s_addr = endpoint.host }), &server_addr.sin_addr))
 		return MAKE_ERRNO_ERROR("EventLoop::create_listening_socket::inet_pton()");
 	
 	server_addr.sin_port = ::htons(endpoint.port);

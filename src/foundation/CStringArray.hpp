@@ -16,7 +16,7 @@ private:
         cache_.clear();
         cache_.reserve(storage_.size() + 1);
 
-        for ( size_t i = 0; i < storage_.size(); ++i )
+        for (size_t i = 0; i < storage_.size(); ++i)
             cache_.push_back(const_cast<char*>(storage_[i].c_str()));
 
         cache_.push_back(NULL);
@@ -33,6 +33,19 @@ public:
 
     void push(const char* s) {
         storage_.push_back(s);
+        cache_expired_ = true;
+    }
+    /* __arr should be a NULL terminated array of strings */
+    void push_array(const char** __arr) {
+        size_t size(0);
+        for (; __arr[size]; ++size);
+        
+        storage_.reserve(size);
+        
+        for ( size_t i(0); __arr[i]; ++i ) {
+            storage_.push_back(__arr[i]);
+        }
+
         cache_expired_ = true;
     }
 

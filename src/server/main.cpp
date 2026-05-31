@@ -9,8 +9,7 @@ namespace config {
     Config Config::instance;
 }
 
-
-int main( int argc, const char* argv[] ) {
+int main(int argc, const char* argv[]) {
 
     if (argc > 2) {
         std::cerr << "Usage:\n./webserv [ configuration file ]\n";
@@ -18,7 +17,7 @@ int main( int argc, const char* argv[] ) {
     }
 
     sys::handle_signals();
-    
+
     std::string config_file = argv[1] != NULL ? argv[1]: "config/webserv.conf";
 
     #ifdef DEV_MODE

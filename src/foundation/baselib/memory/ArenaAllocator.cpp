@@ -14,12 +14,12 @@ ArenaAllocator::~ArenaAllocator() {
 	}
 }
 
-char* ArenaAllocator::arena_base( Arena* arena ) {
+char* ArenaAllocator::arena_base(Arena* arena) {
 	return (char*)(arena + 1);
 }
 
-bool ArenaAllocator::grow( usize min_size ) {
-	usize capacity = head ? head->capacity + ( head->capacity / 2 ) : min_size;
+bool ArenaAllocator::grow(usize min_size) {
+	usize capacity = head ? head->capacity + (head->capacity / 2) : min_size;
 	if (capacity < min_size)
 		capacity = min_size;
 
@@ -37,7 +37,7 @@ bool ArenaAllocator::grow( usize min_size ) {
 	return true;
 }
 
-void* ArenaAllocator::alloc( usize size ) {
+void* ArenaAllocator::alloc(usize size) {
 	usize aligned_size = (size + 7) & ~7;
 
 	if (!head || head->used + aligned_size > head->capacity) {

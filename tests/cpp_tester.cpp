@@ -10,7 +10,7 @@
 #define PORT 11
 int null_index = -1;
 
-uint32_t extract( char* d, int type ) {
+uint32_t extract(char* d, int type) {
     char *to_parse = NULL;
     if (type == IP) {
         int len = ::strlen(d);
@@ -31,7 +31,7 @@ uint32_t extract( char* d, int type ) {
     return uint32_t(data);
 }
 
-int main( int argc, char** argv ) {
+int main(int argc, char** argv) {
     
     if (argc != 2) {
         std::cerr << "Usage:\n" << argv[0] << " IP:PORT\n";

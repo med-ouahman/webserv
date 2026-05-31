@@ -10,7 +10,7 @@ namespace http {
 	class Date {
 		
 		public:
-			static std::string format( const Timestamp& ts ) {
+			static std::string format(const Timestamp& ts) {
 				struct tm f;
 				char buf[100];
 				const time_t s = ts.seconds();
@@ -28,7 +28,7 @@ namespace http {
 				return "Date: " + format(Timestamp::now()) + "\r\n";
 			}
 
-			static std::string http_date_header( const Timestamp& ts ) {
+			static std::string http_date_header(const Timestamp& ts) {
 				return "Date: " + format(ts) + "\r\n";
 			}
 	};

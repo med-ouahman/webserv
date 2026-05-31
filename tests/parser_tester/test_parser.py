@@ -99,7 +99,7 @@ def test_post_with_body():
         b"Content-Type: application/x-www-form-urlencoded\r\n"
         b"Content-Length: " + str(len(body)).encode() + b"\r\n"
         b"\r\n" + body
-    )
+   )
     s.sendall(req)
     raw = recv_all(s)
     s.close()
@@ -195,7 +195,7 @@ def test_large_body():
         b"Host: localhost\r\n"
         b"Content-Length: " + str(len(body)).encode() + b"\r\n"
         b"\r\n" + body
-    )
+   )
     s.sendall(req)
     raw = recv_all(s, timeout=5)
     s.close()

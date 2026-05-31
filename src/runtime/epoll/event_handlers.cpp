@@ -8,7 +8,7 @@ namespace runtime {
 
 namespace epoll {
 
-bool EventLoop::register_handler( io::AEventHandler* handler ) {
+bool EventLoop::register_handler(io::AEventHandler* handler) {
 	epoll_event event;
 	event.events = decode_events(handler->events());
 	event.data.ptr = handler;
@@ -36,13 +36,13 @@ bool EventLoop::register_handler( io::AEventHandler* handler ) {
 	return true;
 }
 
-bool EventLoop::modify_handler( io::AEventHandler* handler ) {
+bool EventLoop::modify_handler(io::AEventHandler* handler) {
 	
 	epoll_event event;
 	event.events = decode_events(handler->events());
 	event.data.ptr = const_cast<io::AEventHandler*>(handler);
 	
-	if (::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, handler->fd(), &event)) {
+	if (::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, handler->fd(), &event) < 0) {
 		LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_ctl(EPOLL_CTL_MOD)"));
 		return false;
 	}
@@ -53,7 +53,7 @@ bool EventLoop::modify_handler( io::AEventHandler* handler ) {
 	return true;
 }
 
-bool EventLoop::del_handler( io::AEventHandler* handler ) {
+bool EventLoop::del_handler(io::AEventHandler* handler) {
 	if (::epoll_ctl(epoll_fd, EPOLL_CTL_DEL, handler->fd(), NULL)) {
 		LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_ctl(EPOLL_CTL_DEL)"));
 		return false;
@@ -65,9 +65,9 @@ bool EventLoop::del_handler( io::AEventHandler* handler ) {
 	return true;
 }
 
-void EventLoop::sync( io::AEventHandler* handler ) {
+void EventLoop::sync(io::AEventHandler* handler) {
 
-	if (handler->events() == 0) {
+	if (handler->events() == io::NONE) {
 		del_handler(handler);
 		return;
 	}
@@ -78,7 +78,7 @@ void EventLoop::sync( io::AEventHandler* handler ) {
 	handler->sync();
 }
 
-io::Event EventLoop::encode_events( EpollEvent epoll_event ) {
+io::Event EventLoop::encode_events(EpollEvent epoll_event) {
     io::Event event = io::NONE;
 
     if (epoll_event & EPOLLIN)
@@ -99,7 +99,7 @@ io::Event EventLoop::encode_events( EpollEvent epoll_event ) {
     return event;
 }
 
-EpollEvent EventLoop::decode_events( io::Event event ) {
+EpollEvent EventLoop::decode_events(io::Event event) {
     EpollEvent ev = 0;
 
     if (event & io::READABLE)

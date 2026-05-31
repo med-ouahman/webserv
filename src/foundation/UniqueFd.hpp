@@ -5,13 +5,13 @@
 class UniqueFd {
 private:
     int fd_;
-    UniqueFd( const UniqueFd& other );
-    UniqueFd& operator=( const UniqueFd& other );
+    UniqueFd(const UniqueFd& other);
+    UniqueFd& operator=(const UniqueFd& other);
 
 public:
     UniqueFd() : fd_(-1) {}
 
-    explicit UniqueFd( int fd ) : fd_(fd) {}
+    explicit UniqueFd(int fd) : fd_(fd) {}
 
     ~UniqueFd() { reset(); }
 
@@ -34,7 +34,7 @@ public:
         fd_ = newfd;
     }
 
-    void set( int newfd ) {
+    void set(int newfd) {
         reset(newfd);
     }
 

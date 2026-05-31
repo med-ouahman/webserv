@@ -11,7 +11,7 @@ PollEventLoop::~PollEventLoop() {
 
 }
 
-void PollEventLoop::add_fd( const pollfd* fd ) {
+void PollEventLoop::add_fd(const pollfd* fd) {
 
     if (nfds >= MAX_FDS) return;
     ++nfds;

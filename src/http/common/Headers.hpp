@@ -10,22 +10,22 @@ private:
 	struct Header {
 		std::string name;
 		std::string value;
-		Header( const std::string& _name, const std::string& _value ): name(_name), value(_value) {}
+		Header(const std::string& _name, const std::string& _value): name(_name), value(_value) {}
 	};
 	
 	std::vector<Header> headers_;
 
 public:
-	const std::string& get( const std::string& name ) const;
-	const std::string& operator[]( const std::string& name );
-	void add( std::string const& name, std::string const& value );
-	void remove( std::string const& name );
-	bool has( const std::string& name );
-	bool replace( std::string const& name, std::string const& new_value );
+	const std::string& get(const std::string& name) const;
+	const std::string& operator[](const std::string& name);
+	void add(std::string const& name, std::string const& value);
+	void remove(std::string const& name);
+	bool has(const std::string& name);
+	bool replace(std::string const& name, std::string const& new_value);
 	Headers();
-	Headers( const Headers& other );
+	Headers(const Headers& other);
 	~Headers();
-	Headers& operator=( const Headers& other );
+	Headers& operator=(const Headers& other);
 	size_t size() const;
 
 	typedef std::vector<Header>::iterator iterator;

@@ -19,12 +19,12 @@ private:
     int fd_;
     Event events_;
     Event applied_events_;
-    AEventHandler( const AEventHandler& );
-    AEventHandler& operator=( const AEventHandler& );
+    AEventHandler(const AEventHandler&);
+    AEventHandler& operator=(const AEventHandler&);
     
 public:
-    AEventHandler( int __fd, Event events ): fd_(__fd), events_(events), applied_events_(events) {};
-    virtual void on_event( Event event ) = 0;
+    AEventHandler(int __fd, Event events): fd_(__fd), events_(events), applied_events_(events) {};
+    virtual void on_event(Event event) = 0;
     virtual ~AEventHandler() {
         if (fd_ >= 0) {
             ::close(fd_);
@@ -34,7 +34,7 @@ public:
 
     int fd() const { return fd_; }
     Event events() const { return events_; }
-    void update_events( Event new_ev ) { events_ = new_ev; }
+    void update_events(Event new_ev) { events_ = new_ev; }
     bool synced() const {
         return applied_events_ == events_; 
     }

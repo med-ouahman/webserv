@@ -10,8 +10,8 @@ class BufferWriter {
 		const size_t capacity_;
 		size_t offset_;
 		size_t size_;
-		BufferWriter( const BufferWriter& other );
-		BufferWriter& operator=( const BufferWriter& other );
+		BufferWriter(const BufferWriter& other);
+		BufferWriter& operator=(const BufferWriter& other);
 	
 	public:
 		BufferWriter();
@@ -23,10 +23,10 @@ class BufferWriter {
 		bool full();
 		bool empty();
 		size_t remaining();
-		void advance( size_t n );
+		void advance(size_t n);
 		void reset();
 		size_t capacity();
 		size_t bytes_free();
-		size_t write( const char* src, size_t n__ );
+		size_t write(const char* src, size_t n__);
 };
 

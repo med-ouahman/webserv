@@ -6,9 +6,9 @@ Headers::Headers() {}
 
 Headers::~Headers() {}
 
-Headers::Headers( const Headers& other ): headers_(other.headers_) {}
+Headers::Headers(const Headers& other): headers_(other.headers_) {}
 
-Headers& Headers::operator=( const Headers& other ) {
+Headers& Headers::operator=(const Headers& other) {
     if (this not_eq &other) {
         headers_ = other.headers_;
     }
@@ -16,39 +16,39 @@ Headers& Headers::operator=( const Headers& other ) {
     return *this;
 }
 
-const std::string& Headers::get( const std::string& name ) const {
+const std::string& Headers::get(const std::string& name) const {
     static std::string const s("");
     
-    for ( size_t i(0); i < headers_.size(); ++i ) {
+    for (size_t i(0); i < headers_.size(); ++i) {
         if (headers_[i].name == name) return headers_[i].value;
     }
 
     return s;
 }
 
-void Headers::add( std::string const& name, std::string const& value ) {
+void Headers::add(std::string const& name, std::string const& value) {
     if (name.empty()) return ;
 
     headers_.push_back(Header(name, value));
 }
 
-void Headers::remove( std::string const& name ) {
+void Headers::remove(std::string const& name) {
 
-    for ( size_t i(0); i < headers_.size(); ++i ) {
+    for (size_t i(0); i < headers_.size(); ++i) {
         if (headers_[i].name == name) headers_[i].name = "";
     }
 
 }
 
-bool Headers::has( const std::string& name ) {
+bool Headers::has(const std::string& name) {
     return !get(name).empty();
 }
 
-bool Headers::replace( std::string const& name, std::string const& new_value ) {
+bool Headers::replace(std::string const& name, std::string const& new_value) {
 
     if (name.empty()) return false;
 
-    for ( size_t i(0); i < headers_.size(); ++i ) {
+    for (size_t i(0); i < headers_.size(); ++i) {
         if (headers_[i].name == name) {
             headers_[i].name = new_value;
             return true;

@@ -12,7 +12,7 @@ def main(argv) -> int:
         "GET /ka/cpp/2 HTTP/1.1\r\nHost: localhost\r\nConnection: keep-alive\r\n\r\n"
         "GET /ka/cpp/3 HTTP/1.1\r\nHost: localhost\r\nConnection: keep-alive\r\n\r\n"
         "GET /ka/cpp/4 HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n"
-    )
+   )
     
     s.sendall(requests.encode())
     

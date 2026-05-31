@@ -10,19 +10,19 @@ class DataView {
         size_t size_;
         size_t cursor_;
 
-        DataView( const DataView& v );
-        DataView& operator=( const DataView& v );
+        DataView(const DataView& v);
+        DataView& operator=(const DataView& v);
 
     public:
-        DataView( const char* data, size_t size );
+        DataView(const char* data, size_t size);
         ~DataView();
-        void advance( size_t n );
+        void advance(size_t n);
         const char* data() const;
         const char* read_ptr() const;
         bool empty() const;
-        void rewind( size_t n );
-        void shrink( size_t size );
-        void update( size_t new_size );
+        void rewind(size_t n);
+        void shrink(size_t size);
+        void update(size_t new_size);
         void reset();
         size_t cursor() const;
         size_t size() const;

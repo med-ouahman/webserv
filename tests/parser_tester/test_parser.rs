@@ -126,7 +126,7 @@ fn test_post_with_body(st: &mut Stats, host: &str, port: u16) {
          Content-Type: application/x-www-form-urlencoded\r\n\
          Content-Length: {}\r\n\r\n",
         body.len()
-    );
+   );
     send_all(&mut s, req.as_bytes());
     send_all(&mut s, body);
     let resp = recv_all(&mut s);
@@ -147,7 +147,7 @@ fn test_content_length_zero(st: &mut Stats, host: &str, port: u16) {
         "CL:0 — server responds (no hang)",
         !resp.is_empty(),
         "got no response — parser likely stuck in NEED_MORE",
-    );
+   );
     st.check("CL:0 — valid status code", parse_status(&resp) > 0, "");
 }
 
@@ -214,7 +214,7 @@ fn test_large_body(st: &mut Stats, host: &str, port: u16) {
     let header = format!(
         "POST /large HTTP/1.1\r\nHost: localhost\r\nContent-Length: {}\r\n\r\n",
         body.len()
-    );
+   );
     send_all(&mut s, header.as_bytes());
     send_all(&mut s, &body);
     let resp = recv_all(&mut s);
@@ -232,7 +232,7 @@ fn test_pipelined(st: &mut Stats, host: &str, port: u16) {
     send_all(&mut s,
         b"GET /pipe/rs/1 HTTP/1.1\r\nHost: localhost\r\n\r\n\
           GET /pipe/rs/2 HTTP/1.1\r\nHost: localhost\r\n\r\n"
-    );
+   );
     let resp  = recv_all(&mut s);
     let count = count_occurrences(&resp, b"HTTP/1.");
     st.check("Both pipelined responses received", count == 2, &format!("got {}", count));
@@ -261,7 +261,7 @@ fn test_keep_alive(st: &mut Stats, host: &str, port: u16) {
         let req  = format!(
             "GET /ka/rs/{} HTTP/1.1\r\nHost: localhost\r\nConnection: {}\r\n\r\n",
             i, conn
-        );
+       );
         if send_all(&mut s, req.as_bytes()) { } else { break; }
     }
     let resp  = recv_all(&mut s);
@@ -283,7 +283,7 @@ fn test_header_case_variants(st: &mut Stats, host: &str, port: u16) {
         let req  = format!(
             "POST /case HTTP/1.1\r\nHost: localhost\r\n{}: {}\r\n\r\n{}",
             v, body.len(), body
-        );
+       );
         send_all(&mut s, req.as_bytes());
         let resp = recv_all(&mut s);
         let code = parse_status(&resp);
@@ -291,7 +291,7 @@ fn test_header_case_variants(st: &mut Stats, host: &str, port: u16) {
             &format!("CL variant '{}' — not 400", v),
             code != 400,
             &code.to_string(),
-        );
+       );
     }
 }
 
@@ -308,7 +308,7 @@ fn test_non_ascii_garbage(st: &mut Stats, host: &str, port: u16) {
         "Binary garbage — returns 400 or closes",
         code == 400 || resp.is_empty(),
         &code.to_string(),
-    );
+   );
 }
 
 // ── main ──────────────────────────────────────────────────────────────────────

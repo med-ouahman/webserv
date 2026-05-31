@@ -15,7 +15,7 @@ struct TCPSocket
 {
     int fd = -1;
 
-    explicit TCPSocket( const char* host, uint16_t port )
+    explicit TCPSocket(const char* host, uint16_t port)
     {
         fd = ::socket(AF_INET, SOCK_STREAM, 0);
         if (fd < 0) return;
@@ -65,7 +65,7 @@ struct TCPSocket
 };
 
 
-std::string generate_response( int num_headers, bool body ) {
+std::string generate_response(int num_headers, bool body) {
 	std::string req_line = "GET / HTTP/1.1\r\n";
 	std::string headers = "host: host\r\n";
 	while (num_headers) {
@@ -77,7 +77,7 @@ std::string generate_response( int num_headers, bool body ) {
 	return req_line;
 }
 
-int main( int argc, char** argv ) {
+int main(int argc, char** argv) {
 	
 	if (argc != 4) {
 		std::cerr << "Usage: " << argv[0] << " HOST " << " PORT " << " NUM_REQUESTS\n";
@@ -94,7 +94,7 @@ int main( int argc, char** argv ) {
 		return 1;
 	}
 	std::string response = generate_response(100, false);
-	for ( int i = 0; i < num_req; ++i) {
+	for (int i = 0; i < num_req; ++i) {
 		s.send_all(response);
         std::cout << s.recv_all();
 	}

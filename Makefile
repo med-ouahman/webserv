@@ -46,7 +46,6 @@ SRCS = src/server/main.cpp \
 	src/runtime/epoll/run.cpp \
 	src/runtime/epoll/event_handlers.cpp \
 	src/cgi/process/Process.cpp \
-	src/cgi/resolve.cpp \
 	src/cgi/build_envp.cpp \
 	src/cgi/response_builder.cpp \
 	src/cgi/handler/CGIRequestHandler.cpp \
@@ -55,6 +54,8 @@ SRCS = src/server/main.cpp \
 	src/http/common/Headers.cpp \
 	src/http/parser/parse_headers.cpp \
 	src/http/parser/utils.cpp \
+	src/http/Request.cpp \
+	src/http/Response.cpp \
 	src/config/ConfigParser.cpp \
 	src/config/Lexer.cpp \
 	src/foundation/DataView.cpp \

@@ -1,55 +1,61 @@
 #pragma once
 
-#include "UniqueFd.hpp"
 #include <unistd.h>
-
 
 class Pipe {
 private:
     bool created_;
-    UniqueFd read_end_;
-    UniqueFd write_end_;
+    int read_end_;
+    int write_end_;
 
 public:
-static bool create( Pipe& out ) {
+static bool create(Pipe& out) {
     int fds[2];
 
     if (::pipe(fds) == -1)
         return false;
 
-    out.read_end_.set(fds[0]);
-    out.write_end_.set(fds[1]);
+    out.read_end_ = fds[0];
+    out.write_end_ = fds[1];
     return true;
 }
 
 void close() {
-    read_end_.close();
-    write_end_.close();
+    ::close(read_end_);
+    ::close(write_end_);
 }
 
-UniqueFd& read_end() {
+int& read_end() {
     return read_end_;
 }
 
-UniqueFd& write_end() {
+int& write_end() {
     return write_end_;
 }
 
 void reset() {
-    read_end_.close();
-    write_end_.close();
+    close();
 }
 
 Pipe(): created_(create(*this)) {}
 
+void close_write_end() {
+    ::close(write_end_);
+    write_end_ = -1;
+}
+
+void close_read_end() {
+    ::close(read_end_);
+    read_end_ = -1;
+}
 
 ~Pipe() {
-    read_end_.close();
-    write_end_.close();
+    close();
 }
 
 operator bool() {
     return created_;
 }
+
 };
 

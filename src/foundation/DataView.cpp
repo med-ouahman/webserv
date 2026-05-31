@@ -1,14 +1,14 @@
 #include "DataView.hpp"
 
 
-DataView::DataView( const char* data_p, size_t size )
+DataView::DataView(const char* data_p, size_t size)
 	: data_(data_p),
 	size_(size),
 	cursor_(0) {}
 
 DataView::~DataView() {}
 
-void DataView::advance( size_t n ) {
+void DataView::advance(size_t n) {
 	cursor_ += n;
 }
 
@@ -39,15 +39,15 @@ bool DataView::empty() const {
 	return cursor_ >= size_;
 }
 
-void DataView::rewind( size_t n ) {
+void DataView::rewind(size_t n) {
 	cursor_ -= n;
 }
 
-void DataView::shrink( size_t new_size ) {
+void DataView::shrink(size_t new_size) {
 	size_ = new_size;
 }
 
-void DataView::update( size_t new_size ) {
+void DataView::update(size_t new_size) {
 	size_ = new_size;
 	cursor_ = 0;
 }

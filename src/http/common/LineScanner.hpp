@@ -18,7 +18,7 @@ private:
 public:
 	void reset();
 	std::string const& line();
-	ScanResult scan( DataView& view, size_t max_block_len );
+	ScanResult scan(DataView& view, size_t max_block_len);
 	
 	LineScanner();
 	~LineScanner();

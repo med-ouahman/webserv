@@ -2,21 +2,27 @@
 #include <unistd.h>
 #include <cstring>
 #include <cerrno>
-
 #include <fcntl.h>
 #include <sstream>
+#include "Context.hpp"
+#include "CGIRequestHandler.hpp"
+#include "Dispatcher.hpp"
 
-namespace net { 
-    
-Connection::Connection( int _fd, io::Event events )
+namespace net {
+
+Connection::Connection(int _fd, io::Event events)
     : stream_(_fd, events, *this),
     state_(READING),
+    request_handler(NULL),
     close_after_write(false),
     last_activity_(),
     lifetime_()
   /*  ctx() */{}
 
-Connection::~Connection() {}
+Connection::~Connection() {
+	delete request_handler;
+	request_handler = NULL;
+}
 
 void Connection::update_stream() {
     switch (state_) {
@@ -41,7 +47,7 @@ bool Connection::timedout() {
     /*
     switch (ctx.state()) {
         case http::REQUEST_LINE:
-        // timeout logic here      
+        // timeout logic here 
         default:
         return false;
     }
@@ -50,42 +56,52 @@ bool Connection::timedout() {
     return false;
 }
 
-void Connection::consume( DataView& view ) {
+void Connection::consume(DataView& view) {
     /* in development */
     // ctx.consume(view.data(), view.size());
     std::cout << view.data(), view.size();
-    state_ = WRITING;
+    if (!request_handler) {
+        http::ResolutionResult r;
+        http::Request req;
+        req.body = "body";
+        req.headers_.add("Headername", "header value");
+        r.query_string = "/QUERY";
+        request_handler = new http::CGIRequestHandler(r, req);
+    }
+
+    state_ = CLOSING;
     update_stream();
 }
 
-void Connection::produce( BufferWriter& writer ) {
+void Connection::produce(BufferWriter& writer) {
     // Base::io::Writer w(writer.data(), writer.size());
     /* in development */
     // ctx.produce(w);
     if (writer.remaining() == 0 && close_after_write) {
         state_ = CLOSING;
         update_stream();
-        return ;
+        return;
     }
 
-    std::cout << "Writing...\n";
-    int fd = open("var/www/error_pages/404.html", O_RDONLY);
-    char a[1024];
-    int x;
-    std::string h = "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: ";
-    std::string body;
-    size_t si = 0;
-    while ((x=read(fd,a,1024)) > 0) {
-        si+=x;
-        body.append(a, x);
-    }
-    std::stringstream ss;
-    ss << si;
-    h += ss.str() + "\r\n\r\n";
-    h.append(body);
-    writer.write(h.c_str(), h.size());
-    state_ = WRITING;
-    close_after_write = true;
+    // std::cout << "Writing...\n";
+    // int fd = open("var/www/error_pages/404.html", O_RDONLY);
+    // char a[1024];
+    // int x;
+    // std::string h = "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: ";
+    // std::string body;
+    // size_t si = 0;
+    // while ((x=read(fd,a,1024)) > 0) {
+    //     si+=x;
+    //     body.append(a, x);
+    // }
+    // std::stringstream ss;
+    // ss << si;
+    // h += ss.str() + "\r\n\r\n";
+    // h.append(body);
+    // writer.write(h.c_str(), h.size());
+    // state_ = WRITING;
+    // close_after_write = true;
+
 }
 
 void Connection::on_stream_error() {

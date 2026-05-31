@@ -1,45 +1,55 @@
 
-#include "cgi.hpp"
+#include "EnvBuilder.hpp"
 #include <iomanip>
 #include <sstream>
+#include "Request.hpp"
+#include "Dispatcher.hpp"
+#include <fcntl.h>
+#include <unistd.h>
 
 namespace cgi {
-namespace envp {
 
-const char* Builder::metadata[] = {"REQUEST_METHOD", "SERVER_PROTOCOL", "QUERY_STRING", NULL};
-const char* Builder::stripped_headers[] = {"transfer-encoding", "content-length", "content-type", "connection", NULL};
+const char* EnvBuilder::metadata[] = {"REQUEST_METHOD", "SERVER_PROTOCOL", "QUERY_STRING", NULL};
+const char* EnvBuilder::stripped_headers[] = {"transfer-encoding", "content-length", "content-type", "connection", NULL};
 
-bool Builder::forbidden_header( const std::string& header_name ) {
+bool EnvBuilder::forbidden_header(const std::string& header_name) {
 
-    for ( size_t i(0); stripped_headers[i] != NULL; ++i ) {
+    for (size_t i(0); stripped_headers[i] != NULL; ++i) {
         if (stripped_headers[i] == header_name) return true;
     }
 
     return false;
 }
 
-std::string Builder::transform( bool has_http_prefix, http::Headers::const_iterator& it ) {
+std::string EnvBuilder::transform(bool has_http_prefix, http::Headers::const_iterator& it) {
 
     std::string result;
+
     const std::string http_prefix = has_http_prefix ? "HTTP_": "";
 
     size_t size = it->name.size() + it->value.size() + http_prefix.size();
+    
     result.reserve(size);
     result.append(http_prefix);
-    for ( size_t i = 0; i < it->name.size(); ++i ) {
+    
+    std::string name;
+
+    for (size_t i =  0; i < it->name.size(); ++i) {
         char c = it->name[i];
-        if (c == '-') result[i] = '_';
-        else result[i] = std::toupper(static_cast<unsigned char>(c));
+        if (c == '-') name += '_';
+        else name += std::toupper(c);
     }
-    result.append(it->name);
+    
+    result.append(name);
+    result.append(it->value);
     return result;
 }
 
-http::Headers Builder::build_metadata( const resolver::CGIRequestContext& ctx ) {
+http::Headers EnvBuilder::build_metadata(const CGIRequestContext& ctx) {
 
     http::Headers headers;
 
-    for ( size_t i(0); metadata[i] != NULL; ++i ) {
+    for (size_t i(0); metadata[i] != NULL; ++i) {
         std::string s = std::string(metadata[i]);
         if (s == "REQUEST_METHOD") {
             headers.add(s, ctx.request_method);
@@ -70,19 +80,22 @@ http::Headers Builder::build_metadata( const resolver::CGIRequestContext& ctx ) 
     return headers;
 }
 
-CStringArray Builder::build( const resolver::CGIRequestContext& ctx,
-    http::Headers const& request_headers ) {
+CStringArray EnvBuilder::build(const CGIRequestContext& ctx,
+    http::Headers const& request_headers) {
 
     http::Headers headers = build_metadata(ctx);
     CStringArray arr;
-    for ( http::Headers::const_iterator it = headers.begin();
+    
+    arr.push_array(const_cast<const char**>(__environ));
+
+    for (http::Headers::const_iterator it = headers.begin();
             it != headers.end();
-            ++it ) {
+            ++it) {
         arr.push(transform(false, it).c_str());
     }
     
-    for ( http::Headers::const_iterator it = request_headers.begin();
-        it != request_headers.end(); ++it ) {
+    for (http::Headers::const_iterator it = request_headers.begin();
+        it != request_headers.end(); ++it) {
             if (forbidden_header(it->name)) continue;
             arr.push(transform(true, it));
     }
@@ -90,6 +103,21 @@ CStringArray Builder::build( const resolver::CGIRequestContext& ctx,
     return arr;
 }
 
+CGIExecContext resolve_exec_context(http::Request const& req, const http::ResolutionResult& r) {
+    
+    CGIRequestContext req_ctx;
+    req_ctx.body_content_length = 100;
+    req_ctx.body_filename = "/tmp/some";
+    req_ctx.query_string = r.query_string;
 
+    CGIExecContext exec_ctx;
+    exec_ctx.interpreter = "/bin/python3";
+
+    exec_ctx.stdin_fd = ::open(req_ctx.body_filename.c_str(), O_RDONLY);
+    exec_ctx.envp = EnvBuilder::build(req_ctx, req.headers_);
+    exec_ctx.argv.push(exec_ctx.interpreter);
+    exec_ctx.argv.push("cgi-bin/hello.py");
+    return exec_ctx;
 }
+
 }

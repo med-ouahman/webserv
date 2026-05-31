@@ -21,15 +21,15 @@ private:
 	Arena*	head;
 	State	state;
 
-	char*	arena_base( Arena* arena );
-	bool	grow( usize min_size );
+	char*	arena_base(Arena* arena);
+	bool	grow(usize min_size);
 
 public:
 
 	ArenaAllocator();
 	~ArenaAllocator();
 
-	void*	alloc( usize size );
+	void*	alloc(usize size);
 	void	reset();
 	State	getState() const;
 };

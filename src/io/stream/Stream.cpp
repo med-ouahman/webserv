@@ -2,7 +2,7 @@
 
 namespace io {
 
-Stream::Stream( int fd, Event mask, IStreamDelegate& d )
+Stream::Stream(int fd, Event mask, IStreamDelegate& d)
     : AEventHandler(fd, mask),
     delegate(d),
     readbuf(),
@@ -10,7 +10,7 @@ Stream::Stream( int fd, Event mask, IStreamDelegate& d )
 
 Stream::~Stream() {}
 
-void Stream::on_event( io::Event event ) {
+void Stream::on_event(io::Event event) {
     
     switch (event) {
         case READABLE:
@@ -63,7 +63,7 @@ void Stream::on_writeable() {
         return ;
     }
 
-    writer.advance(n);   
+    writer.advance(n);
 }
 
 }

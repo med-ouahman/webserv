@@ -11,20 +11,20 @@
 #define MAX_EVENTS 10
 #define MAX_INP_PIPES 4
 
-void read_fr( int f ){
+void read_fr(int f){
     char b[101];
     printf("> ");
     b[read(f, b, 100)] = 0;
     printf("%s\n", b);
 }
 
-void write_fr( int fd ) {
+void write_fr(int fd) {
     char b[100];
     read(0, b, 100);
     write(fd, b, 100);
 }
 
-int main( int argc, char* argv[] ) {
+int main(int argc, char* argv[]) {
     
     int epfd = epoll_create1(EPOLL_CLOEXEC);
 
@@ -55,7 +55,7 @@ int main( int argc, char* argv[] ) {
         int n = epoll_wait(epfd, events, MAX_EVENTS, -1);
 
         printf("n: %d\n", n);
-        for ( int i = 0; i < n; i++ ) {
+        for (int i = 0; i < n; i++) {
             if (events[i].events&EPOLLIN) {
                 read_fr(events[i].data.fd);
             } else {

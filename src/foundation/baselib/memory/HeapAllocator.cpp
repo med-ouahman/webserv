@@ -3,11 +3,11 @@
 
 namespace mem {
 
-void* HeapAllocator::alloc( usize size ) {
+void* HeapAllocator::alloc(usize size) {
 	return ::operator new(size, std::nothrow);
 }
 
-void HeapAllocator::free( void* ptr ) {
+void HeapAllocator::free(void* ptr) {
 	::operator delete(ptr);
 }
 

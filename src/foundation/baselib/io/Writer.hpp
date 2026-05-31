@@ -43,10 +43,13 @@ public:
 		Writer(char* buffer, usize capacity);
 
 	/**
-	 * ~Writer - release owned resources
+	
+	* ~Writer - release owned resources
 	 *
 	 * Closes fd_ only when owns_fd_ is true.
-	 */
+	
+	 **/
+
 	~Writer();
 
 	bool reset();

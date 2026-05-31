@@ -298,7 +298,7 @@ void test_pipelined()
     s.send_all(
         "GET /pipe/cpp/1 HTTP/1.1\r\nHost: localhost\r\n\r\n"
         "GET /pipe/cpp/2 HTTP/1.1\r\nHost: localhost\r\n\r\n"
-    );
+   );
     auto resp  = s.recv_all();
     int  count = count_occurrences(resp, "HTTP/1.");
 
@@ -318,7 +318,7 @@ void test_http10()
     check("HTTP/1.0 — valid status code", parse_status(resp) > 0);
 }
 
-void test_keep_alive( int n )
+void test_keep_alive(int n)
 {
     suite("Keep-alive: 4 requests on one connection");
     TCPSocket s;
