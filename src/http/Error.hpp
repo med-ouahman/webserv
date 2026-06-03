@@ -9,6 +9,15 @@ enum Error {
 
 	/* parser/request */
 	BAD_REQUEST,
+	UNSUPPORTED_HTTP_VERSION,
+	MISSING_HOST,
+
+	/* Parsing */
+	DUPLICATE_HEADER,
+	INVALID_CONTENT_LENGTH,
+	CONFLICTING_BODY_HEADERS,
+
+	/* Size bound checking */
 	HEADER_TOO_LARGE,
 	BODY_TOO_LARGE,
 

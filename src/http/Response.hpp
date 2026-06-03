@@ -1,16 +1,20 @@
 
 #pragma once
 
+#include <map>
+#include <string>
+
+#include "base/base.hpp"
+#include "http/StatusCode.hpp"
+#include "http/Error.hpp"
+
 namespace http {
 
 struct Response {
-	StatusCode status;
-	std::map<std::string, std::string> headers;
-	std::string body;
 
-	Response();
-	static Response error(StatusCode code);
-	isize produce(Base::io::Writer* writer);
+	std::string body;
+	std::map<std::string, std::string> headers;
+	StatusCode status;
 };
 
 }

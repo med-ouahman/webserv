@@ -4,8 +4,12 @@
 #include <string>
 
 #include "base/base.hpp"
-#include "Request.hpp"
-#include "Response.hpp"
+#include "config/Config.hpp"
+#include "http/Request.hpp"
+#include "http/Response.hpp"
+#include "http/parser/parse.hpp"
+
+#define CRLF "\r\n"
 
 namespace http {
 
@@ -13,8 +17,8 @@ enum ContextState : char {
 	REQUEST_LINE,
 	HEADERS,
 	BODY,
-	CGI_RUNNING,
 	PROCESSING,
+	CGI_RUNNING,
 	RESPONSE_READY,
 	WRITING_RESPONSE,
 	DONE,
@@ -28,7 +32,6 @@ enum ContextState : char {
  * @parse_offset:	current reading position in raw_buffer.
  * @header_bytes:	number of parsed bytes.
  * @body_received:	number of parsed bytes.
- * @content_length:	expected body size.
  *
  * Context's role consists of the following steps:
  * 		- parsing the received data into a 'Request' object.
@@ -47,14 +50,21 @@ private:
 	usize parse_offset;
 	usize header_bytes;
 	usize body_received;
-	usize content_length;
 
 	ContextState state_;
 
+	friend Error	parser::get_chunk(Context& ctx, std::string& out, bool& found);
+	friend Error	parser::parse(Context& ctx);
+	friend Error	parser::parse_request_line(Context& ctx);
+	friend Error	parser::parse_headers(Context& ctx);
+	friend Error	parser::parse_body(Context& ctx);
+
 public:
 
+	Context();
+
 	Error consume(const char* data, usize size);
-	Error process(const config::ServerConfig& config);
+	Error process(const config::Config& config);
 	Error produce(base::io::Writer& writer);
 
 	ContextState state() const;

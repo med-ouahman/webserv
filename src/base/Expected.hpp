@@ -11,7 +11,6 @@ namespace base {
  * */
 template<typename T, typename E>
 class Expected {
-
 private:
 	union Storage {
 		char		t_buf[sizeof(T)];
