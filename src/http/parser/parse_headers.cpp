@@ -4,7 +4,7 @@
 namespace http {
 
 namespace parser {
-Base::Expected<std::pair<std::string, std::string>, int> parse_header(const std::string& line) {
+base::Expected<std::pair<std::string, std::string>, int> parse_header(const std::string& line) {
     std::pair<std::string, std::string> header;
 
     size_t name_len = 0;

@@ -55,7 +55,7 @@ bool Listener::on_error() {
 }
 
 
-Base::Result<Listener*> create_listening_socket(
+base::Result<Listener*> create_listening_socket(
 	const config::ListenEndPoint& endpoint,
 	AcceptContext ctx
 	) {

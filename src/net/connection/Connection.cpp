@@ -16,8 +16,8 @@ Connection::Connection(int _fd, io::Event events, RegisterContext& regis_ctx)
     close_after_write(false),
     last_activity_(),
     lifetime_(),
-    register_ctx(regis_ctx)
-  /*  ctx() */{}
+    register_ctx(regis_ctx),
+    ctx() {}
 
 Connection::~Connection() {
 }
@@ -40,13 +40,14 @@ bool Connection::timedout() {
 
 
 void Connection::consume(DataView& view) {
-    
+    // ctx.consume(view.data(), view.size());
+    std::cout << view.data(), view.size();std::cout << "\n";
 }
 
 void Connection::produce(BufferWriter& writer) {
     
 
-    // Base::io::Writer w(writer.data(), writer.size());
+    // base::io::Writer w(writer.data(), writer.size());
     /* in development */
     // ctx.produce(w);
     if (writer.remaining() == 0 && close_after_write) {

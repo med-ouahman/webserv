@@ -65,13 +65,8 @@ public:
 	Context();
 
 	Error consume(const char* data, usize size);
-<<<<<<< HEAD
-	Error process(const config::ServerConfig& config);
-	Error produce(Base::io::Writer& writer);
-=======
 	Error process(const config::Config& config);
 	Error produce(base::io::Writer& writer);
->>>>>>> 06f1597 (Merge branch 'shady' of github.com:med-ouahman/webserv into shady)
 
 	ContextState state() const;
 };

@@ -11,10 +11,11 @@ namespace base {
  * */
 template<typename T, typename E>
 class Expected {
+
 private:
 	union Storage {
 		char		t_buf[sizeof(T)];
-		long int	align_;
+		long double align_;
 	} storage;
 
 	int err_code;
@@ -29,18 +30,18 @@ private:
 	}
 
 public:
-	Expected( const T& val ) : err_code(0) {
+	Expected(const T& val) : err_code(0) {
 		new (val_ptr()) T(val);
 	}
 
-	Expected( E err ) : err_code(static_cast<int>(err)) {}
+	Expected(E err) : err_code(static_cast<int>(err)) {}
 
-	Expected( const Expected& other ) : err_code(other.err_code) {
+	Expected(const Expected& other) : err_code(other.err_code) {
 		if (err_code == 0)
 			new (val_ptr()) T(*other.val_ptr());
 	}
 
-	Expected& operator=( const Expected& other ) {
+	Expected& operator=(const Expected& other) {
 		if (this != &other) {
 			destroy();
 			err_code = other.err_code;

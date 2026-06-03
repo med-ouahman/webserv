@@ -2,11 +2,11 @@
 #pragma once
 
 #include <string>
-#include "foundation/baselib/types.hpp"
-#include "foundation/baselib/Expected.hpp"
-#include "foundation/baselib/io/Error.hpp"
+#include "base/types.hpp"
+#include "base/Expected.hpp"
+#include "base/io/Error.hpp"
 
-namespace Base {
+namespace base {
 namespace io {
 
 class Reader {
@@ -45,8 +45,8 @@ public:
 	bool reset(i32 fd, bool owns_fd);
 	bool reset(const u8* buffer, usize size);
 
-	Base::Expected<usize, Error> read(u8* buff, usize max_size);
-	Base::Expected<usize, Error> read(char* buff, usize max_size);
+	base::Expected<usize, Error> read(u8* buff, usize max_size);
+	base::Expected<usize, Error> read(char* buff, usize max_size);
 
 	Type type() const;
 };

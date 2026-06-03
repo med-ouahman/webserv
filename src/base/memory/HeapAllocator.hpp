@@ -5,8 +5,8 @@
 namespace mem {
 
 struct HeapAllocator {
-	void*	alloc(usize size);
-	void	free(void* ptr);
+	void*	alloc( usize size );
+	void	free( void* ptr );
 };
 
 }

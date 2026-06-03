@@ -4,7 +4,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-namespace Base {
+namespace base {
 namespace io {
 
 void Reader::close_fd() {
@@ -87,26 +87,26 @@ bool Reader::reset(const u8* buffer, usize size) {
 	return buffer_ != NULL || size_ == 0;
 }
 
-Base::Expected<usize, Error> Reader::read(u8* buff, usize max_size) {
+base::Expected<usize, Error> Reader::read(u8* buff, usize max_size) {
 	if (max_size == 0)
-		return Base::Expected<usize, Error>(static_cast<usize>(0));
+		return base::Expected<usize, Error>(static_cast<usize>(0));
 	if (type_ == BUFFER) {
 		usize available = offset_ < size_ ? size_ - offset_ : 0;
 		usize n = std::min(max_size, available);
 		if (n > 0)
 			::memcpy(buff, buffer_ + offset_, n);
 		offset_ += n;
-		return Base::Expected<usize, Error>(n);
+		return base::Expected<usize, Error>(n);
 	}
 	if (type_ != FILE || fd_ < 0)
-		return Base::Expected<usize, Error>(OPEN_FAILED);
+		return base::Expected<usize, Error>(OPEN_FAILED);
 	ssize_t n = ::read(fd_, buff, max_size);
 	if (n < 0)
-		return Base::Expected<usize, Error>(READ_FAILED);
-	return Base::Expected<usize, Error>(static_cast<usize>(n));
+		return base::Expected<usize, Error>(READ_FAILED);
+	return base::Expected<usize, Error>(static_cast<usize>(n));
 }
 
-Base::Expected<usize, Error> Reader::read(char* buff, usize max_size) {
+base::Expected<usize, Error> Reader::read(char* buff, usize max_size) {
 	return read(reinterpret_cast<u8*>(buff), max_size);
 }
 

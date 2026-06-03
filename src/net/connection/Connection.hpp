@@ -3,8 +3,10 @@
 #include "Registrar.hpp"
 #include "Timestamp.hpp"
 #include "Stream.hpp"
+#include "Context.hpp"
 
-namespace http { class Contex; class IRequestHandler; class CGIRequestHandler; }
+namespace http { class IRequestHandler; class CGIRequestHandler; }
+
 namespace net {
 
 enum ConnectionState {
@@ -35,7 +37,7 @@ private:
 
     RegisterContext register_ctx;
 
-    // http::Context   ctx;
+    http::Context   ctx;
 };
 
 }

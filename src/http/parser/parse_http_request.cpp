@@ -21,7 +21,7 @@ namespace http {
 			switch (request.current_state()) {
 
 				case RequestState::REQUEST_LINE: {	
-					Base::Expected<RequestLine, int> rl_result = parse_request_line(scanner.line());
+					base::Expected<RequestLine, int> rl_result = parse_request_line(scanner.line());
 					if (!rl_result.has_value()) return static_cast<ScanResult>(rl_result.error());
 					request.add_request_line(rl_result.value());
 					
@@ -36,7 +36,7 @@ namespace http {
 						break;
 					}
 
-					Base::Expected<std::pair<std::string, std::string>, int> header_result = parse_header(scanner.line());
+					base::Expected<std::pair<std::string, std::string>, int> header_result = parse_header(scanner.line());
 
 					if (!header_result.has_value()) return static_cast<ScanResult>(header_result.error());
 					

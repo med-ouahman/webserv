@@ -9,9 +9,9 @@ struct FixedBufferAllocator {
 	usize	capacity;
 	usize	used;
 
-	FixedBufferAllocator(char* buffer, usize size);
+	FixedBufferAllocator( char* buffer, usize size );
 
-	void*	alloc(usize size);
+	void*	alloc( usize size );
 	void	reset();
 };
 

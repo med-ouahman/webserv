@@ -4,7 +4,7 @@
 
 namespace http {
 
-	Base::Expected<RequestLine, int> parser::parse_request_line(const std::string& line) {
+	base::Expected<RequestLine, int> parser::parse_request_line(const std::string& line) {
 		
 		RequestLine request_line;
 		

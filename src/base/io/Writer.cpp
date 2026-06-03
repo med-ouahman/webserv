@@ -4,7 +4,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-namespace Base {
+namespace base {
 namespace io {
 
 void Writer::close_fd() {
@@ -96,45 +96,45 @@ bool Writer::reset(char* buffer, usize capacity) {
 	return buffer_ != NULL || capacity_ == 0;
 }
 
-Base::Expected<usize, Error> Writer::write(const u8* data, usize size) {
+base::Expected<usize, Error> Writer::write(const u8* data, usize size) {
 	if (size == 0)
-		return Base::Expected<usize, Error>(static_cast<usize>(0));
+		return base::Expected<usize, Error>(static_cast<usize>(0));
 	if (type_ == BUFFER) {
 		usize available = used_ < capacity_ ? capacity_ - used_ : 0;
 		usize n = std::min(size, available);
 		if (n > 0)
 			::memcpy(buffer_ + used_, data, n);
 		used_ += n;
-		return Base::Expected<usize, Error>(n);
+		return base::Expected<usize, Error>(n);
 	}
 	if (type_ != FILE || fd_ < 0)
-		return Base::Expected<usize, Error>(OPEN_FAILED);
+		return base::Expected<usize, Error>(OPEN_FAILED);
 	ssize_t n = ::write(fd_, data, size);
 	if (n < 0)
-			return Base::Expected<usize, Error>(WRITE_FAILED);
-	return Base::Expected<usize, Error>(static_cast<usize>(n));
+			return base::Expected<usize, Error>(WRITE_FAILED);
+	return base::Expected<usize, Error>(static_cast<usize>(n));
 }
 
-Base::Expected<usize, Error> Writer::write(const char* data, usize size) {
+base::Expected<usize, Error> Writer::write(const char* data, usize size) {
 	if (size == 0)
-		return Base::Expected<usize, Error>(static_cast<usize>(0));
+		return base::Expected<usize, Error>(static_cast<usize>(0));
 	if (type_ == BUFFER) {
 		usize available = used_ < capacity_ ? capacity_ - used_ : 0;
 		usize n = std::min(size, available);
 		if (n > 0)
 			::memcpy(buffer_ + used_, data, n);
 		used_ += n;
-		return Base::Expected<usize, Error>(n);
+		return base::Expected<usize, Error>(n);
 	}
 	if (type_ != FILE || fd_ < 0)
-		return Base::Expected<usize, Error>(OPEN_FAILED);
+		return base::Expected<usize, Error>(OPEN_FAILED);
 	ssize_t n = ::write(fd_, data, size);
 	if (n < 0)
-		return Base::Expected<usize, Error>(WRITE_FAILED);
-	return Base::Expected<usize, Error>(static_cast<usize>(n));
+		return base::Expected<usize, Error>(WRITE_FAILED);
+	return base::Expected<usize, Error>(static_cast<usize>(n));
 }
 
-Base::Expected<usize, Error> Writer::write(const std::string& data) {
+base::Expected<usize, Error> Writer::write(const std::string& data) {
 	return write(data.data(), data.size());
 }
 

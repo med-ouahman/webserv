@@ -42,7 +42,7 @@ public:
 	bool error() const;
 };
 
-Base::Result<Listener*>
+base::Result<Listener*>
 create_listening_socket(
 	const config::ListenEndPoint& endpoints,
 	AcceptContext ctx);

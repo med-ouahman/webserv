@@ -1,11 +1,11 @@
 #pragma once
 
 #include <string>
-#include "foundation/baselib/types.hpp"
-#include "foundation/baselib/Expected.hpp"
-#include "foundation/baselib/io/Error.hpp"
+#include "base/types.hpp"
+#include "base/Expected.hpp"
+#include "base/io/Error.hpp"
 
-namespace Base {
+namespace base {
 namespace io {
 
 class Writer {
@@ -43,13 +43,10 @@ public:
 		Writer(char* buffer, usize capacity);
 
 	/**
-	
-	* ~Writer - release owned resources
+	 * ~Writer - release owned resources
 	 *
 	 * Closes fd_ only when owns_fd_ is true.
-	
-	 **/
-
+	 */
 	~Writer();
 
 	bool reset();
@@ -59,9 +56,9 @@ public:
 		
 	bool reset(char* buffer, usize capacity);
 
-	Base::Expected<usize, Error> write(const u8* data, usize size);
-	Base::Expected<usize, Error> write(const char* data, usize size);
-	Base::Expected<usize, Error> write(const std::string& data);
+	base::Expected<usize, Error> write(const u8* data, usize size);
+	base::Expected<usize, Error> write(const char* data, usize size);
+	base::Expected<usize, Error> write(const std::string& data);
 
 	char* data();
 	usize size() const;

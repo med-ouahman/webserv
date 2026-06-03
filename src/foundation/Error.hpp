@@ -2,7 +2,7 @@
 #include <cerrno>
 #include <iostream>
 
-namespace Base
+namespace base
 {
 
 struct Error {

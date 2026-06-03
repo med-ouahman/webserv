@@ -35,7 +35,7 @@ INCLUDES = -Isrc \
 	-Isrc/http/common/ \
 	-Isrc/config/ \
 	-Isrc/foundation/ \
-	-Isrc/foundation/baselib \
+	-Isrc/base \
 
 SRCS = src/server/main.cpp \
 	src/sys/signals.cpp \
@@ -51,6 +51,7 @@ SRCS = src/server/main.cpp \
 	src/cgi/response_builder.cpp \
 	src/cgi/handler/CGIRequestHandler.cpp \
 	src/io/stream/Stream.cpp \
+	src/http/Context.cpp \
 	src/http/common/LineScanner.cpp \
 	src/http/common/Headers.cpp \
 	src/http/parser/parse_headers.cpp \
@@ -61,8 +62,8 @@ SRCS = src/server/main.cpp \
 	src/config/Lexer.cpp \
 	src/foundation/DataView.cpp \
 	src/foundation/BufferWriter.cpp \
-	src/foundation/baselib/io/Writer.cpp \
-	src/foundation/baselib/io/Reader.cpp \
+	src/base/io/Writer.cpp \
+	src/base/io/Reader.cpp \
 
 OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 

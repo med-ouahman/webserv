@@ -61,6 +61,8 @@ struct Request {
 	ConnectionType				connection;
 	base::io::Reader			body;
 
+	Request();
+
 };
 
 }

@@ -1,7 +1,7 @@
 
 #pragma once
 
-namespace Base {
+namespace base {
 
 template<typename T>
 struct Optional {
