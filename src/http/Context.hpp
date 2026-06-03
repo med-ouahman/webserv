@@ -3,11 +3,13 @@
 
 #include <string>
 
-#include "foundation/baselib/Base.hpp"
-#include "Request.hpp"
-#include "Response.hpp"
-#include "Error.hpp"
-#include "Config.hpp"
+#include "base/base.hpp"
+#include "config/Config.hpp"
+#include "http/Request.hpp"
+#include "http/Response.hpp"
+#include "http/parser/parse.hpp"
+
+#define CRLF "\r\n"
 
 namespace http {
 
@@ -15,8 +17,8 @@ enum ContextState {
 	REQUEST_LINE,
 	HEADERS,
 	BODY,
-	CGI_RUNNING,
 	PROCESSING,
+	CGI_RUNNING,
 	RESPONSE_READY,
 	WRITING_RESPONSE,
 	DONE,
@@ -30,7 +32,6 @@ enum ContextState {
  * @parse_offset:	current reading position in raw_buffer.
  * @header_bytes:	number of parsed bytes.
  * @body_received:	number of parsed bytes.
- * @content_length:	expected body size.
  *
  * Context's role consists of the following steps:
  * 		- parsing the received data into a 'Request' object.
@@ -50,15 +51,27 @@ private:
 	usize parse_offset;
 	usize header_bytes;
 	usize body_received;
-	usize content_length;
 
 	ContextState state_;
 
+	friend Error	parser::get_chunk(Context& ctx, std::string& out, bool& found);
+	friend Error	parser::parse(Context& ctx);
+	friend Error	parser::parse_request_line(Context& ctx);
+	friend Error	parser::parse_headers(Context& ctx);
+	friend Error	parser::parse_body(Context& ctx);
+
 public:
 
+	Context();
+
 	Error consume(const char* data, usize size);
+<<<<<<< HEAD
 	Error process(const config::ServerConfig& config);
 	Error produce(Base::io::Writer& writer);
+=======
+	Error process(const config::Config& config);
+	Error produce(base::io::Writer& writer);
+>>>>>>> 06f1597 (Merge branch 'shady' of github.com:med-ouahman/webserv into shady)
 
 	ContextState state() const;
 };
