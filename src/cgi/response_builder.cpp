@@ -4,25 +4,34 @@
 #include <cstdlib>
 
 namespace cgi {
+
 namespace parser {
 
 ParseResult ResponseParser::parse_headers(DataView& view) {
+    std::cout << "Start CGI header parsing...\n";
     while (parse_ctx.state_ != HEADERS_DONE) {
+        
         size_t max_scan_size = CGIParseContext::MAX_CGI_HEADER_BLOCK_LEN - parse_ctx.header_bytes_;
         parse_ctx.sc_.reset();
         http::ScanResult r = parse_ctx.sc_.scan(view, max_scan_size);
+        
         if (r == http::LIMIT_EXCEEDED) return PARSE_ERROR;
+        
         if (r == http::NEED_MORE) return PARSE_CONTINUE;
+        
         if (parse_ctx.sc_.line().empty() && parse_ctx.state_ == HEADERS) {
             parse_ctx.state_ = HEADERS_DONE;
             break;
         }
+
         std::cout << parse_ctx.sc_.line() << "\n";
         Base::Expected<std::pair<std::string, std::string>, int> header_result = http::parser::parse_header(parse_ctx.sc_.line());
+        
         if (not header_result.has_value()) {
             std::cout  << "Error\n";
             return PARSE_ERROR;
         }
+        
         std::cout << header_result.value().first << " | " << header_result.value().second << "\n";
         switch (parse_ctx.state_) {
             case HEADERS:
@@ -33,11 +42,13 @@ ParseResult ResponseParser::parse_headers(DataView& view) {
                 return PARSE_SUCCESS;
         }
     }
+    std::cout << "finish CGI Header parsing\n";
     return PARSE_SUCCESS;
 }
 
 void ResponseParser::sanitize_status_line(const std::pair<std::string, std::string>& header) {
 
+    std::cout << "Sanitizing the status line header\n";
     const std::string& value = header.second;
 
     size_t space_pos = value.find(' ');
@@ -72,7 +83,7 @@ void ResponseParser::sanitize_header(std::pair<std::string, std::string>& header
         sanitize_status_line(header);
         return;
     }
-
+    std::cout << "Sanitizing CGI headers\n";
     http::parser::capitalize_header_name(header.first);
     headers_.add(header.first, header.second);
 }

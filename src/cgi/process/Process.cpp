@@ -23,35 +23,33 @@ Process::Process(const CGIExecContext& ctx)
         return;
     }
 
+    state_ = RUNNING;
+    if (ctx.stdin_fd == STDIN_FILENO)
+        stdin_pipe_.close_write_end();
     timeout_secs = ctx.timeout_seconds;
     spawn_time.update();
+    std::cout << "Spawning CGI Process\n";
     pid = ::fork();
-
     if (pid == 0)
     {
-        // if (ctx.stdin_fd != STDIN_FILENO)
-        //     ::dup2(ctx.stdin_fd, STDIN_FILENO);
-        // ::dup2(stdout_pipe_.write_end(), STDOUT_FILENO);
-        // ::dup2(stderr_pipe_.write_end(), STDERR_FILENO);
+        if (ctx.stdin_fd != STDIN_FILENO)
+            ::dup2(ctx.stdin_fd, STDIN_FILENO);
+        ::dup2(stdout_pipe_.write_end(), STDOUT_FILENO);
+        ::dup2(stderr_pipe_.write_end(), STDERR_FILENO);
         std::cout << "Running CGI\n";
         stdin_pipe_.close();
         stdout_pipe_.close();
         stderr_pipe_.close();
-        std::cout << "argv: " << ctx.argv.argv()[0] << "\n";
-        ::execve(ctx.interpreter.c_str(), ctx.argv.argv(), ctx.envp.argv());
+        ::execve(ctx.argv.argv()[0], ctx.argv.argv(), ctx.envp.argv());
         LOG_ERROR(MAKE_ERRNO_ERROR("execve()"));
         ::exit(EXIT_FAILURE);
     }
 
-    if (ctx.stdin_fd == STDIN_FILENO)
-        stdin_pipe_.close_write_end();
-        
     stdin_pipe_.close_read_end();
     stdout_pipe_.close_write_end();
     stderr_pipe_.close_write_end();
     
-    if (pid < 0)
-        state_ = ERROR;
+    if (pid < 0) state_ = ERROR;
 }
 
 
@@ -87,4 +85,7 @@ Pipe& Process::stderr_pipe() {
     return stderr_pipe_;
 }
 
+bool Process::running() const {
+    return state_ == RUNNING;
+}
 }

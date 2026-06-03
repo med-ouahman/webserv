@@ -14,24 +14,18 @@ struct CGIRequestContext {
     std::string interpreter;
     std::string script_name;
     std::string query_string;
-    std::string working_dir;
     std::string body_filename;
-
     size_t		timeout_seconds;
     size_t      body_content_length;
-
     std::string path_info;
     std::string server_name;
     uint16_t    server_port;
 };
 
 struct CGIExecContext {
-    std::string interpreter;
     std::string working_dir;
-    
-    int        stdin_fd;
-    size_t    timeout_seconds;
-
+    int         stdin_fd;
+    size_t      timeout_seconds;
     CStringArray argv;
     CStringArray envp;
 };

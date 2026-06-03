@@ -1,5 +1,5 @@
 
-#include "EventLoop.hpp"
+#include "EventPoller.hpp"
 #include "Connection.hpp"
 #include <sys/epoll.h>
 #include <sys/socket.h>
@@ -8,21 +8,20 @@
 namespace runtime {
 namespace epoll {
 
-int EventLoop::loop() {
+int EventPoller::poll() {
     
     int n = ::epoll_wait(epoll_fd, events, MAX_EVENTS, EPOLL_TIMEOUT_MS);
     if (n < 0) {
-        LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::run()"));
-        return EXIT_FAILURE;
+        LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::run()"));
+        return 1;
     }
-    
+    std::cout << n << '\n';
     for (int i(0); i < n; ++i) {
         io::AEventHandler* handler = static_cast<io::AEventHandler*>(events[i].data.ptr); 
         handler->on_event(encode_events(events[i].events));
-        sync(handler);
     }
 
-    return EXIT_SUCCESS;
+    return 0;
 }
 
 }

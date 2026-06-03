@@ -16,6 +16,13 @@
 
 namespace io {
 
+struct StreamControl {
+    io::Event   events;
+    bool        paused_;
+
+    StreamControl(): events(io::NONE), paused_(false) {}
+};
+
 class IStreamDelegate {
 public:
 	virtual void consume(DataView& view) = 0;
@@ -33,8 +40,12 @@ public:
 	Stream(int fd, Event events_, IStreamDelegate& de);
 	~Stream();
 	void on_event(io::Event events_);
+	BufferWriter& buff_writer() { return writer; }
+	void pause();
+	void resume();
 
 private:
+	StreamControl ctl_;
 	IStreamDelegate& delegate;
 	char readbuf[READ_BUFFER_SIZE];
 	BufferWriter writer;

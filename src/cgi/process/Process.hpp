@@ -34,6 +34,7 @@ private:
     Process& operator=(const Process&);
 
 public:
+    bool running() const;
     Process(const CGIExecContext& ctx);
     ~Process();
     bool timedout();

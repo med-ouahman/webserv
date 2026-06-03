@@ -239,7 +239,7 @@
       <div class="err-card-top">
         <div>
           <div class="err-name">epoll_create() fails</div>
-          <div class="err-where">EventLoop::init</div>
+          <div class="err-where">EventPoller::init</div>
         </div>
         <span class="badge badge-fatal">fatal</span>
       </div>
@@ -261,7 +261,7 @@
       <div class="err-card-top">
         <div>
           <div class="err-name">socket() fails — server fd</div>
-          <div class="err-where">EventLoop::create_server</div>
+          <div class="err-where">EventPoller::create_server</div>
         </div>
         <span class="badge badge-fatal">fatal</span>
       </div>
@@ -283,7 +283,7 @@
       <div class="err-card-top">
         <div>
           <div class="err-name">bind() fails</div>
-          <div class="err-where">EventLoop::create_server</div>
+          <div class="err-where">EventPoller::create_server</div>
         </div>
         <span class="badge badge-fatal">fatal</span>
       </div>
@@ -305,7 +305,7 @@
       <div class="err-card-top">
         <div>
           <div class="err-name">listen() fails</div>
-          <div class="err-where">EventLoop::create_server</div>
+          <div class="err-where">EventPoller::create_server</div>
         </div>
         <span class="badge badge-fatal">fatal</span>
       </div>
@@ -342,7 +342,7 @@
       <div class="err-card-top">
         <div>
           <div class="err-name">accept() → EMFILE / ENFILE</div>
-          <div class="err-where">EventLoop::run — accept loop</div>
+          <div class="err-where">EventPoller::run — accept loop</div>
         </div>
         <span class="badge badge-continue">continue</span>
       </div>
@@ -365,7 +365,7 @@
       <div class="err-card-top">
         <div>
           <div class="err-name">accept() → unexpected errno</div>
-          <div class="err-where">EventLoop::run — accept loop</div>
+          <div class="err-where">EventPoller::run — accept loop</div>
         </div>
         <span class="badge badge-continue">continue</span>
       </div>
@@ -388,7 +388,7 @@
       <div class="err-card-top">
         <div>
           <div class="err-name">epoll_ctl(ADD) fails</div>
-          <div class="err-where">EventLoop — on new connection</div>
+          <div class="err-where">EventPoller — on new connection</div>
         </div>
         <span class="badge badge-close">close</span>
       </div>

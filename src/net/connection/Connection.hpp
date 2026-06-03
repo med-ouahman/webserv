@@ -1,21 +1,22 @@
 #pragma once
 
+#include "Registrar.hpp"
 #include "Timestamp.hpp"
 #include "Stream.hpp"
-#include "IRequestHandler.hpp"
 
-namespace http { class Contex; }
+namespace http { class Contex; class IRequestHandler; class CGIRequestHandler; }
 namespace net {
 
 enum ConnectionState {
     READING,
+    CGI_STREAMING,
     WRITING,
     CLOSING,
 };
 
 class Connection: public io::IStreamDelegate {
 public:
-    explicit Connection(int fd, io::Event events);
+    Connection(int fd, io::Event events, RegisterContext& ctx);
     ~Connection();
     bool timedout();
     void  update_stream();
@@ -25,18 +26,16 @@ public:
     void on_stream_error();
     void on_stream_closed();
     io::Stream& stream();
-
 private:
     io::Stream      stream_;
-    ConnectionState state_;
-    http::IRequestHandler* request_handler;
-
+    ConnectionState state_;    
     bool            close_after_write;
     Timestamp       last_activity_;
     Timestamp       lifetime_;
 
-    // http::Context   ctx;
+    RegisterContext register_ctx;
 
+    // http::Context   ctx;
 };
 
 }

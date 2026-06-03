@@ -53,10 +53,10 @@ The body is handled by an `IBodyProvider` instance which maintains its own inter
 
 ## 3. The `advance()` / `on_writeable()` Layer
 
-`produce()` is never called directly by the EventLoop. The call chain is:
+`produce()` is never called directly by the EventPoller. The call chain is:
 
 ```
-EventLoop::write_to_socket()
+EventPoller::write_to_socket()
     → Connection::on_writeable(ssize_t bytes_sent)
         → Connection::advance()
             → handler::produce(buffer, SEND_CHUNK_SIZE)
@@ -107,12 +107,12 @@ bool Connection::on_writeable(ssize_t bytes_sent) {
 }
 ```
 
-`on_writeable()` is called after every `write()` in the EventLoop, including the very first call where `bytes_sent = 0`. Since `bytes_in_buff` is zero at the READING → WRITING transition, the first call always triggers `advance()` to fill the buffer, requiring no special initialization flag.
+`on_writeable()` is called after every `write()` in the EventPoller, including the very first call where `bytes_sent = 0`. Since `bytes_in_buff` is zero at the READING → WRITING transition, the first call always triggers `advance()` to fill the buffer, requiring no special initialization flag.
 
-### EventLoop write loop
+### EventPoller write loop
 
 ```cpp
-void EventLoop::write_to_socket(Connection& conn) {
+void EventPoller::write_to_socket(Connection& conn) {
     ssize_t bytes_sent = 0;
     while (true) {
         if (!conn.on_writeable(bytes_sent))
@@ -214,7 +214,7 @@ The auto-index HTML is generated in full as a string, written to a temp file via
 
 ## 7. CGI Architecture
 
-CGI is the only response type that involves a child process. It uses the existing `AEventHandler` polymorphism — the same interface the EventLoop uses for client sockets.
+CGI is the only response type that involves a child process. It uses the existing `AEventHandler` polymorphism — the same interface the EventPoller uses for client sockets.
 
 ### `AEventHandler` interface
 
@@ -228,7 +228,7 @@ public:
 }
 ```
 
-The EventLoop maps `fd → AEventHandler*` and dispatches blindly:
+The EventPoller maps `fd → AEventHandler*` and dispatches blindly:
 
 ```cpp
 AEventHandler* handler = static_cast<AEventHandler*>(events[i].data.ptr);
@@ -246,7 +246,7 @@ A derived `AEventHandler` registered with epoll on the CGI process's stdout pipe
 - `int _temp_fd` — temp file receiving CGI output
 - `pid_t _cgi_pid` — for `kill()` and `waitpid()`
 - `Connection& _conn` — the owning connection to wake up when done
-- `EventLoop& _loop` — to modify epoll registrations
+- `EventPoller& _loop` — to modify epoll registrations
 - `HandlerState _state` — `IDLE` or `ACTIVE`
 
 **`on_event(READABLE)`:**
@@ -286,12 +286,12 @@ These are covered by prior minishell experience. Key CGI-specific requirements:
 ### Responsibility boundary
 
 ```
-EventLoop   → fd readiness only (add / modify / remove)
+EventPoller   → fd readiness only (add / modify / remove)
 CGIRequestHandler  → pipe draining, temp file writing, process reaping
 Connection  → unaware of CGI internals, woken via epoll modify
 ```
 
-The EventLoop never knows a CGI process was involved. It just sees an `EPOLLOUT` on a client socket fd.
+The EventPoller never knows a CGI process was involved. It just sees an `EPOLLOUT` on a client socket fd.
 
 ---
 
@@ -334,8 +334,8 @@ The zero value of `bytes_in_buff` is the trigger that causes the first `on_write
 - `produce()` is the only caller of `IBodyProvider::read()`
 - `advance()` is the only caller of `produce()`
 - `on_writeable()` is the only caller of `advance()`
-- `EventLoop` is the only entity that calls `epoll_ctl`
-- `CGIRequestHandler` communicates with `Connection` only through `EventLoop` fd registration
+- `EventPoller` is the only entity that calls `epoll_ctl`
+- `CGIRequestHandler` communicates with `Connection` only through `EventPoller` fd registration
 - `errno` is never checked after any I/O operation
 - Regular disk file reads never go through epoll
 - `CLOSING` is a terminal state — no further transitions occur once set

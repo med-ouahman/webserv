@@ -1,6 +1,7 @@
 #include "Server.hpp"
 #include <cstdlib>
 #include <algorithm>
+#include "Registrar.hpp"
 
 Server::Server()
     : running_(false),
@@ -27,6 +28,10 @@ void Server::server_accept(int conn_fd, void* server_ctx) {
     webserv->add_connection(conn_fd);
 }
 
+void Server::server_register(io::AEventHandler* handler, void* register_ctx) {
+    runtime::epoll::EventPoller* loop = static_cast<runtime::epoll::EventPoller*>(register_ctx);
+    loop->register_handler(handler);
+}
 
 
 
@@ -38,11 +43,6 @@ void Server::remove_connection(net::Connection* conn) {
 
     delete conn;
 }
-
-
-
-
-
 
 bool Server::start_listeners() {
     
@@ -70,7 +70,12 @@ bool Server::start_listeners() {
 
 void Server::add_connection(int conn_fd) {
 
-    net::Connection* connection = new net::Connection(conn_fd, io::READABLE);
+    RegisterContext r = {
+        .registrar = &event_loop,
+        .callback = server_register,
+    };
+
+    net::Connection* connection = new net::Connection(conn_fd, io::READABLE, r);
     
     if (!event_loop.register_handler(&connection->stream()))
         return;
@@ -78,38 +83,23 @@ void Server::add_connection(int conn_fd) {
     connections.push_back(connection);
 }
 
-
-
-
-/*
-    server_loop:
-    acts like a brigde between the server and the event loop, it makes the event loop unawere of the type of the server.
-*/
-void Server::server_loop(void* server_ctx) {
-    Server* webserv = static_cast<Server*>(server_ctx);
-    webserv->sweep();
-}
-
-
-
-
-
 /*
     sweep:
     function to be called on each event loop cycle to check the state of the connections
 */
+
 void Server::sweep() {
     for (size_t i(0); i < connections.size();) {
         net::Connection* conn = connections.at(i);
-
+        event_loop.sync(&conn->stream());
         if (conn->state() == net::CLOSING
             || conn->timedout()) remove_connection(conn);
-
         else ++i;
     }
 
     for (size_t i(0); i < listeners.size(); ++i) {
         net::Listener* listener = listeners.at(i);
+        event_loop.sync(listener);
         if (listener->error()) {
             /*
                 What to do here?
@@ -120,21 +110,14 @@ void Server::sweep() {
     }
 }
 
-/*
-    Design question:
-    Currently the EventLoop is the one that keeps the server alive, but that doesn't make sense,
-     because all the event loop is to watch and return ready events.
-    It should know if the server will be running forever or just for one
-    the while (true) loop should be in the server and the event loop is called on each cycle.
-*/
-
 int Server::start() {
 
     if (!running_)
         return EXIT_FAILURE;
     while (true)
     {
-        event_loop.loop();
+        std::cout << "POLLING\n";
+        event_loop.poll();
         sweep();
     }
 

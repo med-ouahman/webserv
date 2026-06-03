@@ -25,9 +25,10 @@ std::string capitalize_header_name(const std::string& name) {
 	std::string capitalized;
 	capitalized.reserve(name.size());
 	for (size_t i(0); i < name.size(); ++i) {
-		const char& c = name[i];
+		char c = name[i];
 		if (_cap)
-			capitalized[i] = ::toupper(c);
+			c = ::toupper(c);
+		capitalized.append(&c, 1);
 		if (c == '-') _cap = true;
 		else _cap = false;
 	}

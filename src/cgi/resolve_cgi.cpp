@@ -6,10 +6,11 @@
 #include "Dispatcher.hpp"
 #include <fcntl.h>
 #include <unistd.h>
+#include <iostream>
 
 namespace cgi {
 
-const char* EnvBuilder::metadata[] = {"REQUEST_METHOD", "SERVER_PROTOCOL", "QUERY_STRING", NULL};
+const char* EnvBuilder::metadata[] = {"REQUEST_METHOD", "SERVER_PROTOCOL", "QUERY_STRING", "GATEWAY_INTERFACE", NULL};
 const char* EnvBuilder::stripped_headers[] = {"transfer-encoding", "content-length", "content-type", "connection", NULL};
 
 bool EnvBuilder::forbidden_header(const std::string& header_name) {
@@ -26,8 +27,7 @@ std::string EnvBuilder::transform(bool has_http_prefix, http::Headers::const_ite
     std::string result;
 
     const std::string http_prefix = has_http_prefix ? "HTTP_": "";
-
-    size_t size = it->name.size() + it->value.size() + http_prefix.size();
+    size_t size = it->name.size() + it->value.size() + http_prefix.size() + 1;
     
     result.reserve(size);
     result.append(http_prefix);
@@ -39,8 +39,8 @@ std::string EnvBuilder::transform(bool has_http_prefix, http::Headers::const_ite
         if (c == '-') name += '_';
         else name += std::toupper(c);
     }
-    
     result.append(name);
+    result.append("=");
     result.append(it->value);
     return result;
 }
@@ -93,9 +93,9 @@ CStringArray EnvBuilder::build(const CGIRequestContext& ctx,
             ++it) {
         arr.push(transform(false, it).c_str());
     }
-    
-    for (http::Headers::const_iterator it = request_headers.begin();
-        it != request_headers.end(); ++it) {
+
+    for ( http::Headers::const_iterator it = request_headers.begin();
+        it != request_headers.end(); ++it ) {
             if (forbidden_header(it->name)) continue;
             arr.push(transform(true, it));
     }
@@ -105,17 +105,19 @@ CStringArray EnvBuilder::build(const CGIRequestContext& ctx,
 
 CGIExecContext resolve_exec_context(http::Request const& req, const http::ResolutionResult& r) {
     
-    CGIRequestContext req_ctx;
+    CGIRequestContext req_ctx;(void)req;
     req_ctx.body_content_length = 100;
     req_ctx.body_filename = "/tmp/some";
     req_ctx.query_string = r.query_string;
-
+    req_ctx.interpreter = "/bin/python3";
     CGIExecContext exec_ctx;
-    exec_ctx.interpreter = "/bin/python3";
+    http::Headers req_headers;
 
-    exec_ctx.stdin_fd = ::open(req_ctx.body_filename.c_str(), O_RDONLY);
-    exec_ctx.envp = EnvBuilder::build(req_ctx, req.headers_);
-    exec_ctx.argv.push(exec_ctx.interpreter);
+    exec_ctx.stdin_fd = STDIN_FILENO;
+    if (!req_ctx.body_filename.empty())
+        exec_ctx.stdin_fd = ::open(req_ctx.body_filename.c_str(), O_RDONLY);
+    exec_ctx.envp = EnvBuilder::build(req_ctx, req_headers);
+    exec_ctx.argv.push(req_ctx.interpreter);
     exec_ctx.argv.push("cgi-bin/hello.py");
     return exec_ctx;
 }

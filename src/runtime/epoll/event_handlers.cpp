@@ -1,4 +1,4 @@
-#include "EventLoop.hpp"
+#include "EventPoller.hpp"
 #include "AEventHandler.hpp"
 #include <sys/epoll.h>
 #include <fcntl.h>
@@ -8,25 +8,25 @@ namespace runtime {
 
 namespace epoll {
 
-bool EventLoop::register_handler(io::AEventHandler* handler) {
+bool EventPoller::register_handler(io::AEventHandler* handler) {
 	epoll_event event;
 	event.events = decode_events(handler->events());
 	event.data.ptr = handler;
 	
 	int flags = ::fcntl(handler->fd(), F_GETFL);
 	if (flags < 0 || ::fcntl(handler->fd(), F_SETFL, flags | O_NONBLOCK)) {
-		LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::add_connection::fcntl()"));
+		LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::add_connection::fcntl()"));
 		return false;
 	}
 	
 	flags = ::fcntl(handler->fd(), F_GETFD);
 	if (flags < 0 || ::fcntl(handler->fd(), F_SETFD, flags | O_CLOEXEC)) {
-		LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::add_connection::fcntl()"));
+		LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::add_connection::fcntl()"));
 		return false;
 	}
 	
 	if (::epoll_ctl(epoll_fd, EPOLL_CTL_ADD, handler->fd(), &event)) {
-		LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_ctl(EPOLL_CTL_ADD)"));
+		LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::epoll_ctl(EPOLL_CTL_ADD)"));
 		return false;
 	}
 	
@@ -36,14 +36,14 @@ bool EventLoop::register_handler(io::AEventHandler* handler) {
 	return true;
 }
 
-bool EventLoop::modify_handler(io::AEventHandler* handler) {
+bool EventPoller::modify_handler(io::AEventHandler* handler) {
 	
 	epoll_event event;
 	event.events = decode_events(handler->events());
 	event.data.ptr = const_cast<io::AEventHandler*>(handler);
 	
 	if (::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, handler->fd(), &event) < 0) {
-		LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_ctl(EPOLL_CTL_MOD)"));
+		LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::epoll_ctl(EPOLL_CTL_MOD)"));
 		return false;
 	}
 	
@@ -53,9 +53,9 @@ bool EventLoop::modify_handler(io::AEventHandler* handler) {
 	return true;
 }
 
-bool EventLoop::del_handler(io::AEventHandler* handler) {
+bool EventPoller::del_handler(io::AEventHandler* handler) {
 	if (::epoll_ctl(epoll_fd, EPOLL_CTL_DEL, handler->fd(), NULL)) {
-		LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_ctl(EPOLL_CTL_DEL)"));
+		LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::epoll_ctl(EPOLL_CTL_DEL)"));
 		return false;
 	}
 
@@ -65,20 +65,22 @@ bool EventLoop::del_handler(io::AEventHandler* handler) {
 	return true;
 }
 
-void EventLoop::sync(io::AEventHandler* handler) {
 
-	if (handler->events() == io::NONE) {
+void EventPoller::sync(io::AEventHandler* handler) {
+	
+	if (handler->synced())
+		return;
+
+	if (handler->events() == io::ERROR) {
 		del_handler(handler);
 		return;
 	}
 
-	if (handler->synced()) return;
-
 	modify_handler(handler);
-	handler->sync();
+	handler->sync_events();
 }
 
-io::Event EventLoop::encode_events(EpollEvent epoll_event) {
+io::Event EventPoller::encode_events(EpollEvent epoll_event) {
     io::Event event = io::NONE;
 
     if (epoll_event & EPOLLIN)
@@ -99,7 +101,7 @@ io::Event EventLoop::encode_events(EpollEvent epoll_event) {
     return event;
 }
 
-EpollEvent EventLoop::decode_events(io::Event event) {
+EpollEvent EventPoller::decode_events(io::Event event) {
     EpollEvent ev = 0;
 
     if (event & io::READABLE)
@@ -119,5 +121,7 @@ EpollEvent EventLoop::decode_events(io::Event event) {
 
     return ev;
 }
+
+
 
 }}

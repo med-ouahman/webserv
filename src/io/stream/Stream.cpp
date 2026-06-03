@@ -11,7 +11,6 @@ Stream::Stream(int fd, Event mask, IStreamDelegate& d)
 Stream::~Stream() {}
 
 void Stream::on_event(io::Event event) {
-    
     switch (event) {
         case READABLE:
             on_readable();
@@ -20,9 +19,11 @@ void Stream::on_event(io::Event event) {
             on_writeable();
             break;
         case HUP: case RHUP:
+            std::cout << "stream closed\n";
             delegate.on_stream_closed();
             break;
         case ERROR:
+            std::cout << "errror\n";
             delegate.on_stream_error();
             break;
         default:
@@ -31,9 +32,10 @@ void Stream::on_event(io::Event event) {
 }
 
 void Stream::on_readable() {
-
+    std::cout << "stream readable\n";
     ssize_t n = ::read(fd(), readbuf, READ_BUFFER_SIZE);
     if (n == 0) {
+        std::cout << "Stream closed\n";
         delegate.on_stream_closed();
         return ;
     }
@@ -41,11 +43,10 @@ void Stream::on_readable() {
     if (n < 0) {
          LOG_ERROR(MAKE_ERRNO_ERROR("Sream::on_readable()"));
         delegate.on_stream_error();
-        return ;
+        return;
     }
     
     DataView view(readbuf, n);
-
     delegate.consume(view);
 }
 
@@ -60,10 +61,22 @@ void Stream::on_writeable() {
     if (n < 0) {
         LOG_ERROR(MAKE_ERRNO_ERROR("Sream::on_writeable()"));
         delegate.on_stream_error();
-        return ;
+        return;
     }
 
     writer.advance(n);
+}
+
+void Stream::pause() {
+    ctl_.paused_ = true;
+    ctl_.events = events();
+    update_events(io::NONE);
+}
+
+void Stream::resume() {
+    ctl_.paused_ = false;
+    update_events(ctl_.events);
+    ctl_.events = io::NONE;
 }
 
 }

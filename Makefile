@@ -1,4 +1,4 @@
-CXX := c++
+	CXX := c++
 
 DEBUG := -g3 -O0
 CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 $(DEBUG)
@@ -41,12 +41,13 @@ SRCS = src/server/main.cpp \
 	src/sys/signals.cpp \
 	src/server/Server.cpp \
 	src/net/connection/Connection.cpp \
+	src/net/connection/connection_stream.cpp \
 	src/net/listener/Listener.cpp \
-	src/runtime/epoll/EventLoop.cpp \
-	src/runtime/epoll/run.cpp \
+	src/runtime/epoll/EventPoller.cpp \
+	src/runtime/epoll/poll.cpp \
 	src/runtime/epoll/event_handlers.cpp \
 	src/cgi/process/Process.cpp \
-	src/cgi/build_envp.cpp \
+	src/cgi/resolve_cgi.cpp \
 	src/cgi/response_builder.cpp \
 	src/cgi/handler/CGIRequestHandler.cpp \
 	src/io/stream/Stream.cpp \

@@ -18,12 +18,12 @@ class AEventHandler {
 private:
     int fd_;
     Event events_;
-    Event applied_events_;
+    Event applied_;
     AEventHandler(const AEventHandler&);
     AEventHandler& operator=(const AEventHandler&);
     
 public:
-    AEventHandler(int __fd, Event events): fd_(__fd), events_(events), applied_events_(events) {};
+    AEventHandler(int __fd, Event events): fd_(__fd), events_(events), applied_(events) {};
     virtual void on_event(Event event) = 0;
     virtual ~AEventHandler() {
         if (fd_ >= 0) {
@@ -35,14 +35,10 @@ public:
     int fd() const { return fd_; }
     Event events() const { return events_; }
     void update_events(Event new_ev) { events_ = new_ev; }
-    bool synced() const {
-        return applied_events_ == events_; 
-    }
-
-    void sync() {
-        applied_events_ = events_;
-    }
+    void sync_events() { applied_ = events_; }
+    bool synced() const { return applied_ == events_; }
 };
+
 }
 
 

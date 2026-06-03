@@ -204,7 +204,7 @@ This document outlines the complete strategy for implementing CGI (Common Gatewa
 - Extracts response headers and status
 - Tracks CGI-specific state and buffers
 
-**EventLoop Responsibilities:**
+**EventPoller Responsibilities:**
 - Routes epoll events to correct Connection
 - Tracks global concurrent CGI count
 - Enforces max concurrent CGI limit
@@ -281,7 +281,7 @@ Connection
 - CGI output buffers
 - Response parsing state
 
-**EventLoop Tracks (but doesn't own):**
+**EventPoller Tracks (but doesn't own):**
 - Global count of active CGI executions
 - Enforces concurrent CGI limit
 - Routes events but doesn't manage CGI lifecycle
@@ -1209,7 +1209,7 @@ These invariants must hold at all times. Violations indicate bugs.
 **Ownership Model:**
 - Connection owns CGIRequestHandler (dynamically allocated)
 - CGIRequestHandler owns process and pipes
-- EventLoop tracks but doesn't own
+- EventPoller tracks but doesn't own
 - Clear cleanup responsibility
 
 **Event-Driven Design:**

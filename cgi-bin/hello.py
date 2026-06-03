@@ -3,12 +3,6 @@ import os
 import time
 
 
-for key, value in os.environ.items():
-    print(key, value)
-
-exit(0)
-
-
 print("Status: 200 OK\r\n", end="")
 print("Content-Type: text/html\r\n\r\n", end="")
 

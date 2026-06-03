@@ -1,4 +1,4 @@
-#include "EventLoop.hpp"
+#include "EventPoller.hpp"
 #include "Connection.hpp"
 #include <iostream>
 #include "Listener.hpp"
@@ -8,14 +8,14 @@
 namespace runtime {
 namespace epoll {
 
-EventLoop::EventLoop()
+EventPoller::EventPoller()
     : epoll_fd(-1) {
 
     epoll_fd = epoll_create1(EPOLL_CLOEXEC);
-    if (epoll_fd < 0) LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_create()"));
+    if (epoll_fd < 0) LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::epoll_create()"));
 }
 
-EventLoop::~EventLoop() {
+EventPoller::~EventPoller() {
 
     if (epoll_fd < 0) return;
     

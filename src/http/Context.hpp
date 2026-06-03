@@ -38,6 +38,7 @@ enum ContextState {
  * 		- generating a 'Response' object.
  * 		- serializing the response into bytes -> handed over to the connection writer
  * */
+
 class Context {
 
 private:

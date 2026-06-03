@@ -18,7 +18,7 @@ int main(int argc, const char* argv[]) {
 
     sys::handle_signals();
 
-    std::string config_file = argv[1] != NULL ? argv[1]: "config/webserv.conf";
+    std::string configfile = argv[1] != NULL ? argv[1]: "config/webserv.conf";
 
     #ifdef DEV_MODE
     config::Config conf = config::ConfigParser::build_default_config();

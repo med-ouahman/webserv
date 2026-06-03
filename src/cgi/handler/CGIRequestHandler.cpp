@@ -7,30 +7,40 @@
 #include "EnvBuilder.hpp"
 
 namespace http {
-CGIRequestHandler::CGIRequestHandler( const ResolutionResult& res, http::Request const& req)
-    : process_(cgi::resolve_exec_context(req, res)),
-    stdin_(process_.stdin_pipe().write_end(), io::WRITABLE, *this),
-    stdout_(process_.stdout_pipe().read_end(), io::READABLE, *this),
-    stderr_(process_.stderr_pipe().read_end(), io::READABLE, *this) {
+CGIRequestHandler::CGIRequestHandler(const ResolutionResult& res, http::Request const& req, CGIControl& ctl)
+    : process(cgi::resolve_exec_context(req, res)),
+    stdin_stream(process.stdin_pipe().write_end(), io::WRITABLE, *this),
+    stdout_stream(process.stdout_pipe().read_end(), io::READABLE, *this),
+    stderr_stream(process.stderr_pipe().read_end(), io::READABLE, *this),
+    cgi_ctl(ctl) {
 
+    if (!process.running()) {
+        state_ = ERROR;
+        return;
+    }
+
+    RegisterContext& registrar = cgi_ctl.register_ctx;
+    registrar.callback(&stdin_stream, registrar.registrar);
+    registrar.callback(&stdout_stream, registrar.registrar);
+    registrar.callback(&stderr_stream, registrar.registrar);
 }
 
 CGIRequestHandler::~CGIRequestHandler() {}
 
 void CGIRequestHandler::handle() {
-    std::cout << "Handling CGI\n";
-    /* PLACE HOLDER TO SILENCE THE COMPILER BECAUSE THIS IS ORIGINALLY A PURE VIRTUAL METHOD AND NEEDS TO BE DEFINED */
-    /* */
 }
 
 bool CGIRequestHandler::done() {
-    return state_ == RESPONSE_READY;
+    return state_ == RESPONSE_DONE;
 }
 
 void CGIRequestHandler::consume(DataView& view) {
-    builder_.parse_headers(view);
-    if (builder_.finished()) {
-        state_ = WRITING_RESPONSE;
+    if (state_ == BUILDING_HEADERS) {
+        builder.parse_headers(view);
+    }
+    
+    if (state_ == STREAMING_RESPONSE) {
+
     }
 }
 
@@ -45,7 +55,13 @@ void CGIRequestHandler::on_stream_error() {
 }
 
 void CGIRequestHandler::on_stream_closed() {
-    // finished;
+    state_ = RESPONSE_DONE;
+    CGICOutputallback callback = cgi_ctl.output_ctx.cb_;
+    callback(cgi_ctl.output_ctx.ctx);
+}
+
+CGIRequestHandler::State CGIRequestHandler::state() const {
+    return state_;
 }
 
 }

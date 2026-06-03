@@ -50,7 +50,7 @@ bool Listener::accept_clients() {
 
 bool Listener::on_error() {
 	state_ = LISTENER_ERROR;
-	LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::accept()"));
+	LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::accept()"));
 	return false;
 }
 
@@ -65,22 +65,22 @@ Base::Result<Listener*> create_listening_socket(
 	server_addr.sin_family = AF_INET;
 		
 	if (!::inet_pton(AF_INET, ::inet_ntoa((in_addr){ .s_addr = endpoint.host }), &server_addr.sin_addr))
-		return MAKE_ERRNO_ERROR("EventLoop::create_listening_socket::inet_pton()");
+		return MAKE_ERRNO_ERROR("EventPoller::create_listening_socket::inet_pton()");
 	
 	server_addr.sin_port = ::htons(endpoint.port);
 	int socket_fd = ::socket(AF_INET, SOCK_STREAM | O_NONBLOCK | SOCK_CLOEXEC, 0);
 	if (socket_fd < 0)
-		return MAKE_ERRNO_ERROR("EventLoop::create_listening_socket::socket()");
+		return MAKE_ERRNO_ERROR("EventPoller::create_listening_socket::socket()");
 	
 	int x = 1;
 	if (::setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &x, sizeof x))
-		return MAKE_ERRNO_ERROR("EventLoop::create_listening_socket::setsocketopt()");
+		return MAKE_ERRNO_ERROR("EventPoller::create_listening_socket::setsocketopt()");
 	
 	if (::bind(socket_fd, (struct sockaddr *)&server_addr, sizeof server_addr))
-		return MAKE_ERRNO_ERROR("EventLoop::create_listening_socket::bind()");
+		return MAKE_ERRNO_ERROR("EventPoller::create_listening_socket::bind()");
 	
 	if (::listen(socket_fd, BACKLOG) < 0)
-		return MAKE_ERRNO_ERROR("EventLoop::create_listening_socket::listen()");
+		return MAKE_ERRNO_ERROR("EventPoller::create_listening_socket::listen()");
 	
 	std::cout << "server listening on " <<  ::inet_ntoa((in_addr){ .s_addr = endpoint.host }) << ":"<< endpoint.port << '\n';
 	return new Listener(socket_fd, io::READABLE, ctx);
