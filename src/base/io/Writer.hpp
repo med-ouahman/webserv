@@ -12,8 +12,8 @@ class Writer {
 public:
 	enum Type {
 		NONE,
-		FILE,
-		BUFFER
+		BUFFER,
+		BUFFERED_FILE
 	};
 
 private:
@@ -32,15 +32,15 @@ private:
 	Writer& operator=(const Writer&);
 
 	void close_fd();
+	bool open_file();
 
 public:
 
 	Writer();
 
-	explicit Writer(const std::string& path);
-		Writer(i32 fd, bool owns_fd);
+	Writer(const std::string& path, char* buffer, usize capacity);
 
-		Writer(char* buffer, usize capacity);
+	Writer(char* buffer, usize capacity);
 
 	/**
 	 * ~Writer - release owned resources
@@ -51,14 +51,13 @@ public:
 
 	bool reset();
 
-	bool reset(const std::string& path);
-	bool reset(i32 fd, bool owns_fd);
+	bool reset(const std::string& path, char* buffer, usize capacity);
 		
 	bool reset(char* buffer, usize capacity);
 
-	base::Expected<usize, Error> write(const u8* data, usize size);
 	base::Expected<usize, Error> write(const char* data, usize size);
 	base::Expected<usize, Error> write(const std::string& data);
+	base::Expected<usize, Error> flush();
 
 	char* data();
 	usize size() const;
@@ -66,6 +65,8 @@ public:
 	usize remaining() const;
 	void advance(usize size);
 
+	bool file_created() const;
+	const std::string& path() const;
 	Type type() const;
 };
 

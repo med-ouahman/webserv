@@ -5,7 +5,11 @@ struct Limits {
 	enum {
         MAX_REQUESTS               = 100,
         MIN_BODY_PROGRESS_BYTES         = 4096,
-        MIN_BODY_CHUNK             = 4096,
+        BODY_BUFFER_SIZE           = 1024 * 16,
+		MAX_REQUEST_LINE_SIZE = 1024 * 8,
+		MAX_HEADER_SIZE		= 1024 * 32,
+		MAX_BODY_SIZE		= 1024 * 1024,
+		MAX_CHUNK_SIZE_LINE	= 1024,
 		MAX_CONNECTIONS		= 1000,
 		MAX_EVENTS			= 128,
 		MAX_CONCURRENT_CGIS	= 100,

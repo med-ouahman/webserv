@@ -7,13 +7,15 @@
 #include "config/Config.hpp"
 #include "http/Request.hpp"
 #include "http/Response.hpp"
+#include "http/parser/body/body.hpp"
 #include "http/parser/parse.hpp"
+#include "server/limits.hpp"
 
 #define CRLF "\r\n"
 
 namespace http {
 
-enum ContextState : char {
+enum ContextState {
 	REQUEST_LINE,
 	HEADERS,
 	BODY,
@@ -25,20 +27,29 @@ enum ContextState : char {
 	ERROR,
 };
 
-/* 
+enum ChunkState {
+	CHUNK_SIZE,
+	CHUNK_DATA,
+	CHUNK_CRLF,
+	CHUNK_TRAILER
+};
+
+/*
  * @raw_buffer:		raw HTTP bytes used to transfer data.
  * @Request:		parsed incrementally with consume().
  * @Response:		built by process(), serialized by produce().
- * @parse_offset:	current reading position in raw_buffer.
+ *
  * @header_bytes:	number of parsed bytes.
  * @body_received:	number of parsed bytes.
+ * @chunk_size:		current chunk target size.
+ * @chunk_received:	bytes parsed from the current chunk.
  *
- * Context's role consists of the following steps:
- * 		- parsing the received data into a 'Request' object.
- * 		- handling the request through pipeline.
- * 		- generating a 'Response' object.
- * 		- serializing the response into bytes -> handed over to the connection writer
- * */
+ * @body_buffer:	in-memory body writer storage.
+ * @body_writer:	body output writer, backed by memory or a temp file.
+ *
+ * @chunk_state:	current chunked-body parsing step.
+ * @state_:			current global HTTP step.
+ */
 class Context {
 
 private:
@@ -47,21 +58,40 @@ private:
 	Request		request;
 	Response	response;
 
-	usize parse_offset;
 	usize header_bytes;
 	usize body_received;
+	usize chunk_size;
+	usize chunk_received;
+
+	ChunkState chunk_state;
+
+	char body_buffer[Limits::BODY_BUFFER_SIZE];
+	base::io::Writer body_writer;
 
 	ContextState state_;
 
-	friend Error	parser::get_chunk(Context& ctx, std::string& out, bool& found);
-	friend Error	parser::parse(Context& ctx);
-	friend Error	parser::parse_request_line(Context& ctx);
-	friend Error	parser::parse_headers(Context& ctx);
-	friend Error	parser::parse_body(Context& ctx);
+	/* Parser methods */
+	Error	get_chunk(std::string& out, bool& found);
+
+	Error	parse();
+	Error	parse_request_line();
+	Error	parse_headers();
+	Error	parse_body();
+	Error	parse_fixed_body();
+	Error	parse_chunked_body();
+	Error	parse_chunk_size_state();
+	Error	parse_chunk_data_state();
+	Error	parse_chunk_crlf_state();
+	Error	parse_chunk_trailer_state();
+	Error	finish_body();
+	Error	body_write(usize size);
+
+	/* Processing methods */
 
 public:
 
 	Context();
+	Context(usize conn_id, usize request_id);
 
 	Error consume(const char* data, usize size);
 	Error process(const config::Config& config);

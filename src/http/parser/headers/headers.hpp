@@ -2,7 +2,6 @@
 
 #include <string>
 
-#include "http/Context.hpp"
 #include "http/Error.hpp"
 #include "http/Request.hpp"
 
@@ -28,6 +27,7 @@ bool		is_single_header(const std::string& normalized);
 bool		parse_content_length(const std::string& value, usize& out);
 SpecialHeader	special_header(const std::string& normalized);
 Error		handle_special_header(Request& request, const std::string& normalized, const std::string& value);
-Error		end_headers(Request& request, ContextState& state);
+Error		end_headers(Request& request);
 
+}
 }

@@ -38,11 +38,11 @@ static http::Error	set_version(http::Request& request, const std::string& line, 
 	else if (len == 8 && line.compare(start, 8, "HTTP/1.1") == 0)
 		request.version = http::HTTP_1_1;
 	else if (len >= 5 && line.compare(start, 5, "HTTP/") == 0)
-		return http::UNSUPPORTED_HTTP_VERSION;
+		return http::ERR_UNSUPPORTED_HTTP_VERSION;
 	else
-		return http::BAD_REQUEST;
+		return http::ERR_BAD_REQUEST;
 
-	return http::NONE;
+	return http::ERR_NONE;
 }
 
 static bool	set_target(http::Request& request, const std::string& target) {
@@ -68,9 +68,7 @@ static bool	set_target(http::Request& request, const std::string& target) {
 
 namespace http {
 
-namespace parser {
-
-Error	parse_request_line(Context& ctx) {
+Error Context::parse_request_line() {
 
 	std::string line;
 	std::string target;
@@ -80,32 +78,30 @@ Error	parse_request_line(Context& ctx) {
 	bool found;
 	Error err;
 
-	err = get_chunk(ctx, line, found);
-	if (err != NONE)
+	err = get_chunk(line, found);
+	if (err != ERR_NONE)
 		return err;
 	if (!found)
-		return NONE;
+		return ERR_NONE;
 
 	if (!check_spaces(line, first_space, second_space))
-		return BAD_REQUEST;
+		return ERR_BAD_REQUEST;
 
 	target = line.substr(first_space + 1, second_space - first_space - 1);
 	if (first_space == 0 || target.empty() || second_space + 1 >= line.size())
-		return BAD_REQUEST;
+		return ERR_BAD_REQUEST;
 
-	if (!set_method(ctx.request, line, first_space))
-		return BAD_REQUEST;
-	err = set_version(ctx.request, line, second_space + 1);
-	if (err != NONE)
+	if (!set_method(request, line, first_space))
+		return ERR_BAD_REQUEST;
+	err = set_version(request, line, second_space + 1);
+	if (err != ERR_NONE)
 		return err;
-	if (!set_target(ctx.request, target))
-		return BAD_REQUEST;
+	if (!set_target(request, target))
+		return ERR_BAD_REQUEST;
 
-	ctx.header_bytes = 0;
-	ctx.state_ = HEADERS;
-	return NONE;
-}
-
+	header_bytes = 0;
+	state_ = HEADERS;
+	return ERR_NONE;
 }
 
 }

@@ -1,83 +1,68 @@
 
 #include "http/parser/parse.hpp"
 #include "http/Context.hpp"
-
-#include <string>
-
-namespace {
-
-static const usize REQUEST_LINE_MAX_SIZE = 1024 * 8;
-static const usize HEADER_MAX_SIZE = 1024 * 32;
-static const usize BODY_MAX_SIZE = 1024 * 1024;
-
-static Error	check_size(ContextState state, usize read_bytes) {
-	switch (state) {
-		case REQUEST_LINE:
-			return read_bytes > REQUEST_LINE_MAX_SIZE ? BAD_REQUEST : NONE;
-		case HEADERS:
-			return read_bytes > HEADER_MAX_SIZE ? HEADER_TOO_LARGE : NONE;
-		case BODY:
-			return read_bytes > BODY_MAX_SIZE ? BODY_TOO_LARGE : NONE;
-		default:
-			return NONE;
-	}
-}
-
-static usize	pending_size(Context& ctx) {
-	if (ctx.state_ == HEADERS)
-		return ctx.header_bytes + ctx.raw_buffer.size();
-	return ctx.raw_buffer.size();
-}
-
-static usize	consume_chunk(Context& ctx, std::string& out, usize end) {
-	usize consumed = end + 2;
-
-	out = ctx.raw_buffer.substr(0, end);
-	ctx.raw_buffer.erase(0, consumed);
-	ctx.parse_offset = 0;
-	if (ctx.state_ == HEADERS)
-		ctx.header_bytes += consumed;
-	return consumed;
-}
-
-static usize	parsed_size(Context& ctx, usize consumed) {
-	if (ctx.state_ == HEADERS)
-		return ctx.header_bytes;
-	return consumed;
-}
-
-}
+#include "server/limits.hpp"
 
 namespace http {
 
 namespace parser {
 
-Error	get_chunk(Context& ctx, std::string& out, bool& found) {
-	usize end = ctx.raw_buffer.find(CRLF);
-	usize consumed;
-
-	found = false;
-	if (end == std::string::npos)
-		return check_size(ctx.state_, pending_size(ctx));
-	consumed = consume_chunk(ctx, out, end);
-	found = true;
-	return check_size(ctx.state_, parsed_size(ctx, consumed));
-}
-
-Error	parse(Context& ctx) {
-
-	switch (ctx.state_) {
+static Error	check_size(ContextState state, usize read_bytes) {
+	switch (state) {
 		case REQUEST_LINE:
-			return parse_request_line(ctx);
+			return read_bytes > Limits::MAX_REQUEST_LINE_SIZE
+				? ERR_BAD_REQUEST : ERR_NONE;
 		case HEADERS:
-			return parse_headers(ctx);
+			return read_bytes > Limits::MAX_HEADER_SIZE
+				? ERR_HEADER_TOO_LARGE : ERR_NONE;
 		case BODY:
-			return parse_body(ctx);
+			return read_bytes > Limits::MAX_BODY_SIZE
+				? ERR_BODY_TOO_LARGE : ERR_NONE;
 		default:
-			return INTERNAL;
+			return ERR_NONE;
 	}
 }
 
+Error	check_body_size(usize read_bytes) {
+	return check_size(BODY, read_bytes);
+}
+
+}
+
+Error Context::get_chunk(std::string& out, bool& found) {
+	usize end = raw_buffer.find(CRLF);
+	usize consumed;
+
+	found = false;
+	if (end == std::string::npos) {
+		if (state_ == HEADERS)
+			return parser::check_size(state_,
+				header_bytes + raw_buffer.size());
+		return parser::check_size(state_, raw_buffer.size());
+	}
+	consumed = end + 2;
+	out = raw_buffer.substr(0, end);
+	raw_buffer.erase(0, consumed);
+	if (state_ == HEADERS)
+		header_bytes += consumed;
+	found = true;
+	if (state_ == HEADERS)
+		return parser::check_size(state_, header_bytes);
+	return parser::check_size(state_, consumed);
+}
+
+Error Context::parse() {
+
+	switch (state_) {
+		case REQUEST_LINE:
+			return parse_request_line();
+		case HEADERS:
+			return parse_headers();
+		case BODY:
+			return parse_body();
+		default:
+			return ERR_INTERNAL;
+	}
 }
 
 }

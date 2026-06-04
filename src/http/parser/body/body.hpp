@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <string>
@@ -12,7 +11,8 @@ class Context;
 
 namespace parser {
 
-Error	check_body_size(usize read_bytes);
+usize	body_min_size(usize a, usize b);
+bool	body_parse_chunk_size(const std::string& line, usize& size);
 
 }
 }

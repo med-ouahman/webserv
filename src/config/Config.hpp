@@ -83,7 +83,7 @@ struct ServerConfig {
     {}
 };
 
-struct ServerConfig {
+struct Config {
     std::vector<ServerConfig> servers;
     ServerConfig server;
 
@@ -94,7 +94,7 @@ struct ServerConfig {
     static Config instance;
     static bool has_instance;
 
-    static void set_config( Config& conf ) {
+    static void set_config(const Config& conf) {
         if (!has_instance) {
             instance = conf;
             has_instance = true;

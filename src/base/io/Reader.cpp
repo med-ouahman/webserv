@@ -30,7 +30,7 @@ Reader::Reader(i32 fd, bool owns_fd)
 	reset(fd, owns_fd);
 }
 
-Reader::Reader(const u8* buffer, usize size)
+Reader::Reader(const char* buffer, usize size)
 	: type_(NONE), path_(), fd_(-1), buffer_(NULL), size_(0), offset_(0),
 	  owns_fd_(false) {
 	reset(buffer, size);
@@ -77,7 +77,7 @@ bool Reader::reset(i32 fd, bool owns_fd) {
 	return fd_ >= 0;
 }
 
-bool Reader::reset(const u8* buffer, usize size) {
+bool Reader::reset(const char* buffer, usize size) {
 	close_fd();
 	type_ = BUFFER;
 	path_.clear();
@@ -87,7 +87,7 @@ bool Reader::reset(const u8* buffer, usize size) {
 	return buffer_ != NULL || size_ == 0;
 }
 
-base::Expected<usize, Error> Reader::read(u8* buff, usize max_size) {
+base::Expected<usize, Error> Reader::read(char* buff, usize max_size) {
 	if (max_size == 0)
 		return base::Expected<usize, Error>(static_cast<usize>(0));
 	if (type_ == BUFFER) {
@@ -104,10 +104,6 @@ base::Expected<usize, Error> Reader::read(u8* buff, usize max_size) {
 	if (n < 0)
 		return base::Expected<usize, Error>(READ_FAILED);
 	return base::Expected<usize, Error>(static_cast<usize>(n));
-}
-
-base::Expected<usize, Error> Reader::read(char* buff, usize max_size) {
-	return read(reinterpret_cast<u8*>(buff), max_size);
 }
 
 Reader::Type Reader::type() const {

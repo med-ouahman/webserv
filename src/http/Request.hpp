@@ -24,7 +24,6 @@ enum PathType   { file, directory, executable, not_found };
 */
 enum Version	{ HTTP_1_0, HTTP_1_1, HTTP_UNKNOWN };
 
-enum TransferEncoding { TE_NONE, TE_CHUNKED, TE_UNSUPPORTED };
 enum ConnectionType { CONNECTION_DEFAULT, CONNECTION_CLOSE, CONNECTION_KEEP_ALIVE };
 
 /**
@@ -56,8 +55,8 @@ struct Request {
 
 	base::Optional<std::string>	host;
 	base::Optional<usize>		content_length;
-	TransferEncoding			transfer_encoding;
 	ConnectionType				connection;
+	bool						chunked;
 	base::io::Reader			body;
 
 };
