@@ -13,18 +13,8 @@
 
 namespace http {
 
-<<<<<<< HEAD
-enum ContextInterest {
-	ENABLE_READ,
-	ENABLE_WRITE,
-	DISABLE_READ,
-	DISABLE_WRITE
-};
 
 enum ContextState {
-=======
-enum ContextState : char {
->>>>>>> shady
 	REQUEST_LINE,
 	HEADERS,
 	BODY,
@@ -50,10 +40,7 @@ enum ContextState : char {
  * 		- generating a 'Response' object.
  * 		- serializing the response into bytes -> handed over to the connection writer
  * */
-<<<<<<< HEAD
 
-=======
->>>>>>> shady
 class Context {
 
 private:
@@ -66,18 +53,17 @@ private:
 	usize header_bytes;
 	usize body_received;
 
-<<<<<<< HEAD
-	ContextState 	state_;
-	ContextInterest interest_;
-=======
 	ContextState state_;
->>>>>>> shady
 
 	friend Error	parser::get_chunk(Context& ctx, std::string& out, bool& found);
 	friend Error	parser::parse(Context& ctx);
 	friend Error	parser::parse_request_line(Context& ctx);
 	friend Error	parser::parse_headers(Context& ctx);
 	friend Error	parser::parse_body(Context& ctx);
+	friend usize	pending_size(Context& ctx);
+	friend usize	consume_chunk(Context& ctx, std::string& out, usize end);
+	friend usize	parsed_size(Context& ctx, usize consumed);
+
 
 public:
 
@@ -88,10 +74,7 @@ public:
 	Error produce(base::io::Writer& writer);
 
 	ContextState state() const;
-<<<<<<< HEAD
-	ContextInterest interest() const;
-=======
->>>>>>> shady
+
 };
 
 }

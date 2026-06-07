@@ -40,7 +40,7 @@ static http::Error	set_version(http::Request& request, const std::string& line, 
 	else if (len >= 5 && line.compare(start, 5, "HTTP/") == 0)
 		return http::UNSUPPORTED_HTTP_VERSION;
 	else
-		return http::BAD_REQUEST;
+		return http::EBAD_REQUEST;
 
 	return http::NONE;
 }
@@ -87,19 +87,19 @@ Error	parse_request_line(Context& ctx) {
 		return NONE;
 
 	if (!check_spaces(line, first_space, second_space))
-		return BAD_REQUEST;
+		return EBAD_REQUEST;
 
 	target = line.substr(first_space + 1, second_space - first_space - 1);
 	if (first_space == 0 || target.empty() || second_space + 1 >= line.size())
-		return BAD_REQUEST;
+		return EBAD_REQUEST;
 
 	if (!set_method(ctx.request, line, first_space))
-		return BAD_REQUEST;
+		return EBAD_REQUEST;
 	err = set_version(ctx.request, line, second_space + 1);
 	if (err != NONE)
 		return err;
 	if (!set_target(ctx.request, target))
-		return BAD_REQUEST;
+		return EBAD_REQUEST;
 
 	ctx.header_bytes = 0;
 	ctx.state_ = HEADERS;

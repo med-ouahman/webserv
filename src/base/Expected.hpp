@@ -14,11 +14,8 @@ class Expected {
 private:
 	union Storage {
 		char		t_buf[sizeof(T)];
-<<<<<<< HEAD
 		long int	align_;
-=======
-		T			align_;
->>>>>>> shady
+
 	} storage;
 
 	int err_code;

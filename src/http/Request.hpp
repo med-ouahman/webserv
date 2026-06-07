@@ -1,10 +1,6 @@
 
 #pragma once
 
-<<<<<<< HEAD
-
-=======
->>>>>>> shady
 #include <string>
 #include <map>
 #include <vector>
@@ -64,11 +60,8 @@ struct Request {
 	ConnectionType				connection;
 	base::io::Reader			body;
 
-<<<<<<< HEAD
 	Request();
 
-=======
->>>>>>> shady
 };
 
 }

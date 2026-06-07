@@ -11,12 +11,8 @@ Context::Context()
 	  parse_offset(0),
 	  header_bytes(0),
 	  body_received(0),
-<<<<<<< HEAD
-	  state_(REQUEST_LINE),
-	  interest_(ENABLE_READ) {
-=======
+
 	  state_(REQUEST_LINE) {
->>>>>>> shady
 	request.method = UNKNOWN;
 	request.version = HTTP_UNKNOWN;
 	request.transfer_encoding = TE_NONE;
@@ -24,7 +20,6 @@ Context::Context()
 	response.status = OK;
 }
 
-<<<<<<< HEAD
 // Error Context::consume(const char* data, usize size) {
 // 	if (data == NULL && size != 0)
 // 		return ERR_BAD_REQUEST;
@@ -39,18 +34,15 @@ ContextState Context::state() const {
 	return state_;
 }
 
-ContextInterest Context::interest() const {
-	return interest_;
-=======
+
 Error Context::consume(const char* data, usize size) {
 	if (data == NULL && size != 0)
-		return BAD_REQUEST;
+		return EBAD_REQUEST;
 
 	raw_buffer.reserve(raw_buffer.size() + size);
 	raw_buffer.append(data, size);
 
 	return parser::parse(*this);
->>>>>>> shady
 }
 
 }
