@@ -5,7 +5,7 @@
 
 Server::Server()
     : running_(false),
-    event_loop() {
+    event_poller() {
     running_ = start_listeners();
 }
 
@@ -58,7 +58,7 @@ bool Server::start_listeners() {
 
         if (!result.ok) return false;
         net::Listener* sock = result.result;
-        if (!event_loop.register_handler(sock)) return false;
+        if (!event_poller.register_handler(sock)) return false;
         listeners.push_back(sock);
     }
     
@@ -71,13 +71,13 @@ bool Server::start_listeners() {
 void Server::add_connection(int conn_fd) {
 
     RegisterContext r = {
-        .registrar = &event_loop,
+        .registrar = &event_poller,
         .callback = server_register,
     };
 
     net::Connection* connection = new net::Connection(conn_fd, io::READABLE, r);
     
-    if (!event_loop.register_handler(&connection->stream()))
+    if (!event_poller.register_handler(&connection->stream()))
         return;
 
     connections.push_back(connection);
@@ -91,7 +91,8 @@ void Server::add_connection(int conn_fd) {
 void Server::sweep() {
     for (size_t i(0); i < connections.size();) {
         net::Connection* conn = connections.at(i);
-        event_loop.sync(&conn->stream());
+        conn->update_stream();
+        event_poller.sync(&conn->stream());
         if (conn->state() == net::CLOSING
             || conn->timedout()) remove_connection(conn);
         else ++i;
@@ -99,7 +100,7 @@ void Server::sweep() {
 
     for (size_t i(0); i < listeners.size(); ++i) {
         net::Listener* listener = listeners.at(i);
-        event_loop.sync(listener);
+        event_poller.sync(listener);
         if (listener->error()) {
             /*
                 What to do here?
@@ -116,8 +117,7 @@ int Server::start() {
         return EXIT_FAILURE;
     while (true)
     {
-        std::cout << "POLLING\n";
-        event_loop.poll();
+        event_poller.poll();
         sweep();
     }
 

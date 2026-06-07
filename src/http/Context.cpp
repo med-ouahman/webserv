@@ -11,7 +11,8 @@ Context::Context()
 	  parse_offset(0),
 	  header_bytes(0),
 	  body_received(0),
-	  state_(REQUEST_LINE) {
+	  state_(REQUEST_LINE),
+	  interest_(ENABLE_READ) {
 	request.method = UNKNOWN;
 	request.version = HTTP_UNKNOWN;
 	request.transfer_encoding = TE_NONE;
@@ -28,5 +29,13 @@ Context::Context()
 
 // 	return parser::parse(*this);
 // }
+
+ContextState Context::state() const {
+	return state_;
+}
+
+ContextInterest Context::interest() const {
+	return interest_;
+}
 
 }

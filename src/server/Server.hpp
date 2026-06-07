@@ -9,7 +9,7 @@ private:
     bool running_;
     std::vector<net::Connection*> connections;
     std::vector<net::Listener*> listeners;
-    runtime::epoll::EventPoller event_loop;
+    runtime::epoll::EventPoller event_poller;
 
     Server(const Server&);
     Server& operator=(const Server&);

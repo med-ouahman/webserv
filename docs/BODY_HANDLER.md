@@ -256,8 +256,8 @@ read chunk from pipe_fd into temp file
 if read returns 0:
     pipe closed, CGI process finished
     waitpid(_cgi_pid)
-    event_loop.remove(pipe_fd)
-    event_loop.modify(conn_fd, EPOLLOUT)
+    event_poller.remove(pipe_fd)
+    event_poller.modify(conn_fd, EPOLLOUT)
     conn.set_body(temp_fd, bytes_written)
 if read returns -1:
     yield, wait for next EPOLLIN
@@ -270,8 +270,8 @@ kill(_cgi_pid, SIGKILL)
 waitpid(_cgi_pid)
 cleanup temp file
 conn.set_error(502)
-event_loop.remove(pipe_fd)
-event_loop.modify(conn_fd, EPOLLOUT)
+event_poller.remove(pipe_fd)
+event_poller.modify(conn_fd, EPOLLOUT)
 ```
 
 ### CGI process setup

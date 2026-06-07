@@ -32,6 +32,7 @@ INCLUDES = -Isrc \
 	-Isrc/server/ \
 	-Isrc/http/ \
 	-Isrc/http/pipeline/ \
+	-Isrc/http/pipeline/body/ \
 	-Isrc/http/common/ \
 	-Isrc/config/ \
 	-Isrc/foundation/ \
@@ -52,6 +53,7 @@ SRCS = src/server/main.cpp \
 	src/cgi/handler/CGIRequestHandler.cpp \
 	src/io/stream/Stream.cpp \
 	src/http/Context.cpp \
+	src/http/pipeline/body/CGIBodyProvider.cpp \
 	src/http/common/LineScanner.cpp \
 	src/http/common/Headers.cpp \
 	src/http/parser/parse_headers.cpp \
@@ -60,7 +62,7 @@ SRCS = src/server/main.cpp \
 	src/http/Response.cpp \
 	src/config/ConfigParser.cpp \
 	src/config/Lexer.cpp \
-	src/foundation/DataView.cpp \
+	src/foundation/BufferReader.cpp \
 	src/foundation/BufferWriter.cpp \
 	src/base/io/Writer.cpp \
 	src/base/io/Reader.cpp \

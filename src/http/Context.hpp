@@ -13,6 +13,13 @@
 
 namespace http {
 
+enum ContextInterest {
+	ENABLE_READ,
+	ENABLE_WRITE,
+	DISABLE_READ,
+	DISABLE_WRITE
+};
+
 enum ContextState {
 	REQUEST_LINE,
 	HEADERS,
@@ -52,7 +59,8 @@ private:
 	usize header_bytes;
 	usize body_received;
 
-	ContextState state_;
+	ContextState 	state_;
+	ContextInterest interest_;
 
 	friend Error	parser::get_chunk(Context& ctx, std::string& out, bool& found);
 	friend Error	parser::parse(Context& ctx);
@@ -69,6 +77,7 @@ public:
 	Error produce(base::io::Writer& writer);
 
 	ContextState state() const;
+	ContextInterest interest() const;
 };
 
 }

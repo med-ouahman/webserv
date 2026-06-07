@@ -7,7 +7,7 @@ namespace cgi {
 
 namespace parser {
 
-ParseResult ResponseParser::parse_headers(DataView& view) {
+ParseResult ResponseParser::parse_headers(BufferReader& view) {
     std::cout << "Start CGI header parsing...\n";
     while (parse_ctx.state_ != HEADERS_DONE) {
         
@@ -90,6 +90,10 @@ void ResponseParser::sanitize_header(std::pair<std::string, std::string>& header
 
 const http::Headers& ResponseParser::headers() const {
     return headers_;
+}
+
+http::StatusCode ResponseParser::status_code() const {
+    return code;
 }
 
 bool ResponseParser::finished() const {

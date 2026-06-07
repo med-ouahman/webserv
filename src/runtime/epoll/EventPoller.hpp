@@ -29,14 +29,10 @@ private:
 public:
 	EventPoller();
 	~EventPoller();
-	
 	int poll();
-	
 	bool register_handler(io::AEventHandler* handler);
 	bool modify_handler(io::AEventHandler* handler);
 	bool del_handler(io::AEventHandler* handler);
-	bool suspend_handler(io::AEventHandler* handler);
-	bool resume_handler(io::AEventHandler* handler);
 	void sync(io::AEventHandler*);
 };
 

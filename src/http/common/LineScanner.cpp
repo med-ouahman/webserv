@@ -20,7 +20,7 @@ namespace http {
 		cr_found = false;
 	}
 
-    ScanResult LineScanner::scan(DataView& view, size_t max_block_len) {
+    ScanResult LineScanner::scan(BufferReader& view, size_t max_block_len) {
         size_t line_offset = linebuff.size();
         size_t i = view.cursor();
         bool nl_found = false;

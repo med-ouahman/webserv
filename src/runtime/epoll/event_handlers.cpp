@@ -71,7 +71,7 @@ void EventPoller::sync(io::AEventHandler* handler) {
 	if (handler->synced())
 		return;
 
-	if (handler->events() == io::ERROR) {
+	if (handler->events() == io::CLOSE) {
 		del_handler(handler);
 		return;
 	}
