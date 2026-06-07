@@ -24,10 +24,7 @@ void Connection::update_stream() {
             stream_.update_events(io::WRITABLE);
             break;
         case CLOSING:
-            stream_.update_events(io::ERROR);
-            break;
-        case CGI_STREAMING:
-            stream_.pause();
+            stream_.update_events(io::CLOSE);
             break;
         default:
             break;

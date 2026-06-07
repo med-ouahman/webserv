@@ -1,19 +1,19 @@
 
 #include "http/parser/parse.hpp"
 #include "http/Context.hpp"
-
 #include <string>
 
-namespace {
+namespace http {
+
 
 static const usize REQUEST_LINE_MAX_SIZE = 1024 * 8;
 static const usize HEADER_MAX_SIZE = 1024 * 32;
 static const usize BODY_MAX_SIZE = 1024 * 1024;
 
-static Error	check_size(ContextState state, usize read_bytes) {
+Error	check_size(ContextState state, usize read_bytes) {
 	switch (state) {
 		case REQUEST_LINE:
-			return read_bytes > REQUEST_LINE_MAX_SIZE ? BAD_REQUEST : NONE;
+			return read_bytes > REQUEST_LINE_MAX_SIZE ? EBAD_REQUEST : NONE;
 		case HEADERS:
 			return read_bytes > HEADER_MAX_SIZE ? HEADER_TOO_LARGE : NONE;
 		case BODY:
@@ -23,13 +23,13 @@ static Error	check_size(ContextState state, usize read_bytes) {
 	}
 }
 
-static usize	pending_size(Context& ctx) {
+usize	pending_size(Context& ctx) {
 	if (ctx.state_ == HEADERS)
 		return ctx.header_bytes + ctx.raw_buffer.size();
 	return ctx.raw_buffer.size();
 }
 
-static usize	consume_chunk(Context& ctx, std::string& out, usize end) {
+usize	consume_chunk(Context& ctx, std::string& out, usize end) {
 	usize consumed = end + 2;
 
 	out = ctx.raw_buffer.substr(0, end);
@@ -40,15 +40,12 @@ static usize	consume_chunk(Context& ctx, std::string& out, usize end) {
 	return consumed;
 }
 
-static usize	parsed_size(Context& ctx, usize consumed) {
+usize	parsed_size(Context& ctx, usize consumed) {
 	if (ctx.state_ == HEADERS)
 		return ctx.header_bytes;
 	return consumed;
 }
 
-}
-
-namespace http {
 
 namespace parser {
 
@@ -76,8 +73,9 @@ Error	parse(Context& ctx) {
 		default:
 			return INTERNAL;
 	}
-}
 
 }
 
+
+}
 }

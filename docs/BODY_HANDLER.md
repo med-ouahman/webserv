@@ -258,6 +258,7 @@ if read returns 0:
     waitpid(_cgi_pid)
     poller.remove(pipe_fd)
     poller.modify(conn_fd, EPOLLOUT)
+ 
     conn.set_body(temp_fd, bytes_written)
 if read returns -1:
     yield, wait for next EPOLLIN
@@ -270,9 +271,10 @@ kill(_cgi_pid, SIGKILL)
 waitpid(_cgi_pid)
 cleanup temp file
 conn.set_error(502)
+
 poller.remove(pipe_fd)
 poller.modify(conn_fd, EPOLLOUT)
-```
+
 
 ### CGI process setup
 

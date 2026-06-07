@@ -5,8 +5,8 @@ namespace io {
 Stream::Stream(int fd, Event mask, IStreamDelegate& d)
     : AEventHandler(fd, mask),
     delegate(d),
-    readbuf(),
-    writer() {}
+    reader_(READ_BUFFER_SIZE),
+    writer(WRITE_BUFFER_SIZE) {}
 
 Stream::~Stream() {}
 
@@ -33,7 +33,7 @@ void Stream::on_event(io::Event event) {
 
 void Stream::on_readable() {
     std::cout << "stream readable\n";
-    ssize_t n = ::read(fd(), readbuf, READ_BUFFER_SIZE);
+    ssize_t n = ::read(fd(), reader_.data(), READ_BUFFER_SIZE);
     if (n == 0) {
         std::cout << "Stream closed\n";
         delegate.on_stream_closed();
@@ -46,17 +46,16 @@ void Stream::on_readable() {
         return;
     }
     
-    DataView view(readbuf, n);
-    delegate.consume(view);
+    delegate.consume(reader_);
 }
 
 void Stream::on_writeable() {
     std::cout << "writing...\n";
     delegate.produce(writer);
 
-    if (writer.size() == 0) return ;
+    if (writer.length() == 0) return ;
     
-    ssize_t n = ::write(fd(), writer.data(), writer.remaining());
+    ssize_t n = ::write(fd(), writer.data(), writer.bytes_pending());
     
     if (n < 0) {
         LOG_ERROR(MAKE_ERRNO_ERROR("Sream::on_writeable()"));

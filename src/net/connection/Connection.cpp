@@ -1,12 +1,5 @@
 #include "Connection.hpp"
-#include <unistd.h>
-#include <cstring>
-#include <cerrno>
-#include <fcntl.h>
-#include <sstream>
 #include "Context.hpp"
-#include "CGIRequestHandler.hpp"
-#include "Dispatcher.hpp"
 
 namespace net {
 
@@ -20,30 +13,27 @@ Connection::Connection(int _fd, io::Event events, RegisterContext& regis_ctx)
     ctx() {}
 
 Connection::~Connection() {
+    /* cp */
 }
 
-
-void Connection::consume(DataView& view) {
+void Connection::consume(BufferReader& view) {
     // ctx.consume(view.data(), view.size());
     std::cout << view.data(), view.size();std::cout << "\n";
+    state_ = WRITING;
 }
 
 void Connection::produce(BufferWriter& writer) {
-    
-
-    // base::io::Writer w(writer.data(), writer.size());
-    /* in development */
-    // ctx.produce(w);
-    if (writer.remaining() == 0 && close_after_write) {
+    if (close_after_write) {
         state_ = CLOSING;
-        stream_.update_events(io::NONE);
         return;
     }
+    std::string s = "writer.write(\"Hello World\n\", );\n";
+    writer.write(s.c_str(), s.size());
+    close_after_write = true;
 }
 
 ConnectionState Connection::state() const {
     return state_;
 }
-
 
 }

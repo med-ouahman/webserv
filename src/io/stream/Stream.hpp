@@ -11,7 +11,7 @@
 #include "AEventHandler.hpp"
 #include <unistd.h>
 #include "Result.hpp"
-#include "DataView.hpp"
+#include "BufferReader.hpp"
 #include "BufferWriter.hpp"
 
 namespace io {
@@ -25,7 +25,7 @@ struct StreamControl {
 
 class IStreamDelegate {
 public:
-	virtual void consume(DataView& view) = 0;
+	virtual void consume(BufferReader& view) = 0;
 	virtual void produce(BufferWriter& w) = 0;
 	virtual void on_stream_error() = 0;
 	virtual void on_stream_closed() = 0;
@@ -39,13 +39,16 @@ public:
 	Stream(int fd, Event events_, IStreamDelegate& de);
 	~Stream();
 	void on_event(io::Event events_);
-	BufferWriter& buff_writer() { return writer; }
+	BufferReader& reader() { return reader_; }
 	void pause();
 	void resume();
 
 private:
 	StreamControl ctl_;
 	IStreamDelegate& delegate;
+
+	BufferReader reader_;
+
 	BufferWriter writer;
 	void on_readable();
 	void on_writeable();

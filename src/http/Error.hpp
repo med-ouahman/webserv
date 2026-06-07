@@ -7,9 +7,10 @@ enum Error {
 
 	NONE = 0,
 
-	ERR_BAD_REQUEST,
-	ERR_UNSUPPORTED_HTTP_VERSION,
-	ERR_MISSING_HOST,
+	/* parser/request */
+	EBAD_REQUEST,
+	UNSUPPORTED_HTTP_VERSION,
+	MISSING_HOST,
 
 	/* Parsing */
 	DUPLICATE_HEADER,
@@ -20,14 +21,15 @@ enum Error {
 	HEADER_TOO_LARGE,
 	BODY_TOO_LARGE,
 
-	// /* handlers */
-	// NOT_FOUND,
-	// FORBIDDEN,
-	// METHOD_NOT_ALLOWED,
 
-	// /* cgi */
-	// CGI_FAILED,
-	// CGI_TIMEOUT,
+	/* handlers */
+	ENOT_FOUND,
+	EFORBIDDEN,
+	EMETHOD_NOT_ALLOWED,
+
+	/* cgi */
+	CGI_FAILED,
+	CGI_TIMEOUT,
 
 	INTERNAL,
 };

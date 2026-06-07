@@ -4,6 +4,8 @@
 #include "IRequestHandler.hpp"
 #include "ResponseParser.hpp"
 #include "Registrar.hpp"
+#include "StatusCode.hpp"
+#include "IBodyProvider.hpp"
 
 namespace http {
 
@@ -18,12 +20,20 @@ struct CGIOutputContext {
 };
 
 struct CGIControl {
+	
 	RegisterContext register_ctx;
 	CGIOutputContext output_ctx;
+
 	CGIControl(RegisterContext ctx_, CGIOutputContext finished_)
 		: register_ctx(ctx_), output_ctx(finished_) {}
 };
 
+struct CGIResult {
+	StatusCode code;
+	std::string status_reason;
+	Headers headers;
+	IBodyProvider* body;
+};
 
 class CGIRequestHandler: public io::IStreamDelegate, public IRequestHandler {
 public:
@@ -47,22 +57,25 @@ private:
 
 	CGIControl	cgi_ctl;
 
+	CGIResult result_;
+	
 	CGIRequestHandler(const CGIRequestHandler&);
 	CGIRequestHandler& operator=(const CGIRequestHandler&);
 
 public:
 	CGIRequestHandler(const ResolutionResult& result, const http::Request& req, CGIControl& ctl);
 	~CGIRequestHandler();
-
 	State state() const;
 	
 	void handle();
 	bool done();
 	
-	void consume(DataView& view);
+	void consume(BufferReader& view);
 	void produce(BufferWriter& w);
 	void on_stream_error();
 	void on_stream_closed();
+
+	CGIResult& result();
 };
 
 }

@@ -11,6 +11,7 @@ Context::Context()
 	  parse_offset(0),
 	  header_bytes(0),
 	  body_received(0),
+
 	  state_(REQUEST_LINE) {
 	request.method = UNKNOWN;
 	request.version = HTTP_UNKNOWN;
@@ -28,5 +29,20 @@ Context::Context()
 
 // 	return parser::parse(*this);
 // }
+
+ContextState Context::state() const {
+	return state_;
+}
+
+
+Error Context::consume(const char* data, usize size) {
+	if (data == NULL && size != 0)
+		return EBAD_REQUEST;
+
+	raw_buffer.reserve(raw_buffer.size() + size);
+	raw_buffer.append(data, size);
+
+	return parser::parse(*this);
+}
 
 }

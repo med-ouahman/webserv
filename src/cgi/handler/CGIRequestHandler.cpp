@@ -1,12 +1,12 @@
-#include <signal.h>
-#include <sys/wait.h>
 #include "Timestamp.hpp"
 #include "CGIRequestHandler.hpp"
 #include "Dispatcher.hpp"
 #include "Request.hpp"
 #include "EnvBuilder.hpp"
+#include "CGIBodyProvider.hpp"
 
 namespace http {
+
 CGIRequestHandler::CGIRequestHandler(const ResolutionResult& res, http::Request const& req, CGIControl& ctl)
     : process(cgi::resolve_exec_context(req, res)),
     stdin_stream(process.stdin_pipe().write_end(), io::WRITABLE, *this),
@@ -27,21 +27,26 @@ CGIRequestHandler::CGIRequestHandler(const ResolutionResult& res, http::Request 
 
 CGIRequestHandler::~CGIRequestHandler() {}
 
-void CGIRequestHandler::handle() {
-}
+void CGIRequestHandler::handle() {}
 
 bool CGIRequestHandler::done() {
     return state_ == RESPONSE_DONE;
 }
 
-void CGIRequestHandler::consume(DataView& view) {
+void CGIRequestHandler::consume(BufferReader& reader) {
     if (state_ == BUILDING_HEADERS) {
-        builder.parse_headers(view);
+        builder.parse_headers(reader);
+        if (builder.finished()) state_ = HEADERS_READY;
     }
     
-    if (state_ == STREAMING_RESPONSE) {
-
+    if (state_ == HEADERS_READY) {
+        result_.headers = builder.headers();
+        result_.code = builder.status_code();
+        result_.status_reason = "";
+        result_.body = new CGIBodyProvider(reader);
+        state_ = STREAMING_BODY;
     }
+    
 }
 
 void CGIRequestHandler::produce(BufferWriter& w) {
@@ -64,4 +69,8 @@ CGIRequestHandler::State CGIRequestHandler::state() const {
     return state_;
 }
 
+
+CGIResult& CGIRequestHandler::result() {
+    return result_;
+}
 }

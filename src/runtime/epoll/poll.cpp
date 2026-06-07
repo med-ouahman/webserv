@@ -15,7 +15,7 @@ int EventPoller::poll() {
         LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::run()"));
         return 1;
     }
-    std::cout << n << '\n';
+
     for (int i(0); i < n; ++i) {
         io::AEventHandler* handler = static_cast<io::AEventHandler*>(events[i].data.ptr); 
         handler->on_event(encode_events(events[i].events));

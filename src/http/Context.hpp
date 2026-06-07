@@ -13,6 +13,7 @@
 
 namespace http {
 
+
 enum ContextState {
 	REQUEST_LINE,
 	HEADERS,
@@ -59,6 +60,10 @@ private:
 	friend Error	parser::parse_request_line(Context& ctx);
 	friend Error	parser::parse_headers(Context& ctx);
 	friend Error	parser::parse_body(Context& ctx);
+	friend usize	pending_size(Context& ctx);
+	friend usize	consume_chunk(Context& ctx, std::string& out, usize end);
+	friend usize	parsed_size(Context& ctx, usize consumed);
+
 
 public:
 
@@ -69,6 +74,7 @@ public:
 	Error produce(base::io::Writer& writer);
 
 	ContextState state() const;
+
 };
 
 }

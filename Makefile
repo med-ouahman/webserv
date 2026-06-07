@@ -1,17 +1,20 @@
-	CXX := c++
+CXX := c++
 
 DEBUG := -g3 -O0
-CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 $(DEBUG)
 
 FT := -pg  -finstrument-functions
 
-DEBUG := -g3 -O0 -D DEBUG=1
 DEVELOPMENT = -D DEV_MODE=1
 
-CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 $(DEBUG) $(DEVELOPMENT) $(FT)
+CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 $(DEBUG) $(DEVELOPMENT)
+
 
 # Libraries we might link against in the future, for now just a placeholder
 LIBS := 
+
+SRCDIR = src
+
+BODY_DIR = ./srcs/http/parser/.body_dir
 
 OBJDIR := obj
 
@@ -32,6 +35,7 @@ INCLUDES = -Isrc \
 	-Isrc/server/ \
 	-Isrc/http/ \
 	-Isrc/http/pipeline/ \
+	-Isrc/http/pipeline/body/ \
 	-Isrc/http/common/ \
 	-Isrc/config/ \
 	-Isrc/foundation/ \
@@ -52,15 +56,21 @@ SRCS = src/server/main.cpp \
 	src/cgi/handler/CGIRequestHandler.cpp \
 	src/io/stream/Stream.cpp \
 	src/http/Context.cpp \
+	src/http/pipeline/body/CGIBodyProvider.cpp \
 	src/http/common/LineScanner.cpp \
 	src/http/common/Headers.cpp \
 	src/http/parser/parse_headers.cpp \
 	src/http/parser/utils.cpp \
+	src/http/parser/parse.cpp \
+	src/http/parser/request_line.cpp \
+	src/http/parser/headers/headers.cpp \
+	src/http/parser/headers/header_rules.cpp \
+	src/http/parser/headers/header_utils.cpp \
 	src/http/Request.cpp \
 	src/http/Response.cpp \
 	src/config/ConfigParser.cpp \
 	src/config/Lexer.cpp \
-	src/foundation/DataView.cpp \
+	src/foundation/BufferReader.cpp \
 	src/foundation/BufferWriter.cpp \
 	src/base/io/Writer.cpp \
 	src/base/io/Reader.cpp \
@@ -81,11 +91,17 @@ $(OBJDIR)/%.o: %.cpp
 $(NAME): $(OBJS)
 	@$(CXX) $(CXX_FLAGS) $(INCLUDES) $(OBJS) $(LIBS) -o $(NAME)
 	@echo "Build complete: $(NAME)"
+
+
+$(BODY_DIR):
+	@mkdir $(BODY_DIR)
+
 clean:
 	@rm -fr $(OBJDIR)
 
 fclean: clean
 	@rm -f $(NAME)
+	@rm -fr $(BODY_DIR)
 
 re: fclean all
 
