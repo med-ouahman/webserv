@@ -3,9 +3,7 @@
 #include "http/parser/Parser.hpp"
 #include <cstdlib>
 
-namespace cgi {
-
-namespace parser {
+namespace http {
 
 ParseResult ResponseParser::parse_headers(DataView& view) {
     std::cout << "Start CGI header parsing...\n";
@@ -13,11 +11,11 @@ ParseResult ResponseParser::parse_headers(DataView& view) {
         
         size_t max_scan_size = CGIParseContext::MAX_CGI_HEADER_BLOCK_LEN - parse_ctx.header_bytes_;
         parse_ctx.sc_.reset();
-        http::ScanResult r = parse_ctx.sc_.scan(view, max_scan_size);
+        ScanResult r = parse_ctx.sc_.scan(view, max_scan_size);
         
-        if (r == http::LIMIT_EXCEEDED) return PARSE_ERROR;
+        if (r == LIMIT_EXCEEDED) return PARSE_ERROR;
         
-        if (r == http::NEED_MORE) return PARSE_CONTINUE;
+        if (r == NEED_MORE) return PARSE_CONTINUE;
         
         if (parse_ctx.sc_.line().empty() && parse_ctx.state_ == HEADERS) {
             parse_ctx.state_ = HEADERS_DONE;
@@ -25,7 +23,7 @@ ParseResult ResponseParser::parse_headers(DataView& view) {
         }
 
         std::cout << parse_ctx.sc_.line() << "\n";
-        base::Expected<std::pair<std::string, std::string>, int> header_result = http::parser::parse_header(parse_ctx.sc_.line());
+        base::Expected<std::pair<std::string, std::string>, int> header_result = parser::parse_header(parse_ctx.sc_.line());
         
         if (not header_result.has_value()) {
             std::cout  << "Error\n";
@@ -84,11 +82,11 @@ void ResponseParser::sanitize_header(std::pair<std::string, std::string>& header
         return;
     }
     std::cout << "Sanitizing CGI headers\n";
-    http::parser::capitalize_header_name(header.first);
+    parser::capitalize_header_name(header.first);
     headers_.add(header.first, header.second);
 }
 
-const http::Headers& ResponseParser::headers() const {
+const Headers& ResponseParser::headers() const {
     return headers_;
 }
 
@@ -96,5 +94,4 @@ bool ResponseParser::finished() const {
     return parse_ctx.state_ == HEADERS_DONE;
 }
 
-}
 }

@@ -34,4 +34,8 @@ void Connection::update_stream() {
     }
 }
 
+bool Connection::closing() const {
+    return state_ == CLOSING;
+}
+
 }

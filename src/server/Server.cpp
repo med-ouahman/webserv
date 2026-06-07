@@ -5,7 +5,7 @@
 
 Server::Server()
     : running_(false),
-    event_loop() {
+    poller() {
     running_ = start_listeners();
 }
 
@@ -33,9 +33,7 @@ void Server::server_register(io::AEventHandler* handler, void* register_ctx) {
     loop->register_handler(handler);
 }
 
-
-
-void Server::remove_connection(net::Connection* conn) {
+void Server::close_connection(net::Connection* conn) {
     connections.erase(
         std::remove(connections.begin(), connections.end(), conn),
         connections.end()
@@ -58,26 +56,25 @@ bool Server::start_listeners() {
 
         if (!result.ok) return false;
         net::Listener* sock = result.result;
-        if (!event_loop.register_handler(sock)) return false;
+        
+        if (!poller.register_handler(sock)) return false;
+
         listeners.push_back(sock);
     }
     
     return true;
 }
 
-
-
-
 void Server::add_connection(int conn_fd) {
 
     RegisterContext r = {
-        .registrar = &event_loop,
+        .registrar = &poller,
         .callback = server_register,
     };
 
     net::Connection* connection = new net::Connection(conn_fd, io::READABLE, r);
     
-    if (!event_loop.register_handler(&connection->stream()))
+    if (!poller.register_handler(&connection->stream()))
         return;
 
     connections.push_back(connection);
@@ -91,15 +88,15 @@ void Server::add_connection(int conn_fd) {
 void Server::sweep() {
     for (size_t i(0); i < connections.size();) {
         net::Connection* conn = connections.at(i);
-        event_loop.sync(&conn->stream());
-        if (conn->state() == net::CLOSING
-            || conn->timedout()) remove_connection(conn);
+        poller.sync(&conn->stream());
+        if (conn->closing()) close_connection(conn);
+
         else ++i;
     }
 
     for (size_t i(0); i < listeners.size(); ++i) {
         net::Listener* listener = listeners.at(i);
-        event_loop.sync(listener);
+        poller.sync(listener);
         if (listener->error()) {
             /*
                 What to do here?
@@ -117,7 +114,7 @@ int Server::start() {
     while (true)
     {
         std::cout << "POLLING\n";
-        event_loop.poll();
+        poller.poll();
         sweep();
     }
 

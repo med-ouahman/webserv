@@ -39,6 +39,7 @@ std::string EnvBuilder::transform(bool has_http_prefix, http::Headers::const_ite
         if (c == '-') name += '_';
         else name += std::toupper(c);
     }
+    
     result.append(name);
     result.append("=");
     result.append(it->value);
@@ -77,6 +78,7 @@ http::Headers EnvBuilder::build_metadata(const CGIRequestContext& ctx) {
             headers.add(s, ss.str());
         }
     }
+
     return headers;
 }
 
@@ -86,7 +88,9 @@ CStringArray EnvBuilder::build(const CGIRequestContext& ctx,
     http::Headers headers = build_metadata(ctx);
     CStringArray arr;
     
-    arr.push_array(const_cast<const char**>(__environ));
+    size_t env_size(0);for(;__environ[env_size];++env_size);
+    
+    arr.push_array(const_cast<const char**>(__environ), env_size);
 
     for (http::Headers::const_iterator it = headers.begin();
             it != headers.end();

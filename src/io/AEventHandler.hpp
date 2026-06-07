@@ -11,7 +11,8 @@ enum Event {
     READABLE = 1 << 1,
     HUP      = 1 << 2,
     RHUP     = 1 << 3,
-    ERROR    = 1 << 4
+    CLOSE    = 1 << 4,
+    ERROR    = 1 << 5
 };
 
 class AEventHandler {

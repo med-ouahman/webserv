@@ -33,7 +33,6 @@ public:
 };
 
 class Stream: public AEventHandler {
-
 public:
 	const static std::size_t READ_BUFFER_SIZE = 1024 * 4;
 	const static std::size_t WRITE_BUFFER_SIZE = 1024 * 4;
@@ -47,7 +46,6 @@ public:
 private:
 	StreamControl ctl_;
 	IStreamDelegate& delegate;
-	char readbuf[READ_BUFFER_SIZE];
 	BufferWriter writer;
 	void on_readable();
 	void on_writeable();

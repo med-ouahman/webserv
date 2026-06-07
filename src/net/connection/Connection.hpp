@@ -20,7 +20,6 @@ class Connection: public io::IStreamDelegate {
 public:
     Connection(int fd, io::Event events, RegisterContext& ctx);
     ~Connection();
-    bool timedout();
     void  update_stream();
     ConnectionState state() const;
     void consume(DataView& view);
@@ -28,6 +27,7 @@ public:
     void on_stream_error();
     void on_stream_closed();
     io::Stream& stream();
+    bool closing() const;
 private:
     io::Stream      stream_;
     ConnectionState state_;    

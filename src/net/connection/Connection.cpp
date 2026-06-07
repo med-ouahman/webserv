@@ -22,22 +22,6 @@ Connection::Connection(int _fd, io::Event events, RegisterContext& regis_ctx)
 Connection::~Connection() {
 }
 
-bool Connection::timedout() {
-
-    /* in development */
-    
-    /*
-    switch (ctx.state()) {
-        case http::REQUEST_LINE:
-        // timeout logic here 
-        default:
-        return false;
-    }
-    */
-
-    return false;
-}
-
 
 void Connection::consume(DataView& view) {
     // ctx.consume(view.data(), view.size());

@@ -27,24 +27,25 @@ struct CGIControl {
 
 class CGIRequestHandler: public io::IStreamDelegate, public IRequestHandler {
 public:
-
-enum State {
-	BUILDING_HEADERS,
-	HEADERS_READY,
-	STREAMING_RESPONSE,
-	RESPONSE_DONE,
-	ERROR
-};
+	enum State {
+		BUILDING_HEADERS,
+		HEADERS_READY,
+		STREAMING_RESPONSE,
+		RESPONSE_DONE,
+		ERROR
+	};
 
 private:
 	State state_;
-	cgi::Process 				process;
-	cgi::parser::ResponseParser builder;
+	cgi::Process process;
+	
+	ResponseParser builder;
 
-	io::Stream				stdin_stream;
-	io::Stream 				stdout_stream;
-	io::Stream 				stderr_stream;
-	CGIControl				cgi_ctl;
+	io::Stream	stdin_stream;
+	io::Stream 	stdout_stream;
+	io::Stream 	stderr_stream;
+
+	CGIControl	cgi_ctl;
 
 	CGIRequestHandler(const CGIRequestHandler&);
 	CGIRequestHandler& operator=(const CGIRequestHandler&);
@@ -62,7 +63,6 @@ public:
 	void produce(BufferWriter& w);
 	void on_stream_error();
 	void on_stream_closed();
-	
 };
 
 }

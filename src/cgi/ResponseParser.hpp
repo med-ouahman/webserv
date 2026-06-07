@@ -3,8 +3,7 @@
 #include "http/common/Headers.hpp"
 #include "LineScanner.hpp"
 
-namespace cgi {
-namespace parser {
+namespace http {
 
 enum CGIParseState {
 	HEADERS,
@@ -21,23 +20,22 @@ enum ParseResult {
 
 struct CGIParseContext {
 	static const std::size_t MAX_CGI_HEADER_BLOCK_LEN = 4096;
-	http::LineScanner 	sc_;
+	LineScanner 	sc_;
 	size_t			header_bytes_;
 	CGIParseState 	state_;
 };
 
 class ResponseParser {
 private:
-    http::Headers headers_;
+    Headers headers_;
     CGIParseContext parse_ctx;
 
 public:
 	ParseResult parse_headers( DataView& view );
 	void sanitize_status_line( const std::pair<std::string, std::string>& header );
 	void sanitize_header( std::pair<std::string, std::string>& header );
-    const http::Headers& headers() const;
+    const Headers& headers() const;
     bool finished() const;
 };
 
-}
 }

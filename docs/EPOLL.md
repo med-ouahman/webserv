@@ -16,7 +16,7 @@ server_design/
 │   ├─ EPOLLET set once at epoll_ctl(ADD)
 │   └─ epoll_ctl(MOD) only changes EPOLLIN/EPOLLOUT
 │
-├─ event_loop_flow
+├─ poller_flow
 │   ├─ epoll_wait()
 │   ├─ map kernel events → internal events
 │   │     EPOLLIN  → READABLE

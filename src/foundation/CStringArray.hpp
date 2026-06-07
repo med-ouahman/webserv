@@ -35,11 +35,9 @@ public:
         storage_.push_back(s);
         cache_expired_ = true;
     }
-    /* __arr should be a NULL terminated array of strings */
-    void push_array(const char** __arr) {
-        size_t size(0);
-        for (; __arr[size]; ++size);
-        
+
+    void push_array(const char** __arr, size_t size) {
+       
         storage_.reserve(size);
         
         for ( size_t i(0); __arr[i]; ++i ) {
