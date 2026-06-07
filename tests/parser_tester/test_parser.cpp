@@ -76,6 +76,15 @@ struct TCPSocket
         char buf[4096];
         ssize_t n;
 <<<<<<< HEAD
+<<<<<<< HEAD:tests/parser_tester/test_parser.cpp
+=======
+        while ((n = ::recv(fd, buf, sizeof buf, 0)) > 0)
+            result.append(buf, static_cast<size_t>(n));
+        if (n < 0) {
+            std::cerr << "ERROR: " << strerror(errno) << "\n";
+        }
+=======
+>>>>>>> shady:tests/test_parser.cpp
         while (true) {
 
             n = ::recv(fd, buf, sizeof buf, 0);
@@ -89,6 +98,7 @@ struct TCPSocket
             }
         }
         
+<<<<<<< HEAD:tests/parser_tester/test_parser.cpp
 =======
 <<<<<<< HEAD
         while ((n = ::recv(fd, buf, sizeof buf, 0)) > 0)
@@ -112,6 +122,9 @@ struct TCPSocket
         
 >>>>>>> fba701ffe56069d2759bc19b86233db7fe442d5c
 >>>>>>> 2a4fb87 (s)
+=======
+>>>>>>> fba701ffe56069d2759bc19b86233db7fe442d5c
+>>>>>>> shady:tests/test_parser.cpp
         return result;
     }
 
@@ -412,9 +425,12 @@ void test_slow_client() {
 
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD:tests/parser_tester/test_parser.cpp
 <<<<<<< HEAD
 =======
 >>>>>>> 2a4fb87 (s)
+=======
+>>>>>>> shady:tests/test_parser.cpp
 int test_cgi() {
     TCPSocket s;
 
@@ -426,15 +442,44 @@ int test_cgi() {
     return 0;
 }
 
+<<<<<<< HEAD:tests/parser_tester/test_parser.cpp
 <<<<<<< HEAD
 =======
 >>>>>>> fba701ffe56069d2759bc19b86233db7fe442d5c
 >>>>>>> 2a4fb87 (s)
+=======
+>>>>>>> fba701ffe56069d2759bc19b86233db7fe442d5c
+>>>>>>> shady:tests/test_parser.cpp
 // ── main ──────────────────────────────────────────────────────────────────────
 
 int main(int argc, char* argv[])
 {
 <<<<<<< HEAD
+<<<<<<< HEAD:tests/parser_tester/test_parser.cpp
+=======
+    if (argc > 1) g_host = argv[1];
+    if (argc > 2) g_port = std::stoi(argv[2]);
+
+    std::cout << "C++ HTTP Parser Test Client → " << g_host << ":" << g_port << "\n";
+    std::cout << std::string(50, '=') << "\n";
+        
+    test_slow_client();
+    // test_keep_alive(4);
+    // test_bad_request();
+    // test_byte_by_byte();
+    // test_content_length_zero();
+    // test_delete_put();
+    // test_header_case();
+    // test_http10();
+    // test_keep_alive();
+    // test_large_body();
+    // test_missing_host();
+    // test_pipelined();
+    // test_post_with_body();
+    // test_simple_get();    
+    // test_leading_crlf();
+=======
+>>>>>>> shady:tests/test_parser.cpp
     char s[] = "127.0.0.1";
     char b[] = "3000";
     argv[0] = s;
@@ -499,10 +544,14 @@ int main(int argc, char* argv[])
     test_post_with_body();
     test_simple_get();    
     test_leading_crlf();
+<<<<<<< HEAD:tests/parser_tester/test_parser.cpp
 <<<<<<< HEAD
 =======
 >>>>>>> fba701ffe56069d2759bc19b86233db7fe442d5c
 >>>>>>> 2a4fb87 (s)
+=======
+>>>>>>> fba701ffe56069d2759bc19b86233db7fe442d5c
+>>>>>>> shady:tests/test_parser.cpp
     std::cout << "\n" << std::string(50, '=') << "\n";
     std::cout << "  C++ results: " << g_pass << "/" << g_total << " passed";
     if (g_fail) std::cout << "  (" << g_fail << " failed)";

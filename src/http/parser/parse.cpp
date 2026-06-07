@@ -1,20 +1,34 @@
 
 #include "http/parser/parse.hpp"
 #include "http/Context.hpp"
+<<<<<<< HEAD
 #include "types.hpp"
 
 #include <string>
 
 namespace http {
+=======
+
+#include <string>
+
+namespace {
+>>>>>>> shady
 
 static const usize REQUEST_LINE_MAX_SIZE = 1024 * 8;
 static const usize HEADER_MAX_SIZE = 1024 * 32;
 static const usize BODY_MAX_SIZE = 1024 * 1024;
 
+<<<<<<< HEAD
 static Error	check_size(http::ContextState state, usize read_bytes) {
 	switch (state) {
 		case REQUEST_LINE:
 			return read_bytes > REQUEST_LINE_MAX_SIZE ? ERR_BAD_REQUEST : NONE;
+=======
+static Error	check_size(ContextState state, usize read_bytes) {
+	switch (state) {
+		case REQUEST_LINE:
+			return read_bytes > REQUEST_LINE_MAX_SIZE ? BAD_REQUEST : NONE;
+>>>>>>> shady
 		case HEADERS:
 			return read_bytes > HEADER_MAX_SIZE ? HEADER_TOO_LARGE : NONE;
 		case BODY:
@@ -47,6 +61,12 @@ static usize	parsed_size(Context& ctx, usize consumed) {
 	return consumed;
 }
 
+<<<<<<< HEAD
+=======
+}
+
+namespace http {
+>>>>>>> shady
 
 namespace parser {
 
