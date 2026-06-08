@@ -5,7 +5,6 @@
 
 namespace http {
 
-
 static const usize REQUEST_LINE_MAX_SIZE = 1024 * 8;
 static const usize HEADER_MAX_SIZE = 1024 * 32;
 static const usize BODY_MAX_SIZE = 1024 * 1024;

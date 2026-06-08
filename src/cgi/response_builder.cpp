@@ -5,13 +5,13 @@
 
 namespace http {
 
-ParseResult ResponseParser::parse_headers(BufferReader& view) {
+ParseResult ResponseParser::parse_headers(BufferReader& reader) {
     std::cout << "Start CGI header parsing...\n";
     while (parse_ctx.state_ != HEADERS_DONE) {
         
         size_t max_scan_size = CGIParseContext::MAX_CGI_HEADER_BLOCK_LEN - parse_ctx.header_bytes_;
         parse_ctx.sc_.reset();
-        ScanResult r = parse_ctx.sc_.scan(view, max_scan_size);
+        ScanResult r = parse_ctx.sc_.scan(reader, max_scan_size);
         
         if (r == LIMIT_EXCEEDED) return PARSE_ERROR;
         
@@ -25,7 +25,7 @@ ParseResult ResponseParser::parse_headers(BufferReader& view) {
         std::cout << parse_ctx.sc_.line() << "\n";
         base::Expected<std::pair<std::string, std::string>, int> header_result = parser::parse_header(parse_ctx.sc_.line());
         
-        if (not header_result.has_value()) {
+        if (!header_result.has_value()) {
             std::cout  << "Error\n";
             return PARSE_ERROR;
         }

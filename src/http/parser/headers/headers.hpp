@@ -31,3 +31,5 @@ Error		handle_special_header(Request& request, const std::string& normalized, co
 Error		end_headers(Request& request, ContextState& state);
 
 }
+
+}

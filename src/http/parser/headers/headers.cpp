@@ -16,14 +16,14 @@ struct Entity {
 static http::Error	prepare_header_line(const std::string& line, Entity& entity) {
 	entity.colon = line.find(':');
 	if (entity.colon == std::string::npos || entity.colon == 0)
-		return http::BAD_REQUEST;
+		return http::EBAD_REQUEST;
 
 	entity.name = line.substr(0, entity.colon);
 	entity.value = line.substr(entity.colon + 1);
 	http::parser::trim(entity.name);
 	http::parser::trim(entity.value);
 	if (entity.name.empty() || entity.value.empty())
-		return http::BAD_REQUEST;
+		return http::EBAD_REQUEST;
 
 	entity.normalized = http::parser::lower_name(entity.name);
 	return http::NONE;

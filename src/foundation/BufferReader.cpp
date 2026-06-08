@@ -1,6 +1,5 @@
 #include "BufferReader.hpp"
 
-
 BufferReader::BufferReader(size_t capacity)
 	: cursor_(0) {
 	storage_.resize(capacity, 0);
@@ -54,3 +53,6 @@ void BufferReader::reset() {
 	cursor_ = 0;
 }
 
+const std::string& BufferReader::str() const {
+	return storage_;
+}

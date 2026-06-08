@@ -55,27 +55,28 @@ void Stream::on_writeable() {
 
     if (writer.length() == 0) return ;
     
-    ssize_t n = ::write(fd(), writer.data(), writer.bytes_pending());
+    ssize_t n = ::write(fd(), writer.read_ptr(), writer.bytes_pending());
+    
     
     if (n < 0) {
         LOG_ERROR(MAKE_ERRNO_ERROR("Sream::on_writeable()"));
         delegate.on_stream_error();
         return;
     }
-
-    writer.advance(n);
+    std::cout << "Written: " << n << "\n";
+    writer.advance_read(n);
 }
 
 void Stream::pause() {
     ctl_.paused_ = true;
-    ctl_.events = events();
+    ctl_.saved_events = events();
     update_events(io::NONE);
 }
 
 void Stream::resume() {
     ctl_.paused_ = false;
-    update_events(ctl_.events);
-    ctl_.events = io::NONE;
+    update_events(ctl_.saved_events);
+    ctl_.saved_events = io::NONE;
 }
 
 }

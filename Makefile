@@ -4,7 +4,7 @@ DEBUG := -g3 -O0
 
 FT := -pg  -finstrument-functions
 
-DEVELOPMENT = -D DEV_MODE=1
+DEVELOPMENT = -D DEV_MODE=1 -D DEBUG=1
 
 CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 $(DEBUG) $(DEVELOPMENT)
 
@@ -66,6 +66,7 @@ SRCS = src/server/main.cpp \
 	src/http/parser/headers/headers.cpp \
 	src/http/parser/headers/header_rules.cpp \
 	src/http/parser/headers/header_utils.cpp \
+	src/http/parser/body.cpp \
 	src/http/Request.cpp \
 	src/http/Response.cpp \
 	src/config/ConfigParser.cpp \

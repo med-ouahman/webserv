@@ -24,5 +24,7 @@ public:
     size_t cursor() const;
     size_t size() const;
     size_t remaining() const;
+    const std::string& str() const;
+    
 };
 

@@ -5,11 +5,7 @@
 
 Server::Server()
     : running_(false),
-<<<<<<< HEAD
     poller() {
-=======
-    event_poller() {
->>>>>>> e1680e03402dec7b39df61bf9274a6487cd1c6ae
     running_ = start_listeners();
 }
 
@@ -60,13 +56,9 @@ bool Server::start_listeners() {
 
         if (!result.ok) return false;
         net::Listener* sock = result.result;
-<<<<<<< HEAD
         
         if (!poller.register_handler(sock)) return false;
 
-=======
-        if (!event_poller.register_handler(sock)) return false;
->>>>>>> e1680e03402dec7b39df61bf9274a6487cd1c6ae
         listeners.push_back(sock);
     }
     
@@ -96,6 +88,7 @@ void Server::add_connection(int conn_fd) {
 void Server::sweep() {
     for (size_t i(0); i < connections.size();) {
         net::Connection* conn = connections.at(i);
+        conn->update_stream();
         poller.sync(&conn->stream());
         if (conn->closing()) close_connection(conn);
 
@@ -121,7 +114,6 @@ int Server::start() {
         return EXIT_FAILURE;
     while (true)
     {
-        std::cout << "POLLING\n";
         poller.poll();
         sweep();
     }

@@ -1,6 +1,9 @@
 #include "Connection.hpp"
 #include "Context.hpp"
 
+#include "CGIRequestHandler.hpp"
+#include "Dispatcher.hpp"
+
 namespace net {
 
 Connection::Connection(int _fd, io::Event events, RegisterContext& regis_ctx)
@@ -17,23 +20,33 @@ Connection::~Connection() {
 }
 
 void Connection::consume(BufferReader& view) {
-    // ctx.consume(view.data(), view.size());
-    std::cout << view.data(), view.size();std::cout << "\n";
+    std::cout << view.str();
     state_ = WRITING;
 }
 
 void Connection::produce(BufferWriter& writer) {
-    if (close_after_write) {
-        state_ = CLOSING;
-        return;
-    }
-    std::string s = "writer.write(\"Hello World\n\", );\n";
-    writer.write(s.c_str(), s.size());
-    close_after_write = true;
+    http::Request r;
+    http::ResolutionResult rs;
+    http::CGIOutputContext c;
+    c.ctx = this;
+    c.cb_ = on_cgi;
+    http::CGIControl ctl(register_ctx, c);
+    http::CGIRequestHandler* h = new http::CGIRequestHandler(rs, r, ctl);
 }
 
 ConnectionState Connection::state() const {
     return state_;
+}
+
+void Connection::on_cgi(void* ctx, http::CGIResult const& r) {
+net::Connection* c = static_cast<Connection*>(ctx);
+c->on_cgi_data(r);
+}
+
+void Connection::on_cgi_data(http::CGIResult const& r) {
+
+    std::cout << int(r.code);
+    
 }
 
 }

@@ -15,8 +15,16 @@ size_t BufferWriter::length() {
     return used_;
 }
 
-char* BufferWriter::data() {
+char* BufferWriter::write_ptr() {
+    return &storage_[used_];
+}
+
+const char* BufferWriter::base() const {
     return &storage_[0];
+}
+
+const char* BufferWriter::read_ptr() const {
+    return &storage_[offset_];
 }
 
 bool BufferWriter::full() {
@@ -35,8 +43,12 @@ size_t BufferWriter::bytes_free() {
     return storage_.capacity() - used_;
 }
 
-void BufferWriter::advance(size_t n__) {
+void BufferWriter::advance_read(size_t n__) {
     offset_ += n__;
+}
+
+void BufferWriter::advance_write(size_t n__) {
+    used_ += n__;
 }
 
 size_t BufferWriter::capacity() {
@@ -51,7 +63,7 @@ void BufferWriter::reset() {
 size_t BufferWriter::write(const char* source, size_t n__) {
     size_t available = storage_.capacity() - used_;
     size_t to_copy = std::min(available, n__);
-    ::memcpy(data() + used_, source, to_copy);
+    ::memcpy(write_ptr(), source, to_copy);
     used_ += to_copy;
     return to_copy;
 }

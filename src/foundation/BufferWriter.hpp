@@ -15,12 +15,15 @@ private:
 public:
 	BufferWriter(size_t capacity);
 	~BufferWriter();
-	char* data();
+	char* write_ptr();
+	const char* base() const;
+	const char* read_ptr() const;
 	size_t length();
 	bool full();
 	bool empty();
 	size_t bytes_pending();
-	void advance(size_t n);
+	void advance_read(size_t __n);
+	void advance_write(size_t __n);
 	void reset();
 	size_t capacity();
 	size_t bytes_free();

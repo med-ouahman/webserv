@@ -5,6 +5,7 @@
 #include "Stream.hpp"
 #include "Context.hpp"
 
+namespace http{struct CGIResult;}
 namespace net {
 
 enum ConnectionState {
@@ -26,6 +27,8 @@ public:
     void on_stream_closed();
     io::Stream& stream();
     bool closing() const;
+    static void on_cgi(void*, const http::CGIResult& r);
+    void on_cgi_data(http::CGIResult const& r);
 private:
     io::Stream      stream_;
     ConnectionState state_;    

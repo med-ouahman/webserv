@@ -6,6 +6,6 @@ typedef void* Registrar;
 typedef void (*RegisterCallback)(io::AEventHandler* handler, Registrar registrar);
 
 struct RegisterContext {
-    void* registrar;
+    Registrar registrar;
     RegisterCallback callback;
 };

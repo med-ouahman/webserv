@@ -1,11 +1,4 @@
-
 #pragma once
-
-/*
-
-
-*/
-
 
 #include <iostream>
 #include "AEventHandler.hpp"
@@ -17,7 +10,7 @@
 namespace io {
 
 struct StreamControl {
-    io::Event   events;
+    io::Event   saved_events;
     bool        paused_;
 
     StreamControl(): events(io::NONE), paused_(false) {}
@@ -25,8 +18,8 @@ struct StreamControl {
 
 class IStreamDelegate {
 public:
-	virtual void consume(BufferReader& view) = 0;
-	virtual void produce(BufferWriter& w) = 0;
+	virtual void consume(BufferReader& reader) = 0;
+	virtual void produce(BufferWriter& writer) = 0;
 	virtual void on_stream_error() = 0;
 	virtual void on_stream_closed() = 0;
 	virtual ~IStreamDelegate() {};
@@ -39,7 +32,6 @@ public:
 	Stream(int fd, Event events_, IStreamDelegate& de);
 	~Stream();
 	void on_event(io::Event events_);
-	BufferReader& reader() { return reader_; }
 	void pause();
 	void resume();
 
@@ -50,6 +42,7 @@ private:
 	BufferReader reader_;
 
 	BufferWriter writer;
+
 	void on_readable();
 	void on_writeable();
 };

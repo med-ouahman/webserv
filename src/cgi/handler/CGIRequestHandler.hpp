@@ -12,22 +12,6 @@ namespace http {
 struct ResolutionResult;
 struct Request;
 
-typedef void (*CGICOutputallback)(void* ctx);
-
-struct CGIOutputContext {
-	CGICOutputallback 	cb_;
-	void* 				ctx;
-};
-
-struct CGIControl {
-	
-	RegisterContext register_ctx;
-	CGIOutputContext output_ctx;
-
-	CGIControl(RegisterContext ctx_, CGIOutputContext finished_)
-		: register_ctx(ctx_), output_ctx(finished_) {}
-};
-
 struct CGIResult {
 	StatusCode code;
 	std::string status_reason;
@@ -35,12 +19,28 @@ struct CGIResult {
 	IBodyProvider* body;
 };
 
+typedef void (*CGICOutputallback)(void* ctx, CGIResult const& result);
+
+struct CGIOutputContext {
+	CGICOutputallback 	cb_;
+	void* 				ctx;
+};
+
+struct CGIControl {
+	RegisterContext register_ctx;
+	CGIOutputContext output_ctx;
+
+	CGIControl(RegisterContext ctx_, CGIOutputContext output_ctx)
+		: register_ctx(ctx_), output_ctx(output_ctx) {}
+};
+
 class CGIRequestHandler: public io::IStreamDelegate, public IRequestHandler {
+
 public:
 	enum State {
 		BUILDING_HEADERS,
 		HEADERS_READY,
-		STREAMING_RESPONSE,
+		STREAMING_BODY,
 		RESPONSE_DONE,
 		ERROR
 	};
@@ -58,7 +58,7 @@ private:
 	CGIControl	cgi_ctl;
 
 	CGIResult result_;
-	
+
 	CGIRequestHandler(const CGIRequestHandler&);
 	CGIRequestHandler& operator=(const CGIRequestHandler&);
 

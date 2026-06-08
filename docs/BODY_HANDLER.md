@@ -1,5 +1,4 @@
-# BodyReader — Response Body Architecture
-
+# BodyHandler — Response Body Architecture
 
 ## 1. Overview
 
@@ -51,13 +50,13 @@ The body is handled by an `IBodyProvider` instance which maintains its own inter
 
 ---
 
-## 3. The `advance()` / `on_writeable()` Layer
+## 3. The `advance()` / `on_write()` Layer
 
-`produce()` is never called directly by the EventPoller. The call chain is:
+`produce()` is never called directly by the EventLoop. The call chain is:
 
 ```
-EventPoller::write_to_socket()
-    → Connection::on_writeable(ssize_t bytes_sent)
+EventLoop::write_to_socket()
+    → Connection::on_write(ssize_t sent_bytes)
         → Connection::advance()
             → handler::produce(buffer, SEND_CHUNK_SIZE)
 ```
@@ -78,19 +77,19 @@ bool Connection::advance(void) {
 
 `advance()` is the sole owner of the `-1` case from `produce()`. It sets `state = CLOSING` and returns `false`. It never touches `bytes_in_buff` on error, preventing the `-1` from being cast to a large `size_t`.
 
-### `on_writeable()`
+### `on_write()`
 
 ```cpp
-bool Connection::on_writeable(ssize_t bytes_sent) {
+bool Connection::on_write(ssize_t sent_bytes) {
     if (state == CLOSING) {
         close_after_write = true;
         return false;
     }
-    if (bytes_sent < 0) {
+    if (sent_bytes < 0) {
         return false;           // write() returned -1, yield to epoll
     }
-    sent_offset   += bytes_sent;
-    bytes_in_buff -= bytes_sent;
+    sent_offset   += sent_bytes;
+    bytes_in_buff -= sent_bytes;
     if (bytes_in_buff == 0) {
         sent_offset = 0;
         if (advance()) {
@@ -107,17 +106,17 @@ bool Connection::on_writeable(ssize_t bytes_sent) {
 }
 ```
 
-`on_writeable()` is called after every `write()` in the EventPoller, including the very first call where `bytes_sent = 0`. Since `bytes_in_buff` is zero at the READING → WRITING transition, the first call always triggers `advance()` to fill the buffer, requiring no special initialization flag.
+`on_write()` is called after every `write()` in the EventLoop, including the very first call where `sent_bytes = 0`. Since `bytes_in_buff` is zero at the READING → WRITING transition, the first call always triggers `advance()` to fill the buffer, requiring no special initialization flag.
 
-### EventPoller write loop
+### EventLoop write loop
 
 ```cpp
-void EventPoller::write_to_socket(Connection& conn) {
+void EventLoop::write_to_socket(Connection& conn) {
     ssize_t bytes_sent = 0;
     while (true) {
-        if (!conn.on_writeable(bytes_sent))
+        if (!conn.on_write(bytes_sent))
             break;
-        bytes_sent = ::write(conn.fd(),
+        bytes_sent = ::write(conn.get_fd(),
                              conn.get_write_buff(),
                              conn.bytes_remaining());
     }
@@ -160,7 +159,7 @@ The interface is intentionally minimal. `produce()` calls `read()` when `Seriali
 
 ### Buffer boundary at HEADERS → BODY transition
 
-When `produce()` finishes copying the last header bytes and still has space remaining in the buffer, it immediately calls `body_provider->read(buffer + written, remaining)` in the same call. The provider's `max_size` parameter naturally Limits how many body bytes are read. No intermediate buffer or leftover tracking is needed — the provider's internal cursor advances by exactly the bytes read.
+When `produce()` finishes copying the last header bytes and still has space remaining in the buffer, it immediately calls `body_provider->read(buffer + written, remaining)` in the same call. The provider's `max_size` parameter naturally limits how many body bytes are read. No intermediate buffer or leftover tracking is needed — the provider's internal cursor advances by exactly the bytes read.
 
 ---
 
@@ -169,7 +168,7 @@ When `produce()` finishes copying the last header bytes and still has space rema
 ```
 STATIC_FILE    → FileBodyProvider (file descriptor)
 DIRECTORY      → temp file → FileBodyProvider (file descriptor)
-CGI            → CGIRequestHandler → temp file → FileBodyProvider (file descriptor)
+CGI            → CGIHandler → temp file → FileBodyProvider (file descriptor)
 FILE_UPLOAD    → no body (headers only)
 FILE_DELETE    → no body (headers only)
 REDIRECT       → no body (headers only)
@@ -214,39 +213,39 @@ The auto-index HTML is generated in full as a string, written to a temp file via
 
 ## 7. CGI Architecture
 
-CGI is the only response type that involves a child process. It uses the existing `AEventHandler` polymorphism — the same interface the EventPoller uses for client sockets.
+CGI is the only response type that involves a child process. It uses the existing `IOHandler` polymorphism — the same interface the EventLoop uses for client sockets.
 
-### `AEventHandler` interface
+### `IOHandler` interface
 
 ```cpp
 namespace io {
-class AEventHandler {
+class IOHandler {
 public:
-    virtual void on_event(Event event) = 0;
-    virtual ~AEventHandler() {}
+    virtual void on_event(EventType event) = 0;
+    virtual ~IOHandler() {}
 };
 }
 ```
 
-The EventPoller maps `fd → AEventHandler*` and dispatches blindly:
+The EventLoop maps `fd → IOHandler*` and dispatches blindly:
 
 ```cpp
-AEventHandler* handler = static_cast<AEventHandler*>(events[i].data.ptr);
+IOHandler* handler = static_cast<IOHandler*>(events[i].data.ptr);
 if (events[i].events & EPOLLIN)       handler->on_event(READABLE);
 else if (events[i].events & EPOLLOUT) handler->on_event(WRITABLE);
 else if (events[i].events & (EPOLLERR | EPOLLHUP)) handler->on_event(ERROR);
 ```
 
-### `CGIRequestHandler`
+### `CGIHandler`
 
-A derived `AEventHandler` registered with epoll on the CGI process's stdout pipe fd.
+A derived `IOHandler` registered with epoll on the CGI process's stdout pipe fd.
 
 **Members:**
 - `int _pipe_fd` — non-blocking stdout pipe from CGI process
 - `int _temp_fd` — temp file receiving CGI output
 - `pid_t _cgi_pid` — for `kill()` and `waitpid()`
 - `Connection& _conn` — the owning connection to wake up when done
-- `EventPoller& _loop` — to modify epoll registrations
+- `EventLoop& _loop` — to modify epoll registrations
 - `HandlerState _state` — `IDLE` or `ACTIVE`
 
 **`on_event(READABLE)`:**
@@ -256,9 +255,8 @@ read chunk from pipe_fd into temp file
 if read returns 0:
     pipe closed, CGI process finished
     waitpid(_cgi_pid)
-    poller.remove(pipe_fd)
-    poller.modify(conn_fd, EPOLLOUT)
- 
+    event_loop.remove(pipe_fd)
+    event_loop.modify(conn_fd, EPOLLOUT)
     conn.set_body(temp_fd, bytes_written)
 if read returns -1:
     yield, wait for next EPOLLIN
@@ -271,10 +269,9 @@ kill(_cgi_pid, SIGKILL)
 waitpid(_cgi_pid)
 cleanup temp file
 conn.set_error(502)
-
-poller.remove(pipe_fd)
-poller.modify(conn_fd, EPOLLOUT)
-
+event_loop.remove(pipe_fd)
+event_loop.modify(conn_fd, EPOLLOUT)
+```
 
 ### CGI process setup
 
@@ -288,12 +285,12 @@ These are covered by prior minishell experience. Key CGI-specific requirements:
 ### Responsibility boundary
 
 ```
-EventPoller   → fd readiness only (add / modify / remove)
-CGIRequestHandler  → pipe draining, temp file writing, process reaping
+EventLoop   → fd readiness only (add / modify / remove)
+CGIHandler  → pipe draining, temp file writing, process reaping
 Connection  → unaware of CGI internals, woken via epoll modify
 ```
 
-The EventPoller never knows a CGI process was involved. It just sees an `EPOLLOUT` on a client socket fd.
+The EventLoop never knows a CGI process was involved. It just sees an `EPOLLOUT` on a client socket fd.
 
 ---
 
@@ -306,7 +303,7 @@ int n = epoll_wait(epoll_fd, events, MAX_EVENTS, CGI_TIMEOUT_MS);
 
 // handle the n returned events, mark each handler ACTIVE
 
-// sweep all registered CGIRequestHandlers
+// sweep all registered CGIHandlers
 for each cgi_handler in active_cgi_handlers:
     if cgi_handler.state == IDLE:
         kill(cgi_handler.pid, SIGKILL)
@@ -327,7 +324,7 @@ When the parser signals a complete request, the connection transitions from `REA
 - `bytes_in_buff`
 - `sent_offset`
 
-The zero value of `bytes_in_buff` is the trigger that causes the first `on_writeable(0)` call in the write loop to immediately invoke `advance()`, which calls `produce()` for the first time and fills the buffer. No initialization flag is needed.
+The zero value of `bytes_in_buff` is the trigger that causes the first `on_write(0)` call in the write loop to immediately invoke `advance()`, which calls `produce()` for the first time and fills the buffer. No initialization flag is needed.
 
 ---
 
@@ -335,9 +332,9 @@ The zero value of `bytes_in_buff` is the trigger that causes the first `on_write
 
 - `produce()` is the only caller of `IBodyProvider::read()`
 - `advance()` is the only caller of `produce()`
-- `on_writeable()` is the only caller of `advance()`
-- `EventPoller` is the only entity that calls `epoll_ctl`
-- `CGIRequestHandler` communicates with `Connection` only through `EventPoller` fd registration
+- `on_write()` is the only caller of `advance()`
+- `EventLoop` is the only entity that calls `epoll_ctl`
+- `CGIHandler` communicates with `Connection` only through `EventLoop` fd registration
 - `errno` is never checked after any I/O operation
 - Regular disk file reads never go through epoll
 - `CLOSING` is a terminal state — no further transitions occur once set
