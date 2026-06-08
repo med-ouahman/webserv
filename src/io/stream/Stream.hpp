@@ -13,7 +13,7 @@ struct StreamControl {
     io::Event   saved_events;
     bool        paused_;
 
-    StreamControl(): events(io::NONE), paused_(false) {}
+    StreamControl(): saved_events(io::NONE), paused_(false) {}
 };
 
 class IStreamDelegate {

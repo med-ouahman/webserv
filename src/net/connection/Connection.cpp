@@ -32,6 +32,8 @@ void Connection::produce(BufferWriter& writer) {
     c.cb_ = on_cgi;
     http::CGIControl ctl(register_ctx, c);
     http::CGIRequestHandler* h = new http::CGIRequestHandler(rs, r, ctl);
+    h->handle();
+    (void)writer;
 }
 
 ConnectionState Connection::state() const {
@@ -39,8 +41,8 @@ ConnectionState Connection::state() const {
 }
 
 void Connection::on_cgi(void* ctx, http::CGIResult const& r) {
-net::Connection* c = static_cast<Connection*>(ctx);
-c->on_cgi_data(r);
+    net::Connection* c = static_cast<Connection*>(ctx);
+    c->on_cgi_data(r);
 }
 
 void Connection::on_cgi_data(http::CGIResult const& r) {

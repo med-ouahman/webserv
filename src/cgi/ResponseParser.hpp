@@ -6,12 +6,6 @@
 
 namespace http {
 
-enum CGIParseState {
-	HEADERS,
-	HEADERS_DONE,
-	CGI_ERROR
-};
-
 enum ParseResult {
 	PARSE_SUCCESS,
 	PARSE_ERROR,
@@ -22,7 +16,13 @@ struct CGIParseContext {
 	static const std::size_t MAX_CGI_HEADER_BLOCK_LEN = 4096;
 	LineScanner 	sc_;
 	size_t			header_bytes_;
-	CGIParseState 	state_;
+	
+	enum CGIParseState {
+		HEADERS,
+		HEADERS_DONE,
+		CGI_ERROR
+	} state_;
+
 };
 
 

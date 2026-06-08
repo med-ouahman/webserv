@@ -62,7 +62,7 @@ void CGIRequestHandler::on_stream_error() {
 void CGIRequestHandler::on_stream_closed() {
     state_ = RESPONSE_DONE;
     CGICOutputallback callback = cgi_ctl.output_ctx.cb_;
-    callback(cgi_ctl.output_ctx.ctx);
+    callback(cgi_ctl.output_ctx.ctx, result_);
 }
 
 CGIRequestHandler::State CGIRequestHandler::state() const {
