@@ -17,13 +17,15 @@ enum State {
 };
 
 private:
+    const static std::size_t header_overhead = 10;
     const static std::string trailer;
+    
     State       state_;
-    std::string header_;
     size_t      current_chunk_;
+    size_t      old_size;
     char*       write_ptr;
     
-    void format(size_t chunk_size);
+    static std::string format(size_t chunk_size);
 
     public:
     ChunkedEncoder();

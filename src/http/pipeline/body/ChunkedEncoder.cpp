@@ -23,13 +23,13 @@ ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
     switch (state_) {
 
         case HEADER: {
-            current_chunk_ = writer.bytes_free() - trailer.size();
-            
-            format(current_chunk_);
-            write_ptr = writer.write_ptr();
 
-            writer.write(header_.c_str(), header_.size());
-            current_chunk_ -= header_.size();
+            
+            write_ptr = writer.write_ptr();
+            std::string overhead = std::string(header_overhead, '0');
+
+            writer.write(overhead.c_str(), overhead.size());
+
             state_ = DATA;
         }
 
@@ -44,10 +44,10 @@ ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
             else if (n < current_chunk_)
             {
                 current_chunk_ = n;
-                size_t old_size = header_.size();
-                format(current_chunk_);
-                size_t new_size = header_.size();
+                std::string header = format(current_chunk_);
+                size_t new_size = header.size();
                 ::memmove(write_ptr + new_size, write_ptr + old_size, writer.length() - old_size);
+                writer.pop(old_size - new_size);
             }
 
             state_ = TRAIL;
@@ -55,20 +55,22 @@ ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
 
         case TRAIL:
             writer.write(trailer.c_str(), trailer.size());
+            if (current_chunk_ == 0) state_ = FINAL;
+            else state_ = HEADER;
         case FINAL:
-           return 0;     
+            return 0;
     }
 
     return writer.length();
 }
 
 
-void ChunkedEncoder::format(size_t chunk) {
+std::string ChunkedEncoder::format(size_t chunk) {
     std::stringstream ss;
 
     ss << std::hex << chunk;
 
-    header_ = ss.str() + "\r\n";    
+    return ss.str() + "\r\n";    
 }
 
 }
