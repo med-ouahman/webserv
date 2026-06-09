@@ -11,7 +11,7 @@ time_t Process::timeout_secs;
 Process::Process(const CGIExecContext& ctx)
     : state_(SPAWN), 
     pid(-1),
-    status(0x0),
+    status(0),
     stdin_pipe_(),
     stdout_pipe_(),
     stderr_pipe_(),
@@ -54,7 +54,7 @@ Process::Process(const CGIExecContext& ctx)
 
 
 Process::~Process() {
-    ::waitpid(pid, &status, 0);  // should be blocking to ensuer the process is reaped   
+    ::waitpid(pid, &status, 0);  // should be blocking to ensuer the process is reaped
 }
 
 bool Process::timedout() {

@@ -23,6 +23,7 @@ struct CGIParseContext {
 		CGI_ERROR
 	} state_;
 
+	CGIParseContext(): sc_(), header_bytes_(0), state_(HEADERS) {}
 };
 
 
@@ -34,6 +35,8 @@ private:
 	void sanitize_status_line( const std::pair<std::string, std::string>& header );
 	void sanitize_header( std::pair<std::string, std::string>& header );
 public:
+	ResponseParser();
+	~ResponseParser();
 	ParseResult parse_headers( BufferReader& view );
     const http::Headers& headers() const;
     http::StatusCode		status_code() const;

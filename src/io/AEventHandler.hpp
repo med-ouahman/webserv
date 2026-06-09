@@ -26,11 +26,14 @@ private:
 public:
     AEventHandler(int __fd, Event events): fd_(__fd), events_(events), applied_(events) {};
     virtual void on_event(Event event) = 0;
+    
     virtual ~AEventHandler() {
+
         if (fd_ >= 0) {
             ::close(fd_);
             fd_ = -1;
         }
+        
     };
 
     int fd() const { return fd_; }

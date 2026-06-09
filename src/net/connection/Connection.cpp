@@ -13,27 +13,29 @@ Connection::Connection(int _fd, io::Event events, RegisterContext& regis_ctx)
     last_activity_(),
     lifetime_(),
     register_ctx(regis_ctx),
-    ctx() {}
+    ctx() {h=NULL;}
 
 Connection::~Connection() {
     /* cp */
 }
 
-void Connection::consume(BufferReader& view) {
-    std::cout << view.str();
-    state_ = WRITING;
-}
-
-void Connection::produce(BufferWriter& writer) {
+void Connection::consume(BufferReader& reader) {
+    std::cout << reader.data(), reader.size();
     http::Request r;
     http::ResolutionResult rs;
     http::CGIOutputContext c;
     c.ctx = this;
     c.cb_ = on_cgi;
     http::CGIControl ctl(register_ctx, c);
-    http::CGIRequestHandler* h = new http::CGIRequestHandler(rs, r, ctl);
+
+    if (!h)h = new http::CGIRequestHandler(rs, r, ctl);
     h->handle();
+}
+
+void Connection::produce(BufferWriter& writer) {
+
     (void)writer;
+    state_ = CLOSING;
 }
 
 ConnectionState Connection::state() const {
@@ -46,9 +48,14 @@ void Connection::on_cgi(void* ctx, http::CGIResult const& r) {
 }
 
 void Connection::on_cgi_data(http::CGIResult const& r) {
-
-    std::cout << int(r.code);
-    
+    std::cout << "r.code: " << r.code << '\n';;;;;
+    if (!h)return;
+    if (h->done()) {
+        delete h;
+        h = NULL;
+        state_ = WRITING;
+        close_after_write = true;
+    }    
 }
 
 }

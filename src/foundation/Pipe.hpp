@@ -9,6 +9,7 @@ private:
     int write_end_;
 
 public:
+
 static bool create(Pipe& out) {
     int fds[2];
 
@@ -21,8 +22,11 @@ static bool create(Pipe& out) {
 }
 
 void close() {
-    ::close(read_end_);
-    ::close(write_end_);
+    
+    if (read_end_ >= 0)
+        ::close(read_end_);
+    if (write_end_ >= 0)
+        ::close(write_end_);
 }
 
 int& read_end() {

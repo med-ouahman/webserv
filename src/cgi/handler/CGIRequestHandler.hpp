@@ -17,6 +17,8 @@ struct CGIResult {
 	std::string status_reason;
 	Headers headers;
 	IBodyProvider* body;
+
+	CGIResult(): code(OK), status_reason(), headers(), body(NULL) {}
 };
 
 typedef void (*CGICOutputallback)(void* ctx, CGIResult const& result);

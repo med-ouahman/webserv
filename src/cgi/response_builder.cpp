@@ -5,6 +5,11 @@
 
 namespace http {
 
+ResponseParser::ResponseParser()
+    : code(OK), headers_(), parse_ctx() {}
+
+ResponseParser::~ResponseParser() {}
+
 ParseResult ResponseParser::parse_headers(BufferReader& reader) {
     std::cout << "Start CGI header parsing...\n";
     while (parse_ctx.state_ != CGIParseContext::HEADERS_DONE) {

@@ -10,7 +10,7 @@ class IBodyProvider {
 
 public:
     virtual ~IBodyProvider() {};
-    virtual ssize_t produce(BufferWriter& w) = 0;
+    virtual ssize_t read(BufferWriter& w) = 0;
 };
 
 }

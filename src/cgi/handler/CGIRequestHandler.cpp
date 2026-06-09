@@ -8,7 +8,8 @@
 namespace http {
 
 CGIRequestHandler::CGIRequestHandler(const ResolutionResult& res, http::Request const& req, CGIControl& ctl)
-    : process(cgi::resolve_exec_context(req, res)),
+    : state_(BUILDING_HEADERS),
+    process(cgi::resolve_exec_context(req, res)),
     stdin_stream(process.stdin_pipe().write_end(), io::WRITABLE, *this),
     stdout_stream(process.stdout_pipe().read_end(), io::READABLE, *this),
     stderr_stream(process.stderr_pipe().read_end(), io::READABLE, *this),
@@ -25,9 +26,17 @@ CGIRequestHandler::CGIRequestHandler(const ResolutionResult& res, http::Request 
     registrar.callback(&stderr_stream, registrar.registrar);
 }
 
-CGIRequestHandler::~CGIRequestHandler() {}
+CGIRequestHandler::~CGIRequestHandler() {
+    RegisterContext& registrar = cgi_ctl.register_ctx;
+    DeleteCallback delete_cb = cgi_ctl.register_ctx.delete_cb;
+    delete_cb(&stdin_stream, registrar.registrar);
+    delete_cb(&stdout_stream, registrar.registrar);
+    delete_cb(&stderr_stream, registrar.registrar);
+}
 
-void CGIRequestHandler::handle() {}
+void CGIRequestHandler::handle() {
+    
+}
 
 bool CGIRequestHandler::done() {
     return state_ == RESPONSE_DONE;
@@ -73,4 +82,5 @@ CGIRequestHandler::State CGIRequestHandler::state() const {
 CGIResult& CGIRequestHandler::result() {
     return result_;
 }
+
 }

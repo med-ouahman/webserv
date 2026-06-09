@@ -5,7 +5,7 @@
 #include "Stream.hpp"
 #include "Context.hpp"
 
-namespace http{struct CGIResult;}
+namespace http{struct CGIResult;class CGIRequestHandler;}
 namespace net {
 
 enum ConnectionState {
@@ -37,7 +37,7 @@ private:
     Timestamp       lifetime_;
 
     RegisterContext register_ctx;
-
+    http::CGIRequestHandler* h;
     http::Context   ctx;
 };
 

@@ -6,7 +6,7 @@
 BufferWriter::BufferWriter(size_t capacity)
     : used_(0),
     offset_(0) {
-    storage_.reserve(capacity);
+    storage_.resize(capacity);
 }
 
 BufferWriter::~BufferWriter() {}
@@ -66,4 +66,12 @@ size_t BufferWriter::write(const char* source, size_t n__) {
     ::memcpy(write_ptr(), source, to_copy);
     used_ += to_copy;
     return to_copy;
+}
+
+
+void BufferWriter::pop(size_t n) {
+    
+    if (n > used_) n = used_;
+    
+    used_ -= n;
 }

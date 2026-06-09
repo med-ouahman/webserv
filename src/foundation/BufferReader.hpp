@@ -25,6 +25,7 @@ public:
     size_t size() const;
     size_t remaining() const;
     const std::string& str() const;
+    size_t capacity() const;
     
 };
 

@@ -10,4 +10,9 @@ BodyEncoder::~BodyEncoder() {
     
 }
 
+
+ssize_t BodyEncoder::encode(BufferWriter& writer) {
+
+}
+
 }

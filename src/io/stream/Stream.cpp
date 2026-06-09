@@ -33,11 +33,11 @@ void Stream::on_event(io::Event event) {
 
 void Stream::on_readable() {
     std::cout << "stream readable\n";
-    ssize_t n = ::read(fd(), reader_.data(), READ_BUFFER_SIZE);
+    ssize_t n = ::read(fd(), reader_.data(), reader_.capacity());
     if (n == 0) {
         std::cout << "Stream closed\n";
         delegate.on_stream_closed();
-        return ;
+        return;
     }
     
     if (n < 0) {
@@ -53,7 +53,7 @@ void Stream::on_writeable() {
     std::cout << "writing...\n";
     delegate.produce(writer);
 
-    if (writer.length() == 0) return ;
+    if (writer.length() == 0) return;
     
     ssize_t n = ::write(fd(), writer.read_ptr(), writer.bytes_pending());
     

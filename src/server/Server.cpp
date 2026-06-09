@@ -14,6 +14,7 @@ Server::~Server() {
     for (size_t i(0); i < listeners.size(); ++i) {
         delete listeners[i];
     }
+    
     listeners.clear();
     
     for (size_t i(0); i < connections.size(); ++i) {
@@ -31,6 +32,11 @@ void Server::server_accept(int conn_fd, void* server_ctx) {
 void Server::server_register(io::AEventHandler* handler, void* register_ctx) {
     runtime::epoll::EventPoller* loop = static_cast<runtime::epoll::EventPoller*>(register_ctx);
     loop->register_handler(handler);
+}
+
+void Server::server_delete(io::AEventHandler* handler, void* register_ctx) {
+    runtime::epoll::EventPoller* poller = static_cast<runtime::epoll::EventPoller*>(register_ctx);
+    poller->del_handler(handler);
 }
 
 void Server::close_connection(net::Connection* conn) {
@@ -70,6 +76,7 @@ void Server::add_connection(int conn_fd) {
     RegisterContext r = {
         .registrar = &poller,
         .callback = server_register,
+        .delete_cb = server_delete,
     };
 
     net::Connection* connection = new net::Connection(conn_fd, io::READABLE, r);

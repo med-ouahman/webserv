@@ -16,6 +16,7 @@ struct StreamControl {
     StreamControl(): saved_events(io::NONE), paused_(false) {}
 };
 
+
 class IStreamDelegate {
 public:
 	virtual void consume(BufferReader& reader) = 0;
@@ -25,10 +26,12 @@ public:
 	virtual ~IStreamDelegate() {};
 };
 
+
 class Stream: public AEventHandler {
 public:
 	const static std::size_t READ_BUFFER_SIZE = 1024 * 4;
 	const static std::size_t WRITE_BUFFER_SIZE = 1024 * 4;
+
 	Stream(int fd, Event events_, IStreamDelegate& de);
 	~Stream();
 	void on_event(io::Event events_);

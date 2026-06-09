@@ -1,7 +1,8 @@
 #include "BufferReader.hpp"
 
 BufferReader::BufferReader(size_t capacity)
-	: cursor_(0) {
+	: storage_(),
+	cursor_(0) {
 	storage_.resize(capacity, 0);
 }
 
@@ -44,15 +45,18 @@ void BufferReader::rewind(size_t n) {
 
 void BufferReader::shrink(size_t new_size) {
 	storage_.resize(new_size);
-	if (cursor_ >= new_size)
-		cursor_ = 0;
+	
+	if (cursor_ >= new_size) cursor_ = 0;
 }
 
 void BufferReader::reset() {
-	storage_.clear();
 	cursor_ = 0;
 }
 
 const std::string& BufferReader::str() const {
 	return storage_;
+}
+
+size_t BufferReader::capacity() const {
+	return storage_.capacity();
 }

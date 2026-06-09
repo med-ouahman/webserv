@@ -22,5 +22,7 @@ public:
     int start();
     void sweep();
     static void server_accept(int conn_fd, void* server_ctx);
-    static void server_register(io::AEventHandler* handler, void* server_ctx);
+    static void server_register(io::AEventHandler* handler, void* register_ctx);
+    static void server_delete(io::AEventHandler* handler, void* register_ctx);
+    
 };
