@@ -20,16 +20,8 @@ Connection::~Connection() {
 }
 
 void Connection::consume(BufferReader& reader) {
-    std::cout << reader.data(), reader.size();
-    http::Request r;
-    http::ResolutionResult rs;
-    http::CGIOutputContext c;
-    c.ctx = this;
-    c.cb_ = on_cgi;
-    http::CGIControl ctl(register_ctx, c);
-
-    if (!h)h = new http::CGIRequestHandler(rs, r, ctl);
-    h->handle();
+    std::cout << reader.data(), reader.size() << '\n';
+    
 }
 
 void Connection::produce(BufferWriter& writer) {
@@ -45,17 +37,6 @@ ConnectionState Connection::state() const {
 void Connection::on_cgi(void* ctx, http::CGIResult const& r) {
     net::Connection* c = static_cast<Connection*>(ctx);
     c->on_cgi_data(r);
-}
-
-void Connection::on_cgi_data(http::CGIResult const& r) {
-    std::cout << "r.code: " << r.code << '\n';;;;;
-    if (!h)return;
-    if (h->done()) {
-        delete h;
-        h = NULL;
-        state_ = WRITING;
-        close_after_write = true;
-    }    
 }
 
 }

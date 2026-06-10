@@ -16,8 +16,12 @@ size_t BufferReader::size() const {
 	return storage_.size();
 }
 
-const char* BufferReader::data() const {
-	return &storage_[0] + cursor_;
+char* BufferReader::data() {
+	return &storage_[0];
+}
+
+const char* BufferReader::read_ptr() const {
+	return &storage_[0];
 }
 
 size_t BufferReader::cursor() const {

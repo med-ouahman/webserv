@@ -12,10 +12,11 @@ private:
     BufferReader& operator=(const BufferReader& v);
 
 public:
-    BufferReader(size_t size);
+    BufferReader(size_t capacity);
     ~BufferReader();
     void advance(size_t n);
-    const char* data() const;
+    const char* read_ptr() const;
+    char* data();
     bool empty() const;
     void rewind(size_t n);
     void reset();

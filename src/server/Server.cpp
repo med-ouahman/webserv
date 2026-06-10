@@ -54,13 +54,8 @@ bool Server::start_listeners() {
 
 void Server::add_connection(int conn_fd) {
 
-    RegisterContext r = {
-        .registrar = &poller,
-        .callback = server_register,
-        .delete_cb = server_delete,
-    };
 
-    net::Connection* connection = new net::Connection(conn_fd, io::READABLE, r);
+    net::Connection* connection = new net::Connection(conn_fd, io::READABLE);
     
     if (!poller.add(&connection->stream()))
         return;

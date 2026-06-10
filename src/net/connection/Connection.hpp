@@ -28,7 +28,6 @@ public:
     io::Stream& stream();
     bool closing() const;
     static void on_cgi(void*, const http::CGIResult& r);
-    void on_cgi_data(http::CGIResult const& r);
 private:
     io::Stream      stream_;
     ConnectionState state_;    
@@ -37,7 +36,6 @@ private:
     Timestamp       lifetime_;
 
     RegisterContext register_ctx;
-    http::CGIRequestHandler* h;
     http::Context   ctx;
 };
 

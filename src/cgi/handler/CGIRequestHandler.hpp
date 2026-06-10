@@ -5,6 +5,7 @@
 #include "ResponseParser.hpp"
 #include "StatusCode.hpp"
 #include "IBodyProvider.hpp"
+#include "Channel.hpp"
 
 namespace runtime { namespace epoll { class EventPoller; };}
 
@@ -25,7 +26,7 @@ struct CGIResult {
 
 
 
-class CGIRequestHandler: public io::IStreamDelegate, public IRequestHandler {
+class CGIRequestHandler: public IRequestHandler {
 
 public:
 	enum State {
@@ -42,9 +43,9 @@ private:
 	
 	ResponseParser builder;
 
-	io::Stream	stdin_stream;
-	io::Stream 	stdout_stream;
-	io::Stream 	stderr_stream;
+	Channel stdin_ch;
+	Channel stdout_ch;
+	Channel stderr_ch;
 
 	runtime::epoll::EventPoller& poller_;
 	
@@ -62,11 +63,15 @@ public:
 	void handle();
 	bool done();
 	
-	void consume(BufferReader& view);
-	void produce(BufferWriter& w);
-	void on_stream_error();
-	void on_stream_closed();
+	void on_writeable(Channel& ch);
+	void on_readable(Channel& ch);
 	
+	void on_ch_error(Channel& h);
+	void ob_ch_closed(Channel& h);
+
+	void pause_channel(Channel& ch);
+	void resume_channel(Channel& ch);
+
 };
 
 }

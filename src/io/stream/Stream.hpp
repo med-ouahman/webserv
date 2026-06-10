@@ -26,7 +26,6 @@ public:
 	virtual ~IStreamDelegate() {};
 };
 
-
 class Stream: public AEventHandler {
 public:
 	const static std::size_t READ_BUFFER_SIZE = 1024 * 4;
