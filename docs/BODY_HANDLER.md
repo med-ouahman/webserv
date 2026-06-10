@@ -67,7 +67,7 @@ EventLoop::write_to_socket()
 bool Connection::advance(void) {
     ssize_t n = handler.produce(output_buff, SEND_CHUNK_SIZE);
     if (n < 0) {
-        state = CLOSING;
+        state = Closing;
         return false;
     }
     bytes_in_buff = n;
@@ -75,13 +75,13 @@ bool Connection::advance(void) {
 }
 ```
 
-`advance()` is the sole owner of the `-1` case from `produce()`. It sets `state = CLOSING` and returns `false`. It never touches `bytes_in_buff` on error, preventing the `-1` from being cast to a large `size_t`.
+`advance()` is the sole owner of the `-1` case from `produce()`. It sets `state = Closing` and returns `false`. It never touches `bytes_in_buff` on error, preventing the `-1` from being cast to a large `size_t`.
 
 ### `on_write()`
 
 ```cpp
 bool Connection::on_write(ssize_t sent_bytes) {
-    if (state == CLOSING) {
+    if (state == Closing) {
         close_after_write = true;
         return false;
     }
@@ -96,9 +96,9 @@ bool Connection::on_write(ssize_t sent_bytes) {
             return true;
         }
         if (close_after_write) {
-            state = CLOSING;
+            state = Closing;
         } else {
-            state = READING;
+            state = Reading;
         }
         return false;
     }
@@ -106,7 +106,7 @@ bool Connection::on_write(ssize_t sent_bytes) {
 }
 ```
 
-`on_write()` is called after every `write()` in the EventLoop, including the very first call where `sent_bytes = 0`. Since `bytes_in_buff` is zero at the READING → WRITING transition, the first call always triggers `advance()` to fill the buffer, requiring no special initialization flag.
+`on_write()` is called after every `write()` in the EventLoop, including the very first call where `sent_bytes = 0`. Since `bytes_in_buff` is zero at the Reading → Writing transition, the first call always triggers `advance()` to fill the buffer, requiring no special initialization flag.
 
 ### EventLoop write loop
 
@@ -129,7 +129,7 @@ void EventLoop::write_to_socket(Connection& conn) {
 
 - `write()` returns `-1` → stop writing, yield back to epoll, which will fire `EPOLLOUT` again when the socket is ready
 - `read()` returns `-1` → stop reading, yield back to epoll, which will fire `EPOLLIN` again when data is available
-- Real errors surface as `EPOLLERR` or `EPOLLHUP` on the next epoll cycle
+- Real errors surface as `EPOLLERR` or `EPOLLHup` on the next epoll cycle
 
 The `-1` return alone is sufficient to stop I/O. No errno distinction is needed.
 
@@ -231,9 +231,9 @@ The EventLoop maps `fd → IOHandler*` and dispatches blindly:
 
 ```cpp
 IOHandler* handler = static_cast<IOHandler*>(events[i].data.ptr);
-if (events[i].events & EPOLLIN)       handler->on_event(READABLE);
-else if (events[i].events & EPOLLOUT) handler->on_event(WRITABLE);
-else if (events[i].events & (EPOLLERR | EPOLLHUP)) handler->on_event(ERROR);
+if (events[i].events & EPOLLIN)       handler->on_event(Readable);
+else if (events[i].events & EPOLLOUT) handler->on_event(Writable);
+else if (events[i].events & (EPOLLERR | EPOLLHup)) handler->on_event(ERROR);
 ```
 
 ### `CGIHandler`
@@ -248,7 +248,7 @@ A derived `IOHandler` registered with epoll on the CGI process's stdout pipe fd.
 - `EventLoop& _loop` — to modify epoll registrations
 - `HandlerState _state` — `IDLE` or `ACTIVE`
 
-**`on_event(READABLE)`:**
+**`on_event(Readable)`:**
 
 ```
 read chunk from pipe_fd into temp file
@@ -317,9 +317,9 @@ A CGI process that produces no output for one full `CGI_TIMEOUT_MS` interval wil
 
 ---
 
-## 9. Connection State at READING → WRITING Transition
+## 9. Connection State at Reading → Writing Transition
 
-When the parser signals a complete request, the connection transitions from `READING` to `WRITING`. At this exact point the following must be reset to zero:
+When the parser signals a complete request, the connection transitions from `Reading` to `Writing`. At this exact point the following must be reset to zero:
 
 - `bytes_in_buff`
 - `sent_offset`
@@ -337,4 +337,4 @@ The zero value of `bytes_in_buff` is the trigger that causes the first `on_write
 - `CGIHandler` communicates with `Connection` only through `EventLoop` fd registration
 - `errno` is never checked after any I/O operation
 - Regular disk file reads never go through epoll
-- `CLOSING` is a terminal state — no further transitions occur once set
+- `Closing` is a terminal state — no further transitions occur once set

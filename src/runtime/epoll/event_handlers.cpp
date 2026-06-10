@@ -71,32 +71,32 @@ void EventPoller::sync(io::AEventHandler* handler) {
 	if (handler->synced())
 		return;
 
-	if (handler->events() == io::CLOSE) {
-		del_handler(handler);
+	if (handler->events() == io::Close) {
+		del(handler);
 		return;
 	}
 
-	modify_handler(handler);
+	mod(handler);
 	handler->sync_events();
 }
 
 io::Event EventPoller::encode_events(EpollEvent epoll_event) {
-    io::Event event = io::NONE;
+    io::Event event = io::None;
 
     if (epoll_event & EPOLLIN)
-        event = (io::Event)(event | io::READABLE);
+        event = (io::Event)(event | io::Readable);
 
     if (epoll_event & EPOLLOUT)
-        event = (io::Event)(event | io::WRITABLE);
+        event = (io::Event)(event | io::Writable);
 
     if (epoll_event & EPOLLHUP)
-        event = (io::Event)(event | io::HUP);
+        event = (io::Event)(event | io::Hup);
 
     if (epoll_event & EPOLLRDHUP)
-        event = (io::Event)(event | io::RHUP);
+        event = (io::Event)(event | io::RHup);
 
     if (epoll_event & EPOLLERR)
-        event = (io::Event)(event | io::ERROR);
+        event = (io::Event)(event | io::Error);
 
     return event;
 }
@@ -104,19 +104,19 @@ io::Event EventPoller::encode_events(EpollEvent epoll_event) {
 EpollEvent EventPoller::decode_events(io::Event event) {
     EpollEvent ev = 0;
 
-    if (event & io::READABLE)
+    if (event & io::Readable)
         ev |= EPOLLIN;
 
-    if (event & io::WRITABLE)
+    if (event & io::Writable)
         ev |= EPOLLOUT;
 
-    if (event & io::HUP)
+    if (event & io::Hup)
         ev |= EPOLLHUP;
 
-    if (event & io::RHUP)
+    if (event & io::RHup)
         ev |= EPOLLRDHUP;
 
-    if (event & io::ERROR)
+    if (event & io::Error)
         ev |= EPOLLERR;
 
     return ev;

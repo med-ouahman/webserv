@@ -25,7 +25,7 @@ enum PathType   { file, directory, executable, not_found };
 enum Version	{ HTTP_1_0, HTTP_1_1, HTTP_UNKNOWN };
 
 enum TransferEncoding { TE_NONE, TE_CHUNKED, TE_UNSUPPORTED };
-enum ConnectionType { CONNECTION_DEFAULT, CONNECTION_CLOSE, CONNECTION_KEEP_ALIVE };
+enum ConnectionType { CONNECTION_DEFAULT, CONNECTION_Close, CONNECTION_KEEP_ALIVE };
 
 /**
  * duplicates in HTTP are handled depending on the type of the key

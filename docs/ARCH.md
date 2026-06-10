@@ -77,14 +77,14 @@ Each connection is governed by a unified finite state machine. At any time, a co
 ### Connection States
 
 * `ACCEPTED`
-* `READING`
+* `Reading`
 * `PARSING`
 * `PROCESSING`
 * `READY_TO_WRITE`
-* `WRITING`
+* `Writing`
 * `WRITE_COMPLETE`
 * `ERROR`
-* `CLOSING`
+* `Closing`
 
 State transitions are explicit and deterministic. Illegal transitions are treated as programming errors.
 
@@ -100,8 +100,8 @@ Events are facts, not decisions.
 
 ### External Events (produced by the event loop)
 
-* `SOCKET_READABLE`
-* `SOCKET_WRITABLE`
+* `SOCKET_Readable`
+* `SOCKET_Writable`
 * `FATAL_ERROR`
 
 ### Internal Events (produced by the connection)
@@ -115,7 +115,7 @@ Events are facts, not decisions.
 * `PROCESSING_DONE`
 * `WRITE_SUCCESS`
 * `WRITE_ERROR`
-* `CLOSE_REQUESTED`
+* `Close_REQUESTED`
 
 All state transitions occur as a function of `(current_state, event)`.
 
@@ -133,7 +133,7 @@ Side effects are associated with **state entry**, not with events directly.
 * **`ACCEPTED`**
   Initialize connection resources and register interest in read events.
 
-* **`READING`**
+* **`Reading`**
   Register read interest and attempt to receive bytes when permitted.
 
 * **`PARSING`**
@@ -145,7 +145,7 @@ Side effects are associated with **state entry**, not with events directly.
 * **`READY_TO_WRITE`**
   Register write interest.
 
-* **`WRITING`**
+* **`Writing`**
   Attempt to send response bytes incrementally.
 
 * **`WRITE_COMPLETE`**
@@ -154,7 +154,7 @@ Side effects are associated with **state entry**, not with events directly.
 * **`ERROR`**
   Attempt to generate an error response if possible, otherwise prepare for closure.
 
-* **`CLOSING`**
+* **`Closing`**
   Unregister the socket, close the file descriptor, and release all resources.
 
 ---
@@ -165,9 +165,9 @@ Operating system readiness notifications are treated as **permission signals**, 
 
 The event loop translates:
 
-* `EPOLLIN` → `SOCKET_READABLE`
-* `EPOLLOUT` → `SOCKET_WRITABLE`
-* `EPOLLERR / EPOLLHUP` → `FATAL_ERROR`
+* `EPOLLIN` → `SOCKET_Readable`
+* `EPOLLOUT` → `SOCKET_Writable`
+* `EPOLLERR / EPOLLHup` → `FATAL_ERROR`
 
 Connections perform the permitted action and then emit internal outcome events based on the result. State transitions occur only through these events.
 
@@ -184,7 +184,7 @@ READ ↔ PARSE → PROCESS → WRITE
                 ↓
            keep-alive decision
                 ↓
-         READ or CLOSING
+         READ or Closing
 ```
 
 Keep-alive behavior is determined during parsing based on HTTP semantics and server policy. If keep-alive is enabled, request-specific state is reset while the connection persists. Otherwise, the connection transitions to closing.
@@ -204,11 +204,11 @@ Once a connection enters `ERROR`, normal request processing is aborted.
 
 ## 11. Graceful Connection Termination
 
-Connections terminate only through the `CLOSING` state. Cleanup is deterministic and includes:
+Connections terminate only through the `Closing` state. Cleanup is deterministic and includes:
 
 * unregistering from the event loop,
 * closing the socket,
 * releasing all owned resources.
 
-No further state transitions occur after entering `CLOSING`.
+No further state transitions occur after entering `Closing`.
 

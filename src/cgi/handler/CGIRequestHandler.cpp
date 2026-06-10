@@ -13,9 +13,9 @@ namespace http {
 CGIRequestHandler::CGIRequestHandler(const ResolutionResult& res, http::Request const& req, runtime::epoll::EventPoller& poller, Context& ctx)
     : state_(Headers),
     process(cgi::resolve_exec_context(req, res)),
-    stdin_ch(process.stdin_pipe().write_end(), io::WRITABLE, *this),
-    stdout_ch(process.stdout_pipe().read_end(), io::READABLE, *this),
-    stderr_ch(process.stderr_pipe().read_end(), io::READABLE, *this),
+    stdin_ch(Channel::Stdin, process.stdin_pipe().write_end(), io::Writable, *this),
+    stdout_ch(Channel::Stdout, process.stdout_pipe().read_end(), io::Readable, *this),
+    stderr_ch(Channel::Stderr, process.stderr_pipe().read_end(), io::Readable, *this),
     poller_(poller),
     ctx_(ctx) {
 
@@ -41,7 +41,8 @@ bool CGIRequestHandler::done() {
     return state_ == Finished;
 }
 
-void CGIRequestHandler::on_readable(BufferReader& reader) {
+void CGIRequestHandler::on_readable(BufferReader& reader, Channel::Stream s) {
+    (void)s;
 
     if (state_ == Headers) {
         
@@ -56,17 +57,20 @@ void CGIRequestHandler::on_readable(BufferReader& reader) {
 
 }
 
-void CGIRequestHandler::on_writeable(BufferWriter& w) {
+void CGIRequestHandler::on_writable(BufferWriter& writer, Channel::Stream s) {
+    (void)s;
     // read body from the request body
     std::string body = "Hello world\n";
-    w.write(body.c_str(), body.size());
+    writer.write(body.c_str(), body.size());
 }
 
-void CGIRequestHandler::on_ch_error() {
+void CGIRequestHandler::on_ch_error(Channel::Stream s) {
+    (void)s;
     state_ = Error;
 }
 
-void CGIRequestHandler::on_ch_closed() {
+void CGIRequestHandler::on_ch_closed(Channel::Stream s) {
+    (void)s;
     state_ = Finished;
 }
 

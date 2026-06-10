@@ -8,28 +8,39 @@ namespace http {
 
 class CGIRequestHandler;
 
+
 class Channel: public io::AEventHandler {
 public:
 
-enum Role {
+enum Stream {
 	Stdin,
 	Stdout,
 	Stderr
 };
 
+enum State {
+	Open,
+	Closed,
+	Error
+};
+
 private:
     const static std::size_t ReaderSize = 1024 * 4;
     const static std::size_t WriterSize = 1024 * 4;
-	Role role_;
+	Stream stream_;
+	State state_;
 	CGIRequestHandler& handler_;
+
 	BufferReader reader_;
 	BufferWriter writer_;
 
 public:
-	Channel(int fd, io::Event events, CGIRequestHandler& handler);
+	Channel(Stream sched_attr, int fd, io::Event events, CGIRequestHandler& handler);
 	~Channel();
+	
 	void on_event(io::Event ev);
-	Role role() const;
+
+	Stream stream() const;
 };
 
 

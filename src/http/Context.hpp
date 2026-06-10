@@ -23,7 +23,7 @@ enum ContextState {
 	PROCESSING,
 	CGI_RUNNING,
 	RESPONSE_READY,
-	WRITING_RESPONSE,
+	Writing_RESPONSE,
 	DONE,
 	ERROR,
 };
@@ -74,6 +74,7 @@ public:
 	Error consume(const char* data, usize size);
 	Error process(const config::Config& config);
 	Error produce(base::io::Writer& writer);
+	
 	void on_cgi_ready(const CGIResult& result);
 	
 	ContextState state() const;

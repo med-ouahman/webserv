@@ -21,5 +21,4 @@ public:
     void sweep();
     void add_connection(int client_fd);
     void close_connection(net::Connection* conn);
-
 };

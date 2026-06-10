@@ -3,6 +3,8 @@
 #include <sys/wait.h>
 #include <cstdlib>
 #include "EnvBuilder.hpp"
+#include <iostream>
+#include "Result.hpp"
 
 namespace cgi {
 

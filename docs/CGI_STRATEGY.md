@@ -125,19 +125,19 @@ This document outlines the complete strategy for implementing CGI (Common Gatewa
 - Exit: SPAWN_SUCCESS → next state, SPAWN_FAILURE → ERROR
 - Resources acquired: Child process, pipe file descriptors, environment array
 
-**CGI_WRITING_REQUEST:**
+**CGI_Writing_REQUEST:**
 - Entry: Process spawned, request has body content
 - Responsibilities: Write request body to CGI stdin, handle partial writes
-- Exit: BODY_COMPLETE → CGI_READING_HEADERS, WRITE_ERROR → ERROR
+- Exit: BODY_COMPLETE → CGI_Reading_HEADERS, WRITE_ERROR → ERROR
 - Completion action: Close stdin write end (sends EOF to CGI)
 
-**CGI_READING_HEADERS:**
+**CGI_Reading_HEADERS:**
 - Entry: Request body sent or no body to send
 - Responsibilities: Read from stdout, buffer data, parse for header/body boundary
-- Exit: HEADERS_COMPLETE → CGI_READING_BODY, PARSE_ERROR → ERROR
+- Exit: HEADERS_COMPLETE → CGI_Reading_BODY, PARSE_ERROR → ERROR
 - Parsing target: Find "\r\n\r\n" separator, extract all headers
 
-**CGI_READING_BODY:**
+**CGI_Reading_BODY:**
 - Entry: Headers successfully parsed
 - Responsibilities: Read body chunks, accumulate or stream to client
 - Exit: EOF_RECEIVED or CONTENT_LENGTH_SATISFIED → CGI_COMPLETE
@@ -158,11 +158,11 @@ This document outlines the complete strategy for implementing CGI (Common Gatewa
 ### State Machine Integration
 
 **Connection State Flow:**
-- PARSING → CGI_SPAWNING → CGI_WRITING_REQUEST → CGI_READING_HEADERS → CGI_READING_BODY → CGI_COMPLETE → READY_TO_WRITE
+- PARSING → CGI_SPAWNING → CGI_Writing_REQUEST → CGI_Reading_HEADERS → CGI_Reading_BODY → CGI_COMPLETE → READY_TO_WRITE
 
 **State Skipping:**
-- GET requests skip CGI_WRITING_REQUEST entirely
-- Go directly from SPAWNING to READING_HEADERS
+- GET requests skip CGI_Writing_REQUEST entirely
+- Go directly from SPAWNING to Reading_HEADERS
 
 **Error Recovery:**
 - Any CGI error → cleanup resources → generate error response → READY_TO_WRITE
@@ -430,8 +430,8 @@ Connection receives context and passes to CGIRequestHandler:
 - Prevents CGI processes from inheriting unrelated descriptors
 
 **Pipe End Lifecycle:**
-- Parent stdin write end: open during WRITING_REQUEST, closed when body sent
-- Parent stdout read end: open during READING states, closed when EOF received
+- Parent stdin write end: open during Writing_REQUEST, closed when body sent
+- Parent stdout read end: open during Reading states, closed when EOF received
 - Parent stderr read end: open throughout, closed during cleanup
 - Child's ends: closed by child after dup2, or by kernel on exec
 
@@ -791,8 +791,8 @@ Connection receives context and passes to CGIRequestHandler:
 **Implementation:**
 - Set close_after_write flag based on error type
 - After error response sent, check flag
-- If true: transition to CLOSING
-- If false: transition to READING (await next request)
+- If true: transition to Closing
+- If false: transition to Reading (await next request)
 
 ---
 
@@ -833,7 +833,7 @@ Connection receives context and passes to CGIRequestHandler:
 **Response Buffer:**
 - Connection owns final HTTP response
 - Built from parsed CGI output
-- Used during WRITING state
+- Used during Writing state
 - Cleared after response sent (if keep-alive)
 
 ### File Descriptor Accounting
@@ -948,8 +948,8 @@ Connection receives context and passes to CGIRequestHandler:
 ### GET Requests (No Body)
 
 **Optimization:**
-- Skip CGI_WRITING_REQUEST state entirely
-- Transition: CGI_SPAWNING → CGI_READING_HEADERS
+- Skip CGI_Writing_REQUEST state entirely
+- Transition: CGI_SPAWNING → CGI_Reading_HEADERS
 - Close stdin immediately after spawn
 - Most common case, optimize for speed
 
@@ -957,7 +957,7 @@ Connection receives context and passes to CGIRequestHandler:
 
 **Handling:**
 - Content-Length: 0 present
-- Still enter CGI_WRITING_REQUEST state
+- Still enter CGI_Writing_REQUEST state
 - Immediately close stdin (send EOF)
 - Transition to next state without writing
 - CGI receives EOF, knows no body coming
@@ -990,14 +990,14 @@ Connection receives context and passes to CGIRequestHandler:
 ### Client Disconnect During Execution
 
 **Detection:**
-- EPOLLHUP or EPOLLERR on client socket
+- EPOLLHup or EPOLLERR on client socket
 - Or read() returns 0 on client socket
 
 **Action:**
 - Kill CGI immediately (SIGTERM then SIGKILL)
 - No point continuing if no client to receive response
 - Cleanup all resources
-- Transition connection to CLOSING
+- Transition connection to Closing
 - Response nowhere to send
 
 ### Multiple Concurrent CGI per Connection

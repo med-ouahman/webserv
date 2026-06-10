@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <vector>
 #include "Pipe.hpp"
-#include "Stream.hpp"
 #include "Timestamp.hpp"
 #include "CStringArray.hpp"
 

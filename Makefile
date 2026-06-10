@@ -29,7 +29,6 @@ INCLUDES = -Isrc \
 	-Isrc/cgi/process/ \
 	-Isrc/cgi/handler/ \
 	-Isrc/io/ \
-	-Isrc/io/stream/ \
 	-Isrc/runtime/ \
 	-Isrc/runtime/epoll/ \
 	-Isrc/server/ \
@@ -45,7 +44,6 @@ SRCS = src/server/main.cpp \
 	src/sys/signals.cpp \
 	src/server/Server.cpp \
 	src/net/connection/Connection.cpp \
-	src/net/connection/connection_stream.cpp \
 	src/net/listener/Listener.cpp \
 	src/runtime/epoll/EventPoller.cpp \
 	src/runtime/epoll/poll.cpp \
@@ -54,7 +52,6 @@ SRCS = src/server/main.cpp \
 	src/cgi/resolve_cgi.cpp \
 	src/cgi/response_builder.cpp \
 	src/cgi/handler/CGIRequestHandler.cpp \
-	src/io/stream/Stream.cpp \
 	src/http/Context.cpp \
 	src/http/pipeline/body/CGIBodyProvider.cpp \
 	src/http/common/LineScanner.cpp \

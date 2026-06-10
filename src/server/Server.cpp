@@ -1,7 +1,6 @@
 #include "Server.hpp"
 #include <cstdlib>
 #include <algorithm>
-#include "Registrar.hpp"
 
 Server::Server()
     : running_(false),
@@ -55,10 +54,9 @@ bool Server::start_listeners() {
 void Server::add_connection(int conn_fd) {
 
 
-    net::Connection* connection = new net::Connection(conn_fd, io::READABLE);
+    net::Connection* connection = new net::Connection(conn_fd, io::Readable);
     
-    if (!poller.add(&connection->stream()))
-        return;
+    if (!poller.add(connection)) return;
 
     connections.push_back(connection);
 }
@@ -71,10 +69,10 @@ void Server::add_connection(int conn_fd) {
 void Server::sweep() {
     for (size_t i(0); i < connections.size();) {
         net::Connection* conn = connections.at(i);
-        conn->update_stream();
-        poller.sync(&conn->stream());
-        if (conn->closing()) close_connection(conn);
+        poller.sync(conn);
 
+        if (conn->closing()) close_connection(conn);
+        
         else ++i;
     }
 

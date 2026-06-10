@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <iostream>
 #include <sys/epoll.h>
+#include "AEventHandler.hpp"
 
 namespace runtime {
 namespace epoll {
@@ -11,11 +12,11 @@ typedef uint32_t EpollEvent;
 
 class EventPoller {
 private:
-	static const std::size_t	EPOLL_TIMEOUT_MS = 1000;
-	static const std::size_t	MAX_EVENTS = 128;
+	static const std::size_t	EpollMaxTimeoutMs = 1000;
+	static const std::size_t	MaxEvents = 128;
 
 	int epoll_fd;
-	epoll_event events[MAX_EVENTS];
+	epoll_event events[MaxEvents];
 		
 	EventPoller(const EventPoller& other);
 	EventPoller& operator=(const EventPoller& other);
@@ -31,7 +32,6 @@ public:
 	bool add(io::AEventHandler* handler);
 	bool mod(io::AEventHandler* handler);
 	bool del(io::AEventHandler* handler);
-
 	void sync(io::AEventHandler*);
 };
 

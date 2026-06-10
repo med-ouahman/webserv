@@ -24,7 +24,7 @@ To successfully defend against attacks while supporting users on slow networks, 
 
 ### B. The State Deadline (Hard Limit)
 - **Definition:** Tracks how long a connection has spent in its *current logical state*.
-- **Reset Trigger:** Resets to `0` ONLY when the connection transitions to a new state (e.g., `READING_HEADERS` -> `READING_BODY`).
+- **Reset Trigger:** Resets to `0` ONLY when the connection transitions to a new state (e.g., `Reading_HEADERS` -> `Reading_BODY`).
 - **Purpose:** Prevents "Slowloris" attacks where a malicious client drips 1 byte per minute to reset the Inactivity Tracker. The Hard Limit ensures that, regardless of network activity, a specific phase of the HTTP transaction completes within a reasonable timeframe.
 
 ---
@@ -36,10 +36,10 @@ To successfully defend against attacks while supporting users on slow networks, 
 | State | Metric of Progress | Inactivity Limit (Soft) | State Deadline (Hard) | Rationale & Security Focus |
 | :--- | :--- | :--- | :--- | :--- |
 | **INITIAL_CONNECTION** | Waiting for the very first byte of the request. | 50 Ticks | N/A | Defends against SYN-flood remnants and port scanners that open TCP connections but send no application data ("Ghost" connections). |
-| **READING_HEADERS** | Parser consumes bytes and moves internal cursor. | 100 Ticks | 500 Ticks | Stops Header Bloat and Slowloris. Headers must fit within `MAX_HEADER_LEN` and finish promptly. |
-| **READING_BODY** | `read()` pushes `n > 0` bytes into the input buffer. | 200 Ticks | Configurable (e.g., 2000) | Allows for large, legitimate file uploads over slow mobile networks, provided data continues to flow. |
+| **Reading_HEADERS** | Parser consumes bytes and moves internal cursor. | 100 Ticks | 500 Ticks | Stops Header Bloat and Slowloris. Headers must fit within `MAX_HEADER_LEN` and finish promptly. |
+| **Reading_BODY** | `read()` pushes `n > 0` bytes into the input buffer. | 200 Ticks | Configurable (e.g., 2000) | Allows for large, legitimate file uploads over slow mobile networks, provided data continues to flow. |
 | **CGI_EXECUTION** | `read()` pulls `n > 0` bytes from the CGI stdout pipe. | 300 Ticks | 1000 Ticks | Kills deadlocked backend scripts. A CGI process that loops infinitely without outputting data will hit this limit and be reaped. |
-| **WRITING_RESPONSE**| `write()` advances `sent_offset` (Kernel accepts data).| 200 Ticks | N/A | Handles slow downloaders. If the Kernel buffer is full and `write()` returns `-1` repeatedly, the client is choked or dead. |
+| **Writing_RESPONSE**| `write()` advances `sent_offset` (Kernel accepts data).| 200 Ticks | N/A | Handles slow downloaders. If the Kernel buffer is full and `write()` returns `-1` repeatedly, the client is choked or dead. |
 | **IDLE (Keep-Alive)** | First byte of a *new* request is detected. | 1000+ Ticks | N/A | Keeps the socket open for subsequent requests to save TCP handshake overhead, but only if server capacity permits. |
 
 ---
@@ -72,8 +72,8 @@ At the end of the `EventLoop` cycle, a single `sweep()` or Reaper function itera
 1. Determine the current server Load Factor to set the `multiplier`.
 2. Check `connection.inactivity_ticks > (Threshold * multiplier)`.
 3. Check `connection.ticks_since_progress > State_Deadline`.
-4. If either is true, mark `connection.state = CLOSING`.
-5. Physically `close(fd)` and `delete` the connection object for all `CLOSING` connections safely, without disrupting the active `epoll` array.
+4. If either is true, mark `connection.state = Closing`.
+5. Physically `close(fd)` and `delete` the connection object for all `Closing` connections safely, without disrupting the active `epoll` array.
 
 ---
 

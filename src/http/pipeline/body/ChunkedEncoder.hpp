@@ -10,10 +10,10 @@ class ChunkedEncoder {
 public:
 
 enum State {
-    HEADER,
-    DATA,
-    TRAIL,
-    FINAL
+    Header,
+    Data,
+    Trail,
+    Final
 };
 
 private:

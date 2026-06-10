@@ -1,42 +1,44 @@
 #pragma once
 
-#include "Registrar.hpp"
+#include "AEventHandler.hpp"
 #include "Timestamp.hpp"
-#include "Stream.hpp"
 #include "Context.hpp"
+#include "BufferReader.hpp"
+#include "BufferWriter.hpp"
 
 namespace http{struct CGIResult;class CGIRequestHandler;}
+
 namespace net {
 
 enum ConnectionState {
-    READING,
-    WRITING,
-    CLOSING,
+    Reading,
+    Writing,
+    Closing,
 };
 
-class Connection: public io::IStreamDelegate {
+class Connection: public io::AEventHandler {
     
 public:
-    Connection(int fd, io::Event events, RegisterContext& ctx);
+    const static std::size_t ReadbufSize = 1024 * 4;
+    const static std::size_t WritebufSize = 1024 * 4;
+    Connection(int fd, io::Event events);
     ~Connection();
-    void  update_stream();
+
+    void on_event(io::Event events);
+    
     ConnectionState state() const;
-    void consume(BufferReader& view);
-    void produce(BufferWriter& writer);
-    void on_stream_error();
-    void on_stream_closed();
-    io::Stream& stream();
     bool closing() const;
-    static void on_cgi(void*, const http::CGIResult& r);
+
 private:
-    io::Stream      stream_;
-    ConnectionState state_;    
+    ConnectionState state_;  
     bool            close_after_write;
     Timestamp       last_activity_;
     Timestamp       lifetime_;
-
-    RegisterContext register_ctx;
     http::Context   ctx;
+
+    BufferReader reader_;
+    BufferWriter writer_;
+
 };
 
 }

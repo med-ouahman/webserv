@@ -20,16 +20,16 @@ Listener::~Listener() {}
 void Listener::on_event(io::Event event) {
 	
 	switch (event) {
-		case io::READABLE:
+		case io::Readable:
 			std::cout << "Listener readable\n";
 			accept_clients();
 			break;
-		case io::HUP: case io::RHUP:
+		case io::Hup: case io::RHup:
 			/*
 				let's see what to do here and defer this thing for later
 			*/
 			break;
-		case io::ERROR:
+		case io::Error:
 			on_error();
 		default:
 			break;
@@ -84,7 +84,8 @@ base::Result<Listener*> create_listening_socket(
 		return MAKE_ERRNO_ERROR("EventPoller::create_listening_socket::listen()");
 	
 	std::cout << "server listening on " <<  ::inet_ntoa((in_addr){ .s_addr = endpoint.host }) << ":"<< endpoint.port << '\n';
-	return new Listener(socket_fd, io::READABLE, server);
+	
+	return new Listener(socket_fd, io::Readable, server);
 }
 
 bool Listener::error() const {

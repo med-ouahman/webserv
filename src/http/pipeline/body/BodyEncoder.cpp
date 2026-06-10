@@ -3,18 +3,14 @@
 namespace http {
 namespace body {
 
-BodyEncoder::BodyEncoder(IBodyProvider* b, Encoding enc)
- : body(b),
- encoding_(enc) {
+BodyEncoder::BodyEncoder(Encoding enc)
+    : encoding_(enc) {
 }
 
-BodyEncoder::~BodyEncoder() {
-    delete body;
-    body = NULL;
-}
+BodyEncoder::~BodyEncoder() {}
 
 
-ssize_t BodyEncoder::produce(BufferWriter& writer) {
+ssize_t BodyEncoder::produce(IBodyProvider* body, BufferWriter& writer) {
 
     switch (encoding_) {
         case Chunked:

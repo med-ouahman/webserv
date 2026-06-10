@@ -4,13 +4,14 @@
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <cstdlib>
+#include "Result.hpp"
 
 namespace runtime {
 namespace epoll {
 
 int EventPoller::poll() {
     
-    int n = ::epoll_wait(epoll_fd, events, MAX_EVENTS, EPOLL_TIMEOUT_MS);
+    int n = ::epoll_wait(epoll_fd, events, MaxEvents, EpollMaxTimeoutMs);
     if (n < 0) {
         LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::run()"));
         return 1;

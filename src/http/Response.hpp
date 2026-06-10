@@ -12,6 +12,7 @@
 namespace http {
 
 struct Response {
+	IBodyProvider* body_p;
 	body::BodyEncoder encoder;
 	std::string body;
 	std::map<std::string, std::string> headers;

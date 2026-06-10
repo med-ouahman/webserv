@@ -56,7 +56,7 @@ main(int argc, char *argv[])
             if (pfds[j].revents != 0) {
                 printf("  fd=%d; events: %s%s%s\n", pfds[j].fd,
                         (pfds[j].revents & POLLIN)  ? "POLLIN "  : "",
-                        (pfds[j].revents & POLLHUP) ? "POLLHUP " : "",
+                        (pfds[j].revents & POLLHup) ? "POLLHup " : "",
                         (pfds[j].revents & POLLERR) ? "POLLERR " : "");
 
                 if (pfds[j].revents & POLLIN) {
@@ -65,7 +65,7 @@ main(int argc, char *argv[])
                         errExit("read");
                     printf("    read %zd bytes: %.*s\n",
                             s, (int) s, buf);
-                } else {                /* POLLERR | POLLHUP */
+                } else {                /* POLLERR | POLLHup */
                     printf("    closing fd %d\n", pfds[j].fd);
                     if (close(pfds[j].fd) == -1)
                         errExit("close");

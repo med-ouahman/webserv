@@ -9,7 +9,7 @@ namespace body {
 const std::string ChunkedEncoder::trailer = "\r\n";
 
 ChunkedEncoder::ChunkedEncoder()
-: state_(HEADER),
+: state_(Header),
 current_chunk_(0),
 write_ptr(NULL)
 {}
@@ -22,7 +22,7 @@ ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
 
     switch (state_) {
 
-        case HEADER: {
+        case Header: {
 
             
             write_ptr = writer.write_ptr();
@@ -30,10 +30,10 @@ ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
 
             writer.write(overhead.c_str(), overhead.size());
 
-            state_ = DATA;
+            state_ = Data;
         }
 
-        case DATA: {
+        case Data: {
             
             ssize_t n = body->read(writer);
             if (n < 0) return -1;
@@ -45,15 +45,15 @@ ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
             ::memmove(write_ptr + header.size(), write_ptr + header_overhead, writer.length() - header_overhead);
             writer.pop(header_overhead - header.size());
 
-            state_ = TRAIL;
+            state_ = Trail;
         }
 
-        case TRAIL:
+        case Trail:
             writer.write(trailer.c_str(), trailer.size());
-            if (current_chunk_ == 0) state_ = FINAL;
-            else state_ = HEADER;
+            if (current_chunk_ == 0) state_ = Final;
+            else state_ = Header;
             break;
-        case FINAL:
+        case Final:
             return 0;
     }
 

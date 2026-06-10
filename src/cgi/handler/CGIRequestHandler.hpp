@@ -24,8 +24,6 @@ struct CGIResult {
 	CGIResult(BufferReader& source): code(OK), status_reason(), headers(), source_(source) {}
 };
 
-
-
 class CGIRequestHandler: public IRequestHandler {
 
 public:
@@ -48,7 +46,6 @@ private:
 	Channel stderr_ch;
 
 	runtime::epoll::EventPoller& poller_;
-	
 	Context& ctx_;
 	
 	CGIRequestHandler(const CGIRequestHandler&);
@@ -63,14 +60,11 @@ public:
 	void handle();
 	bool done();
 	
-	void on_writeable(Channel& ch);
-	void on_readable(Channel& ch);
+	void on_writable(BufferWriter& writer, Channel::Stream s);
+	void on_readable(BufferReader& reader, Channel::Stream s);
 	
-	void on_ch_error(Channel& h);
-	void ob_ch_closed(Channel& h);
-
-	void pause_channel(Channel& ch);
-	void resume_channel(Channel& ch);
+	void on_ch_error(Channel::Stream s);
+	void on_ch_closed(Channel::Stream s);
 
 };
 

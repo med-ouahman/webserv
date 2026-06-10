@@ -16,12 +16,11 @@ class BodyEncoder {
 private:
     const Encoding encoding_;
     ChunkedEncoder chunked_;
-    IBodyProvider* body;
 
 public:
-    BodyEncoder(IBodyProvider* provider, Encoding enc);
+    BodyEncoder(Encoding enc);
     ~BodyEncoder();
-    ssize_t produce(BufferWriter& writer);
+    ssize_t produce(IBodyProvider* body, BufferWriter& writer);
 };
 
 }

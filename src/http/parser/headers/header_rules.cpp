@@ -82,7 +82,7 @@ Error	handle_special_header(Request& request, const std::string& normalized, con
 			return NONE;
 		case HEADER_CONNECTION:
 			if (lower_name(value) == "close")
-				request.connection = CONNECTION_CLOSE;
+				request.connection = CONNECTION_Close;
 			else if (lower_name(value) == "keep-alive")
 				request.connection = CONNECTION_KEEP_ALIVE;
 			else
