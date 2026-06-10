@@ -27,12 +27,12 @@ public:
 	void advance_read(size_t __n);
 	void advance_write(size_t __n);
 	void reset();
+	void pop(size_t n__);
 	
 	size_t bytes_pending();
 	size_t capacity();
 	size_t bytes_free();
 	size_t write(const char* src, size_t n__);
 	size_t length();
-	void	pop(size_t n__);
 };
 

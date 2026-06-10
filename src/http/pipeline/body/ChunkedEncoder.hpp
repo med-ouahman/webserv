@@ -22,7 +22,6 @@ private:
     
     State       state_;
     size_t      current_chunk_;
-    size_t      old_size;
     char*       write_ptr;
     
     static std::string format(size_t chunk_size);

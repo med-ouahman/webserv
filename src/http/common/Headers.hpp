@@ -17,7 +17,7 @@ private:
 
 public:
 	const std::string& get(const std::string& name) const;
-	const std::string& operator[](const std::string& name);
+	const std::string& operator[](const std::string& name) const;
 	void add(std::string const& name, std::string const& value);
 	void remove(std::string const& name);
 	bool has(const std::string& name);

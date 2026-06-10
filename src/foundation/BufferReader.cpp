@@ -16,11 +16,7 @@ size_t BufferReader::size() const {
 	return storage_.size();
 }
 
-char* BufferReader::data() {
-	return &storage_[0];
-}
-
-const char* BufferReader::read_ptr() const {
+const char* BufferReader::data() const {
 	return &storage_[0] + cursor_;
 }
 
@@ -41,12 +37,6 @@ bool BufferReader::empty() const {
 
 void BufferReader::rewind(size_t n) {
 	cursor_ = cursor_ < n ? 0: cursor_ - n;
-}
-
-void BufferReader::shrink(size_t new_size) {
-	storage_.resize(new_size);
-	
-	if (cursor_ >= new_size) cursor_ = 0;
 }
 
 void BufferReader::reset() {

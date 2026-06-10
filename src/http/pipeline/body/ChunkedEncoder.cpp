@@ -34,21 +34,16 @@ ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
         }
 
         case DATA: {
+            
             ssize_t n = body->read(writer);
-            
             if (n < 0) return -1;
-            
-            if (n == 0)
-                current_chunk_ = 0;
-            
-            else if (n < current_chunk_)
-            {
-                current_chunk_ = n;
-                std::string header = format(current_chunk_);
-                size_t new_size = header.size();
-                ::memmove(write_ptr + new_size, write_ptr + old_size, writer.length() - old_size);
-                writer.pop(old_size - new_size);
-            }
+
+            current_chunk_ = n;
+    
+            std::string header = format(current_chunk_);
+            ::memcpy(write_ptr, header.c_str(), header.size());
+            ::memmove(write_ptr + header.size(), write_ptr + header_overhead, writer.length() - header_overhead);
+            writer.pop(header_overhead - header.size());
 
             state_ = TRAIL;
         }
@@ -57,6 +52,7 @@ ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
             writer.write(trailer.c_str(), trailer.size());
             if (current_chunk_ == 0) state_ = FINAL;
             else state_ = HEADER;
+            break;
         case FINAL:
             return 0;
     }

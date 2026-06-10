@@ -1,61 +1,60 @@
+
 #include "Timestamp.hpp"
 #include "CGIRequestHandler.hpp"
 #include "Dispatcher.hpp"
 #include "Request.hpp"
 #include "EnvBuilder.hpp"
 #include "CGIBodyProvider.hpp"
+#include "EventPoller.hpp"
+#include "Context.hpp"
 
 namespace http {
 
-CGIRequestHandler::CGIRequestHandler(const ResolutionResult& res, http::Request const& req, CGIControl& ctl)
-    : state_(BUILDING_HEADERS),
+CGIRequestHandler::CGIRequestHandler(const ResolutionResult& res, http::Request const& req, runtime::epoll::EventPoller& poller, Context& ctx)
+    : state_(Headers),
     process(cgi::resolve_exec_context(req, res)),
     stdin_stream(process.stdin_pipe().write_end(), io::WRITABLE, *this),
     stdout_stream(process.stdout_pipe().read_end(), io::READABLE, *this),
     stderr_stream(process.stderr_pipe().read_end(), io::READABLE, *this),
-    cgi_ctl(ctl) {
+    poller_(poller),
+    ctx_(ctx) {
 
     if (!process.running()) {
-        state_ = ERROR;
+        state_ = Error;
         return;
     }
 
-    RegisterContext& registrar = cgi_ctl.register_ctx;
-    registrar.callback(&stdin_stream, registrar.registrar);
-    registrar.callback(&stdout_stream, registrar.registrar);
-    registrar.callback(&stderr_stream, registrar.registrar);
+    poller_.add(&stdin_stream);
+    poller_.add(&stdout_stream);
+    poller_.add(&stderr_stream);
 }
 
 CGIRequestHandler::~CGIRequestHandler() {
-    RegisterContext& registrar = cgi_ctl.register_ctx;
-    DeleteCallback delete_cb = cgi_ctl.register_ctx.delete_cb;
-    delete_cb(&stdin_stream, registrar.registrar);
-    delete_cb(&stdout_stream, registrar.registrar);
-    delete_cb(&stderr_stream, registrar.registrar);
+    poller_.del(&stdin_stream);
+    poller_.del(&stdout_stream);
+    poller_.del(&stderr_stream);
 }
 
-void CGIRequestHandler::handle() {
-    
-}
+void CGIRequestHandler::handle() {}
 
 bool CGIRequestHandler::done() {
-    return state_ == RESPONSE_DONE;
+    return state_ == Finished;
 }
 
 void CGIRequestHandler::consume(BufferReader& reader) {
-    if (state_ == BUILDING_HEADERS) {
+
+    if (state_ == Headers) {
+        
         builder.parse_headers(reader);
-        if (builder.finished()) state_ = HEADERS_READY;
+        if (!builder.finished()) return;
+
+        CGIResult result(reader);        
+        ctx_.on_cgi_ready(result);
+
+        state_ = StreamingBody;
     }
-    
-    if (state_ == HEADERS_READY) {
-        result_.headers = builder.headers();
-        result_.code = builder.status_code();
-        result_.status_reason = "";
-        result_.body = new CGIBodyProvider(reader);
-        state_ = STREAMING_BODY;
-    }
-    
+
+
 }
 
 void CGIRequestHandler::produce(BufferWriter& w) {
@@ -65,22 +64,15 @@ void CGIRequestHandler::produce(BufferWriter& w) {
 }
 
 void CGIRequestHandler::on_stream_error() {
-    // close
+    state_ = Error;
 }
 
 void CGIRequestHandler::on_stream_closed() {
-    state_ = RESPONSE_DONE;
-    CGICOutputallback callback = cgi_ctl.output_ctx.cb_;
-    callback(cgi_ctl.output_ctx.ctx, result_);
+    state_ = Finished;
 }
 
 CGIRequestHandler::State CGIRequestHandler::state() const {
     return state_;
-}
-
-
-CGIResult& CGIRequestHandler::result() {
-    return result_;
 }
 
 }

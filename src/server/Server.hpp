@@ -13,16 +13,13 @@ private:
     Server(const Server&);
     Server& operator=(const Server&);
     bool start_listeners();
-    void add_connection(int client_fd);
-    void close_connection(net::Connection* conn);
     
 public:
     Server();
     ~Server();
     int start();
     void sweep();
-    static void server_accept(int conn_fd, void* server_ctx);
-    static void server_register(io::AEventHandler* handler, void* register_ctx);
-    static void server_delete(io::AEventHandler* handler, void* register_ctx);
-    
+    void add_connection(int client_fd);
+    void close_connection(net::Connection* conn);
+
 };

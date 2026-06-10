@@ -9,7 +9,7 @@ namespace cgi {
 time_t Process::timeout_secs;
 
 Process::Process(const CGIExecContext& ctx)
-    : state_(SPAWN), 
+    : state_(Spawn), 
     pid(-1),
     status(0),
     stdin_pipe_(),
@@ -19,11 +19,11 @@ Process::Process(const CGIExecContext& ctx)
     sigterm_sent_at(0) {
     
     if (!stderr_pipe_ || !stdout_pipe_  || !stdin_pipe_) {
-        state_ = ERROR;
+        state_ = Error;
         return;
     }
 
-    state_ = RUNNING;
+    state_ = Running;
     if (ctx.stdin_fd == STDIN_FILENO)
         stdin_pipe_.close_write_end();
     timeout_secs = ctx.timeout_seconds;
@@ -49,12 +49,12 @@ Process::Process(const CGIExecContext& ctx)
     stdout_pipe_.close_write_end();
     stderr_pipe_.close_write_end();
     
-    if (pid < 0) state_ = ERROR;
+    if (pid < 0) state_ = Error;
 }
 
 
 Process::~Process() {
-    ::waitpid(pid, &status, 0);  // should be blocking to ensuer the process is reaped
+    ::waitpid(pid, &status, 0);
 }
 
 bool Process::timedout() {
@@ -86,6 +86,6 @@ Pipe& Process::stderr_pipe() {
 }
 
 bool Process::running() const {
-    return state_ == RUNNING;
+    return state_ == Running;
 }
 }

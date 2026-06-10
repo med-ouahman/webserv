@@ -3,52 +3,41 @@
 #include "Process.hpp"
 #include "IRequestHandler.hpp"
 #include "ResponseParser.hpp"
-#include "Registrar.hpp"
 #include "StatusCode.hpp"
 #include "IBodyProvider.hpp"
 
+namespace runtime { namespace epoll { class EventPoller; };}
+
 namespace http {
 
+class Context;
 struct ResolutionResult;
 struct Request;
 
 struct CGIResult {
-	StatusCode code;
+	StatusCode	code;
 	std::string status_reason;
-	Headers headers;
-	IBodyProvider* body;
+	Headers		headers;
+	BufferReader& source_;
 
-	CGIResult(): code(OK), status_reason(), headers(), body(NULL) {}
+	CGIResult(BufferReader& source): code(OK), status_reason(), headers(), source_(source) {}
 };
 
-typedef void (*CGICOutputallback)(void* ctx, CGIResult const& result);
 
-struct CGIOutputContext {
-	CGICOutputallback 	cb_;
-	void* 				ctx;
-};
-
-struct CGIControl {
-	RegisterContext register_ctx;
-	CGIOutputContext output_ctx;
-
-	CGIControl(RegisterContext ctx_, CGIOutputContext output_ctx)
-		: register_ctx(ctx_), output_ctx(output_ctx) {}
-};
 
 class CGIRequestHandler: public io::IStreamDelegate, public IRequestHandler {
 
 public:
 	enum State {
-		BUILDING_HEADERS,
-		HEADERS_READY,
-		STREAMING_BODY,
-		RESPONSE_DONE,
-		ERROR
+		Headers,
+		StreamingBody,
+		Error,
+		Finished,
 	};
 
 private:
 	State state_;
+	
 	cgi::Process process;
 	
 	ResponseParser builder;
@@ -57,15 +46,16 @@ private:
 	io::Stream 	stdout_stream;
 	io::Stream 	stderr_stream;
 
-	CGIControl	cgi_ctl;
-
-	CGIResult result_;
-
+	runtime::epoll::EventPoller& poller_;
+	
+	Context& ctx_;
+	
 	CGIRequestHandler(const CGIRequestHandler&);
 	CGIRequestHandler& operator=(const CGIRequestHandler&);
 
 public:
-	CGIRequestHandler(const ResolutionResult& result, const http::Request& req, CGIControl& ctl);
+	CGIRequestHandler(const ResolutionResult& result, const http::Request& req,
+		runtime::epoll::EventPoller& poller_, Context& ctx);
 	~CGIRequestHandler();
 	State state() const;
 	
@@ -76,8 +66,7 @@ public:
 	void produce(BufferWriter& w);
 	void on_stream_error();
 	void on_stream_closed();
-
-	CGIResult& result();
+	
 };
 
 }

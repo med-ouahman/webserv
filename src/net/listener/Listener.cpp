@@ -6,13 +6,14 @@
 #include "Listener.hpp"
 #include "Config.hpp"
 #include <iostream>
+#include "Server.hpp"
 
 namespace net {
 	
-Listener::Listener(int fd, io::Event mask, AcceptContext ctx)
+Listener::Listener(int fd, io::Event mask, Server& server)
 	: AEventHandler(fd, mask),
-	state_(LISTENING),
-	accept_ctx(ctx) {}
+	state_(Listening),
+	webserv_(server) {}
 
 Listener::~Listener() {}
 
@@ -43,13 +44,13 @@ bool Listener::accept_clients() {
 	
 	if (client_fd < 0) return false;
 	
-	accept_ctx.callback(client_fd, accept_ctx.server_ctx);	
+	webserv_.add_connection(client_fd);
 	std::cout << "CONNECTION_FD: " << client_fd << "\n";
 	return true;
 }
 
 bool Listener::on_error() {
-	state_ = LISTENER_ERROR;
+	state_ = ListenerError;
 	LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::accept()"));
 	return false;
 }
@@ -57,7 +58,7 @@ bool Listener::on_error() {
 
 base::Result<Listener*> create_listening_socket(
 	const config::ListenEndPoint& endpoint,
-	AcceptContext ctx
+	Server& server
 	) {
 
 	sockaddr_in server_addr;
@@ -83,11 +84,11 @@ base::Result<Listener*> create_listening_socket(
 		return MAKE_ERRNO_ERROR("EventPoller::create_listening_socket::listen()");
 	
 	std::cout << "server listening on " <<  ::inet_ntoa((in_addr){ .s_addr = endpoint.host }) << ":"<< endpoint.port << '\n';
-	return new Listener(socket_fd, io::READABLE, ctx);
+	return new Listener(socket_fd, io::READABLE, server);
 }
 
 bool Listener::error() const {
-	return state_ == LISTENER_ERROR;
+	return state_ == ListenerError;
 }
 
 }

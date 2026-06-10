@@ -8,11 +8,13 @@
 #include "http/Request.hpp"
 #include "http/Response.hpp"
 #include "http/parser/parse.hpp"
+#include "IRequestHandler.hpp"
 
 #define CRLF "\r\n"
 
 namespace http {
 
+struct CGIResult;
 
 enum ContextState {
 	REQUEST_LINE,
@@ -55,6 +57,8 @@ private:
 
 	ContextState state_;
 
+	IRequestHandler* handler;
+
 	friend Error	parser::get_chunk(Context& ctx, std::string& out, bool& found);
 	friend Error	parser::parse(Context& ctx);
 	friend Error	parser::parse_request_line(Context& ctx);
@@ -64,15 +68,14 @@ private:
 	friend usize	consume_chunk(Context& ctx, std::string& out, usize end);
 	friend usize	parsed_size(Context& ctx, usize consumed);
 
-
 public:
-
 	Context();
 
 	Error consume(const char* data, usize size);
 	Error process(const config::Config& config);
 	Error produce(base::io::Writer& writer);
-
+	void on_cgi_ready(const CGIResult& result);
+	
 	ContextState state() const;
 
 };

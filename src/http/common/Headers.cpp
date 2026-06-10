@@ -9,7 +9,7 @@ Headers::~Headers() {}
 Headers::Headers(const Headers& other): headers_(other.headers_) {}
 
 Headers& Headers::operator=(const Headers& other) {
-    if (this not_eq &other) {
+    if (this != &other) {
         headers_ = other.headers_;
     }
 
@@ -24,6 +24,10 @@ const std::string& Headers::get(const std::string& name) const {
     }
 
     return s;
+}
+
+const std::string& Headers::operator[](const std::string& name) const {
+    return get(name);
 }
 
 void Headers::add(std::string const& name, std::string const& value) {

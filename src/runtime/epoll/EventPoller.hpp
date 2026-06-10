@@ -1,6 +1,5 @@
 #pragma once
 
-#include "AEventHandler.hpp"
 #include <stdint.h>
 #include <iostream>
 #include <sys/epoll.h>
@@ -9,8 +8,6 @@ namespace runtime {
 namespace epoll {
 
 typedef uint32_t EpollEvent;
-
-typedef void (*ServerCallback)(void*);
 
 class EventPoller {
 private:
@@ -30,9 +27,11 @@ public:
 	EventPoller();
 	~EventPoller();
 	int poll();
-	bool register_handler(io::AEventHandler* handler);
-	bool modify_handler(io::AEventHandler* handler);
-	bool del_handler(io::AEventHandler* handler);
+	
+	bool add(io::AEventHandler* handler);
+	bool mod(io::AEventHandler* handler);
+	bool del(io::AEventHandler* handler);
+
 	void sync(io::AEventHandler*);
 };
 

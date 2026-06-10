@@ -5,7 +5,11 @@ namespace http {
 CGIBodyProvider::CGIBodyProvider(BufferReader& src)
     : source(src) {}
 
-ssize_t CGIBodyProvider::produce(BufferWriter& writer) {
+CGIBodyProvider::~CGIBodyProvider() {
+
+}
+
+ssize_t CGIBodyProvider::read(BufferWriter& writer) {
     size_t w = writer.write(source.data(), source.size());
     source.advance(w);
     return w;

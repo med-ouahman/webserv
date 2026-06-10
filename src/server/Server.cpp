@@ -24,21 +24,6 @@ Server::~Server() {
 
 }
 
-void Server::server_accept(int conn_fd, void* server_ctx) {
-    Server* webserv = static_cast<Server*>(server_ctx);
-    webserv->add_connection(conn_fd);
-}
-
-void Server::server_register(io::AEventHandler* handler, void* register_ctx) {
-    runtime::epoll::EventPoller* loop = static_cast<runtime::epoll::EventPoller*>(register_ctx);
-    loop->register_handler(handler);
-}
-
-void Server::server_delete(io::AEventHandler* handler, void* register_ctx) {
-    runtime::epoll::EventPoller* poller = static_cast<runtime::epoll::EventPoller*>(register_ctx);
-    poller->del_handler(handler);
-}
-
 void Server::close_connection(net::Connection* conn) {
     connections.erase(
         std::remove(connections.begin(), connections.end(), conn),
@@ -51,19 +36,15 @@ void Server::close_connection(net::Connection* conn) {
 bool Server::start_listeners() {
     
     const std::vector<config::ListenEndPoint>& endpoints = config::Config::get_config().server.listens;
-    net::AcceptContext accpet_ctx = {
-        .server_ctx = this,
-        .callback = server_accept
-    };
-
+  
     for (size_t i(0); i < endpoints.size(); ++i) {
 
-        base::Result<net::Listener*> result = net::create_listening_socket(endpoints[i], accpet_ctx);
+        base::Result<net::Listener*> result = net::create_listening_socket(endpoints[i]);
 
         if (!result.ok) return false;
         net::Listener* sock = result.result;
         
-        if (!poller.register_handler(sock)) return false;
+        if (!poller.add(sock)) return false;
 
         listeners.push_back(sock);
     }
@@ -81,7 +62,7 @@ void Server::add_connection(int conn_fd) {
 
     net::Connection* connection = new net::Connection(conn_fd, io::READABLE, r);
     
-    if (!poller.register_handler(&connection->stream()))
+    if (!poller.add(&connection->stream()))
         return;
 
     connections.push_back(connection);

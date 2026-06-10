@@ -8,7 +8,7 @@ namespace runtime {
 
 namespace epoll {
 
-bool EventPoller::register_handler(io::AEventHandler* handler) {
+bool EventPoller::add(io::AEventHandler* handler) {
 	epoll_event event;
 	event.events = decode_events(handler->events());
 	event.data.ptr = handler;
@@ -36,7 +36,7 @@ bool EventPoller::register_handler(io::AEventHandler* handler) {
 	return true;
 }
 
-bool EventPoller::modify_handler(io::AEventHandler* handler) {
+bool EventPoller::mod(io::AEventHandler* handler) {
 	
 	epoll_event event;
 	event.events = decode_events(handler->events());
@@ -53,7 +53,7 @@ bool EventPoller::modify_handler(io::AEventHandler* handler) {
 	return true;
 }
 
-bool EventPoller::del_handler(io::AEventHandler* handler) {
+bool EventPoller::del(io::AEventHandler* handler) {
 	if (::epoll_ctl(epoll_fd, EPOLL_CTL_DEL, handler->fd(), NULL)) {
 		LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::epoll_ctl(EPOLL_CTL_DEL)"));
 		return false;

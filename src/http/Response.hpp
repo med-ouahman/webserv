@@ -12,7 +12,7 @@
 namespace http {
 
 struct Response {
-	BodyEncoder encoder;
+	body::BodyEncoder encoder;
 	std::string body;
 	std::map<std::string, std::string> headers;
 	StatusCode status;

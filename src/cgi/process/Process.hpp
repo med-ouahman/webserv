@@ -14,9 +14,9 @@ struct CGIExecContext;
 class Process {
 private:
     enum ProcessState {
-        SPAWN,
-        RUNNING,
-        ERROR
+        Spawn,
+        Running,
+        Error
     } state_;
 
     static time_t timeout_secs;

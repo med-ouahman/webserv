@@ -5,6 +5,8 @@
 #include <vector>
 #include "Config.hpp"
 
+class Server;
+
 #ifndef NDEBUG
 #define NDEBUG 4
 #endif
@@ -13,30 +15,23 @@
 
 namespace net {
 
-enum ListenerState {
-	LISTENING,
-	LISTENER_ERROR
-};
-
-typedef void (*AcceptCallback)(int client_fd, void* server_ctx);
-
-struct AcceptContext {
-	void* server_ctx;
-	AcceptCallback callback;
-};
-
 class Listener: public io::AEventHandler {
-
 private:
-	ListenerState state_;
+
+	enum ListenerState {
+		Listening,
+		ListenerError
+	} state_;
+
+	Server& webserv_;
+
 	Listener(const Listener& socket);
 	Listener& operator=(const Listener& socket);
 	bool accept_clients();
 	bool on_error();
-	AcceptContext accept_ctx;
 
 public:
-	explicit Listener(int fd, io::Event mask, AcceptContext ctx);
+	explicit Listener(int fd, io::Event mask, Server& server);
 	~Listener();
 	void on_event(io::Event event);
 	bool error() const;
@@ -44,7 +39,6 @@ public:
 
 base::Result<Listener*>
 create_listening_socket(
-	const config::ListenEndPoint& endpoints,
-	AcceptContext ctx);
+	const config::ListenEndPoint& endpoints);
 
 }
