@@ -1,5 +1,5 @@
 
-#include "http/parser/parse.hpp"
+#include "http/Parser/parser.hpp"
 #include "http/Context.hpp"
 
 #include <string>
@@ -38,11 +38,11 @@ static http::Error	set_version(http::Request& request, const std::string& line, 
 	else if (len == 8 && line.compare(start, 8, "HTTP/1.1") == 0)
 		request.version = http::HTTP_1_1;
 	else if (len >= 5 && line.compare(start, 5, "HTTP/") == 0)
-		return http::UNSUPPORTED_HTTP_VERSION;
+		return http::ERR_UNSUPPORTED_HTTP_VERSION;
 	else
-		return http::EBAD_REQUEST;
+		return http::ERR_BAD_REQUEST;
 
-	return http::NONE;
+	return http::ERR_NONE;
 }
 
 static bool	set_target(http::Request& request, const std::string& target) {
@@ -68,9 +68,7 @@ static bool	set_target(http::Request& request, const std::string& target) {
 
 namespace http {
 
-namespace parser {
-
-Error	parse_request_line(Context& ctx) {
+Error ParserState::parse_request_line(Context& ctx) {
 
 	std::string line;
 	std::string target;
@@ -81,31 +79,29 @@ Error	parse_request_line(Context& ctx) {
 	Error err;
 
 	err = get_chunk(ctx, line, found);
-	if (err != NONE)
+	if (err != ERR_NONE)
 		return err;
 	if (!found)
-		return NONE;
+		return ERR_NONE;
 
 	if (!check_spaces(line, first_space, second_space))
-		return EBAD_REQUEST;
+		return ERR_BAD_REQUEST;
 
 	target = line.substr(first_space + 1, second_space - first_space - 1);
 	if (first_space == 0 || target.empty() || second_space + 1 >= line.size())
-		return EBAD_REQUEST;
+		return ERR_BAD_REQUEST;
 
 	if (!set_method(ctx.request, line, first_space))
-		return EBAD_REQUEST;
+		return ERR_BAD_REQUEST;
 	err = set_version(ctx.request, line, second_space + 1);
-	if (err != NONE)
+	if (err != ERR_NONE)
 		return err;
 	if (!set_target(ctx.request, target))
-		return EBAD_REQUEST;
+		return ERR_BAD_REQUEST;
 
-	ctx.header_bytes = 0;
+	header_bytes = 0;
 	ctx.state_ = HEADERS;
-	return NONE;
-}
-
+	return ERR_NONE;
 }
 
 }

@@ -21,7 +21,7 @@ private:
 	Type type_;
 	std::string path_;
 	i32 fd_;
-	const u8* buffer_;
+	const char* buffer_;
 	usize size_;
 	usize offset_;
 	bool owns_fd_;
@@ -37,15 +37,14 @@ public:
 	Reader();
 	explicit Reader(const std::string& path);
 	Reader(i32 fd, bool owns_fd);
-	Reader(const u8* buffer, usize size);
+	Reader(const char* buffer, usize size);
 	~Reader();
 
 	bool reset();
 	bool reset(const std::string& path);
 	bool reset(i32 fd, bool owns_fd);
-	bool reset(const u8* buffer, usize size);
+	bool reset(const char* buffer, usize size);
 
-	base::Expected<usize, Error> read(u8* buff, usize max_size);
 	base::Expected<usize, Error> read(char* buff, usize max_size);
 
 	Type type() const;

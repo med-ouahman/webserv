@@ -14,8 +14,6 @@ LIBS :=
 
 SRCDIR = src
 
-BODY_DIR = ./srcs/http/parser/.body_dir
-
 OBJDIR := obj
 
 NAME = webserv
@@ -33,6 +31,10 @@ INCLUDES = -Isrc \
 	-Isrc/runtime/epoll/ \
 	-Isrc/server/ \
 	-Isrc/http/ \
+	-Isrc/http/Parser/ \
+	-Isrc/http/Parser/body/ \
+	-Isrc/http/Parser/headers/ \
+	-Isrc/http/routing/ \
 	-Isrc/http/pipeline/ \
 	-Isrc/http/pipeline/body/ \
 	-Isrc/http/pipeline/body/providers/ \
@@ -58,16 +60,19 @@ SRCS = src/server/main.cpp \
 	src/http/cgi.cpp \
 	src/http/common/LineScanner.cpp \
 	src/http/common/Headers.cpp \
-	src/http/parser/parse_headers.cpp \
-	src/http/parser/utils.cpp \
-	src/http/parser/parse.cpp \
-	src/http/parser/request_line.cpp \
-	src/http/parser/headers/headers.cpp \
-	src/http/parser/headers/header_rules.cpp \
-	src/http/parser/headers/header_utils.cpp \
-	src/http/parser/body.cpp \
+	src/http/Parser/parser.cpp \
+	src/http/Parser/request_line.cpp \
+	src/http/Parser/headers/headers.cpp \
+	src/http/Parser/headers/header_rules.cpp \
+	src/http/Parser/headers/header_utils.cpp \
+	src/http/Parser/body/body.cpp \
+	src/http/Parser/body/body_store.cpp \
+	src/http/Parser/body/body_utils.cpp \
+	src/http/Parser/body/chunked.cpp \
+	src/http/Parser/body/fixed.cpp \
 	src/http/Request.cpp \
 	src/http/Response.cpp \
+	src/http/routing/Routing.cpp \
 	src/http/pipeline/body/BodyEncoder.cpp \
 	src/http/pipeline/body/providers/CGIBodyProvider.cpp \
 	src/http/pipeline/body/providers/MemoryBodyProvider.cpp \

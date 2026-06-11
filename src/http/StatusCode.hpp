@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include "http/Error.hpp"
+
 namespace http {
 
 /**
@@ -61,6 +63,39 @@ inline const char* status_msg(StatusCode code) {
 			case HTTP_VERSION_NOT_SUPPORTED: return "HTTP Version Not Supported";
 	}
 	return "Internal Server Error";
+}
+
+inline StatusCode	status_from_error(Error err) {
+	switch (err) {
+		case ERR_NONE:
+			return OK;
+		case ERR_BAD_REQUEST:
+		case ERR_MISSING_HOST:
+		case ERR_DUPLICATE_HEADER:
+		case ERR_INVALID_CONTENT_LENGTH:
+		case ERR_CONFLICTING_BODY_HEADERS:
+			return BAD_REQUEST;
+		case ERR_UNSUPPORTED_HTTP_VERSION:
+			return HTTP_VERSION_NOT_SUPPORTED;
+		case ERR_TE_UNSUPPORTED:
+			return NOT_IMPLEMENTED;
+		case ERR_HEADER_TOO_LARGE:
+		case ERR_BODY_TOO_LARGE:
+			return PAYLOAD_TOO_LARGE;
+		case ERR_NOT_FOUND:
+			return NOT_FOUND;
+		case ERR_FORBIDDEN:
+			return FORBIDDEN;
+		case ERR_METHOD_NOT_ALLOWED:
+			return METHOD_NOT_ALLOWED;
+		case ERR_CGI_FAILED:
+			return BAD_GATEWAY;
+		case ERR_CGI_TIMEOUT:
+			return REQUEST_TIMEOUT;
+		case ERR_INTERNAL:
+			return INTERNAL_SERVER_ERROR;
+	}
+	return INTERNAL_SERVER_ERROR;
 }
 
 }

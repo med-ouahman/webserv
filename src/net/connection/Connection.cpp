@@ -61,8 +61,7 @@ void Connection::read() {
         state_ = Closing;
         return;
     }
-    std::cout << "N: " << n << '\n';
-    std::cout << reader_.data();
+    
     reader_.advance(n);
 
 }
