@@ -1,16 +1,16 @@
 
-#include "http/parser/headers/headers.hpp"
+#include "http/Parser/headers/headers.hpp"
 
 #include <cctype>
 
 namespace http {
 namespace parser {
 
-bool	is_space(char c) {
+static bool	is_space(char c) {
 	return c == ' ' || c == '\t';
 }
 
-char	to_lower(char c) {
+static char	to_lower(char c) {
 	return static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
 }
 

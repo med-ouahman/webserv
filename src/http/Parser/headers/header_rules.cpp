@@ -1,5 +1,6 @@
 
-#include "http/parser/headers/headers.hpp"
+#include "http/Parser/headers/headers.hpp"
+#include <limits>
 
 namespace http {
 namespace parser {
@@ -17,7 +18,7 @@ bool	parse_content_length(const std::string& value, usize& out) {
 	usize i = 0;
 	usize result = 0;
 	usize digit;
-	usize max = static_cast<usize>(-1);
+	usize max = std::numeric_limits<usize>::max();
 
 	if (value.empty())
 		return false;

@@ -1,6 +1,6 @@
 
-#include "http/parser/parse.hpp"
-#include "http/parser/headers/headers.hpp"
+#include "http/Parser/parser.hpp"
+#include "http/Parser/headers/headers.hpp"
 #include "http/Context.hpp"
 
 namespace {
@@ -53,40 +53,29 @@ static http::Error	parse_header_line(http::Request& request, const std::string& 
 }
 
 namespace http {
-namespace parser {
 
-static ContextState	next_state(Request& request) {
-	if (request.chunked)
-		return BODY;
-	if (request.content_length.has_value()
-		&& request.content_length.value > 0)
-		return BODY;
-	return PROCESSING;
-}
-
-}
-
-Error Context::parse_headers() {
+Error ParserState::parse_headers(Context& ctx) {
 
 	std::string line;
 	Error err;
 	bool found;
 
 	while (true) {
-		err = get_chunk(line, found);
+		err = get_chunk(ctx, line, found);
 		if (err != ERR_NONE)
 			return err;
 		if (!found)
 			return ERR_NONE;
 		if (line.empty()) {
-			err = parser::end_headers(request);
+			err = parser::end_headers(ctx.request);
 			if (err != ERR_NONE)
 				return err;
 			header_bytes = 0;
-			state_ = parser::next_state(request);
+			ctx.state_ = PROCESSING;
+			ctx.action_ = AC_WORK;
 			return ERR_NONE;
 		}
-		err = parse_header_line(request, line);
+		err = parse_header_line(ctx.request, line);
 		if (err != ERR_NONE)
 			return err;
 	}

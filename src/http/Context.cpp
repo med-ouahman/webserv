@@ -1,6 +1,7 @@
 
 #include "http/Context.hpp"
-#include "http/parser/parse.hpp"
+#include "http/Parser/parser.hpp"
+#include "http/routing/Routing.hpp"
 
 #include <sstream>
 
@@ -19,18 +20,32 @@ static std::string	body_tmp_path(usize conn_id, usize request_id) {
 
 }
 
-Context::Context()
+ParserState::ParserState()
 	: raw_buffer(),
-	  request(),
-	  response(),
 	  header_bytes(0),
 	  body_received(0),
 	  chunk_size(0),
 	  chunk_received(0),
 	  chunk_state(CHUNK_SIZE),
 	  body_buffer(),
-	  body_writer(std::string(), body_buffer, Limits::BODY_BUFFER_SIZE),
-	  state_(REQUEST_LINE) {
+	  body_writer(std::string(), body_buffer, Limits::BODY_BUFFER_SIZE) {}
+
+ParserState::ParserState(const std::string& body_path)
+	: raw_buffer(),
+	  header_bytes(0),
+	  body_received(0),
+	  chunk_size(0),
+	  chunk_received(0),
+	  chunk_state(CHUNK_SIZE),
+	  body_buffer(),
+	  body_writer(body_path, body_buffer, Limits::BODY_BUFFER_SIZE) {}
+
+Context::Context()
+	: parser(),
+	  request(),
+	  response(),
+	  state_(REQUEST_LINE),
+	  action_(AC_READ) {
 	request.method = UNKNOWN;
 	request.version = HTTP_UNKNOWN;
 	request.connection = CONNECTION_DEFAULT;
@@ -39,19 +54,11 @@ Context::Context()
 }
 
 Context::Context(usize conn_id, usize request_id)
-	: raw_buffer(),
+	: parser(body_tmp_path(conn_id, request_id)),
 	  request(),
 	  response(),
-	  header_bytes(0),
-	  body_received(0),
-	  chunk_size(0),
-	  chunk_received(0),
-	  chunk_state(CHUNK_SIZE),
-	  body_buffer(),
-	  body_writer(body_tmp_path(conn_id, request_id),
-		  body_buffer,
-		  Limits::BODY_BUFFER_SIZE),
-	  state_(REQUEST_LINE) {
+	  state_(REQUEST_LINE),
+	  action_(AC_READ) {
 	request.method = UNKNOWN;
 	request.version = HTTP_UNKNOWN;
 	request.connection = CONNECTION_DEFAULT;
@@ -60,13 +67,53 @@ Context::Context(usize conn_id, usize request_id)
 }
 
 Error Context::consume(const char* data, usize size) {
+	Error err;
+
 	if (data == NULL && size != 0)
 		return ERR_BAD_REQUEST;
 
-	raw_buffer.reserve(raw_buffer.size() + size);
-	raw_buffer.append(data, size);
+	action_ = AC_READ;
+	parser.raw_buffer.reserve(parser.raw_buffer.size() + size);
+	parser.raw_buffer.append(data, size);
 
-	return parse();
+	if (state_ == PROCESSING)
+		err = parser.parse_body(*this);
+	else
+		err = parser.parse(*this);
+	if (err != ERR_NONE) {
+		state_ = ERROR;
+		action_ = AC_CLOSE;
+	}
+	return err;
 }
+
+Error Context::process(const config::Config& config) {
+	routing::Decision decision;
+	bool has_body;
+
+	if (state_ != PROCESSING || action_ != AC_WORK)
+		return ERR_NONE;
+
+	decision = routing::route(request, config);
+	has_body = request.chunked
+		|| (request.content_length.has_value()
+			&& request.content_length.value > 0);
+
+	if (has_body && request.body.type() == base::io::Reader::NONE) {
+		if (decision.body_policy == routing::BODY_REJECT) {
+			state_ = ERROR;
+			action_ = AC_CLOSE;
+			return ERR_BAD_REQUEST;
+		}
+		if (decision.body_policy == routing::BODY_ACCEPT) {
+			action_ = AC_READ;
+			return ERR_NONE;
+		}
+	}
+	action_ = AC_WORK;
+	return ERR_NONE;
+}
+
+ContextAction Context::next_action() const { return action_; }
 
 }

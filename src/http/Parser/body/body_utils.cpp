@@ -1,5 +1,6 @@
-#include "http/parser/body/body.hpp"
+
 #include "http/Context.hpp"
+#include "http/Parser/body/body.hpp"
 
 namespace http {
 namespace parser {
@@ -47,7 +48,7 @@ bool	body_parse_chunk_size(const std::string& line, usize& size) {
 
 }
 
-Error Context::body_write(usize size) {
+Error ParserState::body_write(usize size) {
 	base::Expected<usize, base::io::Error> written =
 		body_writer.write(raw_buffer.data(), size);
 

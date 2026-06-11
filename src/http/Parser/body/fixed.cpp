@@ -1,19 +1,19 @@
-#include "http/parser/body/body.hpp"
+#include "http/Parser/body/body.hpp"
 #include "http/Context.hpp"
 
 namespace http {
 
-Error Context::parse_fixed_body() {
+Error ParserState::parse_fixed_body(Context& ctx) {
 	usize expected;
 	usize take;
 	Error err;
 
-	if (!request.content_length.has_value())
+	if (!ctx.request.content_length.has_value())
 		return ERR_BAD_REQUEST;
 
-	expected = request.content_length.value;
+	expected = ctx.request.content_length.value;
 	if (body_received >= expected)
-		return finish_body();
+		return finish_body(ctx);
 
 	take = parser::body_min_size(expected - body_received, raw_buffer.size());
 	if (take == 0)
@@ -23,7 +23,7 @@ Error Context::parse_fixed_body() {
 	if (err != ERR_NONE)
 		return err;
 	if (body_received == expected)
-		return finish_body();
+		return finish_body(ctx);
 	return ERR_NONE;
 }
 

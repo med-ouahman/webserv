@@ -1,5 +1,5 @@
 
-#include "http/parser/parse.hpp"
+#include "http/Parser/parser.hpp"
 #include "http/Context.hpp"
 
 #include <string>
@@ -68,7 +68,7 @@ static bool	set_target(http::Request& request, const std::string& target) {
 
 namespace http {
 
-Error Context::parse_request_line() {
+Error ParserState::parse_request_line(Context& ctx) {
 
 	std::string line;
 	std::string target;
@@ -78,7 +78,7 @@ Error Context::parse_request_line() {
 	bool found;
 	Error err;
 
-	err = get_chunk(line, found);
+	err = get_chunk(ctx, line, found);
 	if (err != ERR_NONE)
 		return err;
 	if (!found)
@@ -91,16 +91,16 @@ Error Context::parse_request_line() {
 	if (first_space == 0 || target.empty() || second_space + 1 >= line.size())
 		return ERR_BAD_REQUEST;
 
-	if (!set_method(request, line, first_space))
+	if (!set_method(ctx.request, line, first_space))
 		return ERR_BAD_REQUEST;
-	err = set_version(request, line, second_space + 1);
+	err = set_version(ctx.request, line, second_space + 1);
 	if (err != ERR_NONE)
 		return err;
-	if (!set_target(request, target))
+	if (!set_target(ctx.request, target))
 		return ERR_BAD_REQUEST;
 
 	header_bytes = 0;
-	state_ = HEADERS;
+	ctx.state_ = HEADERS;
 	return ERR_NONE;
 }
 

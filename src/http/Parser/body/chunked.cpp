@@ -1,17 +1,17 @@
-#include "http/parser/body/body.hpp"
+#include "http/Parser/body/body.hpp"
 #include "http/Context.hpp"
 #include "server/limits.hpp"
 
 namespace http {
 
-Error Context::parse_chunk_size_state() {
+Error ParserState::parse_chunk_size_state(Context& ctx) {
 	std::string line;
 	bool found;
 	Error err;
 
 	if (raw_buffer.size() > Limits::MAX_CHUNK_SIZE_LINE)
 		return ERR_BAD_REQUEST;
-	err = get_chunk(line, found);
+	err = get_chunk(ctx, line, found);
 	if (err != ERR_NONE || !found)
 		return err;
 	if (!parser::body_parse_chunk_size(line, chunk_size))
@@ -25,7 +25,7 @@ Error Context::parse_chunk_size_state() {
 	return ERR_NONE;
 }
 
-Error Context::parse_chunk_data_state() {
+Error ParserState::parse_chunk_data_state() {
 	usize take;
 	Error err;
 
@@ -43,7 +43,7 @@ Error Context::parse_chunk_data_state() {
 	return ERR_NONE;
 }
 
-Error Context::parse_chunk_crlf_state() {
+Error ParserState::parse_chunk_crlf_state() {
 	if (raw_buffer.size() < 2)
 		return ERR_NONE;
 	if (raw_buffer[0] != '\r' || raw_buffer[1] != '\n')
@@ -55,29 +55,29 @@ Error Context::parse_chunk_crlf_state() {
 	return ERR_NONE;
 }
 
-Error Context::parse_chunk_trailer_state() {
+Error ParserState::parse_chunk_trailer_state(Context& ctx) {
 	std::string line;
 	bool found;
 	Error err;
 
-	err = get_chunk(line, found);
+	err = get_chunk(ctx, line, found);
 	if (err != ERR_NONE || !found)
 		return err;
 	if (line.empty())
-		return finish_body();
+		return finish_body(ctx);
 	return ERR_NONE;
 }
 
-Error Context::parse_chunked_body() {
+Error ParserState::parse_chunked_body(Context& ctx) {
 	switch (chunk_state) {
 		case CHUNK_SIZE:
-			return parse_chunk_size_state();
+			return parse_chunk_size_state(ctx);
 		case CHUNK_DATA:
 			return parse_chunk_data_state();
 		case CHUNK_CRLF:
 			return parse_chunk_crlf_state();
 		case CHUNK_TRAILER:
-			return parse_chunk_trailer_state();
+			return parse_chunk_trailer_state(ctx);
 	}
 	return ERR_NONE;
 }

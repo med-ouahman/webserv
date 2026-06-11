@@ -16,8 +16,6 @@ enum SpecialHeader {
 	HEADER_CONNECTION
 };
 
-bool		is_space(char c);
-char		to_lower(char c);
 std::string	lower_name(const std::string& name);
 void		trim(std::string& value);
 
