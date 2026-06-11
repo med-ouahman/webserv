@@ -7,12 +7,7 @@ Channel::Channel(Stream s, int fd, io::Event events, CGIRequestHandler& h)
   : AEventHandler(fd, events),
     stream_(s),
     state_(Open),
-    handler_(h),
-    reader_(ReaderSize),
-    writer_(WriterSize) {
-
-}
-
+    handler_(h) {}
 
 Channel::~Channel() {
 

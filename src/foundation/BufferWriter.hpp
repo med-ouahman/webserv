@@ -5,15 +5,18 @@
 
 class BufferWriter {
 private:
-	std::string	storage_;
+	const static std::size_t BuffSize = 4096;
+
+	char		storage_[BuffSize];
+	size_t		capacity_;
 	size_t		used_;
-	size_t		offset_;
+	size_t		r_offset_;
 
 	BufferWriter(const BufferWriter& other);
 	BufferWriter& operator=(const BufferWriter& other);
 
 public:
-	BufferWriter(size_t capacity);
+	BufferWriter();
 	~BufferWriter();
 
 	char* write_ptr();
@@ -33,6 +36,6 @@ public:
 	size_t capacity();
 	size_t bytes_free();
 	size_t write(const char* src, size_t n__);
-	size_t length();
+	size_t size();
 };
 

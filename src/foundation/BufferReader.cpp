@@ -1,42 +1,38 @@
 #include "BufferReader.hpp"
 
-BufferReader::BufferReader(size_t capacity)
+BufferReader::BufferReader()
 	: storage_(),
+	capacity_(BuffSize),
 	cursor_(0) {
-	storage_.resize(capacity, 0);
 }
 
 BufferReader::~BufferReader() {}
 
 void BufferReader::advance(size_t n) {
-	cursor_ = std::min(cursor_ + n, storage_.size());
+	cursor_ = std::min(cursor_ + n, capacity_);
 }
 
 size_t BufferReader::size() const {
-	return storage_.size();
+	return cursor_;
 }
 
 char* BufferReader::data() {
-	return &storage_[0];
+	return storage_;
 }
 
 const char* BufferReader::read_ptr() const {
-	return &storage_[0];
-}
-
-size_t BufferReader::cursor() const {
-	return cursor_;
+	return storage_;
 }
 
 size_t BufferReader::remaining() const {
 
-	if (cursor_ >= storage_.size()) return 0;
+	if (cursor_ >= capacity_) return 0;
 
-	return storage_.size() - cursor_;
+	return capacity_ - cursor_;
 }
 
 bool BufferReader::empty() const {
-	return cursor_ >= storage_.size();
+	return cursor_ >= capacity_;
 }
 
 void BufferReader::rewind(size_t n) {
@@ -47,10 +43,10 @@ void BufferReader::reset() {
 	cursor_ = 0;
 }
 
-const std::string& BufferReader::str() const {
-	return storage_;
+size_t BufferReader::capacity() const {
+	return capacity_;
 }
 
-size_t BufferReader::capacity() const {
-	return storage_.capacity();
+size_t BufferReader::cursor() const {
+	return cursor_;
 }

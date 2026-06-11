@@ -1,7 +1,7 @@
 
 #include "http/Context.hpp"
 #include "http/parser/parse.hpp"
-
+#include <iostream>
 namespace http {
 
 Context::Context()
@@ -26,6 +26,7 @@ ContextState Context::state() const {
 
 
 Error Context::consume(const char* data, usize size) {
+	
 	if (data == NULL && size != 0)
 		return EBAD_REQUEST;
 

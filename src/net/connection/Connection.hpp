@@ -41,6 +41,9 @@ private:
     BufferReader reader_;
     BufferWriter writer_;
 
+    void read();
+    void write();
+
 };
 
 }
