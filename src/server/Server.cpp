@@ -38,7 +38,7 @@ bool Server::start_listeners() {
   
     for (size_t i(0); i < endpoints.size(); ++i) {
 
-        base::Result<net::Listener*> result = net::create_listening_socket(endpoints[i]);
+        base::Result<net::Listener*> result = net::create_listening_socket(endpoints[i], *this);
 
         if (!result.ok) return false;
         net::Listener* sock = result.result;

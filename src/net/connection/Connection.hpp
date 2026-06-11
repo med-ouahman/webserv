@@ -32,8 +32,10 @@ public:
 private:
     ConnectionState state_;  
     bool            close_after_write;
+
     Timestamp       last_activity_;
     Timestamp       lifetime_;
+    
     http::Context   ctx;
 
     BufferReader reader_;

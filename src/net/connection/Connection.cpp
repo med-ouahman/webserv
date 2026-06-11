@@ -25,24 +25,31 @@ ConnectionState Connection::state() const {
 }
 
 void Connection::on_event(io::Event events) {
+    
     switch (events) {
         
         case io::Writable:
+            ctx.consume(reader_.data(), reader_.size());
             break;
         case io::Readable:
             break;
         case io::Hup: case io::RHup:
+            state_ = Closing;
             break;
-
         case io::Error:
+            /* need log */
+            state_ = Closing;
             break;
         default:
             break;
     }
+
 }
 
 bool Connection::closing() const {
     return state_ == Closing;
 }
+
+
 
 }

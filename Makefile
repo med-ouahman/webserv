@@ -35,6 +35,7 @@ INCLUDES = -Isrc \
 	-Isrc/http/ \
 	-Isrc/http/pipeline/ \
 	-Isrc/http/pipeline/body/ \
+	-Isrc/http/pipeline/body/providers/ \
 	-Isrc/http/common/ \
 	-Isrc/config/ \
 	-Isrc/foundation/ \
@@ -52,8 +53,9 @@ SRCS = src/server/main.cpp \
 	src/cgi/resolve_cgi.cpp \
 	src/cgi/response_builder.cpp \
 	src/cgi/handler/CGIRequestHandler.cpp \
+	src/cgi/handler/Channel.cpp \
 	src/http/Context.cpp \
-	src/http/pipeline/body/CGIBodyProvider.cpp \
+	src/http/cgi.cpp \
 	src/http/common/LineScanner.cpp \
 	src/http/common/Headers.cpp \
 	src/http/parser/parse_headers.cpp \
@@ -66,6 +68,10 @@ SRCS = src/server/main.cpp \
 	src/http/parser/body.cpp \
 	src/http/Request.cpp \
 	src/http/Response.cpp \
+	src/http/pipeline/body/BodyEncoder.cpp \
+	src/http/pipeline/body/providers/CGIBodyProvider.cpp \
+	src/http/pipeline/body/providers/MemoryBodyProvider.cpp \
+	src/http/pipeline/body/providers/FileBodyProvider.cpp \
 	src/config/ConfigParser.cpp \
 	src/config/Lexer.cpp \
 	src/foundation/BufferReader.cpp \

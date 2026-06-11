@@ -9,8 +9,8 @@ CGIBodyProvider::~CGIBodyProvider() {
 
 }
 
-ssize_t CGIBodyProvider::read(BufferWriter& writer) {
-    size_t w = writer.write(source.data(), source.size());
+ssize_t CGIBodyProvider::read(BufferWriter& writer, size_t size) {
+    size_t w = writer.write(source.data(), std::min(size, source.size()));
     source.advance(w);
     return w;
 }

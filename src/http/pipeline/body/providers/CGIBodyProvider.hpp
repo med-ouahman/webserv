@@ -12,7 +12,7 @@ private:
 public:
     CGIBodyProvider(BufferReader& src);
     ~CGIBodyProvider();
-    ssize_t read(BufferWriter& w);
+    ssize_t read(BufferWriter& w, size_t size);
 };
 
 }

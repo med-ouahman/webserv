@@ -28,16 +28,18 @@ void Channel::on_event(io::Event event) {
 
     switch (event) {
         case io::Readable:
-            handler_.on_readable(*this);
+            handler_.on_readable(reader_, stream_);
             break;
         case io::Writable:
-            handler_.on_writable(*this);
+            handler_.on_writable(writer_, stream_);
             break;
         case io::Hup: case io::RHup:
-            handler_.on_ch_closed(*this);
+            handler_.on_ch_closed(stream_);
             break;
-        case io::ERROR:
-            handler_.on_ch_error(*this);
+        case io::Error:
+            handler_.on_ch_error(stream_);
+        default:
+            break;
     }
 }
 

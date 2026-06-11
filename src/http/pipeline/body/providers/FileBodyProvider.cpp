@@ -31,11 +31,11 @@ size_t FileBodyProvider::file_size(std::string const& filename) {
     return buff.st_size;
 }
 
-ssize_t FileBodyProvider::read(BufferWriter& writer) {
+ssize_t FileBodyProvider::read(BufferWriter& writer, size_t size) {
     
     if (fd_ < 0) return -1;
 
-    return ::read(fd_, writer.write_ptr(), writer.bytes_free());
+    return ::read(fd_, writer.write_ptr(), std::min(size, writer.bytes_free()));
 }
 
 

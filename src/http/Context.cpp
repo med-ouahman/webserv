@@ -20,16 +20,6 @@ Context::Context()
 	response.status = OK;
 }
 
-// Error Context::consume(const char* data, usize size) {
-// 	if (data == NULL && size != 0)
-// 		return ERR_BAD_REQUEST;
-
-// 	raw_buffer.reserve(raw_buffer.size() + size);
-// 	raw_buffer.append(data, size);
-
-// 	return parser::parse(*this);
-// }
-
 ContextState Context::state() const {
 	return state_;
 }

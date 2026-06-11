@@ -12,6 +12,7 @@ struct CGIExecContext;
 
 class Process {
 private:
+
     enum ProcessState {
         Spawn,
         Running,
@@ -37,6 +38,7 @@ public:
     Process(const CGIExecContext& ctx);
     ~Process();
     bool timedout();
+
     Pipe& stdin_pipe();
     Pipe& stdout_pipe();
     Pipe& stderr_pipe();
