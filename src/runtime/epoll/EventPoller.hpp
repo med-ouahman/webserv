@@ -18,7 +18,7 @@ private:
 
 	int epoll_fd;
 	epoll_event events[MaxEvents];
-	// size_t monitor_count;
+	size_t monitor_count;
 	
 	EventPoller(const EventPoller& other);
 	EventPoller& operator=(const EventPoller& other);

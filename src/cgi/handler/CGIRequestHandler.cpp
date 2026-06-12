@@ -25,9 +25,8 @@ CGIRequestHandler::CGIRequestHandler(const ResolutionResult& res, http::Request 
         return;
     }
 
-    std::cout << "What the fuck happend??\n";
-
-    poller_.add(&stdin_ch);
+    if (process.want_stdin())
+        poller_.add(&stdin_ch);
     poller_.add(&stdout_ch);
     poller_.add(&stderr_ch);
 }
@@ -46,6 +45,8 @@ bool CGIRequestHandler::finished() {
 
 void CGIRequestHandler::on_readable(BufferReader& reader, Channel::Stream s) {
     (void)s;
+
+
 
     if (state_ == Headers) {
         

@@ -9,24 +9,29 @@ namespace runtime {
 namespace epoll {
 
 bool EventPoller::add(io::AEventHandler* handler) {
+	if (monitor_count >= MaxMonitorFds) {
+		std::cerr << "Cannot add fd, limit reached\n";
+		return false;
+	}
+
 	epoll_event event;
 	event.events = decode_events(handler->events());
 	event.data.ptr = handler;
 	
 	int flags = ::fcntl(handler->fd(), F_GETFL);
 	if (flags < 0 || ::fcntl(handler->fd(), F_SETFL, flags | O_NONBLOCK)) {
-		LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::add_connection::fcntl()"));
+		LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::add::fcntl()"));
 		return false;
 	}
 	
 	flags = ::fcntl(handler->fd(), F_GETFD);
 	if (flags < 0 || ::fcntl(handler->fd(), F_SETFD, flags | O_CLOEXEC)) {
-		LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::add_connection::fcntl()"));
+		LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::add::fcntl()"));
 		return false;
 	}
 	
 	if (::epoll_ctl(epoll_fd, EPOLL_CTL_ADD, handler->fd(), &event)) {
-		LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::epoll_ctl(EPOLL_CTL_ADD)"));
+		LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::add::epoll_ctl(EPOLL_CTL_ADD)"));
 		return false;
 	}
 	
@@ -34,7 +39,7 @@ bool EventPoller::add(io::AEventHandler* handler) {
 	std::cout << "REGISTERED FD: " << handler->fd() << "\n";
 	#endif
 
-	// ++monitor_count;
+	++monitor_count;
 	return true;
 }
 
@@ -45,7 +50,7 @@ bool EventPoller::mod(io::AEventHandler* handler) {
 	event.data.ptr = const_cast<io::AEventHandler*>(handler);
 	
 	if (::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, handler->fd(), &event) < 0) {
-		LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::epoll_ctl(EPOLL_CTL_MOD)"));
+		LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::mod::epoll_ctl(EPOLL_CTL_MOD)"));
 		return false;
 	}
 	
@@ -57,7 +62,7 @@ bool EventPoller::mod(io::AEventHandler* handler) {
 
 bool EventPoller::del(io::AEventHandler* handler) {
 	if (::epoll_ctl(epoll_fd, EPOLL_CTL_DEL, handler->fd(), NULL)) {
-		LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::epoll_ctl(EPOLL_CTL_DEL)"));
+		LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::del::epoll_ctl(EPOLL_CTL_DEL)"));
 		return false;
 	}
 

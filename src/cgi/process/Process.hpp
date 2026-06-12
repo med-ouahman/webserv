@@ -42,6 +42,9 @@ public:
     Pipe& stdin_pipe();
     Pipe& stdout_pipe();
     Pipe& stderr_pipe();
+
+    bool want_stdin();
+
 };
 
 }

@@ -34,6 +34,9 @@ private:
 	BufferReader reader_;
 	BufferWriter writer_;
 
+	void read();
+	void write();
+
 public:
 	Channel(Stream s, int fd, io::Event events, CGIRequestHandler& handler);
 	~Channel();

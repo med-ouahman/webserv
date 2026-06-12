@@ -9,13 +9,11 @@ Channel::Channel(Stream s, int fd, io::Event events, CGIRequestHandler& h)
     state_(Open),
     handler_(h) {}
 
-Channel::~Channel() {
-
-}
+Channel::~Channel() {}
 
 void Channel::on_event(io::Event event) {
 
-    if (handler_.state() == CGIRequestHandler::Error) {
+    if (handler_.state() == CGIRequestHandler::Error || handler_.finished()) {
         state_ = Closed;
     }
 
@@ -23,10 +21,12 @@ void Channel::on_event(io::Event event) {
 
     switch (event) {
         case io::Readable:
+            read();
             handler_.on_readable(reader_, stream_);
             break;
         case io::Writable:
             handler_.on_writable(writer_, stream_);
+            write();
             break;
         case io::Hup: case io::RHup:
             handler_.on_ch_closed(stream_);
@@ -42,5 +42,27 @@ Channel::Stream Channel::stream() const {
     return stream_;
 }
 
+void Channel::read() {
+    ssize_t n = ::read(fd(), reader_.data(), reader_.capacity());
+
+    if (n < 0) {    
+        state_ = Error;
+    }
+
+    if (n == 0) state_ = Closed;
+    reader_.advance(n);
+}
+
+void Channel::write() {
+    ssize_t n = ::write(fd(), writer_.write_ptr(), writer_.bytes_pending());
+
+    if (n < 0) {
+        state_ = Error;
+        return;
+    }
+
+    writer_.advance_write(n);
+    
+}
 
 }

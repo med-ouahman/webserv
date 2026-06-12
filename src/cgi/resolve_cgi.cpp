@@ -11,6 +11,7 @@
 namespace cgi {
 
 const char* EnvBuilder::metadata[] = {"REQUEST_METHOD", "SERVER_PROTOCOL", "QUERY_STRING", "GATEWAY_INTERFACE", NULL};
+
 const char* EnvBuilder::stripped_headers[] = {"transfer-encoding", "content-length", "content-type", "connection", NULL};
 
 bool EnvBuilder::forbidden_header(const std::string& header_name) {
@@ -120,8 +121,8 @@ CGIExecContext resolve_exec_context(http::Request const& req, const http::Resolu
     http::Headers req_headers;
 
     exec_ctx.stdin_fd = STDIN_FILENO;
-    if (!req_ctx.body_filename.empty())
-        exec_ctx.stdin_fd = ::open(req_ctx.body_filename.c_str(), O_RDONLY);
+    // if (!req_ctx.body_filename.empty())
+        // exec_ctx.stdin_fd = ::open(req_ctx.body_filename.c_str(), O_RDONLY);
     exec_ctx.envp = EnvBuilder::build(req_ctx, req_headers);
     exec_ctx.argv.push(req_ctx.interpreter);
     exec_ctx.argv.push("cgi-bin/hello.py");

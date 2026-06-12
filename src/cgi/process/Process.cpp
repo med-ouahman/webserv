@@ -51,7 +51,11 @@ Process::Process(const CGIExecContext& ctx)
     stdout_pipe_.close_write_end();
     stderr_pipe_.close_write_end();
     
-    if (pid < 0) state_ = Error;
+    
+    if (pid < 0) {
+        state_ = Error;
+        std::cout << "Failed\n";
+    }
 }
 
 
@@ -90,4 +94,9 @@ Pipe& Process::stderr_pipe() {
 bool Process::running() const {
     return state_ == Running;
 }
+
+bool Process::want_stdin() {
+    return stdin_pipe_.write_end() >= 0;
+}
+
 }
