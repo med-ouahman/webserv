@@ -10,6 +10,7 @@ private:
     
     char storage_[BuffSize];
     const size_t capacity_;
+    size_t size_;
     size_t cursor_;
 
     BufferReader(const BufferReader& v);
@@ -19,6 +20,7 @@ public:
     BufferReader();
     ~BufferReader();
     void advance(size_t n);
+    void update(size_t n);
     const char* read_ptr() const;
     char* data();
     bool empty() const;

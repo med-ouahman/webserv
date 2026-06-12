@@ -50,7 +50,8 @@ void Channel::read() {
     }
 
     if (n == 0) state_ = Closed;
-    reader_.advance(n);
+    
+    reader_.update(n);
 }
 
 void Channel::write() {
@@ -61,8 +62,7 @@ void Channel::write() {
         return;
     }
 
-    writer_.advance_write(n);
-    
+    writer_.advance_write(n);   
 }
 
 }

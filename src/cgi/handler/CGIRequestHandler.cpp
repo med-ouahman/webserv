@@ -46,11 +46,20 @@ bool CGIRequestHandler::finished() {
 void CGIRequestHandler::on_readable(BufferReader& reader, Channel::Stream s) {
     (void)s;
 
-
-
     if (state_ == Headers) {
         
-        builder.parse_headers(reader);
+        ParseResult r = builder.parse_headers(reader);
+        
+        if (r == ParseError) {
+            std::cout << "Error\n";
+            state_ = Error;
+            CGIResult result(reader);
+            result.code = INTERNAL_SERVER_ERROR;
+            result.status_reason = "Interneal Server Error\n";
+            protocol_.on_cgi_ready(result);
+            return;
+        }
+
         if (!builder.finished()) return;
 
         CGIResult result(reader);        

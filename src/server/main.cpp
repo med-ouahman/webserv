@@ -9,6 +9,7 @@ namespace config {
     Config Config::instance;
 }
 
+
 int main(int argc, const char* argv[]) {
 
     if (argc > 2) {

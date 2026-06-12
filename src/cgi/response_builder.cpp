@@ -13,10 +13,8 @@ ResponseParser::~ResponseParser() {}
 ParseResult ResponseParser::parse_headers(BufferReader& reader) {
     std::cout << "Start CGI header parsing...\n";
 
-    std::cout << reader.data() << "\n";
-
     while (parse_ctx.state_ != CGIParseContext::Done) {
-        
+
         size_t max_scan_size = CGIParseContext::MaxHeaderBlockLen - parse_ctx.header_bytes;
 
         parse_ctx.scanner.reset();
@@ -25,14 +23,17 @@ ParseResult ResponseParser::parse_headers(BufferReader& reader) {
         
         if (r == LIMIT_EXCEEDED) return ParseError;
         
-        if (r == NEED_MORE) return Continue;
+        if (r == NEED_MORE) {
+            return Continue;
+        } 
+            
         
-        if (parse_ctx.scanner.line().empty() && parse_ctx.state_ == CGIParseContext::Headers) {
+        if (parse_ctx.scanner.line().empty()) {
             parse_ctx.state_ = CGIParseContext::Done;
             break;
         }
 
-        std::cout << parse_ctx.scanner.line() << "\n";
+        parse_ctx.header_bytes += parse_ctx.scanner.line().size();
         
         ParseResult res = parse_header(parse_ctx.scanner.line());
         if (res != Success) return res;
@@ -44,8 +45,6 @@ ParseResult ResponseParser::parse_headers(BufferReader& reader) {
 }
 
 ParseResult ResponseParser::sanitize_status_header(std::string const& value) {
-
-    std::cout << "Sanitizing the status line header\n";
 
     size_t space_pos = value.find(' ');
 
@@ -74,7 +73,6 @@ ParseResult ResponseParser::sanitize_status_header(std::string const& value) {
         return ParseError;
     }
 
-    std::cout << "Done\n";
     return Success;
 }
 
@@ -92,13 +90,15 @@ bool ResponseParser::finished() const {
 
 ParseResult ResponseParser::parse_header(std::string const& line) {
 
+    std::cout <<  line << "|\n";
+
     size_t colon = line.find(":");
-    if (std::string::npos == colon) return Malformed;
+    if (std::string::npos == colon) return ParseError;
 
     std::string name = line.substr(0, colon);
     
     for ( size_t i(0); i < name.size(); i++) {
-        if (::isspace(name[i])) return Malformed;
+        if (::isspace(name[i])) return ParseError;
     }
 
     size_t start = colon + 1;
@@ -111,7 +111,7 @@ ParseResult ResponseParser::parse_header(std::string const& line) {
     
     std::string value = line.substr(start, end - start);
 
-    if (name == "status") return sanitize_status_header(value);
+    if (name == "status" || name == "Status") return sanitize_status_header(value);
 
     headers_.add(name, value);
     

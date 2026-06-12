@@ -8,7 +8,6 @@ namespace http {
 
 enum ParseResult {
 	Success,
-	Malformed,
 	ParseError,
 	Continue,
 };

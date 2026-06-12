@@ -3,17 +3,23 @@
 BufferReader::BufferReader()
 	: storage_(),
 	capacity_(BuffSize),
+	size_(0),
 	cursor_(0) {
 }
 
 BufferReader::~BufferReader() {}
 
 void BufferReader::advance(size_t n) {
-	cursor_ = std::min(cursor_ + n, capacity_);
+	cursor_ = std::min(cursor_ + n, size_);
+}
+
+void BufferReader::update(size_t size) {
+	size_ = size;
+	cursor_ = 0;
 }
 
 size_t BufferReader::size() const {
-	return cursor_;
+	return size_;
 }
 
 char* BufferReader::data() {
@@ -22,13 +28,6 @@ char* BufferReader::data() {
 
 const char* BufferReader::read_ptr() const {
 	return storage_;
-}
-
-size_t BufferReader::remaining() const {
-
-	if (cursor_ >= capacity_) return 0;
-
-	return capacity_ - cursor_;
 }
 
 bool BufferReader::empty() const {
@@ -40,6 +39,7 @@ void BufferReader::rewind(size_t n) {
 }
 
 void BufferReader::reset() {
+	size_ = 0;
 	cursor_ = 0;
 }
 

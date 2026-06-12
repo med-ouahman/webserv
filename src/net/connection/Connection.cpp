@@ -65,7 +65,7 @@ void Connection::read() {
         return;
     }
     
-    reader_.advance(n);
+    reader_.update(n);
 
 }
 

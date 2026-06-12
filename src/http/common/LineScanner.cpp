@@ -35,7 +35,7 @@ namespace http {
             }
             line_offset++;
 
-            char current_char = reader.data()[i];
+            char current_char = reader.read_ptr()[i];
 
             if (current_char == '\r') {
                 cr_found = true;
@@ -53,20 +53,17 @@ namespace http {
        
         size_t to_advance = i - reader.cursor();
         size_t to_append = to_advance - (nl_found ? 1 : 0);
-
-        std::cout << "cursor: " << reader.cursor() << "I : " << i << "\n";
-        std::cout << "to append: " << to_append << "\n";
         
         if (to_append > 0) {
             linebuff.append(reader.read_ptr(), to_append);
         }
         
         reader.advance(to_advance);
-
+        
         if (!nl_found) return NEED_MORE;
         
         if (linebuff[linebuff.size() - 1] == '\r') linebuff.erase(linebuff.size() - 1, 1);
-        
+        std::cout << linebuff << '\n';
         return SUCCESS;
     }
 }
