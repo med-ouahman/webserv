@@ -3,13 +3,14 @@
 #include "http/Parser/parser.hpp"
 #include "http/routing/Routing.hpp"
 #include "CGIRequestHandler.hpp"
-
+#include "HandlerFactory.hpp"
 #include <sstream>
 
 #define HTTP_TMP_DIR ".tmp"
 
 namespace http {
 
+/*
 namespace {
 
 static std::string	body_tmp_path(usize conn_id, usize request_id) {
@@ -20,6 +21,7 @@ static std::string	body_tmp_path(usize conn_id, usize request_id) {
 }
 
 }
+*/
 
 ParserState::ParserState()
 	: raw_buffer(),
@@ -41,25 +43,14 @@ ParserState::ParserState(const std::string& body_path)
 	  body_buffer(),
 	  body_writer(body_path, body_buffer, Limits::BODY_BUFFER_SIZE) {}
 
-Context::Context()
+Context::Context(ServerContext& serv_ctx)
 	: parser(),
 	  request(),
 	  response(),
 	  state_(REQUEST_LINE),
-	  action_(AC_READ) {
-	request.method = UNKNOWN;
-	request.version = HTTP_UNKNOWN;
-	request.connection = CONNECTION_DEFAULT;
-	request.chunked = false;
-	response.status = OK;
-}
+	  action_(AC_READ),
+	  factory(serv_ctx) {
 
-Context::Context(usize conn_id, usize request_id)
-	: parser(body_tmp_path(conn_id, request_id)),
-	  request(),
-	  response(),
-	  state_(REQUEST_LINE),
-	  action_(AC_READ) {
 	request.method = UNKNOWN;
 	request.version = HTTP_UNKNOWN;
 	request.connection = CONNECTION_DEFAULT;
@@ -69,9 +60,11 @@ Context::Context(usize conn_id, usize request_id)
 
 Error Context::consume(const char* data, usize size) {
 
-	handler = new CGIRequestHandler();
+	ResolutionResult r;
+	handler = factory.create(r, request, HandlerFactory::Cgi);
 
 	return ERR_NONE;
+	
 	if (data == NULL && size != 0)
 		return ERR_BAD_REQUEST;
 	

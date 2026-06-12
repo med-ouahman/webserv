@@ -51,7 +51,7 @@ ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
     
             std::string header = format(current_chunk_);
             ::memcpy(write_ptr, header.c_str(), header.size());
-            ::memmove(write_ptr + header.size(), write_ptr + header_overhead, writer.length() - header_overhead);
+            ::memmove(write_ptr + header.size(), write_ptr + header_overhead, writer.size() - header_overhead);
             writer.pop(header_overhead - header.size());
 
             state_ = Trail;
@@ -66,7 +66,7 @@ ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
             return 0;
     }
 
-    return writer.length();
+    return writer.size();
 }
 
 

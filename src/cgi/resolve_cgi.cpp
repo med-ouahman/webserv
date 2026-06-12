@@ -109,10 +109,12 @@ CStringArray EnvBuilder::build(const CGIRequestContext& ctx,
 
 CGIExecContext resolve_exec_context(http::Request const& req, const http::ResolutionResult& r) {
     
-    CGIRequestContext req_ctx;(void)req;
+    CGIRequestContext req_ctx;
+    (void)req;
+    (void)r;
     req_ctx.body_content_length = 100;
     req_ctx.body_filename = "/tmp/some";
-    req_ctx.query_string = r.query_string;
+    req_ctx.query_string = "qery";
     req_ctx.interpreter = "/bin/python3";
     CGIExecContext exec_ctx;
     http::Headers req_headers;

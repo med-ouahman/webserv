@@ -2,6 +2,7 @@
 #pragma once
 
 #include <unistd.h>
+#include <iostream>
 
 namespace io {
 
@@ -37,6 +38,7 @@ public:
     virtual void on_event(Event event) = 0;
     
     virtual ~AEventHandler() {
+        std::cout << "Destructor called for AEventHandler\n";
         if (fd_ >= 0) {
             ::close(fd_);
             fd_ = -1;

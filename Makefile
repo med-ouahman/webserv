@@ -30,6 +30,8 @@ INCLUDES = -Isrc \
 	-Isrc/runtime/ \
 	-Isrc/runtime/epoll/ \
 	-Isrc/server/ \
+	-Isrc/server/session/ \
+	-Isrc/server/logger/ \
 	-Isrc/http/ \
 	-Isrc/http/Parser/ \
 	-Isrc/http/Parser/body/ \
@@ -70,9 +72,8 @@ SRCS = src/server/main.cpp \
 	src/http/Parser/body/body_utils.cpp \
 	src/http/Parser/body/chunked.cpp \
 	src/http/Parser/body/fixed.cpp \
-	src/http/Request.cpp \
-	src/http/Response.cpp \
 	src/http/routing/Routing.cpp \
+	src/http/HandlerFactory.cpp \
 	src/http/pipeline/body/BodyEncoder.cpp \
 	src/http/pipeline/body/providers/CGIBodyProvider.cpp \
 	src/http/pipeline/body/providers/MemoryBodyProvider.cpp \

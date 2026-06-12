@@ -33,6 +33,8 @@ bool EventPoller::add(io::AEventHandler* handler) {
 	#ifdef DEBUG
 	std::cout << "REGISTERED FD: " << handler->fd() << "\n";
 	#endif
+
+	// ++monitor_count;
 	return true;
 }
 
@@ -62,6 +64,7 @@ bool EventPoller::del(io::AEventHandler* handler) {
 	#ifdef DEBUG
 	std::cout << "DELETED FD: " << handler->fd() << std::endl;
 	#endif
+	// --monitor_count;
 	return true;
 }
 

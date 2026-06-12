@@ -34,11 +34,9 @@ struct CGIExecContext {
 class EnvBuilder {
 private:
     const static char* metadata[];
-	
     const static char* stripped_headers[];
     
     static std::string transform(bool has_http_prefix, http::Headers::const_iterator& it);
-	
     static http::Headers build_metadata(const CGIRequestContext& context);
 	
     static bool forbidden_header(const std::string& header_name);    

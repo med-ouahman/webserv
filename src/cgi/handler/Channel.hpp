@@ -35,7 +35,7 @@ private:
 	BufferWriter writer_;
 
 public:
-	Channel(Stream sched_attr, int fd, io::Event events, CGIRequestHandler& handler);
+	Channel(Stream s, int fd, io::Event events, CGIRequestHandler& handler);
 	~Channel();
 	
 	void on_event(io::Event ev);

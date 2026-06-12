@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ServerContext.hpp"
 #include "EventPoller.hpp"
 #include "Connection.hpp"
 #include "Listener.hpp"
@@ -10,6 +11,7 @@ private:
     std::vector<net::Connection*> connections;
     std::vector<net::Listener*> listeners;
     runtime::epoll::EventPoller poller;
+
     Server(const Server&);
     Server& operator=(const Server&);
     bool start_listeners();

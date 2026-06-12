@@ -3,16 +3,22 @@
 
 #include <string>
 
-#include "IRequestHandler.hpp"
 #include "base/base.hpp"
 #include "config/Config.hpp"
 #include "http/Request.hpp"
 #include "http/Response.hpp"
 #include "http/Parser/parser.hpp"
+#include "HandlerFactory.hpp"
 
 #define CRLF "\r\n"
 
 namespace http {
+
+struct ResolutionResult {};
+struct CGIResult;
+
+class IRequestHandler;
+class HandlerFactory;
 
 class Context;
 
@@ -45,17 +51,23 @@ private:
 	ContextState	state_;
 	ContextAction	action_;
 	
-	IRequestHandler* handler;
 	friend struct ParserState;
 
+	IRequestHandler* handler;
+
+	HandlerFactory factory;
+	
 public:
 
-	Context();
-	Context(usize conn_id, usize request_id);
+	Context(ServerContext& serv_ctx);
+	
+	// Context(usize conn_id, usize request_id);
 
 	Error consume(const char* data, usize size);
 	Error process(const config::Config& config);
 	Error produce(base::io::Writer& writer);
+	
+	void on_cgi_ready(CGIResult const& result);
 
 	ContextAction next_action() const;
 };

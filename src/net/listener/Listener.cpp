@@ -45,6 +45,7 @@ bool Listener::accept_clients() {
 	if (client_fd < 0) return false;
 	
 	webserv_.add_connection(client_fd);
+	
 	std::cout << "CONNECTION_FD: " << client_fd << "\n";
 	return true;
 }

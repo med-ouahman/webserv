@@ -7,6 +7,7 @@
 #include "IBodyProvider.hpp"
 #include "Channel.hpp"
 
+struct ServerContext;
 namespace runtime { namespace epoll { class EventPoller; };}
 
 namespace http {
@@ -46,19 +47,19 @@ private:
 	Channel stderr_ch;
 
 	runtime::epoll::EventPoller& poller_;
-	Context& ctx_;
+	Context& protocol_;
 	
 	CGIRequestHandler(const CGIRequestHandler&);
 	CGIRequestHandler& operator=(const CGIRequestHandler&);
 
 public:
-	CGIRequestHandler(const ResolutionResult& result, const http::Request& req,
-		runtime::epoll::EventPoller& poller_, Context& ctx);
+	CGIRequestHandler(const ResolutionResult& result, const http::Request& req, ServerContext& server_ctx);
+
 	~CGIRequestHandler();
 	State state() const;
 	
 	void handle();
-	bool done();
+	bool finished();
 	
 	void on_writable(BufferWriter& writer, Channel::Stream s);
 	void on_readable(BufferReader& reader, Channel::Stream s);

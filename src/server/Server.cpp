@@ -53,8 +53,13 @@ bool Server::start_listeners() {
 
 void Server::add_connection(int conn_fd) {
 
+    ServerContext ctx = {
+        .poller = &poller,
+        .logger = NULL,
+        .session_ = NULL,
+    };
 
-    net::Connection* connection = new net::Connection(conn_fd, io::Readable);
+    net::Connection* connection = new net::Connection(conn_fd, io::Readable, ctx);
     
     if (!poller.add(connection)) return;
 

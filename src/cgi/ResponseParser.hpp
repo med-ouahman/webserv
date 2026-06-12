@@ -7,33 +7,37 @@
 namespace http {
 
 enum ParseResult {
-	PARSE_SUCCESS,
-	PARSE_ERROR,
-	PARSE_CONTINUE,
+	Success,
+	Malformed,
+	ParseError,
+	Continue,
 };
 
 struct CGIParseContext {
-	static const std::size_t MAX_CGI_HEADER_BLOCK_LEN = 4096;
-	LineScanner 	sc_;
-	size_t			header_bytes_;
+	static const std::size_t MaxHeaderBlockLen = 4096;
+	LineScanner 	scanner;
+	size_t			header_bytes;
 	
 	enum CGIParseState {
-		HEADERS,
-		HEADERS_DONE,
-		CGI_ERROR
+		Headers,
+		Done,
+		Error
 	} state_;
 
-	CGIParseContext(): sc_(), header_bytes_(0), state_(HEADERS) {}
+	CGIParseContext(): scanner(), header_bytes(0), state_(Headers) {}
 };
 
 
 class ResponseParser {
 private:
 	http::StatusCode code;
+	std::string		reason;
     http::Headers 	headers_;
     CGIParseContext parse_ctx;
-	void sanitize_status_line( const std::pair<std::string, std::string>& header );
-	void sanitize_header( std::pair<std::string, std::string>& header );
+
+	ParseResult parse_header(std::string const& line);
+	ParseResult sanitize_status_header(std::string const& header);
+
 public:
 	ResponseParser();
 	~ResponseParser();

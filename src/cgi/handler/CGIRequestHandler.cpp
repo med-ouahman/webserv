@@ -7,22 +7,25 @@
 #include "CGIBodyProvider.hpp"
 #include "EventPoller.hpp"
 #include "Context.hpp"
+#include "ServerContext.hpp"
 
 namespace http {
 
-CGIRequestHandler::CGIRequestHandler(const ResolutionResult& res, http::Request const& req, runtime::epoll::EventPoller& poller, Context& ctx)
+CGIRequestHandler::CGIRequestHandler(const ResolutionResult& res, http::Request const& req, ServerContext& ctx)
     : state_(Headers),
     process(cgi::resolve_exec_context(req, res)),
     stdin_ch(Channel::Stdin, process.stdin_pipe().write_end(), io::Writable, *this),
     stdout_ch(Channel::Stdout, process.stdout_pipe().read_end(), io::Readable, *this),
     stderr_ch(Channel::Stderr, process.stderr_pipe().read_end(), io::Readable, *this),
-    poller_(poller),
-    ctx_(ctx) {
+    poller_(*ctx.poller),
+    protocol_(*ctx.session_) {
 
     if (!process.running()) {
         state_ = Error;
         return;
     }
+
+    std::cout << "What the fuck happend??\n";
 
     poller_.add(&stdin_ch);
     poller_.add(&stdout_ch);
@@ -37,7 +40,7 @@ CGIRequestHandler::~CGIRequestHandler() {
 
 void CGIRequestHandler::handle() {}
 
-bool CGIRequestHandler::done() {
+bool CGIRequestHandler::finished() {
     return state_ == Finished;
 }
 
@@ -50,7 +53,7 @@ void CGIRequestHandler::on_readable(BufferReader& reader, Channel::Stream s) {
         if (!builder.finished()) return;
 
         CGIResult result(reader);        
-        ctx_.on_cgi_ready(result);
+        protocol_.on_cgi_ready(result);
 
         state_ = StreamingBody;
     }

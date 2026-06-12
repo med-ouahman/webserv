@@ -4,16 +4,19 @@
 #include "Dispatcher.hpp"
 #include <iostream>
 #include <sys/socket.h>
+#include "Server.hpp"
 
 namespace net {
 
-Connection::Connection(int _fd, io::Event events)
+Connection::Connection(int _fd, io::Event events, ServerContext& server_ctx)
     : AEventHandler(_fd, events),
     state_(Reading),
     close_after_write(false),
     last_activity_(),
     lifetime_(),
-    ctx() {}
+    ctx(server_ctx) {
+        server_ctx.session_ = &ctx;
+}
 
 Connection::~Connection() {
     /* cp */

@@ -4,8 +4,8 @@
 #include <vector>
 
 namespace http {
-class Headers {
 
+class Headers {
 private:
 	struct Header {
 		std::string name;

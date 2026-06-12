@@ -6,8 +6,6 @@
 #include "BufferReader.hpp"
 #include "BufferWriter.hpp"
 
-namespace http{struct CGIResult;class CGIRequestHandler;}
-
 namespace net {
 
 enum ConnectionState {
@@ -21,7 +19,7 @@ class Connection: public io::AEventHandler {
 public:
     const static std::size_t ReadbufSize = 1024 * 4;
     const static std::size_t WritebufSize = 1024 * 4;
-    Connection(int fd, io::Event events);
+    Connection(int fd, io::Event events, ServerContext& ctx);
     ~Connection();
 
     void on_event(io::Event events);
