@@ -13,6 +13,8 @@ ResponseParser::~ResponseParser() {}
 ParseResult ResponseParser::parse_headers(BufferReader& reader) {
     std::cout << "Start CGI header parsing...\n";
 
+    std::cout << reader.data() << "\n";
+
     while (parse_ctx.state_ != CGIParseContext::Done) {
         
         size_t max_scan_size = CGIParseContext::MaxHeaderBlockLen - parse_ctx.header_bytes;

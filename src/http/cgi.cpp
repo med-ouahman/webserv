@@ -8,6 +8,8 @@ void Context::on_cgi_ready(const CGIResult& result) {
 	response.status = result.code;
 	response.headers = result.headers;
 	response.body = const_cast<CGIBodyProvider*>(new CGIBodyProvider(result.source_));
+
+	std::cout << "Ready\n";
 	
 	/*
 		transition to writing.

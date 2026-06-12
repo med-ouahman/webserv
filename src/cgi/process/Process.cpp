@@ -38,7 +38,7 @@ Process::Process(const CGIExecContext& ctx)
             ::dup2(ctx.stdin_fd, STDIN_FILENO);
         ::dup2(stdout_pipe_.write_end(), STDOUT_FILENO);
         ::dup2(stderr_pipe_.write_end(), STDERR_FILENO);
-        std::cout << "Running CGI\n";
+    
         stdin_pipe_.close();
         stdout_pipe_.close();
         stderr_pipe_.close();
