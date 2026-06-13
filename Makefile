@@ -50,6 +50,8 @@ SRCS = src/server/main.cpp \
 	src/server/Server.cpp \
 	src/server/logger/Logger.cpp \
 	src/net/connection/Connection.cpp \
+	src/net/connection/connection_io.cpp \
+	src/net/connection/connection_events.cpp \
 	src/net/listener/Listener.cpp \
 	src/runtime/epoll/EventPoller.cpp \
 	src/runtime/epoll/poll.cpp \

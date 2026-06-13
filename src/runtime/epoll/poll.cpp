@@ -3,7 +3,6 @@
 #include "Connection.hpp"
 #include <sys/epoll.h>
 #include <sys/socket.h>
-#include <cstdlib>
 #include "Result.hpp"
 
 namespace runtime {

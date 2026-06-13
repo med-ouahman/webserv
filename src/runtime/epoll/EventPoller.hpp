@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include <iostream>
 #include <sys/epoll.h>
 #include "AEventHandler.hpp"
 
