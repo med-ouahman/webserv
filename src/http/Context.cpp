@@ -49,6 +49,7 @@ Context::Context(ServerContext& serv_ctx)
 	  response(),
 	  state_(REQUEST_LINE),
 	  action_(AC_READ),
+	  handler(NULL),
 	  factory(serv_ctx, *this) {
 
 	request.method = UNKNOWN;
@@ -62,11 +63,17 @@ Context::~Context() {}
 
 Error Context::consume(const char* data, usize size) {
 	
+	Error err;
+	
 	if (data == NULL && size != 0)
 		return ERR_BAD_REQUEST;
 	
-	Error err;
-	action_ = AC_READ;
+	if (!handler)
+	{
+		ResolutionResult r;
+		handler = factory.create(r, request, HandlerFactory::Cgi);
+	}
+	return ERR_NONE;
 	parser.raw_buffer.reserve(parser.raw_buffer.size() + size);
 	parser.raw_buffer.append(data, size);
 
@@ -110,5 +117,13 @@ Error Context::process(const config::Config& config) {
 }
 
 ContextAction Context::next_action() const { return action_; }
+
+Error Context::produce(BufferWriter& w) {
+
+	ssize_t n = response.encoder.encode(response.body, w);
+	if (n == 0) action_ = AC_CLOSE;
+	
+	return ERR_NONE;
+}
 
 }

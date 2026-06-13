@@ -59,12 +59,13 @@ public:
 
 	Context(ServerContext& serv_ctx);
 	~Context();
-	
-	// Context(usize conn_id, usize request_id);
 
 	Error consume(const char* data, usize size);
 	Error process(const config::Config& config);
 	Error produce(base::io::Writer& writer);
+
+	Error produce(BufferWriter& writer);
+
 	
 	void on_cgi_ready(CGIResult const result);
 

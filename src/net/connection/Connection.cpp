@@ -45,6 +45,7 @@ void Connection::on_event(io::Event events) {
             break;
     }
 
+    std::cout << (ctx.next_action() == http::AC_WRITE ? "Writing\n":"");
     update(ctx.next_action());
 }
 
@@ -84,7 +85,7 @@ void Connection::on_readable() {
 }
 
 void Connection::on_writable() {
-    
+    ctx.produce(writer_);
     write();
 }
 

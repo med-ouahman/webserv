@@ -23,11 +23,7 @@ ChunkedEncoder::~ChunkedEncoder() {
 }
 
 ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
-    /*
-        a\r\n
-        data
-        \r\n
-    */
+    
     switch (state_) {
 
         case Header: {
@@ -46,7 +42,7 @@ ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
             
             ssize_t n = body->read(writer, writer.bytes_free());
             if (n < 0) return -1;
-
+            
             current_chunk_ = n;
     
             std::string header = format(current_chunk_);
