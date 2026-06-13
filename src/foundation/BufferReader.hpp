@@ -21,8 +21,8 @@ public:
     ~BufferReader();
     void advance(size_t n);
     void update(size_t n);
-    const char* read_ptr() const;
-    char* data();
+    char* write_ptr();
+    const char* data() const;
     bool empty() const;
     void rewind(size_t n);
     void reset();

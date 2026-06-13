@@ -45,9 +45,9 @@ Channel::Stream Channel::stream() const {
 }
 
 void Channel::read() {
-    ssize_t n = ::read(fd(), reader_.data(), reader_.capacity());
+    ssize_t n = ::read(fd(), reader_.write_ptr(), reader_.capacity());
 
-    if (n < 0) {    
+    if (n < 0) {
         state_ = Error;
     }
 
@@ -57,7 +57,7 @@ void Channel::read() {
 }
 
 void Channel::write() {
-    ssize_t n = ::write(fd(), writer_.write_ptr(), writer_.bytes_pending());
+    ssize_t n = ::write(fd(), writer_.read_ptr(), writer_.bytes_pending());
 
     if (n < 0) {
         state_ = Error;

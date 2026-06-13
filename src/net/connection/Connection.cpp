@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sys/socket.h>
 #include "Server.hpp"
+#include <cstdlib>
 
 namespace net {
 
@@ -18,7 +19,7 @@ Connection::Connection(int _fd, io::Event events, ServerContext& server_ctx)
 }
 
 Connection::~Connection() {
-    /* cp */
+    
 }
 
 ConnectionState Connection::state() const {
@@ -45,7 +46,6 @@ void Connection::on_event(io::Event events) {
             break;
     }
 
-    std::cout << (ctx.next_action() == http::AC_WRITE ? "Writing\n":"");
     update(ctx.next_action());
 }
 
@@ -55,7 +55,7 @@ bool Connection::closing() const {
 
 void Connection::read() {
 
-    ssize_t n = ::recv(fd(), reader_.data(), reader_.capacity(), 0);
+    ssize_t n = ::recv(fd(), reader_.write_ptr(), reader_.capacity(), 0);
     
     if (n <= 0) {
         state_ = Closing;
@@ -67,21 +67,23 @@ void Connection::read() {
 
 void Connection::write() {
 
-    ssize_t n = ::send(fd(), writer_.write_ptr(), writer_.bytes_pending(), 0);
-    
+    ssize_t n = ::send(fd(), writer_.read_ptr(), writer_.bytes_pending(), 0);
+
     if (n < 0) {
         state_ = Closing;
         return;
     }
 
-    writer_.advance_write(n);
+    writer_.advance_read(n);
 }
 
 void Connection::on_readable() {
     read();
     
     if (state_ == Closing) return;
+
     ctx.consume(reader_.data(), reader_.size());
+
 }
 
 void Connection::on_writable() {
@@ -117,6 +119,8 @@ void Connection::update(http::ContextAction action) {
             new_events = io::Close;
             break;
     }
+
+    if (close_after_write) new_events = io::Close;
 
     if (new_events != events()) update_events(new_events);
 }

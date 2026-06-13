@@ -34,7 +34,7 @@ namespace http {
             }
             line_offset++;
 
-            char current_char = reader.read_ptr()[i];
+            char current_char = reader.data()[i];
 
             if (current_char == '\r') {
                 cr_found = true;
@@ -54,7 +54,7 @@ namespace http {
         size_t to_append = to_advance - (nl_found ? 1 : 0);
         
         if (to_append > 0) {
-            linebuff.append(reader.read_ptr() + reader.cursor(), to_append);
+            linebuff.append(reader.data() + reader.cursor(), to_append);
         }
         
         reader.advance(to_advance);

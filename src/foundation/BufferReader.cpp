@@ -22,11 +22,11 @@ size_t BufferReader::size() const {
 	return size_;
 }
 
-char* BufferReader::data() {
+const char* BufferReader::data() const {
 	return storage_;
 }
 
-const char* BufferReader::read_ptr() const {
+char* BufferReader::write_ptr() {
 	return storage_;
 }
 

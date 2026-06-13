@@ -72,7 +72,9 @@ Error Context::consume(const char* data, usize size) {
 	{
 		ResolutionResult r;
 		handler = factory.create(r, request, HandlerFactory::Cgi);
+		action_ = AC_WRITE;
 	}
+	
 	return ERR_NONE;
 	parser.raw_buffer.reserve(parser.raw_buffer.size() + size);
 	parser.raw_buffer.append(data, size);
