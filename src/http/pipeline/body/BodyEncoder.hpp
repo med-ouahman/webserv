@@ -8,6 +8,8 @@ namespace body {
 struct FixedEncoder {
     size_t content_length;
     size_t written;
+
+    FixedEncoder(size_t length): content_length(length) {};
 };
 
 class ChunkedEncoder {
@@ -37,25 +39,28 @@ public:
     void reset();
 };
 
-
 enum Encoding {
     Chunked,
     ContentLength,
 };
 
+/*
+    BodyEncoder: Encodes the body to be sent to the client
+    @Content-Length: used when a content length is present
+    @Chunked: used as a default encoder
+*/
+
 class BodyEncoder {
-
 private:
-
     Encoding        encoding_;
     ChunkedEncoder  chunked_;
     FixedEncoder    fixed_;
 
 public:
     BodyEncoder();
+    BodyEncoder(size_t content_length);
     ~BodyEncoder();
     ssize_t encode(IBodyProvider* body, BufferWriter& writer);
-    void reset(Encoding encoding);
 };
 
 }

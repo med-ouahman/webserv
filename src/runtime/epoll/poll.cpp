@@ -19,6 +19,18 @@ int EventPoller::poll() {
 
     for (int i(0); i < n; ++i) {
         io::AEventHandler* handler = static_cast<io::AEventHandler*>(events[i].data.ptr); 
+        switch (events[i].events) {
+            case EPOLLIN:
+                std::cout << "EPOLLIN\n";
+                break;
+            case EPOLLOUT:
+                std::cout << "EPOLLOUT\n";
+                break;
+            case EPOLLHUP: case EPOLLRDBAND:
+                std::cout << "HUB\n";
+                break; 
+        }
+
         handler->on_event(encode_events(events[i].events));
     }
 

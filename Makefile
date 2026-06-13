@@ -48,6 +48,7 @@ INCLUDES = -Isrc \
 SRCS = src/server/main.cpp \
 	src/sys/signals.cpp \
 	src/server/Server.cpp \
+	src/server/logger/Logger.cpp \
 	src/net/connection/Connection.cpp \
 	src/net/listener/Listener.cpp \
 	src/runtime/epoll/EventPoller.cpp \
@@ -56,7 +57,7 @@ SRCS = src/server/main.cpp \
 	src/cgi/process/Process.cpp \
 	src/cgi/resolve_cgi.cpp \
 	src/cgi/response_builder.cpp \
-	src/cgi/handler/CGIRequestHandler.cpp \
+	src/cgi/handler/CgiHandler.cpp \
 	src/cgi/handler/Channel.cpp \
 	src/http/Context.cpp \
 	src/http/cgi.cpp \

@@ -16,9 +16,7 @@ namespace http {
 
 struct ResolutionResult {};
 struct CGIResult;
-
 class IRequestHandler;
-class HandlerFactory;
 
 class Context;
 
@@ -60,6 +58,7 @@ private:
 public:
 
 	Context(ServerContext& serv_ctx);
+	~Context();
 	
 	// Context(usize conn_id, usize request_id);
 
@@ -67,7 +66,7 @@ public:
 	Error process(const config::Config& config);
 	Error produce(base::io::Writer& writer);
 	
-	void on_cgi_ready(CGIResult const& result);
+	void on_cgi_ready(CGIResult const result);
 
 	ContextAction next_action() const;
 };

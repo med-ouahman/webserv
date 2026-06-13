@@ -109,8 +109,8 @@
 =======
 │   │   │       ├── CGIContext.hpp
 >>>>>>> 2a4fb87 (s)
-│   │   │       ├── CGIRequestHandler.cpp
-│   │   │       └── CGIRequestHandler.hpp
+│   │   │       ├── CgiHandler.cpp
+│   │   │       └── CgiHandler.hpp
 │   │   ├── parser
 │   │   │   ├── BodyReader.cpp
 │   │   │   ├── BodyReader.hpp

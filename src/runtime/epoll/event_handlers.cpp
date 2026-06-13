@@ -3,6 +3,7 @@
 #include <sys/epoll.h>
 #include <fcntl.h>
 #include "Result.hpp"
+#include "Server.hpp"
 
 namespace runtime {
 
@@ -34,10 +35,6 @@ bool EventPoller::add(io::AEventHandler* handler) {
 		LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::add::epoll_ctl(EPOLL_CTL_ADD)"));
 		return false;
 	}
-	
-	#ifdef DEBUG
-	std::cout << "REGISTERED FD: " << handler->fd() << "\n";
-	#endif
 
 	++monitor_count;
 	return true;
@@ -69,7 +66,7 @@ bool EventPoller::del(io::AEventHandler* handler) {
 	#ifdef DEBUG
 	std::cout << "DELETED FD: " << handler->fd() << std::endl;
 	#endif
-	// --monitor_count;
+	--monitor_count;
 	return true;
 }
 

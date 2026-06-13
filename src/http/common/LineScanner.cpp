@@ -16,7 +16,6 @@ namespace http {
 
 	void LineScanner::reset() {
 		linebuff.clear();
-		
 		cr_found = false;
 	}
 
@@ -55,7 +54,7 @@ namespace http {
         size_t to_append = to_advance - (nl_found ? 1 : 0);
         
         if (to_append > 0) {
-            linebuff.append(reader.read_ptr(), to_append);
+            linebuff.append(reader.read_ptr() + reader.cursor(), to_append);
         }
         
         reader.advance(to_advance);
@@ -63,8 +62,7 @@ namespace http {
         if (!nl_found) return NEED_MORE;
         
         if (linebuff[linebuff.size() - 1] == '\r') linebuff.erase(linebuff.size() - 1, 1);
-        std::cout << linebuff << '\n';
+    
         return SUCCESS;
     }
 }
-

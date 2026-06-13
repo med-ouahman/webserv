@@ -13,10 +13,10 @@ ResponseParser::~ResponseParser() {}
 ParseResult ResponseParser::parse_headers(BufferReader& reader) {
     std::cout << "Start CGI header parsing...\n";
 
+    std::cout << reader.size() << "\n";
     while (parse_ctx.state_ != CGIParseContext::Done) {
 
         size_t max_scan_size = CGIParseContext::MaxHeaderBlockLen - parse_ctx.header_bytes;
-
         parse_ctx.scanner.reset();
         
         ScanResult r = parse_ctx.scanner.scan(reader, max_scan_size);
@@ -24,6 +24,7 @@ ParseResult ResponseParser::parse_headers(BufferReader& reader) {
         if (r == LIMIT_EXCEEDED) return ParseError;
         
         if (r == NEED_MORE) {
+            std::cout << "Need more\n";
             return Continue;
         } 
             
@@ -50,7 +51,6 @@ ParseResult ResponseParser::sanitize_status_header(std::string const& value) {
 
     if (space_pos == std::string::npos) {
         code = INTERNAL_SERVER_ERROR;
-        reason = "Internal server error";
         return ParseError;
     }
 
@@ -60,7 +60,6 @@ ParseResult ResponseParser::sanitize_status_header(std::string const& value) {
     for (size_t i = 0; i < code_str.size(); ++i) {
         if (!std::isdigit(code_str[i])) {
             code = INTERNAL_SERVER_ERROR;
-            reason = "Invalid status code";
             return ParseError;
         }
     }
@@ -69,7 +68,6 @@ ParseResult ResponseParser::sanitize_status_header(std::string const& value) {
 
     if (code < 200 or code > 599) {
         code = INTERNAL_SERVER_ERROR;
-        reason = "Invalid status code";
         return ParseError;
     }
 
@@ -90,7 +88,7 @@ bool ResponseParser::finished() const {
 
 ParseResult ResponseParser::parse_header(std::string const& line) {
 
-    std::cout <<  line << "|\n";
+    std::cout << "|" <<  line << "|\n";
 
     size_t colon = line.find(":");
     if (std::string::npos == colon) return ParseError;

@@ -15,7 +15,6 @@ Connection::Connection(int _fd, io::Event events, ServerContext& server_ctx)
     last_activity_(),
     lifetime_(),
     ctx(server_ctx) {
-        server_ctx.session_ = &ctx;
 }
 
 Connection::~Connection() {
@@ -29,14 +28,11 @@ ConnectionState Connection::state() const {
 void Connection::on_event(io::Event events) {
    
     switch (events) {
-        
         case io::Readable:
-            read();
-            ctx.consume(reader_.data(), reader_.size());
-            reader_.reset();
+            on_readable();
             break;
         case io::Writable:
-            write();
+            on_writable();
             break;
         case io::Hup: case io::RHup:
             state_ = Closing;
@@ -49,12 +45,12 @@ void Connection::on_event(io::Event events) {
             break;
     }
 
+    update(ctx.next_action());
 }
 
 bool Connection::closing() const {
     return state_ == Closing;
 }
-
 
 void Connection::read() {
 
@@ -66,10 +62,10 @@ void Connection::read() {
     }
     
     reader_.update(n);
-
 }
 
 void Connection::write() {
+
     ssize_t n = ::send(fd(), writer_.write_ptr(), writer_.bytes_pending(), 0);
     
     if (n < 0) {
@@ -78,9 +74,50 @@ void Connection::write() {
     }
 
     writer_.advance_write(n);
-
 }
 
+void Connection::on_readable() {
+    read();
+    
+    if (state_ == Closing) return;
+    ctx.consume(reader_.data(), reader_.size());
+}
 
+void Connection::on_writable() {
+    
+    write();
+}
+
+void Connection::update(http::ContextAction action) {
+
+    switch (action) {
+        case http::AC_READ:
+            state_ = Reading;
+            break;
+        case http::AC_WRITE:
+            state_ = Writing;
+            break;
+        case http::AC_CLOSE:
+            state_ = Closing;
+            break;
+        default:
+            break;
+    }
+
+    io::Event new_events = events();
+    switch (state_) {
+        case Reading:
+            new_events = io::Readable;
+            break;
+        case Writing:
+            new_events = io::Writable;
+            break;
+        case Closing:
+            new_events = io::Close;
+            break;
+    }
+
+    if (new_events != events()) update_events(new_events);
+}
 
 }

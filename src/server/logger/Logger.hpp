@@ -2,6 +2,10 @@
 
 #include <string>
 #include <ostream>
+#include "Timestamp.hpp"
+
+#define LOG(logger, level, msg) \
+    (logger).log(level, __FILE__, __LINE__, msg)
 
 namespace logger {
 
@@ -14,14 +18,17 @@ public:
         Error,
     };
 
-    Logger(std::ostream& out);
+    explicit Logger(std::ostream& out);
+    Logger();
     ~Logger();
-    void log(LogLevel level, const std::string& message);
+    void log(LogLevel level, const std::string& message, bool timestamp);
+    void setstream(std::ostream& stream);
 
 private:
-    std::ostream& out_;
+    std::ostream* out;
     std::string level_string(LogLevel level);
-    std::string format(LogLevel level, const std::string& message);
+   
+    static std::string format_date(time_t raw);
 
 };
 

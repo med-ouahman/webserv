@@ -2,10 +2,19 @@
 #include <cstdlib>
 #include <algorithm>
 
+logger::Logger Server::logger_;
+
 Server::Server()
     : running_(false),
     poller() {
+    ctx.poller = &poller;
+    ctx.logger = &logger_;
+    logger_.setstream(std::cout);
     running_ = start_listeners();
+}
+
+logger::Logger& Server::logger() {
+    return logger_;
 }
 
 Server::~Server() {
@@ -40,7 +49,10 @@ bool Server::start_listeners() {
 
         base::Result<net::Listener*> result = net::create_listening_socket(endpoints[i], *this);
 
-        if (!result.ok) return false;
+        if (!result.ok) {
+            LOG_ERROR(result.error);
+            return false;
+        }
         net::Listener* sock = result.result;
         
         if (!poller.add(sock)) return false;
@@ -52,12 +64,6 @@ bool Server::start_listeners() {
 }
 
 void Server::add_connection(int conn_fd) {
-
-    ServerContext ctx = {
-        .poller = &poller,
-        .logger = NULL,
-        .session_ = NULL,
-    };
 
     net::Connection* connection = new net::Connection(conn_fd, io::Readable, ctx);
     

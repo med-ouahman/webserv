@@ -1,21 +1,24 @@
 
 #include "HandlerFactory.hpp"
-#include "CGIRequestHandler.hpp"
+#include "CgiHandler.hpp"
 
 namespace http {
 
-HandlerFactory::HandlerFactory(ServerContext& ctx)
-	: server_ctx(ctx) {}
+HandlerFactory::HandlerFactory(ServerContext& ctx, Context& proto)
+	: server_ctx(ctx),
+	protocol_(proto) {}
 
 HandlerFactory::~HandlerFactory() {}
 
 IRequestHandler* HandlerFactory::create(ResolutionResult& result, Request& req, RequestType type) {
+	
 	switch (type) {
 		case Cgi:
-			return new CGIRequestHandler(result, req, server_ctx);
+			return new CgiHandler(result, req, *server_ctx.poller, protocol_);
 		default:
 			return NULL;
 	}
+
 	return NULL;
 }
 

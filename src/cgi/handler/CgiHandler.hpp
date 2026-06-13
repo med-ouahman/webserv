@@ -17,15 +17,19 @@ struct ResolutionResult;
 struct Request;
 
 struct CGIResult {
-	StatusCode	code;
-	std::string status_reason;
-	Headers		headers;
+	
 	BufferReader& source_;
 
-	CGIResult(BufferReader& source): code(OK), status_reason(), headers(), source_(source) {}
+	StatusCode	status_code;	
+	const Headers&		headers;
+
+	CGIResult(BufferReader& source, StatusCode code, const Headers& h)
+		: source_(source),
+		status_code(code),
+		headers(h) {}
 };
 
-class CGIRequestHandler: public IRequestHandler {
+class CgiHandler: public IRequestHandler {
 
 public:
 	enum State {
@@ -49,13 +53,18 @@ private:
 	runtime::epoll::EventPoller& poller_;
 	Context& protocol_;
 	
-	CGIRequestHandler(const CGIRequestHandler&);
-	CGIRequestHandler& operator=(const CGIRequestHandler&);
+	CgiHandler(const CgiHandler&);
+	CgiHandler& operator=(const CgiHandler&);
+
+	void close_channel(Channel::Stream type);
 
 public:
-	CGIRequestHandler(const ResolutionResult& result, const http::Request& req, ServerContext& server_ctx);
+	CgiHandler(const ResolutionResult& result,
+		const http::Request& req,
+		runtime::epoll::EventPoller& p,
+		Context& ctx);
 
-	~CGIRequestHandler();
+	~CgiHandler();
 	State state() const;
 	
 	void handle();

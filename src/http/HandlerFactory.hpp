@@ -11,6 +11,7 @@ struct ResolutionResult;
 class HandlerFactory {
 private:
 	ServerContext server_ctx;
+	Context& protocol_;
 
 public:
 	enum RequestType {
@@ -20,7 +21,7 @@ public:
 		Cgi
 	};
 
-	HandlerFactory(ServerContext& ctx);
+	HandlerFactory(ServerContext& ctx, Context& proto);
 	~HandlerFactory();
 	
 	IRequestHandler* create(ResolutionResult& result, Request& req, RequestType type);

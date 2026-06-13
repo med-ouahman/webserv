@@ -85,9 +85,19 @@ void ChunkedEncoder::reset() {
 }
 
 
+/* the default is Chunked unless specified otherwise */
 BodyEncoder::BodyEncoder()
-    : encoding_(ContentLength) {
+    : encoding_(Chunked),
+    fixed_(0) {
 }
+
+
+/* Use this for Content Length */
+BodyEncoder::BodyEncoder(size_t content_length)
+    : encoding_(ContentLength),
+    fixed_(content_length) {
+}
+
 
 BodyEncoder::~BodyEncoder() {}
 
@@ -117,11 +127,6 @@ ssize_t BodyEncoder::encode(IBodyProvider* body, BufferWriter& writer) {
     }
     
     return 0;
-}
-
-void BodyEncoder::reset(Encoding encoding) {
-    encoding_ = encoding;
-    chunked_.reset();
 }
 
 }

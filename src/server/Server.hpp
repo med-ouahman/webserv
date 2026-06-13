@@ -4,6 +4,7 @@
 #include "EventPoller.hpp"
 #include "Connection.hpp"
 #include "Listener.hpp"
+#include "Logger.hpp"
 
 class Server {
 private:
@@ -11,6 +12,9 @@ private:
     std::vector<net::Connection*> connections;
     std::vector<net::Listener*> listeners;
     runtime::epoll::EventPoller poller;
+    static logger::Logger      logger_;
+
+    ServerContext ctx;
 
     Server(const Server&);
     Server& operator=(const Server&);
@@ -23,4 +27,5 @@ public:
     void sweep();
     void add_connection(int client_fd);
     void close_connection(net::Connection* conn);
+    static logger::Logger& logger();
 };

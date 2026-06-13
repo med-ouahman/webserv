@@ -9,14 +9,17 @@
 #include "http/Error.hpp"
 #include "Headers.hpp"
 #include "IBodyProvider.hpp"
+#include "BodyEncoder.hpp"
 
 namespace http {
 
+
 struct Response {
 
-	IBodyProvider* body;
-	Headers headers;
 	StatusCode status;
+	Headers headers;
+	IBodyProvider* body;
+	body::BodyEncoder encoder;
 };
 
 }

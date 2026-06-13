@@ -2,7 +2,7 @@
 #include "http/Context.hpp"
 #include "http/Parser/parser.hpp"
 #include "http/routing/Routing.hpp"
-#include "CGIRequestHandler.hpp"
+#include "CgiHandler.hpp"
 #include "HandlerFactory.hpp"
 #include <sstream>
 
@@ -49,7 +49,7 @@ Context::Context(ServerContext& serv_ctx)
 	  response(),
 	  state_(REQUEST_LINE),
 	  action_(AC_READ),
-	  factory(serv_ctx) {
+	  factory(serv_ctx, *this) {
 
 	request.method = UNKNOWN;
 	request.version = HTTP_UNKNOWN;
@@ -58,12 +58,9 @@ Context::Context(ServerContext& serv_ctx)
 	response.status = OK;
 }
 
+Context::~Context() {}
+
 Error Context::consume(const char* data, usize size) {
-
-	ResolutionResult r;
-	handler = factory.create(r, request, HandlerFactory::Cgi);
-
-	return ERR_NONE;
 	
 	if (data == NULL && size != 0)
 		return ERR_BAD_REQUEST;
@@ -85,6 +82,7 @@ Error Context::consume(const char* data, usize size) {
 }
 
 Error Context::process(const config::Config& config) {
+	
 	routing::Decision decision;
 	bool has_body;
 

@@ -30,7 +30,6 @@ struct CGIParseContext {
 class ResponseParser {
 private:
 	http::StatusCode code;
-	std::string		reason;
     http::Headers 	headers_;
     CGIParseContext parse_ctx;
 

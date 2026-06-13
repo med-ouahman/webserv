@@ -195,7 +195,7 @@ This document outlines the complete strategy for implementing CGI (Common Gatewa
 >>>>>>> 2a4fb87 (s)
 - Returns action for Connection to execute
 
-**CGIRequestHandler Responsibilities:**
+**CgiHandler Responsibilities:**
 - Manages child process lifecycle
 - Builds environment variable array
 - Creates and manages pipes
@@ -219,17 +219,17 @@ This document outlines the complete strategy for implementing CGI (Common Gatewa
 3. Handler builds CGIRequestContext structure
 4. Handler returns ResponseAction with EXECUTE_CGI type
 5. Connection receives action and extracts CGIRequestContext
-6. Connection allocates CGIRequestHandler instance
-7. Connection passes CGIRequestContext to CGIRequestHandler.spawn()
+6. Connection allocates CgiHandler instance
+7. Connection passes CGIRequestContext to CgiHandler.spawn()
 =======
 3. Handler builds CGIContext structure
 4. Handler returns ResponseAction with EXECUTE_CGI type
 5. Connection receives action and extracts CGIContext
-6. Connection allocates CGIRequestHandler instance
-7. Connection passes CGIContext to CGIRequestHandler.spawn()
+6. Connection allocates CgiHandler instance
+7. Connection passes CGIContext to CgiHandler.spawn()
 >>>>>>> 2a4fb87 (s)
 8. Connection transitions to CGI_SPAWNING state
-9. CGIRequestHandler reports events back to Connection
+9. CgiHandler reports events back to Connection
 10. Connection makes state transition decisions
 
 **Handoff Interface:**
@@ -239,8 +239,8 @@ This document outlines the complete strategy for implementing CGI (Common Gatewa
 - Handler produces CGIContext (routing decision)
 >>>>>>> 2a4fb87 (s)
 - Connection receives ResponseAction (execution command)
-- Connection delegates to CGIRequestHandler (process management)
-- CGIRequestHandler reports outcomes via events
+- Connection delegates to CgiHandler (process management)
+- CgiHandler reports outcomes via events
 - Connection controls state machine progression
 
 ---
@@ -251,7 +251,7 @@ This document outlines the complete strategy for implementing CGI (Common Gatewa
 
 **Design Decision:**
 - CGI state lives inside Connection as dynamically allocated member
-- CGIRequestHandler pointer is NULL when connection not executing CGI
+- CgiHandler pointer is NULL when connection not executing CGI
 - Allocated only when entering CGI states
 - Freed when exiting CGI states or on connection cleanup
 
@@ -270,11 +270,11 @@ Connection
 **Connection Owns:**
 - Client socket file descriptor
 - Connection state machine
-- CGIRequestHandler instance (when active)
+- CgiHandler instance (when active)
 - Request and response buffers
 - Keep-alive policy
 
-**CGIRequestHandler Owns:**
+**CgiHandler Owns:**
 - Child process PID
 - Pipe file descriptors (stdin, stdout, stderr)
 - Environment variable array
@@ -289,7 +289,7 @@ Connection
 ### Resource Lifecycle
 
 **Allocation Points:**
-- CGIRequestHandler allocated when entering CGI_SPAWNING
+- CgiHandler allocated when entering CGI_SPAWNING
 - Pipes created during spawn
 - Environment array built before fork
 - Output buffers allocated as needed during reading
@@ -308,7 +308,7 @@ Connection
 - Reap zombie with waitpid
 - Free environment array
 - Clear output buffers
-- Delete CGIRequestHandler instance
+- Delete CgiHandler instance
 - Set handler pointer to NULL
 
 ---
@@ -321,7 +321,7 @@ Connection
 
 ### Purpose
 
-Encapsulates all information needed to spawn and execute a CGI process. Produced by the handler during routing, consumed by CGIRequestHandler during spawn.
+Encapsulates all information needed to spawn and execute a CGI process. Produced by the handler during routing, consumed by CgiHandler during spawn.
 
 ### Members
 
@@ -348,7 +348,7 @@ Handler builds context during routing:
 - Adds configuration values (timeout, working directory)
 - Adds server identification
 
-Connection receives context and passes to CGIRequestHandler:
+Connection receives context and passes to CgiHandler:
 - No validation needed (handler already validated)
 - Directly usable for spawning
 - Context is const reference (not copied)
@@ -760,7 +760,7 @@ Connection receives context and passes to CGIRequestHandler:
 - Reap zombie with waitpid
 - Free environment variable array
 - Clear output buffers
-- Delete CGIRequestHandler instance
+- Delete CgiHandler instance
 - Set handler pointer to NULL
 
 **Cleanup Ordering:**
@@ -821,7 +821,7 @@ Connection receives context and passes to CGIRequestHandler:
 **Request Body Buffer:**
 - Already exists from parsing phase
 - Connection or parser owns it
-- CGIRequestHandler receives const reference
+- CgiHandler receives const reference
 - Not duplicated for CGI
 
 **CGI Output Buffer:**
@@ -1136,7 +1136,7 @@ These invariants must hold at all times. Violations indicate bugs.
 ### Memory Management Invariants
 
 9. **Every allocated environment array freed** - after execve or on error
-10. **CGIRequestHandler deleted when exiting CGI states** - no memory leaks
+10. **CgiHandler deleted when exiting CGI states** - no memory leaks
 11. **Buffers bounded** - maximum sizes enforced, prevent DoS
 
 ### State Machine Invariants
@@ -1203,12 +1203,12 @@ These invariants must hold at all times. Violations indicate bugs.
 **Separation of Concerns:**
 - Handler resolves routes and builds context
 - Connection orchestrates I/O and state machine
-- CGIRequestHandler manages process and CGI protocol
+- CgiHandler manages process and CGI protocol
 - Each component has clear boundaries
 
 **Ownership Model:**
-- Connection owns CGIRequestHandler (dynamically allocated)
-- CGIRequestHandler owns process and pipes
+- Connection owns CgiHandler (dynamically allocated)
+- CgiHandler owns process and pipes
 - EventPoller tracks but doesn't own
 - Clear cleanup responsibility
 

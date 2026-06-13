@@ -1,9 +1,9 @@
 #include "Channel.hpp"
-#include "CGIRequestHandler.hpp"
+#include "CgiHandler.hpp"
 
 namespace http {
 
-Channel::Channel(Stream s, int fd, io::Event events, CGIRequestHandler& h)
+Channel::Channel(Stream s, int fd, io::Event events, CgiHandler& h)
   : AEventHandler(fd, events),
     stream_(s),
     state_(Open),
@@ -13,7 +13,7 @@ Channel::~Channel() {}
 
 void Channel::on_event(io::Event event) {
 
-    if (handler_.state() == CGIRequestHandler::Error || handler_.finished()) {
+    if (handler_.state() == CgiHandler::Error || handler_.finished()) {
         state_ = Closed;
     }
 
@@ -29,9 +29,11 @@ void Channel::on_event(io::Event event) {
             write();
             break;
         case io::Hup: case io::RHup:
+            state_ = Closed;
             handler_.on_ch_closed(stream_);
             break;
         case io::Error:
+            state_ = Closed;
             handler_.on_ch_error(stream_);
         default:
             break;
@@ -62,7 +64,11 @@ void Channel::write() {
         return;
     }
 
-    writer_.advance_write(n);   
+    writer_.advance_write(n);
+}
+
+bool Channel::closed() const {
+    return state_ == Closed;
 }
 
 }

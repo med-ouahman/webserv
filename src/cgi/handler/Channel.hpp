@@ -6,7 +6,7 @@
 
 namespace http {
 
-class CGIRequestHandler;
+class CgiHandler;
 
 
 class Channel: public io::AEventHandler {
@@ -29,7 +29,7 @@ private:
     const static std::size_t WriterSize = 1024 * 4;
 	Stream stream_;
 	State state_;
-	CGIRequestHandler& handler_;
+	CgiHandler& handler_;
 
 	BufferReader reader_;
 	BufferWriter writer_;
@@ -38,12 +38,13 @@ private:
 	void write();
 
 public:
-	Channel(Stream s, int fd, io::Event events, CGIRequestHandler& handler);
+	Channel(Stream s, int fd, io::Event events, CgiHandler& handler);
 	~Channel();
 	
 	void on_event(io::Event ev);
 
 	Stream stream() const;
+	bool closed() const;
 };
 
 
