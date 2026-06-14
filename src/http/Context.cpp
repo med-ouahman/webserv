@@ -5,6 +5,7 @@
 #include "CgiHandler.hpp"
 #include "HandlerFactory.hpp"
 #include <sstream>
+#include "Connection.hpp"
 
 #define HTTP_TMP_DIR ".tmp"
 
@@ -72,7 +73,6 @@ Error Context::consume(const char* data, usize size) {
 	{
 		ResolutionResult r;
 		handler = factory.create(r, request, HandlerFactory::Cgi);
-		action_ = AC_WRITE;
 	}
 	
 	return ERR_NONE;
@@ -123,7 +123,11 @@ ContextAction Context::next_action() const { return action_; }
 Error Context::produce(BufferWriter& w) {
 
 	ssize_t n = response.encoder.encode(response.body, w);
-	if (n == 0) action_ = AC_CLOSE;
+
+	if (n == 0) {
+		std::cout << "Response done officially\n";
+		action_ = AC_CLOSE;
+	}
 	
 	return ERR_NONE;
 }

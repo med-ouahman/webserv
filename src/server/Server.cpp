@@ -80,6 +80,7 @@ void Server::add_connection(int conn_fd) {
 void Server::sweep() {
     for (size_t i(0); i < connections.size();) {
         net::Connection* conn = connections.at(i);
+        conn->sync();
         poller.sync(conn);
 
         if (conn->closing()) close_connection(conn);

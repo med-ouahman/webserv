@@ -17,4 +17,4 @@ print("""
     <p>This is a dummy Python CGI script.</p>
 </body>
 </html>
-""")
+""", end="")

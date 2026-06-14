@@ -64,7 +64,7 @@ void Channel::write() {
         return;
     }
 
-    writer_.advance_write(n);
+    writer_.advance_read(n);
 }
 
 bool Channel::closed() const {

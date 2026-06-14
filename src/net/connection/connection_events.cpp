@@ -32,7 +32,6 @@ void Connection::on_readable() {
     if (state_ == Closing) return;
 
     ctx.consume(reader_.data(), reader_.size());
-
 }
 
 void Connection::on_writable() {

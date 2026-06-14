@@ -50,3 +50,7 @@ size_t BufferReader::capacity() const {
 size_t BufferReader::cursor() const {
 	return cursor_;
 }
+
+size_t BufferReader::remaining() const {
+	return size_ - cursor_;
+}

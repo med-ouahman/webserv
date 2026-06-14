@@ -15,11 +15,13 @@ void Context::on_cgi_ready(const CGIResult result) {
 	
 	const std::string& s = response.headers.get("content-length");
 
-	if (!s.empty()) {
+	if (!s.empty())
+	{
 		char* end = NULL;
 
-		size_t content_length = ::strtoul(s.c_str(), &end, 10);		
-		if (end && *end != '\0') {
+		size_t content_length = ::strtoul(s.c_str(), &end, 10);
+		if (end && *end != '\0')
+		{
 			state_ = ERROR;
 			action_ = AC_CLOSE;
 			return;
@@ -27,10 +29,9 @@ void Context::on_cgi_ready(const CGIResult result) {
 
 		response.encoder = body::BodyEncoder(content_length);
 	}
-
 	std::cout << "Ready\n";
 	action_ = AC_WRITE;
-
+	
 }
 
 }

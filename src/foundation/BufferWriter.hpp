@@ -21,7 +21,6 @@ public:
 
 	char* write_ptr();
 	
-	const char* base() const;
 	const char* read_ptr() const;
 	
 	bool full();

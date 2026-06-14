@@ -41,7 +41,6 @@ enum ContextAction {
 class Context {
 
 private:
-
 	ParserState parser;
 	Request		request;
 	Response	response;
@@ -52,9 +51,8 @@ private:
 	friend struct ParserState;
 
 	IRequestHandler* handler;
-
 	HandlerFactory factory;
-	
+
 public:
 
 	Context(ServerContext& serv_ctx);

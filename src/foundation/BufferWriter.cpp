@@ -20,10 +20,6 @@ char* BufferWriter::write_ptr() {
     return storage_ + used_;
 }
 
-const char* BufferWriter::base() const {
-    return storage_;
-}
-
 const char* BufferWriter::read_ptr() const {
     return storage_ + r_offset_;
 }
@@ -45,6 +41,7 @@ size_t BufferWriter::bytes_free() {
 }
 
 void BufferWriter::advance_read(size_t n__) {
+
     r_offset_ += n__;
 }
 

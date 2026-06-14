@@ -1,7 +1,6 @@
 
 #include "Timestamp.hpp"
 #include "CgiHandler.hpp"
-#include "Dispatcher.hpp"
 #include "Request.hpp"
 #include "EnvBuilder.hpp"
 #include "CGIBodyProvider.hpp"
@@ -15,6 +14,7 @@ CgiHandler::CgiHandler(const ResolutionResult& res,
         const http::Request& req,
         runtime::epoll::EventPoller& p,
         Context& ctx)
+
     : state_(Headers),
     process(cgi::resolve_exec_context(req, res)),
     stdin_ch(Channel::Stdin, process.stdin_pipe().write_end(), io::Writable, *this),
@@ -37,9 +37,7 @@ CgiHandler::CgiHandler(const ResolutionResult& res,
 CgiHandler::~CgiHandler() {
     
     if (!stdin_ch.closed()) poller_.del(&stdin_ch);
-
     if (!stdout_ch.closed()) poller_.del(&stdout_ch);
-
     if (!stderr_ch.closed()) poller_.del(&stderr_ch);
 }
 

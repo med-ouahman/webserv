@@ -2,6 +2,7 @@
 #include "BodyEncoder.hpp"
 #include <sstream>
 #include <cstring>
+#include <iostream>
 
 #ifdef DEBUG
     #include <cassert>
@@ -27,13 +28,9 @@ ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
     switch (state_) {
 
         case Header: {
-
-            
             write_ptr = writer.write_ptr();
             std::string overhead = std::string(header_overhead, '0');
-
             writer.write(overhead.c_str(), overhead.size());
-
             state_ = Data;
            
         }
@@ -41,14 +38,19 @@ ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
         case Data: {
             
             ssize_t n = body->read(writer, writer.bytes_free());
+            
+            std::cout.write(writer.read_ptr(), writer.size());
             if (n < 0) return -1;
             
             current_chunk_ = n;
     
-            // std::string header = format(current_chunk_);
-            // ::memcpy(write_ptr, header.c_str(), header.size());
-            // ::memmove(write_ptr + header.size(), write_ptr + header_overhead, writer.size() - header_overhead);
-            // writer.pop(header_overhead - header.size());
+            std::string header = format(current_chunk_);
+            std::cout << "Formated chunk: " << header << "\n";
+            ::memcpy(write_ptr, header.c_str(), header.size());
+            std::cout << header_overhead - header.size() << "\n";
+            std::cout << "Move size: " << writer.size() - header_overhead << "\n";
+            ::memmove(write_ptr + header.size(), write_ptr + header_overhead, writer.size() - header_overhead);
+            writer.pop(header_overhead - header.size());
 
             state_ = Trail;
            
@@ -59,6 +61,7 @@ ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
             state_ = current_chunk_ == 0 ? Final: Header;
             break;
         case Final:
+            std::cout << "Final chunk\n";
             return 0;
     }
 

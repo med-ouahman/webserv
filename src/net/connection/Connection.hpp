@@ -14,18 +14,18 @@ enum ConnectionState {
     Closing,
 };
 
-class Connection: public io::AEventHandler {
-    
+class Connection: public io::AEventHandler {  
 public:
     const static std::size_t ReadbufSize = 1024 * 4;
     const static std::size_t WritebufSize = 1024 * 4;
+
     Connection(int fd, io::Event events, ServerContext& ctx);
     ~Connection();
 
     void on_event(io::Event events);
-    
     ConnectionState state() const;
     bool closing() const;
+    void sync();
 
 private:
     ConnectionState state_;  
@@ -35,7 +35,7 @@ private:
     Timestamp       lifetime_;
     
     http::Context   ctx;
-
+    http::ContextAction current_action;
     BufferReader reader_;
     BufferWriter writer_;
 
@@ -43,7 +43,9 @@ private:
     void write();
     void on_writable();
     void on_readable();
+
     void update(http::ContextAction action);
+
 };
 
 }
