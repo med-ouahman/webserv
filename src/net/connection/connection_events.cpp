@@ -22,8 +22,6 @@ void Connection::on_event(io::Event events) {
         default:
             break;
     }
-
-    update(ctx.next_action());
 }
 
 void Connection::on_readable() {
@@ -35,9 +33,14 @@ void Connection::on_readable() {
 }
 
 void Connection::on_writable() {
-    ctx.produce(writer_);
-    write();
-}
 
+    if (state_ == Closing) return;
+
+    http::Error err = ctx.produce(writer_);
+    if (err != http::ERR_NONE || writer_.size() == 0) return;
+    
+    write();
+    
+}
 
 }

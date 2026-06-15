@@ -23,12 +23,14 @@ ChunkedEncoder::~ChunkedEncoder() {
 
 }
 
-ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
+IBodyProvider::ReadResult ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
     
     switch (state_) {
 
         case Header: {
+
             write_ptr = writer.write_ptr();
+            
             std::string overhead = std::string(header_overhead, '0');
             writer.write(overhead.c_str(), overhead.size());
             state_ = Data;
@@ -37,19 +39,19 @@ ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
         /* fall through */
         case Data: {
             
-            ssize_t n = body->read(writer, writer.bytes_free());
-            
+            IBodyProvider::ReadResult r = body->read(writer, writer.bytes_free());
+            if (r != IBodyProvider::Success) return r;
+
+            current_chunk_ = writer.size() - header_overhead;
+            std::cout << "Current: " << current_chunk_ << " Size: " << writer.size() << "\n";
             std::cout.write(writer.read_ptr(), writer.size());
-            if (n < 0) return -1;
-            
-            current_chunk_ = n;
     
             std::string header = format(current_chunk_);
             std::cout << "Formated chunk: " << header << "\n";
             ::memcpy(write_ptr, header.c_str(), header.size());
             std::cout << header_overhead - header.size() << "\n";
             std::cout << "Move size: " << writer.size() - header_overhead << "\n";
-            ::memmove(write_ptr + header.size(), write_ptr + header_overhead, writer.size() - header_overhead);
+            std::memmove(write_ptr + header.size(), write_ptr + header_overhead, writer.size() - header_overhead);
             writer.pop(header_overhead - header.size());
 
             state_ = Trail;
@@ -62,10 +64,10 @@ ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
             break;
         case Final:
             std::cout << "Final chunk\n";
-            return 0;
+            return IBodyProvider::Success;
     }
 
-    return writer.size();
+    return IBodyProvider::Success;
 }
 
 
@@ -74,7 +76,7 @@ std::string ChunkedEncoder::format(size_t chunk) {
 
     ss << std::hex << chunk;
 
-    return ss.str() + "\r\n";    
+    return ss.str() + "\r\n";
 }
 
 void ChunkedEncoder::reset() {
@@ -101,22 +103,23 @@ BodyEncoder::BodyEncoder(size_t content_length)
 BodyEncoder::~BodyEncoder() {}
 
 
-ssize_t BodyEncoder::encode(IBodyProvider* body, BufferWriter& writer) {
+IBodyProvider::ReadResult BodyEncoder::encode(IBodyProvider* body, BufferWriter& writer) {
 
     switch (encoding_) {
         case Chunked:
             return chunked_.process(body, writer);
         case ContentLength: {
 
-            if (fixed_.written >= fixed_.content_length) return 0;
+            if (fixed_.written >= fixed_.content_length) return IBodyProvider::Success;
 
             size_t rem = fixed_.content_length - fixed_.written;
             
-            ssize_t n = body->read(writer, rem);
+            IBodyProvider::ReadResult r = body->read(writer, rem);
+            if (r != IBodyProvider::Success) return r;
             
-            if (n >= 0) fixed_.written += n;
-            
-            return n;
+            fixed_.written += writer.size();
+
+            return r;
         }
 
         default:
@@ -125,7 +128,7 @@ ssize_t BodyEncoder::encode(IBodyProvider* body, BufferWriter& writer) {
             #endif
     }
     
-    return 0;
+    return IBodyProvider::Success;
 }
 
 }

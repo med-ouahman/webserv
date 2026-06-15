@@ -31,6 +31,7 @@ public:
 	void reset();
 	void pop(size_t n__);
 	
+	size_t written() const;
 	size_t bytes_pending();
 	size_t capacity();
 	size_t bytes_free();

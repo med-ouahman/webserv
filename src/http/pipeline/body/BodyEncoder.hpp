@@ -35,7 +35,7 @@ private:
 public:
     ChunkedEncoder();
     ~ChunkedEncoder();
-    ssize_t process(IBodyProvider* body, BufferWriter& w);
+    IBodyProvider::ReadResult process(IBodyProvider* body, BufferWriter& w);
     void reset();
 };
 
@@ -60,7 +60,8 @@ public:
     BodyEncoder();
     BodyEncoder(size_t content_length);
     ~BodyEncoder();
-    ssize_t encode(IBodyProvider* body, BufferWriter& writer);
+
+    IBodyProvider::ReadResult encode(IBodyProvider* body, BufferWriter& writer);
 };
 
 }

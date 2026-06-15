@@ -17,27 +17,25 @@ struct ResolutionResult;
 struct Request;
 
 struct CGIResult {
-	
-	BufferReader& source_;
 
 	StatusCode	status_code;	
 	const Headers&		headers;
 
-	CGIResult(BufferReader& source, StatusCode code, const Headers& h)
-		: source_(source),
-		status_code(code),
+	CGIResult(StatusCode code, const Headers& h)
+		: status_code(code),
 		headers(h) {}
+
 };
 
 class CgiHandler: public IRequestHandler {
-
 public:
-	enum State {
-		Headers,
-		StreamingBody,
-		Error,
-		Finished,
-	};
+enum State {
+	Headers,
+	HeadersDone,
+	StreamingBody,
+	Finished,
+	Error,
+};
 
 private:
 	State state_;
@@ -56,7 +54,7 @@ private:
 	CgiHandler(const CgiHandler&);
 	CgiHandler& operator=(const CgiHandler&);
 
-	void close_channel(Channel::Stream type);
+	void close_channel(Channel& channel);
 
 public:
 	CgiHandler(const ResolutionResult& result,
@@ -70,12 +68,15 @@ public:
 	void handle();
 	bool finished();
 	
-	void on_writable(BufferWriter& writer, Channel::Stream s);
-	void on_readable(BufferReader& reader, Channel::Stream s);
+	void on_writable(BufferWriter& writer, Channel& channel);
+	void on_readable(BufferReader& reader, Channel& channel);
 	
-	void on_ch_error(Channel::Stream s);
-	void on_ch_closed(Channel::Stream s);
-
+	void on_ch_error(Channel& channel);
+	void on_ch_closed(Channel& channel);
+	void pause_channel(Channel::Stream type);
+	void resume_channel(Channel::Stream type);
+	
+	CGIResult result() const;
 };
 
 }

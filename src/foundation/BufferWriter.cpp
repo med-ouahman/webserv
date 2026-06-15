@@ -41,7 +41,6 @@ size_t BufferWriter::bytes_free() {
 }
 
 void BufferWriter::advance_read(size_t n__) {
-
     r_offset_ += n__;
 }
 
@@ -56,6 +55,10 @@ size_t BufferWriter::capacity() {
 void BufferWriter::reset() {
     used_ = 0;
     r_offset_ = 0;
+}
+
+size_t BufferWriter::written() const {
+    return r_offset_;
 }
 
 size_t BufferWriter::write(const char* source, size_t n__) {

@@ -73,14 +73,14 @@ bool EventPoller::del(io::AEventHandler* handler) {
 
 
 void EventPoller::sync(io::AEventHandler* handler) {
-	
-	if (handler->synced())
-		return;
 
 	if (handler->events() == io::Close) {
 		del(handler);
 		return;
 	}
+
+	if (handler->synced())
+		return;
 
 	mod(handler);
 	handler->sync_events();

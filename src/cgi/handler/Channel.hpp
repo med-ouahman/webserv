@@ -34,14 +34,14 @@ private:
 	BufferReader reader_;
 	BufferWriter writer_;
 
-	void read();
-	void write();
-
 public:
 	Channel(Stream s, int fd, io::Event events, CgiHandler& handler);
 	~Channel();
 	
 	void on_event(io::Event ev);
+
+	void read();
+	void write();
 
 	Stream stream() const;
 	bool closed() const;

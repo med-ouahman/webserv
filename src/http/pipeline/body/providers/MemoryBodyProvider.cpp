@@ -13,16 +13,16 @@ MemoryBodyProvider::~MemoryBodyProvider() {
 }
 
 
-ssize_t MemoryBodyProvider::read(BufferWriter& writer, size_t size) {
+IBodyProvider::ReadResult MemoryBodyProvider::read(BufferWriter& writer, size_t size) {
 
-  if (offset_ == memory_.size()) return 0;
+  if (offset_ == memory_.size()) return Success;
 
   size_t to_write = std::min(memory_.size() - offset_, size);
   size_t w = writer.write(memory_.c_str() + offset_, to_write);
 
   offset_ += w;
 
-  return w;
+  return Success;
 
 }
 

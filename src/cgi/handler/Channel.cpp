@@ -20,21 +20,20 @@ void Channel::on_event(io::Event event) {
     if (state_ == Closed || state_ == Error) return;
 
     switch (event) {
-        case io::Readable:
-            read();
-            handler_.on_readable(reader_, stream_);
+        case io::Readable: case io::Hup:
+            handler_.on_readable(reader_, *this);
             break;
         case io::Writable:
-            handler_.on_writable(writer_, stream_);
+            handler_.on_writable(writer_, *this);
             write();
             break;
-        case io::Hup: case io::RHup:
+        case io::RHup:
             state_ = Closed;
-            handler_.on_ch_closed(stream_);
+            handler_.on_ch_closed(*this);
             break;
         case io::Error:
             state_ = Closed;
-            handler_.on_ch_error(stream_);
+            handler_.on_ch_error(*this);
         default:
             break;
     }
@@ -45,6 +44,7 @@ Channel::Stream Channel::stream() const {
 }
 
 void Channel::read() {
+    
     ssize_t n = ::read(fd(), reader_.write_ptr(), reader_.capacity());
 
     if (n < 0) {

@@ -1,6 +1,4 @@
-/*
-    Copyright Webamination 2026 Inc.
-*/
+
 
 #include "Connection.hpp"
 #include <sys/socket.h>
@@ -29,6 +27,9 @@ void Connection::write() {
     }
 
     writer_.advance_read(n);
+    if (writer_.written() == writer_.size()) {
+        writer_.reset();
+    }
 }
 
 }

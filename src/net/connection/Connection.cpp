@@ -23,6 +23,7 @@ ConnectionState Connection::state() const { return state_; }
 bool Connection::closing() const { return state_ == Closing; }
 
 void Connection::update(http::ContextAction action) {
+    
     switch (action) {
         case http::AC_READ: state_ = Reading; break;
         case http::AC_WRITE: state_ = Writing; break;
@@ -50,6 +51,7 @@ void Connection::sync() {
     if (next == current_action) return;
 
     current_action = next;
+
     update(current_action);
 }
 

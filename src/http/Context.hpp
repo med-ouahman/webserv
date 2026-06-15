@@ -12,6 +12,8 @@
 
 #define CRLF "\r\n"
 
+class BufferReader;
+
 namespace http {
 
 struct ResolutionResult {};
@@ -35,7 +37,7 @@ enum ContextAction {
 	AC_READ,
 	AC_WORK,
 	AC_WRITE,
-	AC_CLOSE
+	AC_CLOSE,
 };
 
 class Context {
@@ -65,7 +67,7 @@ public:
 	Error produce(BufferWriter& writer);
 
 	
-	void on_cgi_ready(CGIResult const result);
+	void on_cgi_ready(BufferReader& source);
 
 	ContextAction next_action() const;
 };

@@ -6,11 +6,19 @@
 
 namespace http {
 
+
 class IBodyProvider {
 
 public:
+    enum ReadResult {
+        Success,
+        Finished,
+        Failure,
+        Unavailabe,
+    };
+
     virtual ~IBodyProvider() {};
-    virtual ssize_t read(BufferWriter& w, size_t size) = 0;
+    virtual ReadResult read(BufferWriter& w, size_t size) = 0;
 };
 
 }

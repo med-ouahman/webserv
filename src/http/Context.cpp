@@ -122,11 +122,16 @@ ContextAction Context::next_action() const { return action_; }
 
 Error Context::produce(BufferWriter& w) {
 
-	ssize_t n = response.encoder.encode(response.body, w);
+	IBodyProvider::ReadResult r = response.encoder.encode(response.body, w);
 
-	if (n == 0) {
+	if (IBodyProvider::Finished == r) {
 		std::cout << "Response done officially\n";
+		action_ = AC_READ;
+	}
+
+	if (IBodyProvider::Failure == r) {
 		action_ = AC_CLOSE;
+		return ERR_CGI_FAILED;
 	}
 	
 	return ERR_NONE;

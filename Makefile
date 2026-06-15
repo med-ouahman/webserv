@@ -60,6 +60,7 @@ SRCS = src/server/main.cpp \
 	src/cgi/resolve_cgi.cpp \
 	src/cgi/response_builder.cpp \
 	src/cgi/handler/CgiHandler.cpp \
+	src/cgi/handler/channel_events.cpp \
 	src/cgi/handler/Channel.cpp \
 	src/http/Context.cpp \
 	src/http/cgi.cpp \

@@ -20,6 +20,8 @@ struct Response {
 	Headers headers;
 	IBodyProvider* body;
 	body::BodyEncoder encoder;
+
+	Response(): body(NULL) {}
 };
 
 }
