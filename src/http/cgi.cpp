@@ -1,47 +1,32 @@
 #include "Context.hpp"
 #include "CgiHandler.hpp"
-#include "CGIBodyProvider.hpp"
+#include "FileBodyProvider.hpp"
 #include <cstdlib>
 
 namespace http {
  
-void Context::on_cgi_ready(BufferReader& source) {
+void Context::on_cgi_ready() {
 
 	CgiHandler& cgi_handler = *static_cast<CgiHandler*>(handler);
 
-	if (cgi_handler.state() == CgiHandler::Headers) {	
-		CGIResult	 result = cgi_handler.result();
+	CGIResult result = cgi_handler.result();
 
-		std::cout << "Satus Code: " << result.status_code << "\n";
-		
-		response.status = result.status_code;
-		response.headers = result.headers;
-		response.body = const_cast<CGIBodyProvider*>(new CGIBodyProvider(cgi_handler, source));
-		
-		const std::string& s = response.headers.get("content-length");
-		
-		if (!s.empty()) {
-			char* end = NULL;
-			
-			size_t content_length = ::strtoul(s.c_str(), &end, 10);
-			if (end && *end != '\0') {
-				state_ = ERROR;
-				action_ = AC_CLOSE;
-				return;
-			}
-			response.encoder = body::BodyEncoder(content_length);
-		}
-	}
+	std::cout << "Satus Code: " << result.status_code << "\n";
+	
+	response.status = result.status_code;
 
+	if (result.status_code != http::OK) return;
+
+	response.headers = result.headers;
+
+	::lseek(result.body_fd, 0, 0);
+
+	response.body = const_cast<body::FileBodyProvider*>(new body::FileBodyProvider(result.body_fd));
+	response.encoder = body::BodyEncoder(base::sizeof_file(result.body_filename.c_str()));
+	
+	state_ = WRITING_RESPONSE;
 	action_ = AC_WRITE;
-	std::cout << "Ready\n";
 }
 
-void Context::enable() {
-	switch (state_) {
-		case WRITING_RESPONSE:
-			
-	}
-}
 
 }

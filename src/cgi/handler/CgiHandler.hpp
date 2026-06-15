@@ -17,18 +17,21 @@ struct Request;
 
 struct CGIResult {
 	
-	int body_fd;
+	int 		body_fd;
 	std::string body_filename;
 
-	StatusCode	status_code;
+	StatusCode			status_code;
 	const Headers&		headers;
 
-	CGIResult(int fd, std::string const& filename, StatusCode code, const Headers& h)
-		: body_fd(fd),
-		body_filename(filename),
-		status_code(code),
-		headers(h) {}
+	CGIResult(int fd,
+		std::string const& filename,
+		StatusCode code,
+		const Headers& h)
 
+	: body_fd(fd),
+	body_filename(filename),
+	status_code(code),
+	headers(h) {}
 };
 
 class CgiHandler: public IRequestHandler {
@@ -47,8 +50,9 @@ private:
 	
 	cgi::Process process;
 	
-	int body_fd;
+	int 		body_fd;
 	std::string body_filename;
+
 	ResponseParser builder;
 
 	Channel stdin_ch;
@@ -61,8 +65,6 @@ private:
 	CgiHandler(const CgiHandler&);
 	CgiHandler& operator=(const CgiHandler&);
 	void close_channel(Channel& channel);
-
-	void write_body();
 
 public:
 	CgiHandler(const ResolutionResult& result,
@@ -81,8 +83,6 @@ public:
 	
 	void on_ch_error(Channel& channel);
 	void on_ch_closed(Channel& channel);
-	void pause_channel(Channel::Stream type);
-	void resume_channel(Channel::Stream type);
 	
 	CGIResult result();
 };

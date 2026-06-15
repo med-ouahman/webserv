@@ -26,11 +26,13 @@ CgiHandler::CgiHandler(const ResolutionResult& res,
     }
 
     if (process.want_stdin()) poller_.add(&stdin_ch);
+
     poller_.add(&stdout_ch);
     poller_.add(&stderr_ch);
 }
 
 CgiHandler::~CgiHandler() {
+    
     if (!stdin_ch.closed()) poller_.del(&stdin_ch);
     if (!stdout_ch.closed()) poller_.del(&stdout_ch);
     if (!stderr_ch.closed()) poller_.del(&stderr_ch);
@@ -38,9 +40,7 @@ CgiHandler::~CgiHandler() {
     if (body_fd >= 0) ::close(body_fd);
 }
 
-void CgiHandler::handle() {
-
-}
+void CgiHandler::handle() {}
 
 bool CgiHandler::finished() {
     return state_ == Finished;
@@ -55,35 +55,9 @@ CGIResult CgiHandler::result() {
     
     int tmp_fd = body_fd;
     body_fd = -1;
+
     return CGIResult(tmp_fd, body_filename, builder.status_code(), builder.headers());
 }
-
-void CgiHandler::pause_channel(Channel::Stream type) {
-
-    Channel* ch = NULL;
-
-    switch (type) {
-        case Channel::Stdin: ch = &stdin_ch; break;
-        case Channel::Stdout: ch = &stdout_ch; break;
-        case Channel::Stderr: ch = &stderr_ch; break;
-    }
-    
-    if (ch) ch->pause();
-}
-
-void CgiHandler::resume_channel(Channel::Stream type) {
-    
-    Channel* ch = NULL;
-    
-    switch (type) {
-        case Channel::Stdin: ch = &stdin_ch; break;
-        case Channel::Stdout: ch = &stdout_ch; break;
-        case Channel::Stderr: ch = &stderr_ch; break;
-    }
-    
-    if (ch) ch->resume();
-}
-
 
 
 }

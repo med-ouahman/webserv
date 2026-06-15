@@ -9,6 +9,11 @@ void CgiHandler::on_readable(BufferReader& reader, Channel& channel) {
 
     channel.read();
 
+    if (reader.size() == 0) {
+        protocol_.on_cgi_ready();
+        state_ = Finished;
+    }
+
     std::cout.write(reader.data(), reader.size());
 
     if (state_ == Headers) {
@@ -21,11 +26,21 @@ void CgiHandler::on_readable(BufferReader& reader, Channel& channel) {
         }
 
         if (body_fd < 0) {
+
             body_filename = "/tmp/" + base::random_string(10);
             body_fd = ::open(body_filename.c_str(), O_TMPFILE, 0600);
+
+            if (body_fd < 0) {
+                state_ = Error;
+                return;
+            }
+            state_ = StreamingBody;
         }
         
-        ssize_t w = ::write(body_fd, reader.data(), reader.size());
+    }
+
+    if (state_ == StreamingBody) {
+        ssize_t w = ::write(body_fd, reader.data() + reader.cursor(), reader.size());
 
         if (w < 0) {
             state_ = Error;
@@ -34,8 +49,6 @@ void CgiHandler::on_readable(BufferReader& reader, Channel& channel) {
 
         reader.advance(w);
     }
-
-    protocol_.on_cgi_ready(reader);
 }
 
 void CgiHandler::on_writable(BufferWriter& writer, Channel& channel) {

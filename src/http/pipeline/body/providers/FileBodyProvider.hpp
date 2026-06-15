@@ -9,13 +9,12 @@ class FileBodyProvider: public IBodyProvider {
 private:
     std::string filename_;
     int fd_;
-    size_t size;
 
 public:
     ssize_t read(BufferWriter& w, size_t size);
     FileBodyProvider(const std::string& filename);
+    FileBodyProvider(int fd_);
     ~FileBodyProvider();
-    static size_t file_size(const std::string& filename);
 };
 
 

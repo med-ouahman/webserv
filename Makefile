@@ -88,6 +88,8 @@ SRCS = src/server/main.cpp \
 	src/foundation/BufferWriter.cpp \
 	src/base/io/Writer.cpp \
 	src/base/io/Reader.cpp \
+	src/base/file.cpp \
+	src/base/random.cpp \
 
 OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 
