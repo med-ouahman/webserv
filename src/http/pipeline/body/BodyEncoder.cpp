@@ -23,7 +23,7 @@ ChunkedEncoder::~ChunkedEncoder() {
 
 }
 
-IBodyProvider::ReadResult ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
+ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
     
     switch (state_) {
 
@@ -39,12 +39,12 @@ IBodyProvider::ReadResult ChunkedEncoder::process(IBodyProvider* body, BufferWri
         /* fall through */
         case Data: {
             
-            IBodyProvider::ReadResult r = body->read(writer, writer.bytes_free());
-            if (r != IBodyProvider::Success) return r;
-
-            current_chunk_ = writer.size() - header_overhead;
-            std::cout << "Current: " << current_chunk_ << " Size: " << writer.size() << "\n";
+            ssize_t n = body->read(writer, writer.bytes_free());
+            std::cout << "N: " << n << " Size: " << writer.size() << "\n";
             std::cout.write(writer.read_ptr(), writer.size());
+            if (n < 0) return -1;
+            
+            current_chunk_ = n;
     
             std::string header = format(current_chunk_);
             std::cout << "Formated chunk: " << header << "\n";
@@ -64,10 +64,10 @@ IBodyProvider::ReadResult ChunkedEncoder::process(IBodyProvider* body, BufferWri
             break;
         case Final:
             std::cout << "Final chunk\n";
-            return IBodyProvider::Success;
+            return 0;
     }
 
-    return IBodyProvider::Success;
+    return writer.size();
 }
 
 
@@ -103,23 +103,22 @@ BodyEncoder::BodyEncoder(size_t content_length)
 BodyEncoder::~BodyEncoder() {}
 
 
-IBodyProvider::ReadResult BodyEncoder::encode(IBodyProvider* body, BufferWriter& writer) {
+ssize_t BodyEncoder::encode(IBodyProvider* body, BufferWriter& writer) {
 
     switch (encoding_) {
         case Chunked:
             return chunked_.process(body, writer);
         case ContentLength: {
 
-            if (fixed_.written >= fixed_.content_length) return IBodyProvider::Success;
+            if (fixed_.written >= fixed_.content_length) return 0;
 
             size_t rem = fixed_.content_length - fixed_.written;
             
-            IBodyProvider::ReadResult r = body->read(writer, rem);
-            if (r != IBodyProvider::Success) return r;
+            ssize_t n = body->read(writer, rem);
             
-            fixed_.written += writer.size();
-
-            return r;
+            if (n >= 0) fixed_.written += n;
+            
+            return n;
         }
 
         default:
@@ -128,7 +127,7 @@ IBodyProvider::ReadResult BodyEncoder::encode(IBodyProvider* body, BufferWriter&
             #endif
     }
     
-    return IBodyProvider::Success;
+    return 0;
 }
 
 }

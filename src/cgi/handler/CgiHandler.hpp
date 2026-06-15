@@ -7,8 +7,7 @@
 #include "IBodyProvider.hpp"
 #include "Channel.hpp"
 
-struct ServerContext;
-namespace runtime { namespace epoll { class EventPoller; };}
+namespace runtime { namespace epoll { class EventPoller; } }
 
 namespace http {
 
@@ -17,17 +16,23 @@ struct ResolutionResult;
 struct Request;
 
 struct CGIResult {
+	
+	int body_fd;
+	std::string body_filename;
 
-	StatusCode	status_code;	
+	StatusCode	status_code;
 	const Headers&		headers;
 
-	CGIResult(StatusCode code, const Headers& h)
-		: status_code(code),
+	CGIResult(int fd, std::string const& filename, StatusCode code, const Headers& h)
+		: body_fd(fd),
+		body_filename(filename),
+		status_code(code),
 		headers(h) {}
 
 };
 
 class CgiHandler: public IRequestHandler {
+
 public:
 enum State {
 	Headers,
@@ -42,6 +47,8 @@ private:
 	
 	cgi::Process process;
 	
+	int body_fd;
+	std::string body_filename;
 	ResponseParser builder;
 
 	Channel stdin_ch;
@@ -53,8 +60,9 @@ private:
 	
 	CgiHandler(const CgiHandler&);
 	CgiHandler& operator=(const CgiHandler&);
-
 	void close_channel(Channel& channel);
+
+	void write_body();
 
 public:
 	CgiHandler(const ResolutionResult& result,
@@ -76,7 +84,7 @@ public:
 	void pause_channel(Channel::Stream type);
 	void resume_channel(Channel::Stream type);
 	
-	CGIResult result() const;
+	CGIResult result();
 };
 
 }

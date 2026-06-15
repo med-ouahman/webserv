@@ -13,9 +13,7 @@ Channel::~Channel() {}
 
 void Channel::on_event(io::Event event) {
 
-    if (handler_.state() == CgiHandler::Error || handler_.finished()) {
-        state_ = Closed;
-    }
+    if (handler_.state() == CgiHandler::Error || handler_.finished()) { state_ = Closed;}
 
     if (state_ == Closed || state_ == Error) return;
 
@@ -39,9 +37,7 @@ void Channel::on_event(io::Event event) {
     }
 }
 
-Channel::Stream Channel::stream() const {
-    return stream_;
-}
+Channel::Stream Channel::stream() const { return stream_;}
 
 void Channel::read() {
     

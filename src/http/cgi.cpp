@@ -36,5 +36,12 @@ void Context::on_cgi_ready(BufferReader& source) {
 	action_ = AC_WRITE;
 	std::cout << "Ready\n";
 }
-	
+
+void Context::enable() {
+	switch (state_) {
+		case WRITING_RESPONSE:
+			
+	}
+}
+
 }

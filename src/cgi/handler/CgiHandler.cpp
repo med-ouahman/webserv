@@ -13,6 +13,7 @@ CgiHandler::CgiHandler(const ResolutionResult& res,
 
     : state_(Headers),
     process(cgi::resolve_exec_context(req, res)),
+    body_fd(-1),
     stdin_ch(Channel::Stdin, process.stdin_pipe().write_end(), io::Writable, *this),
     stdout_ch(Channel::Stdout, process.stdout_pipe().read_end(), io::Readable, *this),
     stderr_ch(Channel::Stderr, process.stderr_pipe().read_end(), io::Readable, *this),
@@ -33,6 +34,8 @@ CgiHandler::~CgiHandler() {
     if (!stdin_ch.closed()) poller_.del(&stdin_ch);
     if (!stdout_ch.closed()) poller_.del(&stdout_ch);
     if (!stderr_ch.closed()) poller_.del(&stderr_ch);
+
+    if (body_fd >= 0) ::close(body_fd);
 }
 
 void CgiHandler::handle() {
@@ -47,8 +50,12 @@ CgiHandler::State CgiHandler::state() const {
     return state_;
 }
 
-CGIResult CgiHandler::result() const {
-    return CGIResult(builder.status_code(), builder.headers());
+CGIResult CgiHandler::result() {
+    if (state_ == Error) return CGIResult(-1, "", INTERNAL_SERVER_ERROR, builder.headers());
+    
+    int tmp_fd = body_fd;
+    body_fd = -1;
+    return CGIResult(tmp_fd, body_filename, builder.status_code(), builder.headers());
 }
 
 void CgiHandler::pause_channel(Channel::Stream type) {

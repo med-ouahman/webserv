@@ -68,6 +68,7 @@ public:
 
 	
 	void on_cgi_ready(BufferReader& source);
+	void enable();
 
 	ContextAction next_action() const;
 };
