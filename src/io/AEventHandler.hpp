@@ -38,7 +38,6 @@ public:
     virtual void on_event(Event event) = 0;
     
     virtual ~AEventHandler() {
-        
         if (fd_ >= 0) {
             ::close(fd_);
             fd_ = -1;

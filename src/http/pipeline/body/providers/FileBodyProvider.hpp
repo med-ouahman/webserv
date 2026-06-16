@@ -3,8 +3,8 @@
 #include "IBodyProvider.hpp"
 
 namespace http {
-namespace body {
 
+namespace body {
 class FileBodyProvider: public IBodyProvider {
 private:
     std::string filename_;

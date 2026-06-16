@@ -18,7 +18,7 @@ int main(int argc, const char* argv[]) {
     }
     
     sys::handle_signals();
-
+    std::cout << sizeof(net::Connection) << "\n";
     std::string configfile = argv[1] != NULL ? argv[1]: "config/webserv.conf";
 
     config::Config conf = config::ConfigParser::build_default_config();

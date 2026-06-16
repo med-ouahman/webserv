@@ -26,6 +26,7 @@ CgiHandler::CgiHandler(const ResolutionResult& res,
     }
 
     if (process.want_stdin()) poller_.add(&stdin_ch);
+    else stdin_ch.shutdown();
 
     poller_.add(&stdout_ch);
     poller_.add(&stderr_ch);
@@ -33,9 +34,9 @@ CgiHandler::CgiHandler(const ResolutionResult& res,
 
 CgiHandler::~CgiHandler() {
     
-    if (!stdin_ch.closed()) poller_.del(&stdin_ch);
-    if (!stdout_ch.closed()) poller_.del(&stdout_ch);
-    if (!stderr_ch.closed()) poller_.del(&stderr_ch);
+    if (stdin_ch.state() != Channel::Closed) poller_.del(&stdin_ch);
+    if (stdout_ch.state() != Channel::Closed) poller_.del(&stdout_ch);
+    if (stderr_ch.state() != Channel::Closed) poller_.del(&stderr_ch);
 
     if (body_fd >= 0) ::close(body_fd);
 }
@@ -50,14 +51,19 @@ CgiHandler::State CgiHandler::state() const {
     return state_;
 }
 
-CGIResult CgiHandler::result() {
-    if (state_ == Error) return CGIResult(-1, "", INTERNAL_SERVER_ERROR, builder.headers());
-    
-    int tmp_fd = body_fd;
-    body_fd = -1;
+void CgiHandler::sync() {
 
-    return CGIResult(tmp_fd, body_filename, builder.status_code(), builder.headers());
+    Channel* channels[] = { &stdin_ch, &stdout_ch, &stderr_ch };
+
+    for (size_t i = 0; i < sizeof(channels) / sizeof(channels[0]); ++i) {
+        Channel& ch = *channels[i];
+
+        if ((state_ == Finished && ch.state() != Channel::Closed) || ch.state() == Channel::Closing) {
+            close_channel(ch);
+            ch.shutdown();
+        }
+    }
+
 }
-
 
 }

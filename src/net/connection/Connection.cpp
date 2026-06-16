@@ -16,7 +16,9 @@ Connection::Connection(int _fd, io::Event events, ServerContext& server_ctx)
     ctx(server_ctx),
     current_action(ctx.next_action()) {}
 
-Connection::~Connection() {}
+Connection::~Connection() {
+    
+}
 
 ConnectionState Connection::state() const { return state_; }
 

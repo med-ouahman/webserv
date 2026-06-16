@@ -20,6 +20,7 @@ enum Stream {
 
 enum State {
 	Open,
+	Closing,
 	Closed,
 	Error
 };
@@ -44,7 +45,9 @@ public:
 	void write();
 
 	Stream stream() const;
-	bool closed() const;
+	State state() const;
+	void shutdown();
+	void mark_closing();
 };
 
 

@@ -11,6 +11,7 @@ namespace epoll {
 
 bool EventPoller::add(io::AEventHandler* handler) {
 	
+	std::cout << "FD TO REGISTER: " << handler->fd() << "\n";
 	if (monitor_count >= MaxMonitorFds) {
 		std::cerr << "Cannot add fd, limit reached\n";
 		return false;
@@ -37,6 +38,9 @@ bool EventPoller::add(io::AEventHandler* handler) {
 		return false;
 	}
 
+	#ifdef DEBUG
+	std::cout << "REGISTERED FD: "  << handler->fd() << "\n";
+	#endif
 	++monitor_count;
 	return true;
 }
@@ -61,6 +65,7 @@ bool EventPoller::mod(io::AEventHandler* handler) {
 bool EventPoller::del(io::AEventHandler* handler) {
 	if (::epoll_ctl(epoll_fd, EPOLL_CTL_DEL, handler->fd(), NULL)) {
 		LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::del::epoll_ctl(EPOLL_CTL_DEL)"));
+		std::cerr << "Fd: " << handler->fd() << "\n";
 		return false;
 	}
 

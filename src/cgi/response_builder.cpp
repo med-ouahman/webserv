@@ -2,20 +2,42 @@
 #include <iostream>
 #include "http/Parser/parser.hpp"
 #include <cstdlib>
+#include <fcntl.h>
+#include <unistd.h>
 
 namespace http {
 
 ResponseParser::ResponseParser()
-    : code(OK), headers_(), parse_ctx() {}
+    : state_(Headers),
+    code(OK),
+    headers_(),
+    parse_ctx(),
+    body_fd(-1),
+    body_filename(),
+    body_content_length(0) {}
 
-ResponseParser::~ResponseParser() {}
+ResponseParser::~ResponseParser() {
+    if (body_fd >= 0) ::close(body_fd);
+    body_fd = -1;
+
+    if (body_filename.empty() == false) ::unlink(body_filename.c_str());
+    body_filename.clear();
+}
 
 ParseResult ResponseParser::parse_headers(BufferReader& reader) {
-    std::cout << "Start CGI header parsing...\n";
+    // std::cout << "Start CGI header parsing...\n";
 
-    std::cout << reader.size() << "\n";
-    while (parse_ctx.state_ != CGIParseContext::Done) {
+    while (state_ != Done) {
 
+        if (state_ == Body) {
+
+            ParseResult r = read_body(reader);
+            
+            if (r != Success) return r;
+
+            continue;
+        }
+        
         size_t max_scan_size = CGIParseContext::MaxHeaderBlockLen - parse_ctx.header_bytes;
         parse_ctx.scanner.reset();
         
@@ -27,11 +49,10 @@ ParseResult ResponseParser::parse_headers(BufferReader& reader) {
             std::cout << "Need more\n";
             return Continue;
         } 
-            
         
         if (parse_ctx.scanner.line().empty()) {
-            parse_ctx.state_ = CGIParseContext::Done;
-            break;
+            state_ = Body;
+            continue;
         }
 
         parse_ctx.header_bytes += parse_ctx.scanner.line().size();
@@ -41,7 +62,7 @@ ParseResult ResponseParser::parse_headers(BufferReader& reader) {
 
     }
 
-    std::cout << "finish CGI Header parsing\n";
+    // std::cout << "finish CGI\n";
     return Success;
 }
 
@@ -74,16 +95,8 @@ ParseResult ResponseParser::sanitize_status_header(std::string const& value) {
     return Success;
 }
 
-const Headers& ResponseParser::headers() const {
-    return headers_;
-}
-
-http::StatusCode ResponseParser::status_code() const {
-    return code;
-}
-
 bool ResponseParser::finished() const {
-    return parse_ctx.state_ == CGIParseContext::Done;
+    return state_ == Done;
 }
 
 ParseResult ResponseParser::parse_header(std::string const& line) {
@@ -114,6 +127,48 @@ ParseResult ResponseParser::parse_header(std::string const& line) {
     headers_.add(name, value);
     
     return Success;
+}
+
+ParseResult ResponseParser::read_body(BufferReader& reader) {
+    
+    if (reader.size() == 0) {
+        state_ = Done;
+        return Success;
+    }
+
+    if (body_fd < 0) {
+        
+        body_filename = "/tmp/" + base::random_string(10);
+        body_fd = ::open(body_filename.c_str(), O_WRONLY | O_CREAT, 0600);
+        
+        if (body_fd < 0) {
+            state_ = Error;
+            return ParseError;
+        }
+    }
+
+    ssize_t w = ::write(body_fd, reader.data() + reader.cursor(), reader.remaining());
+    
+    if (w < 0) {
+        state_ = Error;
+        return ParseError;
+    }
+
+    body_content_length += w;
+    reader.advance(w);
+    return Continue;
+}
+
+
+CGIResult ResponseParser::result() const {
+
+    ::close(body_fd);
+    body_fd = -1;
+
+    return CGIResult(body_filename,
+        body_content_length,
+        code,
+        headers_);
 }
 
 }

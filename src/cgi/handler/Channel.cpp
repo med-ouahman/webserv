@@ -13,41 +13,43 @@ Channel::~Channel() {}
 
 void Channel::on_event(io::Event event) {
 
-    if (handler_.state() == CgiHandler::Error || handler_.finished()) { state_ = Closed;}
-
-    if (state_ == Closed || state_ == Error) return;
-
     switch (event) {
         case io::Readable: case io::Hup:
-            handler_.on_readable(reader_, *this);
-            break;
+            handler_.on_readable(reader_, *this); break;
         case io::Writable:
-            handler_.on_writable(writer_, *this);
-            write();
-            break;
+            handler_.on_writable(writer_, *this); break;
         case io::RHup:
-            state_ = Closed;
-            handler_.on_ch_closed(*this);
-            break;
+            state_ = Closing; break;
         case io::Error:
-            state_ = Closed;
-            handler_.on_ch_error(*this);
-        default:
-            break;
+            state_ = Closing; break;
+        default: break;
     }
+
+    handler_.sync();
 }
 
 Channel::Stream Channel::stream() const { return stream_;}
+Channel::State Channel::state() const { return state_; };
+
+void Channel::shutdown() {
+    state_ = Closed;
+}
+
+void Channel::mark_closing() {
+    if (state_ == Closed) return;
+    
+    state_ = Closing;
+}
 
 void Channel::read() {
     
     ssize_t n = ::read(fd(), reader_.write_ptr(), reader_.capacity());
 
     if (n < 0) {
-        state_ = Error;
+        state_ = Closing;
     }
 
-    if (n == 0) state_ = Closed;
+    if (n == 0) state_ = Closing;
     
     reader_.update(n);
 }
@@ -56,15 +58,12 @@ void Channel::write() {
     ssize_t n = ::write(fd(), writer_.read_ptr(), writer_.bytes_pending());
 
     if (n < 0) {
-        state_ = Error;
+        handler_.close_channel(*this);
+        state_ = Closing;
         return;
     }
 
     writer_.advance_read(n);
-}
-
-bool Channel::closed() const {
-    return state_ == Closed;
 }
 
 }

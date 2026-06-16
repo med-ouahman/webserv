@@ -9,7 +9,7 @@ struct FixedEncoder {
     size_t content_length;
     size_t written;
 
-    FixedEncoder(size_t length): content_length(length) {};
+    FixedEncoder(size_t length): content_length(length), written(0) {};
 };
 
 class ChunkedEncoder {

@@ -29,8 +29,8 @@ Process::Process(const CGIExecContext& ctx)
     if (ctx.stdin_fd == STDIN_FILENO)
         stdin_pipe_.close_write_end();
     timeout_secs = ctx.timeout_seconds;
+
     spawn_time.update();
-    std::cout << "Spawning CGI Process\n";
     pid = ::fork();
     if (pid == 0)
     {
@@ -54,7 +54,6 @@ Process::Process(const CGIExecContext& ctx)
     
     if (pid < 0) {
         state_ = Error;
-        std::cout << "Failed\n";
     }
 }
 

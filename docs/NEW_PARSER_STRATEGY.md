@@ -268,9 +268,9 @@ The main HTTP parser acts only as:
 
 ---
 
-# LineScanner Utility
+# LineReader Utility
 
-A `LineScanner` utility is used to incrementally search for CRLF-terminated lines inside a byte stream.
+A `LineReader` utility is used to incrementally search for CRLF-terminated lines inside a byte stream.
 
 The scanner abstracts partial socket reads and line reconstruction.
 
@@ -320,7 +320,7 @@ This protects the parser against excessively large request lines or header field
 After a successful scan, the parsed line can be retrieved using:
 
 ```text
-std::string LineScanner::line();
+std::string LineReader::line();
 ```
 
 The returned string:
@@ -343,13 +343,13 @@ Returned line:
 
 # Design Rationale
 
-The `LineScanner` separates stream reconstruction from syntax parsing.
+The `LineReader` separates stream reconstruction from syntax parsing.
 
 This allows sub-parsers to operate on complete logical lines instead of raw socket buffers.
 
 Responsibilities become clearly separated:
 
-## LineScanner
+## LineReader
 
 Responsible for:
 
@@ -567,7 +567,7 @@ Example:
 4\r\n
 ```
 
-The existing `LineScanner` utility is reused here to read CRLF-terminated chunk headers.
+The existing `LineReader` utility is reused here to read CRLF-terminated chunk headers.
 
 ---
 

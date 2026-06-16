@@ -60,7 +60,11 @@ Context::Context(ServerContext& serv_ctx)
 	response.status = OK;
 }
 
-Context::~Context() {}
+Context::~Context() {
+	if (handler) delete handler;
+
+	handler = NULL;
+}
 
 Error Context::consume(const char* data, usize size) {
 	
@@ -125,10 +129,14 @@ Error Context::produce(BufferWriter& w) {
 	ssize_t n = response.encoder.encode(response.body, w);
 
 	if (n == 0) {
-		std::cout << "Response done officially\n";
-		action_ = AC_READ;
+		std::cout << "Closed\n";
+		action_ = AC_CLOSE;
 	}
 	
+	if (n < 0) {
+		action_ = AC_CLOSE;
+	}
+
 	return ERR_NONE;
 }
 

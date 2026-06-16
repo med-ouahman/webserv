@@ -110,6 +110,7 @@ ssize_t BodyEncoder::encode(IBodyProvider* body, BufferWriter& writer) {
             return chunked_.process(body, writer);
         case ContentLength: {
 
+            std::cout << "Content-Length: " << fixed_.content_length << "\n";
             if (fixed_.written >= fixed_.content_length) return 0;
 
             size_t rem = fixed_.content_length - fixed_.written;

@@ -22,6 +22,11 @@ struct Response {
 	body::BodyEncoder encoder;
 
 	Response(): body(NULL) {}
+	~Response() {
+		
+		if (body) delete body;
+		body = NULL;
+	}
 };
 
 }

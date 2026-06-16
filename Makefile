@@ -64,7 +64,7 @@ SRCS = src/server/main.cpp \
 	src/cgi/handler/Channel.cpp \
 	src/http/Context.cpp \
 	src/http/cgi.cpp \
-	src/http/common/LineScanner.cpp \
+	src/http/common/LineReader.cpp \
 	src/http/common/Headers.cpp \
 	src/http/Parser/parser.cpp \
 	src/http/Parser/request_line.cpp \

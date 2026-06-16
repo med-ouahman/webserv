@@ -114,8 +114,8 @@
 │   │   ├── parser
 │   │   │   ├── BodyReader.cpp
 │   │   │   ├── BodyReader.hpp
-│   │   │   ├── LineScanner.cpp
-│   │   │   ├── LineScanner.hpp
+│   │   │   ├── LineReader.cpp
+│   │   │   ├── LineReader.hpp
 │   │   │   ├── parse_headers.cpp
 │   │   │   ├── parse_http_request.cpp
 │   │   │   ├── Parser.cpp

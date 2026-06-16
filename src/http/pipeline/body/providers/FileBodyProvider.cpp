@@ -2,6 +2,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <string.h>
+#include <iostream>
+#include <cerrno>
 
 namespace http {
 namespace body {
@@ -23,7 +26,6 @@ FileBodyProvider::FileBodyProvider(int fd)
 
 FileBodyProvider::~FileBodyProvider() {
     if (fd_ >= 0) ::close(fd_);
-
     fd_ = -1;
 }
 
@@ -31,7 +33,12 @@ ssize_t FileBodyProvider::read(BufferWriter& writer, size_t size) {
     
     if (fd_ < 0) return -1;
 
-    return ::read(fd_, writer.write_ptr(), std::min(size, writer.bytes_free()));
+    ssize_t n = ::read(fd_, writer.write_ptr(), std::min(size, writer.bytes_free()));
+    
+    if (n < 0) return n;
+
+    writer.advance_write(n);
+    return n;
 }
 
 }

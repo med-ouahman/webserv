@@ -15,25 +15,6 @@ class Context;
 struct ResolutionResult;
 struct Request;
 
-struct CGIResult {
-	
-	int 		body_fd;
-	std::string body_filename;
-
-	StatusCode			status_code;
-	const Headers&		headers;
-
-	CGIResult(int fd,
-		std::string const& filename,
-		StatusCode code,
-		const Headers& h)
-
-	: body_fd(fd),
-	body_filename(filename),
-	status_code(code),
-	headers(h) {}
-};
-
 class CgiHandler: public IRequestHandler {
 
 public:
@@ -64,7 +45,6 @@ private:
 	
 	CgiHandler(const CgiHandler&);
 	CgiHandler& operator=(const CgiHandler&);
-	void close_channel(Channel& channel);
 
 public:
 	CgiHandler(const ResolutionResult& result,
@@ -81,10 +61,8 @@ public:
 	void on_writable(BufferWriter& writer, Channel& channel);
 	void on_readable(BufferReader& reader, Channel& channel);
 	
-	void on_ch_error(Channel& channel);
-	void on_ch_closed(Channel& channel);
-	
-	CGIResult result();
+	void close_channel(Channel& channel);
+	void sync();
 };
 
 }

@@ -36,8 +36,8 @@ void Server::close_connection(net::Connection* conn) {
     connections.erase(
         std::remove(connections.begin(), connections.end(), conn),
         connections.end()
-   );
-
+    );
+    std::cout << "DELETED CONNECTION: " << conn << "\n";
     delete conn;
 }
 
@@ -53,6 +53,7 @@ bool Server::start_listeners() {
             LOG_ERROR(result.error);
             return false;
         }
+
         net::Listener* sock = result.result;
         
         if (!poller.add(sock)) return false;
@@ -67,6 +68,7 @@ void Server::add_connection(int conn_fd) {
 
     net::Connection* connection = new net::Connection(conn_fd, io::Readable, ctx);
     
+    std::cout << "NEW CONNECTION: " << connection << "\n";
     if (!poller.add(connection)) return;
 
     connections.push_back(connection);
@@ -78,6 +80,7 @@ void Server::add_connection(int conn_fd) {
 */
 
 void Server::sweep() {
+
     for (size_t i(0); i < connections.size();) {
         net::Connection* conn = connections.at(i);
         conn->sync();
