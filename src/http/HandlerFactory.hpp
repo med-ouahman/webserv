@@ -13,6 +13,9 @@ private:
 	ServerContext server_ctx;
 	Context& protocol_;
 
+	HandlerFactory(const HandlerFactory&);
+	HandlerFactory& operator=(const HandlerFactory&);
+	
 public:
 	enum RequestType {
 		StaticFile,
