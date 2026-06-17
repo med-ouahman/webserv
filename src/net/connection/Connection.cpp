@@ -25,7 +25,13 @@ ConnectionState Connection::state() const { return state_; }
 bool Connection::closing() const { return state_ == Closing; }
 
 void Connection::update(http::ContextAction action) {
-    
+
+    ctx.print_context_action(action);
+    Connection* c = this;
+    c->print_connection_state(state_);
+
+    if (state_ == Closing && http::AC_CLOSE != action) action = http::AC_CLOSE;
+
     switch (action) {
         case http::AC_READ: state_ = Reading; break;
         case http::AC_WRITE: state_ = Writing; break;
@@ -50,11 +56,54 @@ void Connection::update(http::ContextAction action) {
 void Connection::sync() {
     
     http::ContextAction next = ctx.next_action();
-    if (next == current_action) return;
 
     current_action = next;
 
     update(current_action);
+
 }
 
+
+
+void Connection::print_connection_state(ConnectionState state)
+{
+    switch (state) {
+    case Reading:
+        std::cout << "ConnectionState::Reading\n";
+        break;
+    case Writing:
+        std::cout << "ConnectionState::Writing\n";
+        break;
+    case Closing:
+        std::cout << "ConnectionState::Closing\n";
+        break;
+    default:
+        std::cout << "Unknown ConnectionState\n";
+        break;
+    }
+}
+
+}
+
+namespace http {
+        void Context::print_context_action(ContextAction action) {
+        switch (action) {
+            case AC_READ:
+            std::cout << "ContextAction::AC_READ\n";
+            break;
+            case AC_WORK:
+            std::cout << "ContextAction::AC_WORK\n";
+            break;
+            case AC_WRITE:
+            std::cout << "ContextAction::AC_WRITE\n";
+            break;
+            case AC_CLOSE:
+            std::cout << "ContextAction::AC_CLOSE\n";
+            break;
+            default:
+            std::cout << "Unknown ContextAction\n";
+            break;
+        }
+    }
+    
 }

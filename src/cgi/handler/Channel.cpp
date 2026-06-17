@@ -15,16 +15,20 @@ void Channel::on_event(io::Event event) {
 
     switch (event) {
         case io::Readable: case io::Hup:
+            std::cout << "Channel Readable\n";
             handler_.on_readable(reader_, *this); break;
         case io::Writable:
+            std::cout << "Channel Writable\n";
             handler_.on_writable(writer_, *this); break;
         case io::RHup:
+            std::cout << "Channel ReadEnd hangup\n";
             state_ = Closing; break;
         case io::Error:
+            std::cout << "Channel Error\n";
             state_ = Closing; break;
         default: break;
     }
-
+    
     handler_.sync();
 }
 

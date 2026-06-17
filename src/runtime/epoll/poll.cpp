@@ -16,28 +16,14 @@ int EventPoller::poll() {
         return 1;
     }
 
-    std::cout << "EPOLL_WAIT STARTS HERE-----------------------------------------------------------------\n";
+    if (n == 0) std::cout << "No events\n";
+
     for (int i(0); i < n; ++i) {
         io::AEventHandler* handler = static_cast<io::AEventHandler*>(events[i].data.ptr); 
-        std::cout << "EVENT_HANDLER: " << handler << "\n";
-        switch (events[i].events) {
-            case EPOLLIN:
-                std::cout << "EPOLLIN\n";
-                break;
-            case EPOLLOUT:
-                std::cout << "EPOLLOUT\n";
-                break;
-            case EPOLLHUP:
-                std::cout << "HUP\n";
-                break; 
-            case EPOLLRDHUP:
-                std::cout << "RHUP\n";
-                break;
-        }
 
         handler->on_event(encode_events(events[i].events));
     }
-    std::cout << "EPOLL_WAIT ENDS HERE-----------------------------------------------------------------\n";
+
     return 0;
 }
 

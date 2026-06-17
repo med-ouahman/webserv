@@ -39,6 +39,7 @@ CgiHandler::~CgiHandler() {
     if (stderr_ch.state() != Channel::Closed) poller_.del(&stderr_ch);
 
     if (body_fd >= 0) ::close(body_fd);
+    body_fd = -1;
 }
 
 void CgiHandler::handle() {}

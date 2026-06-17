@@ -66,7 +66,10 @@ public:
 
 	Error produce(BufferWriter& writer);
 
+	void print_context_action(ContextAction action);
 	void on_cgi_ready(const CGIResult result);
+
+	void sync();
 
 	ContextAction next_action() const;
 };

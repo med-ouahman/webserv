@@ -37,7 +37,9 @@ void Server::close_connection(net::Connection* conn) {
         std::remove(connections.begin(), connections.end(), conn),
         connections.end()
     );
-    std::cout << "DELETED CONNECTION: " << conn << "\n";
+
+    std::cout << "DELETED CONNECTION: " << conn << "FD: " << conn->fd() << "\n";
+    
     delete conn;
 }
 
@@ -83,6 +85,7 @@ void Server::sweep() {
 
     for (size_t i(0); i < connections.size();) {
         net::Connection* conn = connections.at(i);
+
         conn->sync();
         poller.sync(conn);
 

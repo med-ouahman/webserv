@@ -61,6 +61,7 @@ Context::Context(ServerContext& serv_ctx)
 }
 
 Context::~Context() {
+	
 	if (handler) delete handler;
 
 	handler = NULL;
@@ -138,6 +139,11 @@ Error Context::produce(BufferWriter& w) {
 	}
 
 	return ERR_NONE;
+}
+
+
+void Context::sync() {
+
 }
 
 }

@@ -26,6 +26,7 @@ public:
     ConnectionState state() const;
     bool closing() const;
     void sync();
+    void print_connection_state(ConnectionState state);
 
 private:
     ConnectionState state_;  
