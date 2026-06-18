@@ -155,6 +155,7 @@ void Context::refresh_state() {
 		delete h;
 		h = NULL;
 		handler = NULL;
+		std::cout << "Deleting the CGI handler\n";
 	}
 }
 

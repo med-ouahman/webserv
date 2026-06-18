@@ -25,8 +25,9 @@ ResponseParser::~ResponseParser() {
 }
 
 ResponseParser::ParseResult ResponseParser::parse_headers(BufferReader& reader) {
-    // std::cout << "Start CGI header parsing...\n";
+    std::cout << "Start CGI header parsing...\n";
 
+    std::cout.write(reader.data(), reader.size());
     while (state_ != Done) {
 
         if (state_ == Body) {
@@ -62,7 +63,7 @@ ResponseParser::ParseResult ResponseParser::parse_headers(BufferReader& reader) 
 
     }
 
-    // std::cout << "finish CGI\n";
+    std::cout << "finish CGI\n";
     return Success;
 }
 

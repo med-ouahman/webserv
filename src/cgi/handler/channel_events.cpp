@@ -22,10 +22,10 @@ void CgiHandler::on_readable(BufferReader& reader, Channel& channel) {
     if (r == ResponseParser::ParseError) {
         reason_ = ParseError;
         response_state = Error;
-    } else {
-        response_state = Finished;
+        return;
     }
 
+    response_state = Finished;
     protocol_.on_cgi_ready(builder.result());
 }
 

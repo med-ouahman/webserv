@@ -25,9 +25,7 @@ enum State {
 };
 
 enum ResponseState {
-	Headers,
-	HeadersDone,
-	StreamingBody,
+	Processing,
 	Finished,
 	Error,
 };
@@ -76,7 +74,8 @@ private:
 	
 	CgiHandler(const CgiHandler&);
 	CgiHandler& operator=(const CgiHandler&);
-	void check_timeout();
+
+	bool timedout();
 	void check_process();
 	void check_channels();
 	
@@ -87,8 +86,6 @@ public:
 		Context& ctx);
 
 	~CgiHandler();
-	ResponseState state() const;
-	FailureReason reason() const;
 	
 	void handle();
 	bool finished();

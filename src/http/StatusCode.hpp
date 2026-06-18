@@ -61,8 +61,10 @@ inline const char* status_msg(StatusCode code) {
 			case INTERNAL_SERVER_ERROR: return "Internal Server Error";
 			case NOT_IMPLEMENTED: return "Not Implemented";
 			case BAD_GATEWAY: return "Bad Gateway";
+			case GATEWAY_TIMEOUT: return "Gateway Timeout\n";
 			case HTTP_VERSION_NOT_SUPPORTED: return "HTTP Version Not Supported";
 	}
+	
 	return "Internal Server Error";
 }
 

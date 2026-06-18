@@ -32,7 +32,7 @@ void Channel::on_event(io::Event event) {
 }
 
 Channel::Stream Channel::stream() const { return stream_; }
-Channel::State Channel::state() const { return state_; };
+Channel::State Channel::state() const { return state_; }
 
 void Channel::shutdown() {
     state_ = Closed;
@@ -61,7 +61,6 @@ void Channel::write() {
     ssize_t n = ::write(fd(), writer_.read_ptr(), writer_.bytes_pending());
 
     if (n < 0) {
-        handler_.close_channel(*this);
         state_ = Closing;
         return;
     }

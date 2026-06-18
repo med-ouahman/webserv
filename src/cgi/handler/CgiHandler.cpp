@@ -14,11 +14,12 @@ CgiHandler::CgiHandler(const ResolutionResult& res,
         runtime::epoll::EventPoller& p,
         Context& ctx)
     : state_(Working),
-    response_state(Headers),
+    response_state(Processing),
     reason_(None),
     process(cgi::resolve_exec_context(req, res)),
     spawn_time(),
     sigterm_sent_at(0),
+    shutdown_state(SigTerm),
     body_fd(-1),
     stdin_ch(Channel::Stdin, process.stdin_pipe().write_end(), io::Writable, *this),
     stdout_ch(Channel::Stdout, process.stdout_pipe().read_end(), io::Readable, *this),
@@ -47,6 +48,7 @@ CgiHandler::~CgiHandler() {
     if (stderr_ch.state() != Channel::Closed) poller_.del(&stderr_ch);
 
     if (body_fd >= 0) ::close(body_fd);
+
     body_fd = -1;
 }
 
@@ -56,10 +58,12 @@ bool CgiHandler::finished() {
     return state_ == Done;
 }
 
-CgiHandler::FailureReason CgiHandler::reason() const { return reason_; }
+bool CgiHandler::timedout() {
+    bool out = spawn_time.elapsed() > cgi_timeout_sec;
 
-void CgiHandler::check_timeout() {
-    if (spawn_time.elapsed() > cgi_timeout_sec) reason_ = Timeout;
+    if (out) reason_ = Timeout;
+    
+    return out;
 }
 
 void CgiHandler::check_channels() {
@@ -83,13 +87,6 @@ void CgiHandler::check_process() {
 
     process.poll();
 
-    if (process.reaped()) {
-        shutdown_state = Reaped;
-        return;
-    }
-
-    if (reason_ == None) check_timeout();
-
     switch (shutdown_state) {
         case SigTerm:
             sigterm_sent_at.update();
@@ -112,29 +109,32 @@ void CgiHandler::check_process() {
 
 void CgiHandler::refresh_state() {
 
-    if (response_state == Finished || response_state == Error) state_ = Cleanup;
+    if ((response_state == Finished || response_state == Error)|| timedout()) state_ = Cleanup;
 
-    if (shutdown_state != Reaped) check_process();
+    if (state_ == Cleanup && shutdown_state != Reaped) check_process();
+
+    if (process.reaped()) shutdown_state = Reaped;
 
     check_channels();
 
     if (shutdown_state != Reaped) return;
 
-    if (reason_ != None) {
+    if (reason_ != None && response_state == Error) {
         CGIResult result;
         
         switch (reason_) {
             case Timeout: result.status_code = GATEWAY_TIMEOUT; break;
+
             case ProcessError: case ParseError: result.status_code = BAD_GATEWAY; break;
+
             case Internal: result.status_code = INTERNAL_SERVER_ERROR; break;
-            
+
             default: break;
         }
     
         protocol_.on_cgi_ready(result);
     }
 
-    state_ = Done;
 }
 
 }

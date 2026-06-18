@@ -80,6 +80,8 @@ void Process::terminate() {
 
 void Process::poll() {
     
+    if (state_ == Terminated) return;
+    
     pid_t p = ::waitpid(pid_, &status_, WNOHANG);
 
     if (p == 0) return;
@@ -106,11 +108,11 @@ ProcessResult Process::result() const {
 int Process::status_code(const ProcessResult& result) {
 
     switch (result.reason) {
-        case ProcessExitReason::Signaled:
+        case Signaled:
             return WTERMSIG(result.status) + 128;
-        case ProcessExitReason::Exited:
+        case Exited:
             return WEXITSTATUS(result.status);
-        case ProcessExitReason::Stopped:
+        case Stopped:
             return W_STOPCODE(result.status);
         default: return 0; 
     }
