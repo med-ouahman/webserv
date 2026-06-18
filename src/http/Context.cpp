@@ -150,6 +150,12 @@ void Context::refresh_state() {
 
 	CgiHandler* h = static_cast<CgiHandler*>(handler);
 	h->refresh_state();
+	
+	if (h->finished()) {
+		delete h;
+		h = NULL;
+		handler = NULL;
+	}
 }
 
 }

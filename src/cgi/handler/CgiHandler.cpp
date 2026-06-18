@@ -76,6 +76,7 @@ void CgiHandler::check_channels() {
             ch.shutdown();
         }
     }
+
 }
 
 void CgiHandler::check_process() {
