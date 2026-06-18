@@ -6,19 +6,13 @@
 
 namespace http {
 
-enum ParseResult {
-	Success,
-	ParseError,
-	Continue,
-};
-
 struct CGIResult {
-
+	
 	std::string body_filename;
 	size_t		body_content_length;
 
-	StatusCode			status_code;
-	const Headers&		headers;
+	StatusCode	status_code;
+	Headers		headers;
 
 	CGIResult(
 		std::string const& filename,
@@ -29,6 +23,10 @@ struct CGIResult {
 	body_content_length(body_len),
 	status_code(code),
 	headers(h) {}
+
+	CGIResult(StatusCode code): status_code(code) {}
+
+	CGIResult() {}
 };
 
 
@@ -43,11 +41,18 @@ struct CGIParseContext {
 
 class ResponseParser {
 public:
+
 enum OutputState {
 	Headers,
 	Body,
 	Done,
 	Error
+};
+
+enum ParseResult {
+	Success,
+	ParseError,
+	Continue,
 };
 
 private:
@@ -69,11 +74,9 @@ private:
 public:
 	ResponseParser();
 	~ResponseParser();
-	ParseResult parse_headers(BufferReader& reader);
-
-    const http::Headers&	headers() const;
-    http::StatusCode		status_code() const;
-	bool					finished() const;
+	
+	ParseResult	parse_headers(BufferReader& reader);
+	bool		finished() const;
 
 	CGIResult result() const;
 };

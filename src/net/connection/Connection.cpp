@@ -55,6 +55,8 @@ void Connection::update(http::ContextAction action) {
 
 void Connection::sync() {
     
+    ctx.refresh_state();
+
     http::ContextAction next = ctx.next_action();
 
     current_action = next;
@@ -86,24 +88,24 @@ void Connection::print_connection_state(ConnectionState state)
 }
 
 namespace http {
-        void Context::print_context_action(ContextAction action) {
-        switch (action) {
-            case AC_READ:
-            std::cout << "ContextAction::AC_READ\n";
-            break;
-            case AC_WORK:
-            std::cout << "ContextAction::AC_WORK\n";
-            break;
-            case AC_WRITE:
-            std::cout << "ContextAction::AC_WRITE\n";
-            break;
-            case AC_CLOSE:
-            std::cout << "ContextAction::AC_CLOSE\n";
-            break;
-            default:
-            std::cout << "Unknown ContextAction\n";
-            break;
-        }
-    }
-    
+void Context::print_context_action(ContextAction action) {
+switch (action) {
+    case AC_READ:
+    std::cout << "ContextAction::AC_READ\n";
+    break;
+    case AC_WORK:
+    std::cout << "ContextAction::AC_WORK\n";
+    break;
+    case AC_WRITE:
+    std::cout << "ContextAction::AC_WRITE\n";
+    break;
+    case AC_CLOSE:
+    std::cout << "ContextAction::AC_CLOSE\n";
+    break;
+    default:
+    std::cout << "Unknown ContextAction\n";
+    break;
+}
+}
+
 }

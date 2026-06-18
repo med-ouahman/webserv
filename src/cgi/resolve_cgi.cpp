@@ -121,8 +121,7 @@ CGIExecContext resolve_exec_context(http::Request const& req, const http::Resolu
     http::Headers req_headers;
 
     exec_ctx.stdin_fd = STDIN_FILENO;
-    // if (!req_ctx.body_filename.empty())
-        // exec_ctx.stdin_fd = ::open(req_ctx.body_filename.c_str(), O_RDONLY);
+    
     exec_ctx.envp = EnvBuilder::build(req_ctx, req_headers);
     exec_ctx.argv.push(req_ctx.interpreter);
     exec_ctx.argv.push("cgi-bin/hello.py");

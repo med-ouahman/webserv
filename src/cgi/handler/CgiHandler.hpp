@@ -16,9 +16,15 @@ struct ResolutionResult;
 struct Request;
 
 class CgiHandler: public IRequestHandler {
-
 public:
+
 enum State {
+	Working,
+	Cleanup,
+	Done,
+};
+
+enum ResponseState {
 	Headers,
 	HeadersDone,
 	StreamingBody,
@@ -26,11 +32,36 @@ enum State {
 	Error,
 };
 
+enum FailureReason {
+    None,
+    ParseError,
+    Timeout,
+	ProcessError,
+	Internal
+};
+
+enum ShutdownState {
+	SigTerm,
+	WaitingSigTerm,
+	SigKill,
+	Reaping,
+	Reaped,
+};
+
 private:
+	static time_t cgi_timeout_sec;
+
 	State state_;
-	
-	cgi::Process process;
-	
+
+	ResponseState response_state;
+	FailureReason reason_;
+
+	cgi::Process 	process;
+    Timestamp		spawn_time;
+    Timestamp		sigterm_sent_at;
+
+	ShutdownState	shutdown_state;
+
 	int 		body_fd;
 	std::string body_filename;
 
@@ -45,7 +76,10 @@ private:
 	
 	CgiHandler(const CgiHandler&);
 	CgiHandler& operator=(const CgiHandler&);
-
+	void check_timeout();
+	void check_process();
+	void check_channels();
+	
 public:
 	CgiHandler(const ResolutionResult& result,
 		const http::Request& req,
@@ -53,7 +87,8 @@ public:
 		Context& ctx);
 
 	~CgiHandler();
-	State state() const;
+	ResponseState state() const;
+	FailureReason reason() const;
 	
 	void handle();
 	bool finished();
@@ -62,7 +97,7 @@ public:
 	void on_readable(BufferReader& reader, Channel& channel);
 	
 	void close_channel(Channel& channel);
-	void sync();
+	void refresh_state();
 };
 
 }

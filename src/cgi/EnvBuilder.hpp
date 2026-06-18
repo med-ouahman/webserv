@@ -25,7 +25,7 @@ struct CGIRequestContext {
 struct CGIExecContext {
     std::string working_dir;
     int         stdin_fd;
-    size_t      timeout_seconds;
+
     CStringArray argv;
     CStringArray envp;
 };
@@ -38,13 +38,14 @@ private:
     
     static std::string transform(bool has_http_prefix, http::Headers::const_iterator& it);
     static http::Headers build_metadata(const CGIRequestContext& context);
-	
-    static bool forbidden_header(const std::string& header_name);    
+    static bool forbidden_header(const std::string& header_name);
+    
 public:
     static CStringArray build(const CGIRequestContext& ctx,
        http::Headers const& request_headers);
 };
 
-CGIExecContext resolve_exec_context(const http::Request& req, const http::ResolutionResult& res);
+CGIExecContext resolve_exec_context(const http::Request& req,
+    const http::ResolutionResult& res);
 
 }

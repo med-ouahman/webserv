@@ -7,8 +7,6 @@
 namespace http {
 
 void CgiHandler::on_readable(BufferReader& reader, Channel& channel) {
-    
-    if (channel.state() == Channel::Closed) return;
 
     channel.read();
 
@@ -17,14 +15,18 @@ void CgiHandler::on_readable(BufferReader& reader, Channel& channel) {
         return;
     }
 
-    // std::cout.write(reader.data(), reader.size());
-    builder.parse_headers(reader);
-
-    if (!builder.finished()) return;
+    ResponseParser::ParseResult r = builder.parse_headers(reader);
     
-    state_ = Finished;
-    protocol_.on_cgi_ready(builder.result());
+    if (r == ResponseParser::Continue) return;
 
+    if (r == ResponseParser::ParseError) {
+        reason_ = ParseError;
+        response_state = Error;
+    } else {
+        response_state = Finished;
+    }
+
+    protocol_.on_cgi_ready(builder.result());
 }
 
 void CgiHandler::on_writable(BufferWriter& writer, Channel& channel) {

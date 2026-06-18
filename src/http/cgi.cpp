@@ -8,10 +8,13 @@ namespace http {
  
 void Context::on_cgi_ready(const CGIResult result) {
 
-	
 	response.status = result.status_code;
 
-	if (result.status_code != http::OK) return;
+	if (result.status_code != http::OK) {
+		/* return an error response */
+		action_ = AC_CLOSE;
+		return;
+	}
 
 	response.headers = result.headers;
 

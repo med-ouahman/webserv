@@ -32,3 +32,9 @@ HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: 562\r\nHost: webserv\r\n
 </body>
 </html>
 """)
+
+def do_nothing():
+    pass
+    
+while True:
+    do_nothing()

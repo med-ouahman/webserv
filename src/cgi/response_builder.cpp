@@ -24,7 +24,7 @@ ResponseParser::~ResponseParser() {
     body_filename.clear();
 }
 
-ParseResult ResponseParser::parse_headers(BufferReader& reader) {
+ResponseParser::ParseResult ResponseParser::parse_headers(BufferReader& reader) {
     // std::cout << "Start CGI header parsing...\n";
 
     while (state_ != Done) {
@@ -66,7 +66,7 @@ ParseResult ResponseParser::parse_headers(BufferReader& reader) {
     return Success;
 }
 
-ParseResult ResponseParser::sanitize_status_header(std::string const& value) {
+ResponseParser::ParseResult ResponseParser::sanitize_status_header(std::string const& value) {
 
     size_t space_pos = value.find(' ');
 
@@ -99,7 +99,7 @@ bool ResponseParser::finished() const {
     return state_ == Done;
 }
 
-ParseResult ResponseParser::parse_header(std::string const& line) {
+ResponseParser::ParseResult ResponseParser::parse_header(std::string const& line) {
 
     std::cout << "|" <<  line << "|\n";
 
@@ -129,7 +129,7 @@ ParseResult ResponseParser::parse_header(std::string const& line) {
     return Success;
 }
 
-ParseResult ResponseParser::read_body(BufferReader& reader) {
+ResponseParser::ParseResult ResponseParser::read_body(BufferReader& reader) {
     
     if (reader.size() == 0) {
         state_ = Done;

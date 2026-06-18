@@ -8,17 +8,13 @@
 
 namespace cgi {
 
-time_t Process::timeout_secs;
-
 Process::Process(const CGIExecContext& ctx)
     : state_(Spawn), 
-    pid(-1),
-    status(0),
+    pid_(-1),
+    status_(0),
     stdin_pipe_(),
     stdout_pipe_(),
-    stderr_pipe_(),
-    spawn_time(),
-    sigterm_sent_at(0) {
+    stderr_pipe_() {
     
     if (!stderr_pipe_ || !stdout_pipe_  || !stdin_pipe_) {
         state_ = Error;
@@ -28,11 +24,9 @@ Process::Process(const CGIExecContext& ctx)
     state_ = Running;
     if (ctx.stdin_fd == STDIN_FILENO)
         stdin_pipe_.close_write_end();
-    timeout_secs = ctx.timeout_seconds;
 
-    spawn_time.update();
-    pid = ::fork();
-    if (pid == 0)
+    pid_ = ::fork();
+    if (pid_ == 0)
     {
         if (ctx.stdin_fd != STDIN_FILENO)
             ::dup2(ctx.stdin_fd, STDIN_FILENO);
@@ -51,51 +45,78 @@ Process::Process(const CGIExecContext& ctx)
     stdout_pipe_.close_write_end();
     stderr_pipe_.close_write_end();
     
-    
-    if (pid < 0) {
-        state_ = Error;
-    }
+    if (pid_ < 0) state_ = Error;
 }
-
 
 Process::~Process() {
-    ::waitpid(pid, &status, 0);
+    ::waitpid(pid_, &status_, 0);
 }
 
-bool Process::timedout() {
-    if (sigterm_sent_at.seconds() == 0) {
-        if (spawn_time.elapsed() >= timeout_secs) {
-            sigterm_sent_at.update();
-            ::kill(pid, SIGTERM);
-            if (0 == ::waitpid(pid, &status, WNOHANG)) return false;
-            return true;
-        }
+Pipe& Process::stdin_pipe() { return stdin_pipe_; }
+
+Pipe& Process::stdout_pipe() { return stdout_pipe_; }
+
+Pipe& Process::stderr_pipe() { return stderr_pipe_; }
+
+bool Process::running() const { return state_ == Running; }
+
+bool Process::want_stdin() { return stdin_pipe_.write_end() >= 0; }
+
+bool Process::reaped() const {
+    return state_ == Terminated;
+}
+
+pid_t Process::pid() const { return pid_; }
+
+int   Process::status() const { return status_; }
+
+void Process::kill() {
+    ::kill(pid_, SIGKILL);
+}
+
+void Process::terminate() {
+    ::kill(pid_, SIGTERM);
+}
+
+void Process::poll() {
+    
+    pid_t p = ::waitpid(pid_, &status_, WNOHANG);
+
+    if (p == 0) return;
+
+    if (p == pid_) state_ = Terminated;
+}
+
+ProcessResult Process::result() const {
+
+    ProcessResult r;
+    r.status = status_;
+
+    if (WIFEXITED(status_))
+        r.reason = Exited;
+    else if (WIFSIGNALED(status_))
+        r.reason = Signaled;
+    else if (WIFSTOPPED(status_))
+        r.reason = Stopped;
+    else
+        r.reason = Unknown;
+    return r;
+}
+
+int Process::status_code(const ProcessResult& result) {
+
+    switch (result.reason) {
+        case ProcessExitReason::Signaled:
+            return WTERMSIG(result.status) + 128;
+        case ProcessExitReason::Exited:
+            return WEXITSTATUS(result.status);
+        case ProcessExitReason::Stopped:
+            return W_STOPCODE(result.status);
+        default: return 0; 
     }
 
-    if (sigterm_sent_at.elapsed() >= 2) {
-        ::kill(pid, SIGKILL);
-    }
-    return false;
+    return 0;
 }
 
-Pipe& Process::stdin_pipe() {
-    return stdin_pipe_;
-}
-
-Pipe& Process::stdout_pipe() {
-    return stdout_pipe_;
-}
-
-Pipe& Process::stderr_pipe() {
-    return stderr_pipe_;
-}
-
-bool Process::running() const {
-    return state_ == Running;
-}
-
-bool Process::want_stdin() {
-    return stdin_pipe_.write_end() >= 0;
-}
 
 }

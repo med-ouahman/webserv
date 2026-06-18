@@ -29,10 +29,9 @@ void Channel::on_event(io::Event event) {
         default: break;
     }
     
-    handler_.sync();
 }
 
-Channel::Stream Channel::stream() const { return stream_;}
+Channel::Stream Channel::stream() const { return stream_; }
 Channel::State Channel::state() const { return state_; };
 
 void Channel::shutdown() {

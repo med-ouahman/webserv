@@ -142,8 +142,14 @@ Error Context::produce(BufferWriter& w) {
 }
 
 
-void Context::sync() {
+void Context::refresh_state() {
 
+	if (!handler) {
+		return;
+	}
+
+	CgiHandler* h = static_cast<CgiHandler*>(handler);
+	h->refresh_state();
 }
 
 }
