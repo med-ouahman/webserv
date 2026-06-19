@@ -16,8 +16,6 @@ int EventPoller::poll() {
         return 1;
     }
 
-    if (n == 0) std::cout << "No events\n";
-
     for (int i(0); i < n; ++i) {
         io::AEventHandler* handler = static_cast<io::AEventHandler*>(events[i].data.ptr); 
 

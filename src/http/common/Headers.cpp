@@ -81,5 +81,8 @@ Headers::const_iterator Headers::begin() const {
 Headers::const_iterator Headers::end() const {
     return headers_.end();
 }
+void Headers::reserve(size_t n) {
+    headers_.reserve(n);
+}
 
 }

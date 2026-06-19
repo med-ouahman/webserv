@@ -58,7 +58,7 @@ public:
 
     void kill();
     void terminate();
-    void poll();
+    void reap();
 
     ProcessResult result() const;
     static int status_code(const ProcessResult& result); 

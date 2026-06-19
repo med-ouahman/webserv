@@ -16,17 +16,16 @@ CgiHandler::CgiHandler(const ResolutionResult& res,
     : state_(Working),
     response_state(Processing),
     reason_(None),
-    process(cgi::resolve_exec_context(req, res)),
+    process(cgi::resolve(req, res)),
     spawn_time(),
     sigterm_sent_at(0),
     shutdown_state(SigTerm),
-    body_fd(-1),
     stdin_ch(Channel::Stdin, process.stdin_pipe().write_end(), io::Writable, *this),
     stdout_ch(Channel::Stdout, process.stdout_pipe().read_end(), io::Readable, *this),
     stderr_ch(Channel::Stderr, process.stderr_pipe().read_end(), io::Readable, *this),
     poller_(p),
     protocol_(ctx) {
-    cgi_timeout_sec = 5; // 30 seonds is generous
+    cgi_timeout_sec = 5; // 30 seconds is generous
     
     if (!process.running()) {
         state_ = Cleanup;
@@ -46,10 +45,6 @@ CgiHandler::~CgiHandler() {
     if (stdin_ch.state() != Channel::Closed) poller_.del(&stdin_ch);
     if (stdout_ch.state() != Channel::Closed) poller_.del(&stdout_ch);
     if (stderr_ch.state() != Channel::Closed) poller_.del(&stderr_ch);
-
-    if (body_fd >= 0) ::close(body_fd);
-
-    body_fd = -1;
 }
 
 void CgiHandler::handle() {}
@@ -62,7 +57,7 @@ bool CgiHandler::timedout() {
     bool out = spawn_time.elapsed() > cgi_timeout_sec;
 
     if (out) reason_ = Timeout;
-    
+    if (out) std::cout << "Timed out\n";    
     return out;
 }
 
@@ -85,7 +80,7 @@ void CgiHandler::check_channels() {
 
 void CgiHandler::check_process() {
 
-    process.poll();
+    process.reap();
 
     switch (shutdown_state) {
         case SigTerm:
@@ -119,15 +114,19 @@ void CgiHandler::refresh_state() {
 
     if (shutdown_state != Reaped) return;
 
-    if (reason_ != None && response_state == Error) {
+    cgi::ProcessResult res = process.result();
+
+    if (res.reason != cgi::Exited) reason_ = Internal;
+
+    if (reason_ != None && response_state != Finished) {
         CGIResult result;
-        
+    
         switch (reason_) {
             case Timeout: result.status_code = GATEWAY_TIMEOUT; break;
 
-            case ProcessError: case ParseError: result.status_code = BAD_GATEWAY; break;
+            case ParseError: result.status_code = BAD_GATEWAY; break;
 
-            case Internal: result.status_code = INTERNAL_SERVER_ERROR; break;
+            case ProcessError: case Internal: result.status_code = INTERNAL_SERVER_ERROR; break;
 
             default: break;
         }
@@ -135,6 +134,7 @@ void CgiHandler::refresh_state() {
         protocol_.on_cgi_ready(result);
     }
 
+    if (state_ == Cleanup) state_ = Done;
 }
 
 }

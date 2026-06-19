@@ -22,17 +22,30 @@ Process::Process(const CGIExecContext& ctx)
     }
 
     state_ = Running;
-    if (ctx.stdin_fd == STDIN_FILENO)
+
+    if (ctx.stdin_fd != STDIN_FILENO)
         stdin_pipe_.close_write_end();
 
+    for (size_t i=0; i<ctx.argv.size(); i++) std::cout << ctx.envp.data()[i] << "\n";
+
     pid_ = ::fork();
-    if (pid_ == 0)
-    {
-        if (ctx.stdin_fd != STDIN_FILENO)
+
+    if (pid_ == 0) {
+        while (true)
+        {
+            /* code */
+        }
+        
+        if (ctx.stdin_fd != STDIN_FILENO) {
             ::dup2(ctx.stdin_fd, STDIN_FILENO);
+            ::close(ctx.stdin_fd);
+        } else {
+            ::dup2(stdin_pipe_.read_end(), STDIN_FILENO);
+        }
+
         ::dup2(stdout_pipe_.write_end(), STDOUT_FILENO);
         ::dup2(stderr_pipe_.write_end(), STDERR_FILENO);
-    
+        
         stdin_pipe_.close();
         stdout_pipe_.close();
         stderr_pipe_.close();
@@ -78,13 +91,11 @@ void Process::terminate() {
     ::kill(pid_, SIGTERM);
 }
 
-void Process::poll() {
+void Process::reap() {
     
     if (state_ == Terminated) return;
     
     pid_t p = ::waitpid(pid_, &status_, WNOHANG);
-
-    if (p == 0) return;
 
     if (p == pid_) state_ = Terminated;
 }
@@ -108,12 +119,9 @@ ProcessResult Process::result() const {
 int Process::status_code(const ProcessResult& result) {
 
     switch (result.reason) {
-        case Signaled:
-            return WTERMSIG(result.status) + 128;
-        case Exited:
-            return WEXITSTATUS(result.status);
-        case Stopped:
-            return W_STOPCODE(result.status);
+        case Signaled: return WTERMSIG(result.status) + 128;
+        case Exited: return WEXITSTATUS(result.status);
+        case Stopped: return W_STOPCODE(result.status);
         default: return 0; 
     }
 

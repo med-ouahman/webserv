@@ -30,13 +30,22 @@ void CgiHandler::on_readable(BufferReader& reader, Channel& channel) {
 }
 
 void CgiHandler::on_writable(BufferWriter& writer, Channel& channel) {
-    std::string body = "Hello world\n";
+    static std::string body = "Hello NIGGAS\n";
+    
+    if (body.size() == 0) {
+        channel.mark_closing();
+        return;
+    }
+
     writer.write(body.c_str(), body.size());
+    body.clear();
+
     channel.write();
 }
 
 void CgiHandler::close_channel(Channel& channel) {
     poller_.del(&channel);
+    channel.close();
 }
 
 }

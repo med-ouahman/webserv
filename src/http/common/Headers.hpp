@@ -22,6 +22,7 @@ public:
 	void remove(std::string const& name);
 	bool has(const std::string& name);
 	bool replace(std::string const& name, std::string const& new_value);
+	void reserve(size_t n);
 	Headers();
 	Headers(const Headers& other);
 	~Headers();

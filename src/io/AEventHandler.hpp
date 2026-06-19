@@ -63,6 +63,12 @@ public:
         ctl_.paused = false;
     }
     
+    void close() {
+        events_ = None;
+        applied_ = None;
+        ::close(fd_);
+        fd_ = -1;
+    }
 };
 
 }

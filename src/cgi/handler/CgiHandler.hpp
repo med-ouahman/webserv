@@ -59,10 +59,7 @@ private:
     Timestamp		sigterm_sent_at;
 
 	ShutdownState	shutdown_state;
-
-	int 		body_fd;
-	std::string body_filename;
-
+	
 	ResponseParser builder;
 
 	Channel stdin_ch;

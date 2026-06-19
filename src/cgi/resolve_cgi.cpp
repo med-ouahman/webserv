@@ -10,19 +10,6 @@
 
 namespace cgi {
 
-const char* EnvBuilder::metadata[] = {"REQUEST_METHOD", "SERVER_PROTOCOL", "QUERY_STRING", "GATEWAY_INTERFACE", NULL};
-
-const char* EnvBuilder::stripped_headers[] = {"transfer-encoding", "content-length", "content-type", "connection", NULL};
-
-bool EnvBuilder::forbidden_header(const std::string& header_name) {
-
-    for (size_t i(0); stripped_headers[i] != NULL; ++i) {
-        if (stripped_headers[i] == header_name) return true;
-    }
-
-    return false;
-}
-
 std::string EnvBuilder::transform(bool has_http_prefix, http::Headers::const_iterator& it) {
 
     std::string result;
@@ -44,6 +31,7 @@ std::string EnvBuilder::transform(bool has_http_prefix, http::Headers::const_ite
     result.append(name);
     result.append("=");
     result.append(it->value);
+    
     return result;
 }
 
@@ -51,34 +39,14 @@ http::Headers EnvBuilder::build_metadata(const CGIRequestContext& ctx) {
 
     http::Headers headers;
 
-    for (size_t i(0); metadata[i] != NULL; ++i) {
-        std::string s = std::string(metadata[i]);
-        if (s == "REQUEST_METHOD") {
-            headers.add(s, ctx.request_method);
-        } else if (s == "SERVER_PROTOCOL") {
-            headers.add(s, "HTTP/1.1");
-        } else if (s == "QUERY_STRING") {
-            headers.add(s, ctx.query_string);
-        } else if (s == "CONTENT_TYPE") {
-            headers.add(s, ctx.mime_type);
-        } else if (s == "CONTENT_LENGTH") {
-            std::stringstream ss;
-            ss << std::dec << ctx.body_content_length;
-            headers.add(s, ss.str());
-        } else if (s == "GATEWAY_INTERFACE") {
-            headers.add(s, "CGI/1.1");
-        } else if (s == "SCRIPT_NAME") {
-            headers.add(s, ctx.script_name);
-        } else if (s == "PATH_INFO") {
-            headers.add(s, ctx.path_info);
-        } else if (s == "SERVER_NAME") {
-            headers.add(s, ctx.server_name);
-        } else if (s == "SERVER_PORT") {
-            std::stringstream ss;
-            ss << std::dec << ctx.server_port;
-            headers.add(s, ss.str());
-        }
-    }
+    headers.add("REQUEST_METHOD", ctx.request_method);
+    headers.add("SCRIPT_NAME", ctx.script_name);
+    headers.add("PATH_INFO", ctx.path_info);
+    headers.add("SERVER_PROTOCOL", ctx.server_protocol);
+    headers.add("GATEWAY_INTERFACE", "CGI/1.1");
+    headers.add("CONTENT_TYPE", ctx.mime_type);
+    headers.add("CONTENT_LENGTH", ctx.content_length);
+    headers.add("SERVER_PORT", ctx.server_port);
 
     return headers;
 }
@@ -87,6 +55,11 @@ CStringArray EnvBuilder::build(const CGIRequestContext& ctx,
     http::Headers const& request_headers) {
 
     http::Headers headers = build_metadata(ctx);
+   
+    http::Headers::iterator it = headers.begin();
+    
+    for (; it != headers.end(); ++it) std::cout << it->name << " " << it->value << "\n";
+
     CStringArray arr;
     
     size_t env_size(0);for(;__environ[env_size];++env_size);
@@ -101,22 +74,30 @@ CStringArray EnvBuilder::build(const CGIRequestContext& ctx,
 
     for ( http::Headers::const_iterator it = request_headers.begin();
         it != request_headers.end(); ++it ) {
-            if (forbidden_header(it->name)) continue;
+           
             arr.push(transform(true, it));
     }
 
     return arr;
 }
 
-CGIExecContext resolve_exec_context(http::Request const& req, const http::ResolutionResult& r) {
+CGIExecContext resolve(http::Request const& req, const http::ResolutionResult& r) {
     
     CGIRequestContext req_ctx;
     (void)req;
     (void)r;
-    req_ctx.body_content_length = 100;
-    req_ctx.body_filename = "/tmp/some";
-    req_ctx.query_string = "qery";
-    req_ctx.interpreter = "/bin/python3";
+
+    req_ctx.query_string = "query";
+    req_ctx.interpreter = "./cgi_tester";
+    req_ctx.content_length = "100";
+    req_ctx.mime_type = "text/html";
+    req_ctx.request_method = "GET";
+    req_ctx.server_protocol = "HTTP/1.1";
+    req_ctx.server_port = "3000";
+    req_ctx.server_name = "webserv";
+    req_ctx.script_name = "";
+    req_ctx.path_info = "path info come on";
+
     CGIExecContext exec_ctx;
     http::Headers req_headers;
 
@@ -125,6 +106,7 @@ CGIExecContext resolve_exec_context(http::Request const& req, const http::Resolu
     exec_ctx.envp = EnvBuilder::build(req_ctx, req_headers);
     exec_ctx.argv.push(req_ctx.interpreter);
     exec_ctx.argv.push("cgi-bin/hello.py");
+    
     return exec_ctx;
 }
 

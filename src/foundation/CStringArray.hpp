@@ -40,9 +40,7 @@ public:
        
         storage_.reserve(size);
         
-        for ( size_t i(0); __arr[i]; ++i ) {
-            storage_.push_back(__arr[i]);
-        }
+        for ( size_t i(0); i < size; ++i ) cache_.push_back(const_cast<char*>(__arr[i]));
 
         cache_expired_ = true;
     }
