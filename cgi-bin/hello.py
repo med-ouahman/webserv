@@ -3,7 +3,7 @@ import os
 import time
 
 
-print("""Status: 200 OK\r\nContent-Type: text/html\r\n\r\n""", end="")
+print("""Content-Type: text/html\r\n\r\n""", end="")
 print("""
 HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: 562\r\nHost: webserv\r\nContent-Type: text/html\r\n\r\n
 <!DOCTYPE html>

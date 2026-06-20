@@ -279,7 +279,7 @@ The scanner abstracts partial socket reads and line reconstruction.
 # Scan Interface
 
 ```text
-ScanResult scan(size_t max_bytes);
+ReadResult scan(size_t max_bytes);
 ```
 
 The scanner searches for a CRLF sequence within the specified range.
@@ -289,7 +289,7 @@ The scanner searches for a CRLF sequence within the specified range.
 # Scan Results
 
 ```text
-enum ScanResult
+enum ReadResult
 {
     SUCCESS,
     NEED_MORE,

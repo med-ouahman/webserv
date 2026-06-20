@@ -25,13 +25,16 @@ private:
 
 	Server& webserv_;
 
+	std::string ip_;
+	uint16_t	port_;
+
 	Listener(const Listener& socket);
 	Listener& operator=(const Listener& socket);
 	bool accept_clients();
 	bool on_error();
 
 public:
-	explicit Listener(int fd, io::Event mask, Server& server);
+	explicit Listener(int fd, io::Event mask, Server& server, std::string const& ip, uint16_t port);
 	~Listener();
 	void on_event(io::Event event);
 	bool error() const;
@@ -40,5 +43,10 @@ public:
 base::Result<Listener*>
 create_listening_socket(
 	const config::ListenEndPoint& endpoints, Server& s);
+
+
+
+
+std::string int_to_ip(uint32_t ip_addr);
 
 }

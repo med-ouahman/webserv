@@ -26,15 +26,9 @@ Process::Process(const CGIExecContext& ctx)
     if (ctx.stdin_fd != STDIN_FILENO)
         stdin_pipe_.close_write_end();
 
-    for (size_t i=0; i<ctx.argv.size(); i++) std::cout << ctx.envp.data()[i] << "\n";
-
     pid_ = ::fork();
 
     if (pid_ == 0) {
-        while (true)
-        {
-            /* code */
-        }
         
         if (ctx.stdin_fd != STDIN_FILENO) {
             ::dup2(ctx.stdin_fd, STDIN_FILENO);

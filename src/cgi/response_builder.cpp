@@ -24,25 +24,22 @@ ResponseParser::~ResponseParser() {
     body_filename.clear();
 }
 
-ResponseParser::ParseResult ResponseParser::parse_headers(BufferReader& reader) {
+ResponseParser::ParseResult ResponseParser::parse(BufferReader& reader) {
     std::cout << "Start CGI header parsing...\n";
 
-    std::cout.write(reader.data(), reader.size());
     while (state_ != Done) {
 
         if (state_ == Body) {
-
             ParseResult r = read_body(reader);
-            
             if (r != Success) return r;
-
             continue;
         }
         
+        parse_ctx.line_reader.reset();
+
         size_t max_scan_size = CGIParseContext::MaxHeaderBlockLen - parse_ctx.header_bytes;
-        parse_ctx.scanner.reset();
         
-        ScanResult r = parse_ctx.scanner.scan(reader, max_scan_size);
+        ReadResult r = parse_ctx.line_reader.readline(reader, max_scan_size);
         
         if (r == LIMIT_EXCEEDED) return ParseError;
         
@@ -51,16 +48,16 @@ ResponseParser::ParseResult ResponseParser::parse_headers(BufferReader& reader) 
             return Continue;
         } 
         
-        if (parse_ctx.scanner.line().empty()) {
+        if (parse_ctx.line_reader.line().empty()) {
+            std::cout << "Begin body reading\n";
             state_ = Body;
             continue;
         }
 
-        parse_ctx.header_bytes += parse_ctx.scanner.line().size();
+        parse_ctx.header_bytes += parse_ctx.line_reader.line().size();
         
-        ParseResult res = parse_header(parse_ctx.scanner.line());
+        ParseResult res = parse_header(parse_ctx.line_reader.line());
         if (res != Success) return res;
-
     }
 
     std::cout << "finish CGI\n";
@@ -86,9 +83,11 @@ ResponseParser::ParseResult ResponseParser::sanitize_status_header(std::string c
         }
     }
 
-    int code = std::atoi(code_str.c_str());
+    char* end = NULL;
 
-    if (code < 200 or code > 599) {
+    int code = std::strtol(code_str.c_str(), &end, 10);
+
+    if ((end && *end != '\0') || code < 200 or code > 599) {
         code = INTERNAL_SERVER_ERROR;
         return ParseError;
     }
@@ -138,7 +137,6 @@ ResponseParser::ParseResult ResponseParser::read_body(BufferReader& reader) {
     }
 
     if (body_fd < 0) {
-        
         body_filename = "/tmp/" + base::random_string(10);
         body_fd = ::open(body_filename.c_str(), O_WRONLY | O_CREAT, 0600);
         
@@ -163,8 +161,10 @@ ResponseParser::ParseResult ResponseParser::read_body(BufferReader& reader) {
 
 CGIResult ResponseParser::result() const {
 
-    ::close(body_fd);
-    body_fd = -1;
+    if (body_fd >= 0) {
+        ::close(body_fd);
+        body_fd = -1;
+    }
 
     return CGIResult(body_filename,
         body_content_length,

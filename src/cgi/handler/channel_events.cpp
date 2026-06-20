@@ -15,7 +15,7 @@ void CgiHandler::on_readable(BufferReader& reader, Channel& channel) {
         return;
     }
 
-    ResponseParser::ParseResult r = builder.parse_headers(reader);
+    ResponseParser::ParseResult r = builder.parse(reader);
     
     if (r == ResponseParser::Continue) return;
 

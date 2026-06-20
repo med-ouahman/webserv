@@ -25,7 +25,7 @@ public:
     ~Server();
     int start();
     void sweep();
-    void add_connection(int client_fd);
+    void add_connection(int client_fd, const net::ConnectionInfo& info);
     void close_connection(net::Connection* conn);
     static logger::Logger& logger();
 };

@@ -10,8 +10,7 @@ namespace runtime {
 namespace epoll {
 
 bool EventPoller::add(io::AEventHandler* handler) {
-	
-	std::cout << "FD TO REGISTER: " << handler->fd() << "\n";
+
 	if (monitor_count >= MaxMonitorFds) {
 		std::cerr << "Cannot add fd, limit reached\n";
 		return false;

@@ -69,7 +69,7 @@ public:
 	void print_context_action(ContextAction action);
 	void on_cgi_ready(const CGIResult result);
 
-	void refresh_state();
+	void reconcile();
 
 	ContextAction next_action() const;
 };

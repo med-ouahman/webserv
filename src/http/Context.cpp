@@ -142,7 +142,7 @@ Error Context::produce(BufferWriter& w) {
 }
 
 
-void Context::refresh_state() {
+void Context::reconcile() {
 
 	if (!handler) {
 		return;

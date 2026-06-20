@@ -5,7 +5,7 @@
 
 namespace http {
 
-enum ScanResult {
+enum ReadResult {
 	SUCCESS,
 	NEED_MORE,
 	LIMIT_EXCEEDED,
@@ -13,12 +13,12 @@ enum ScanResult {
 
 class LineReader {
 private:
-	std::string linebuff;
+	std::string line_;
 	bool		cr_found;
 public:
 	void reset();
 	std::string const& line();
-	ScanResult scan(BufferReader& view, size_t max_block_len);
+	ReadResult readline(BufferReader& buf, size_t max_block_len);
 	
 	LineReader();
 	~LineReader();

@@ -7,13 +7,16 @@
 #include "Config.hpp"
 #include <iostream>
 #include "Server.hpp"
+#include <sstream>
 
 namespace net {
 	
-Listener::Listener(int fd, io::Event mask, Server& server)
+Listener::Listener(int fd, io::Event mask, Server& server, std::string const& ip, uint16_t port)
 	: AEventHandler(fd, mask),
 	state_(Listening),
-	webserv_(server) {}
+	webserv_(server),
+	ip_(ip),
+	port_(port) {}
 
 Listener::~Listener() {}
 
@@ -44,7 +47,9 @@ bool Listener::accept_clients() {
 	
 	if (client_fd < 0) return false;
 	
-	webserv_.add_connection(client_fd);
+	ConnectionInfo info(ip_, port_, int_to_ip(client_addr.sin_addr.s_addr), client_addr.sin_port);
+
+	webserv_.add_connection(client_fd, info);
 	
 	std::cout << "CONNECTION_FD: " << client_fd << "\n";
 	return true;
@@ -66,7 +71,7 @@ base::Result<Listener*> create_listening_socket(
 	::memset(&server_addr, 0, sizeof server_addr);
 	server_addr.sin_family = AF_INET;
 		
-	if (!::inet_pton(AF_INET, ::inet_ntoa((in_addr){ .s_addr = endpoint.host }), &server_addr.sin_addr))
+	if (!::inet_pton(AF_INET, int_to_ip(endpoint.host).c_str(), &server_addr.sin_addr))
 		return MAKE_ERRNO_ERROR("EventPoller::create_listening_socket::inet_pton()");
 	
 	server_addr.sin_port = ::htons(endpoint.port);
@@ -84,13 +89,24 @@ base::Result<Listener*> create_listening_socket(
 	if (::listen(socket_fd, BACKLOG) < 0)
 		return MAKE_ERRNO_ERROR("EventPoller::create_listening_socket::listen()");
 	
-	std::cout << "server listening on " <<  ::inet_ntoa((in_addr){ .s_addr = endpoint.host }) << ":"<< endpoint.port << '\n';
+	std::cout << "server listening on " <<  int_to_ip(endpoint.host) << ":"<< endpoint.port << '\n';
 	
-	return new Listener(socket_fd, io::Readable, server);
+	return new Listener(socket_fd, io::Readable, server, int_to_ip(endpoint.host), endpoint.port);
 }
 
 bool Listener::error() const {
 	return state_ == ListenerError;
+}
+
+std::string int_to_ip(uint32_t ip_addr) {
+  	std::ostringstream oss;
+
+    oss << ((ip_addr >> 24) & 0xFF) << '.'
+        << ((ip_addr >> 16) & 0xFF) << '.'
+        << ((ip_addr >> 8) & 0xFF) << '.'
+        << (ip_addr & 0xFF);
+
+    return oss.str();
 }
 
 }

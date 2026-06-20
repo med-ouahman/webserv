@@ -66,11 +66,10 @@ bool Server::start_listeners() {
     return true;
 }
 
-void Server::add_connection(int conn_fd) {
+void Server::add_connection(int conn_fd, const net::ConnectionInfo& info) {
 
-    net::Connection* connection = new net::Connection(conn_fd, io::Readable, ctx);
+    net::Connection* connection = new net::Connection(conn_fd, io::Readable, ctx, info);
     
-    std::cout << "NEW CONNECTION: " << connection << "\n";
     if (!poller.add(connection)) return;
 
     connections.push_back(connection);

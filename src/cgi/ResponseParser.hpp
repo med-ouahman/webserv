@@ -33,15 +33,14 @@ struct CGIResult {
 struct CGIParseContext {
 	static const std::size_t MaxHeaderBlockLen = 4096;
 
-	LineReader 		scanner;
+	LineReader 		line_reader;
 	size_t			header_bytes;
 
-	CGIParseContext(): scanner(), header_bytes(0) {}
+	CGIParseContext(): line_reader(), header_bytes(0) {}
 };
 
 class ResponseParser {
 public:
-
 enum OutputState {
 	Headers,
 	Body,
@@ -75,7 +74,7 @@ public:
 	ResponseParser();
 	~ResponseParser();
 	
-	ParseResult	parse_headers(BufferReader& reader);
+	ParseResult	parse(BufferReader& reader);
 	bool		finished() const;
 
 	CGIResult result() const;

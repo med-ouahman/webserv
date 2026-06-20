@@ -57,7 +57,6 @@ bool CgiHandler::timedout() {
     bool out = spawn_time.elapsed() > cgi_timeout_sec;
 
     if (out) reason_ = Timeout;
-    if (out) std::cout << "Timed out\n";    
     return out;
 }
 
@@ -75,7 +74,6 @@ void CgiHandler::check_channels() {
             ch.shutdown();
         }
     }
-
 }
 
 void CgiHandler::check_process() {
@@ -104,7 +102,7 @@ void CgiHandler::check_process() {
 
 void CgiHandler::refresh_state() {
 
-    if ((response_state == Finished || response_state == Error)|| timedout()) state_ = Cleanup;
+    if ((response_state == Finished || response_state == Error) || timedout()) state_ = Cleanup;
 
     if (state_ == Cleanup && shutdown_state != Reaped) check_process();
 
@@ -116,17 +114,17 @@ void CgiHandler::refresh_state() {
 
     cgi::ProcessResult res = process.result();
 
-    if (res.reason != cgi::Exited) reason_ = Internal;
+    if (res.reason != cgi::Exited && reason_ == None) reason_ = Internal;
 
     if (reason_ != None && response_state != Finished) {
         CGIResult result;
     
         switch (reason_) {
-            case Timeout: result.status_code = GATEWAY_TIMEOUT; break;
+            case Timeout: result.status_code = GATEWAY_TIMEOUT; std::cout << "Gateway timeout\n"; break;
 
-            case ParseError: result.status_code = BAD_GATEWAY; break;
+            case ParseError: result.status_code = BAD_GATEWAY; std::cout << "Bad Gateway\n"; break;
 
-            case ProcessError: case Internal: result.status_code = INTERNAL_SERVER_ERROR; break;
+            case ProcessError: case Internal: result.status_code = INTERNAL_SERVER_ERROR; std::cout << "Internal\n"; break;
 
             default: break;
         }

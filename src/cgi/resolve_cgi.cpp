@@ -88,7 +88,7 @@ CGIExecContext resolve(http::Request const& req, const http::ResolutionResult& r
     (void)r;
 
     req_ctx.query_string = "query";
-    req_ctx.interpreter = "./cgi_tester";
+    req_ctx.interpreter = "/usr/bin/python3";
     req_ctx.content_length = "100";
     req_ctx.mime_type = "text/html";
     req_ctx.request_method = "GET";
