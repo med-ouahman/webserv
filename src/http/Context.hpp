@@ -11,6 +11,8 @@
 
 #define CRLF "\r\n"
 
+class BufferReader;
+
 namespace http {
 
 class Context;

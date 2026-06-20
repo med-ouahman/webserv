@@ -59,7 +59,7 @@ cmd_exists() { command -v "$1" &>/dev/null; }
 
 elapsed_ms() {
   # $1 = start seconds (from date +%s%N or SECONDS)
-  echo $(( ($(date +%s%N) - $1) / 1000000 ))
+  echo $((($(date +%s%N) - $1) / 1000000))
 }
 
 run_client() {

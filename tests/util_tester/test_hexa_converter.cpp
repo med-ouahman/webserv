@@ -4,12 +4,12 @@
 #include <stdlib.h>
 #define MAX_CHUNK_SIZE 100000
 
-size_t parse_chunk_size( const std::string& line_buff ) {
+size_t parse_chunk_size(const std::string& line_buff) {
 		std::string hexas = "0123456789abcdef";
 		::size_t chunk_size = 0;
 		
 		
-		for ( ::size_t i(0); i < line_buff.size(); ++i ) {
+		for (::size_t i(0); i < line_buff.size(); ++i) {
 
 			char c = ::tolower(line_buff[i]);
 			if (c == ';') {

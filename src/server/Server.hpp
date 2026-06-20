@@ -1,32 +1,31 @@
-#ifndef SERVER_HPP
-#define SERVER_HPP
+#pragma once
 
-
-#include "EventLoop.hpp"
+#include "ServerContext.hpp"
+#include "EventPoller.hpp"
 #include "Connection.hpp"
-#include "ListeningSocket.hpp"
+#include "Listener.hpp"
+#include "Logger.hpp"
 
 class Server {
+private:
+    bool running_;
+    std::vector<net::Connection*> connections;
+    std::vector<net::Listener*> listeners;
+    runtime::epoll::EventPoller poller;
+    static logger::Logger      logger_;
 
-    private:
-        bool running_;
+    ServerContext ctx;
 
-        std::vector<net::Connection*> connections;
-        std::vector<net::ListeningSocket*> listeners;
-
-        runtime::epoll::EventLoop event_loop;
-        
-        Server(const Server& );
-        Server& operator=( const Server& );
-
-        void start_listeners();
-        void add_connection( int client_fd );
-        
-    public:
-        Server();
-        ~Server();
-        int start();
-        static void server_accept( int conn_fd, net::AcceptContext server );
+    Server(const Server&);
+    Server& operator=(const Server&);
+    bool start_listeners();
+    
+public:
+    Server();
+    ~Server();
+    int start();
+    void sweep();
+    void add_connection(int client_fd);
+    void close_connection(net::Connection* conn);
+    static logger::Logger& logger();
 };
-
-#endif

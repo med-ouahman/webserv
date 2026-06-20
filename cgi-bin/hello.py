@@ -3,24 +3,32 @@ import os
 import time
 
 
-for key, value in os.environ.items():
-    print(key, value)
-
-exit(0)
-
-
-print("Status: 200 OK\r\n", end="")
-print("Content-Type: text/html\r\n\r\n", end="")
-
+print("""Status: 200 OK\r\nContent-Type: text/html\r\n\r\n""", end="")
 print("""
+HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: 562\r\nHost: webserv\r\nContent-Type: text/html\r\n\r\n
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Dummy CGI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
 <body>
-    <h1>Hello from CGI!</h1>
-    <p>This is a dummy Python CGI script.</p>
+    <div class="name">
+        <div id="h-dvi">div</div>buttom
+    </div>
+    <script>
+        const div = document.getElementById("h-div");
+        if (div === null) return;
+
+        div.addEventListener("click", addElements);
+
+        function addElements() {
+            const div = this;
+            div.innerHTML += "<p>Hello World</p>"
+        }
+
+    </script>
 </body>
 </html>
 """)

@@ -1,11 +1,13 @@
 CXX := c++
 
+DEBUG := -g3 -O0
+
 FT := -pg  -finstrument-functions
 
-DEBUG := -g3 -O0 -D DEBUG=1
-DEVELOPMENT = -D DEV_MODE=1
+DEVELOPMENT = -D DEV_MODE=1 -D DEBUG=1
 
-CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 $(DEBUG) $(DEVELOPMENT) $(FT)
+CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 $(DEBUG) $(DEVELOPMENT)
+
 
 # Libraries we might link against in the future, for now just a placeholder
 LIBS := 
@@ -23,40 +25,75 @@ INCLUDES = -Isrc \
 	-Isrc/net/listener/ \
 	-Isrc/cgi/ \
 	-Isrc/cgi/process/ \
+	-Isrc/cgi/handler/ \
 	-Isrc/io/ \
-	-Isrc/io/stream/ \
 	-Isrc/runtime/ \
 	-Isrc/runtime/epoll/ \
 	-Isrc/server/ \
+	-Isrc/server/session/ \
+	-Isrc/server/logger/ \
 	-Isrc/http/ \
-	-Isrc/http/session \
-	-Isrc/http/request/ \
-	-Isrc/http/response/ \
-	-Isrc/http/response/body/ \
-	-Isrc/http/parser/ \
-	-Isrc/http/execution/ \
-	-Isrc/http/execution/handlers/ \
-	-Isrc/http/common/ \
+	-Isrc/http/Parser/ \
+	-Isrc/http/Parser/body/ \
+	-Isrc/http/Parser/headers/ \
 	-Isrc/http/routing/ \
+	-Isrc/http/pipeline/ \
+	-Isrc/http/pipeline/body/ \
+	-Isrc/http/pipeline/body/providers/ \
+	-Isrc/http/common/ \
 	-Isrc/config/ \
 	-Isrc/foundation/ \
-	-Isrc/foundation/baselib \
+	-Isrc/base \
 
 SRCS = src/server/main.cpp \
 	src/sys/signals.cpp \
 	src/server/Server.cpp \
-	src/net/listener/create_sockets.cpp \
-	src/net/listener/listener_events.cpp \
+	src/server/logger/Logger.cpp \
 	src/net/connection/Connection.cpp \
-	src/net/listener/ListeningSocket.cpp \
-	src/runtime/epoll/EventLoop.cpp \
-	src/runtime/epoll/run.cpp \
+	src/net/connection/connection_io.cpp \
+	src/net/connection/connection_events.cpp \
+	src/net/listener/Listener.cpp \
+	src/runtime/epoll/EventPoller.cpp \
+	src/runtime/epoll/poll.cpp \
 	src/runtime/epoll/event_handlers.cpp \
-	src/io/stream/Stream.cpp \
+	src/cgi/process/Process.cpp \
+	src/cgi/resolve_cgi.cpp \
+	src/cgi/response_builder.cpp \
+	src/cgi/handler/CgiHandler.cpp \
+	src/cgi/handler/channel_events.cpp \
+	src/cgi/handler/Channel.cpp \
+	src/http/Context.cpp \
+	src/http/cgi.cpp \
+	src/http/common/LineReader.cpp \
+	src/http/common/Headers.cpp \
+	src/http/Parser/parser.cpp \
+	src/http/Parser/request_line.cpp \
+	src/http/Parser/headers/headers.cpp \
+	src/http/Parser/headers/header_rules.cpp \
+	src/http/Parser/headers/header_utils.cpp \
+	src/http/Parser/body/body.cpp \
+	src/http/Parser/body/body_store.cpp \
+	src/http/Parser/body/body_utils.cpp \
+	src/http/Parser/body/chunked.cpp \
+	src/http/Parser/body/fixed.cpp \
+	src/http/routing/Routing.cpp \
+	src/http/HandlerFactory.cpp \
+	src/http/pipeline/body/BodyEncoder.cpp \
+	src/http/pipeline/body/providers/CGIBodyProvider.cpp \
+	src/http/pipeline/body/providers/MemoryBodyProvider.cpp \
+	src/http/pipeline/body/providers/FileBodyProvider.cpp \
 	src/config/ConfigParser.cpp \
 	src/config/Lexer.cpp \
-	src/foundation/DataView.cpp \
+	src/foundation/BufferReader.cpp \
 	src/foundation/BufferWriter.cpp \
+	src/base/io/Writer.cpp \
+	src/base/io/Reader.cpp \
+	src/base/file.cpp \
+	src/base/random.cpp \
+
+OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
+
+all: $(NAME)
 
 OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 
@@ -69,13 +106,18 @@ $(OBJDIR)/%.o: %.cpp
 
 $(NAME): $(OBJS)
 	@$(CXX) $(CXX_FLAGS) $(INCLUDES) $(OBJS) $(LIBS) -o $(NAME)
+	@echo "Build complete: $(NAME)"
+
+
+$(BODY_DIR):
+	@mkdir $(BODY_DIR)
 
 clean:
 	@rm -fr $(OBJDIR)
 
 fclean: clean
 	@rm -f $(NAME)
-	@rm -fr 
+	@rm -fr $(BODY_DIR)
 
 re: fclean all
 

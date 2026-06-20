@@ -88,8 +88,8 @@
 │   │   │   └── types.hpp
 │   │   ├── BufferWriter.cpp
 │   │   ├── BufferWriter.hpp
-│   │   ├── DataView.cpp
-│   │   ├── DataView.hpp
+│   │   ├── BufferReader.cpp
+│   │   ├── BufferReader.hpp
 │   │   ├── Error.hpp
 │   │   ├── Logger.hpp
 │   │   ├── Result.hpp
@@ -104,14 +104,18 @@
 │   │   │   └── Headers.hpp
 │   │   ├── execution
 │   │   │   └── handlers
+<<<<<<< HEAD
+│   │   │       ├── CGIRequestContext.hpp
+=======
 │   │   │       ├── CGIContext.hpp
-│   │   │       ├── CGIRequestHandler.cpp
-│   │   │       └── CGIRequestHandler.hpp
+>>>>>>> 2a4fb87 (s)
+│   │   │       ├── CgiHandler.cpp
+│   │   │       └── CgiHandler.hpp
 │   │   ├── parser
 │   │   │   ├── BodyReader.cpp
 │   │   │   ├── BodyReader.hpp
-│   │   │   ├── LineScanner.cpp
-│   │   │   ├── LineScanner.hpp
+│   │   │   ├── LineReader.cpp
+│   │   │   ├── LineReader.hpp
 │   │   │   ├── parse_headers.cpp
 │   │   │   ├── parse_http_request.cpp
 │   │   │   ├── Parser.cpp
@@ -154,7 +158,7 @@
 │   │       ├── Stream.hpp
 │   │       ├── stream_on_event.cpp
 │   │       ├── stream_on_readable.cpp
-│   │       ├── stream_on_writeable.cpp
+│   │       ├── stream_on_writable.cpp
 │   │       ├── stream_read.cpp
 │   │       └── stream_write.cpp
 │   ├── net
@@ -172,16 +176,16 @@
 │   │   │   └── process_outgoing_data.cpp
 │   │   └── listener
 │   │       ├── create_sockets.cpp
-│   │       ├── ListeningSocket.cpp
-│   │       ├── ListeningSocket.hpp
+│   │       ├── Listener.cpp
+│   │       ├── Listener.hpp
 │   │       └── socket_events.cpp
 │   ├── runtime
 │   │   ├── epoll
 │   │   │   ├── AIOHandler.hpp
-│   │   │   ├── EventLoop.cpp
-│   │   │   ├── EventLoop.hpp
-│   │   │   ├── event_loop_sweep.cpp
-│   │   │   ├── EventType.hpp
+│   │   │   ├── EventPoller.cpp
+│   │   │   ├── EventPoller.hpp
+│   │   │   ├── poller_sweep.cpp
+│   │   │   ├── Event.hpp
 │   │   │   ├── handle_connections.cpp
 │   │   │   ├── handle_fds.cpp
 │   │   │   └── run.cpp

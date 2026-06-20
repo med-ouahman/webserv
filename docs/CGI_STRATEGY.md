@@ -125,19 +125,19 @@ This document outlines the complete strategy for implementing CGI (Common Gatewa
 - Exit: SPAWN_SUCCESS → next state, SPAWN_FAILURE → ERROR
 - Resources acquired: Child process, pipe file descriptors, environment array
 
-**CGI_WRITING_REQUEST:**
+**CGI_Writing_REQUEST:**
 - Entry: Process spawned, request has body content
 - Responsibilities: Write request body to CGI stdin, handle partial writes
-- Exit: BODY_COMPLETE → CGI_READING_HEADERS, WRITE_ERROR → ERROR
+- Exit: BODY_COMPLETE → CGI_Reading_HEADERS, WRITE_ERROR → ERROR
 - Completion action: Close stdin write end (sends EOF to CGI)
 
-**CGI_READING_HEADERS:**
+**CGI_Reading_HEADERS:**
 - Entry: Request body sent or no body to send
 - Responsibilities: Read from stdout, buffer data, parse for header/body boundary
-- Exit: HEADERS_COMPLETE → CGI_READING_BODY, PARSE_ERROR → ERROR
+- Exit: HEADERS_COMPLETE → CGI_Reading_BODY, PARSE_ERROR → ERROR
 - Parsing target: Find "\r\n\r\n" separator, extract all headers
 
-**CGI_READING_BODY:**
+**CGI_Reading_BODY:**
 - Entry: Headers successfully parsed
 - Responsibilities: Read body chunks, accumulate or stream to client
 - Exit: EOF_RECEIVED or CONTENT_LENGTH_SATISFIED → CGI_COMPLETE
@@ -158,11 +158,11 @@ This document outlines the complete strategy for implementing CGI (Common Gatewa
 ### State Machine Integration
 
 **Connection State Flow:**
-- PARSING → CGI_SPAWNING → CGI_WRITING_REQUEST → CGI_READING_HEADERS → CGI_READING_BODY → CGI_COMPLETE → READY_TO_WRITE
+- PARSING → CGI_SPAWNING → CGI_Writing_REQUEST → CGI_Reading_HEADERS → CGI_Reading_BODY → CGI_COMPLETE → READY_TO_WRITE
 
 **State Skipping:**
-- GET requests skip CGI_WRITING_REQUEST entirely
-- Go directly from SPAWNING to READING_HEADERS
+- GET requests skip CGI_Writing_REQUEST entirely
+- Go directly from SPAWNING to Reading_HEADERS
 
 **Error Recovery:**
 - Any CGI error → cleanup resources → generate error response → READY_TO_WRITE
@@ -188,10 +188,14 @@ This document outlines the complete strategy for implementing CGI (Common Gatewa
 - Resolves script filesystem path
 - Validates file existence and permissions
 - Extracts PATH_INFO from URI
+<<<<<<< HEAD
+- Builds CGIRequestContext with all necessary information
+=======
 - Builds CGIContext with all necessary information
+>>>>>>> 2a4fb87 (s)
 - Returns action for Connection to execute
 
-**CGIRequestHandler Responsibilities:**
+**CgiHandler Responsibilities:**
 - Manages child process lifecycle
 - Builds environment variable array
 - Creates and manages pipes
@@ -200,7 +204,7 @@ This document outlines the complete strategy for implementing CGI (Common Gatewa
 - Extracts response headers and status
 - Tracks CGI-specific state and buffers
 
-**EventLoop Responsibilities:**
+**EventPoller Responsibilities:**
 - Routes epoll events to correct Connection
 - Tracks global concurrent CGI count
 - Enforces max concurrent CGI limit
@@ -211,20 +215,32 @@ This document outlines the complete strategy for implementing CGI (Common Gatewa
 **After CGI Detection:**
 1. Handler detects CGI requirement during routing
 2. Handler validates script file exists and is readable
+<<<<<<< HEAD
+3. Handler builds CGIRequestContext structure
+4. Handler returns ResponseAction with EXECUTE_CGI type
+5. Connection receives action and extracts CGIRequestContext
+6. Connection allocates CgiHandler instance
+7. Connection passes CGIRequestContext to CgiHandler.spawn()
+=======
 3. Handler builds CGIContext structure
 4. Handler returns ResponseAction with EXECUTE_CGI type
 5. Connection receives action and extracts CGIContext
-6. Connection allocates CGIRequestHandler instance
-7. Connection passes CGIContext to CGIRequestHandler.spawn()
+6. Connection allocates CgiHandler instance
+7. Connection passes CGIContext to CgiHandler.spawn()
+>>>>>>> 2a4fb87 (s)
 8. Connection transitions to CGI_SPAWNING state
-9. CGIRequestHandler reports events back to Connection
+9. CgiHandler reports events back to Connection
 10. Connection makes state transition decisions
 
 **Handoff Interface:**
+<<<<<<< HEAD
+- Handler produces CGIRequestContext (routing decision)
+=======
 - Handler produces CGIContext (routing decision)
+>>>>>>> 2a4fb87 (s)
 - Connection receives ResponseAction (execution command)
-- Connection delegates to CGIRequestHandler (process management)
-- CGIRequestHandler reports outcomes via events
+- Connection delegates to CgiHandler (process management)
+- CgiHandler reports outcomes via events
 - Connection controls state machine progression
 
 ---
@@ -235,7 +251,7 @@ This document outlines the complete strategy for implementing CGI (Common Gatewa
 
 **Design Decision:**
 - CGI state lives inside Connection as dynamically allocated member
-- CGIRequestHandler pointer is NULL when connection not executing CGI
+- CgiHandler pointer is NULL when connection not executing CGI
 - Allocated only when entering CGI states
 - Freed when exiting CGI states or on connection cleanup
 
@@ -254,18 +270,18 @@ Connection
 **Connection Owns:**
 - Client socket file descriptor
 - Connection state machine
-- CGIRequestHandler instance (when active)
+- CgiHandler instance (when active)
 - Request and response buffers
 - Keep-alive policy
 
-**CGIRequestHandler Owns:**
+**CgiHandler Owns:**
 - Child process PID
 - Pipe file descriptors (stdin, stdout, stderr)
 - Environment variable array
 - CGI output buffers
 - Response parsing state
 
-**EventLoop Tracks (but doesn't own):**
+**EventPoller Tracks (but doesn't own):**
 - Global count of active CGI executions
 - Enforces concurrent CGI limit
 - Routes events but doesn't manage CGI lifecycle
@@ -273,7 +289,7 @@ Connection
 ### Resource Lifecycle
 
 **Allocation Points:**
-- CGIRequestHandler allocated when entering CGI_SPAWNING
+- CgiHandler allocated when entering CGI_SPAWNING
 - Pipes created during spawn
 - Environment array built before fork
 - Output buffers allocated as needed during reading
@@ -292,20 +308,28 @@ Connection
 - Reap zombie with waitpid
 - Free environment array
 - Clear output buffers
-- Delete CGIRequestHandler instance
+- Delete CgiHandler instance
 - Set handler pointer to NULL
 
 ---
 
+<<<<<<< HEAD
+## 6. CGIRequestContext Structure
+=======
 ## 6. CGIContext Structure
+>>>>>>> 2a4fb87 (s)
 
 ### Purpose
 
-Encapsulates all information needed to spawn and execute a CGI process. Produced by the handler during routing, consumed by CGIRequestHandler during spawn.
+Encapsulates all information needed to spawn and execute a CGI process. Produced by the handler during routing, consumed by CgiHandler during spawn.
 
 ### Members
 
+<<<<<<< HEAD
+**CGIRequestContext:**
+=======
 **CGIContext:**
+>>>>>>> 2a4fb87 (s)
 - `script_filename` - absolute filesystem path to script file
 - `interpreter_path` - absolute path to interpreter binary
 - `script_name` - URI path to script (for SCRIPT_NAME variable)
@@ -324,7 +348,7 @@ Handler builds context during routing:
 - Adds configuration values (timeout, working directory)
 - Adds server identification
 
-Connection receives context and passes to CGIRequestHandler:
+Connection receives context and passes to CgiHandler:
 - No validation needed (handler already validated)
 - Directly usable for spawning
 - Context is const reference (not copied)
@@ -406,8 +430,8 @@ Connection receives context and passes to CGIRequestHandler:
 - Prevents CGI processes from inheriting unrelated descriptors
 
 **Pipe End Lifecycle:**
-- Parent stdin write end: open during WRITING_REQUEST, closed when body sent
-- Parent stdout read end: open during READING states, closed when EOF received
+- Parent stdin write end: open during Writing_REQUEST, closed when body sent
+- Parent stdout read end: open during Reading states, closed when EOF received
 - Parent stderr read end: open throughout, closed during cleanup
 - Child's ends: closed by child after dup2, or by kernel on exec
 
@@ -736,7 +760,7 @@ Connection receives context and passes to CGIRequestHandler:
 - Reap zombie with waitpid
 - Free environment variable array
 - Clear output buffers
-- Delete CGIRequestHandler instance
+- Delete CgiHandler instance
 - Set handler pointer to NULL
 
 **Cleanup Ordering:**
@@ -767,8 +791,8 @@ Connection receives context and passes to CGIRequestHandler:
 **Implementation:**
 - Set close_after_write flag based on error type
 - After error response sent, check flag
-- If true: transition to CLOSING
-- If false: transition to READING (await next request)
+- If true: transition to Closing
+- If false: transition to Reading (await next request)
 
 ---
 
@@ -797,7 +821,7 @@ Connection receives context and passes to CGIRequestHandler:
 **Request Body Buffer:**
 - Already exists from parsing phase
 - Connection or parser owns it
-- CGIRequestHandler receives const reference
+- CgiHandler receives const reference
 - Not duplicated for CGI
 
 **CGI Output Buffer:**
@@ -809,7 +833,7 @@ Connection receives context and passes to CGIRequestHandler:
 **Response Buffer:**
 - Connection owns final HTTP response
 - Built from parsed CGI output
-- Used during WRITING state
+- Used during Writing state
 - Cleared after response sent (if keep-alive)
 
 ### File Descriptor Accounting
@@ -924,8 +948,8 @@ Connection receives context and passes to CGIRequestHandler:
 ### GET Requests (No Body)
 
 **Optimization:**
-- Skip CGI_WRITING_REQUEST state entirely
-- Transition: CGI_SPAWNING → CGI_READING_HEADERS
+- Skip CGI_Writing_REQUEST state entirely
+- Transition: CGI_SPAWNING → CGI_Reading_HEADERS
 - Close stdin immediately after spawn
 - Most common case, optimize for speed
 
@@ -933,7 +957,7 @@ Connection receives context and passes to CGIRequestHandler:
 
 **Handling:**
 - Content-Length: 0 present
-- Still enter CGI_WRITING_REQUEST state
+- Still enter CGI_Writing_REQUEST state
 - Immediately close stdin (send EOF)
 - Transition to next state without writing
 - CGI receives EOF, knows no body coming
@@ -966,14 +990,14 @@ Connection receives context and passes to CGIRequestHandler:
 ### Client Disconnect During Execution
 
 **Detection:**
-- EPOLLHUP or EPOLLERR on client socket
+- EPOLLHup or EPOLLERR on client socket
 - Or read() returns 0 on client socket
 
 **Action:**
 - Kill CGI immediately (SIGTERM then SIGKILL)
 - No point continuing if no client to receive response
 - Cleanup all resources
-- Transition connection to CLOSING
+- Transition connection to Closing
 - Response nowhere to send
 
 ### Multiple Concurrent CGI per Connection
@@ -1112,7 +1136,7 @@ These invariants must hold at all times. Violations indicate bugs.
 ### Memory Management Invariants
 
 9. **Every allocated environment array freed** - after execve or on error
-10. **CGIRequestHandler deleted when exiting CGI states** - no memory leaks
+10. **CgiHandler deleted when exiting CGI states** - no memory leaks
 11. **Buffers bounded** - maximum sizes enforced, prevent DoS
 
 ### State Machine Invariants
@@ -1179,13 +1203,13 @@ These invariants must hold at all times. Violations indicate bugs.
 **Separation of Concerns:**
 - Handler resolves routes and builds context
 - Connection orchestrates I/O and state machine
-- CGIRequestHandler manages process and CGI protocol
+- CgiHandler manages process and CGI protocol
 - Each component has clear boundaries
 
 **Ownership Model:**
-- Connection owns CGIRequestHandler (dynamically allocated)
-- CGIRequestHandler owns process and pipes
-- EventLoop tracks but doesn't own
+- Connection owns CgiHandler (dynamically allocated)
+- CgiHandler owns process and pipes
+- EventPoller tracks but doesn't own
 - Clear cleanup responsibility
 
 **Event-Driven Design:**

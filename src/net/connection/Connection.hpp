@@ -1,39 +1,52 @@
 #pragma once
 
-#include "ConnectionState.hpp"
-#include "ConnectionAction.hpp"
+#include "AEventHandler.hpp"
 #include "Timestamp.hpp"
-#include "limits.hpp"
-#include "http/session/HttpSession.hpp"
-#include "Stream.hpp"
-
-namespace config {
-    struct ServerConfig;
-}
+#include "Context.hpp"
+#include "BufferReader.hpp"
+#include "BufferWriter.hpp"
 
 namespace net {
 
-    class Connection: public io::IStreamDelegate {
-        
-        public:
-            explicit Connection( int fd, io::EventMask mask );
-            ~Connection();
-            bool timedout();
-            ConnectionAction action() const;
-            void consume( DataView& view );
-            void produce( BufferWriter& writer );
-            void on_stream_error();
-            void on_stream_closed();
-            const io::Stream& stream() const;
+enum ConnectionState {
+    Reading,
+    Writing,
+    Closing,
+};
 
-        private:
-            io::Stream stream_;
+class Connection: public io::AEventHandler {  
+public:
+    const static std::size_t ReadbufSize = 1024 * 4;
+    const static std::size_t WritebufSize = 1024 * 4;
 
-            ConnectionState state;
-            bool            close_after_write;
-            Timestamp       last_;
-            Timestamp       conn_lifetime;
-            http::HttpSession session;
-        
-    };
+    Connection(int fd, io::Event events, ServerContext& ctx);
+    ~Connection();
+
+    void on_event(io::Event events);
+    ConnectionState state() const;
+    bool closing() const;
+    void sync();
+    void print_connection_state(ConnectionState state);
+
+private:
+    ConnectionState state_;  
+    bool            close_after_write;
+
+    Timestamp       last_activity_;
+    Timestamp       lifetime_;
+    
+    http::Context   ctx;
+    http::ContextAction current_action;
+    BufferReader reader_;
+    BufferWriter writer_;
+
+    void read();
+    void write();
+    void on_writable();
+    void on_readable();
+
+    void update(http::ContextAction action);
+
+};
+
 }

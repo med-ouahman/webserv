@@ -16,11 +16,11 @@ server_design/
 │   ├─ EPOLLET set once at epoll_ctl(ADD)
 │   └─ epoll_ctl(MOD) only changes EPOLLIN/EPOLLOUT
 │
-├─ event_loop_flow
+├─ poller_flow
 │   ├─ epoll_wait()
 │   ├─ map kernel events → internal events
-│   │     EPOLLIN  → READABLE
-│   │     EPOLLOUT → WRITABLE
+│   │     EPOLLIN  → Readable
+│   │     EPOLLOUT → Writable
 │   ├─ handle_request to Connection
 │   ├─ attempt progress
 │   │     drain reads
@@ -50,18 +50,18 @@ server_design/
 ├─ response_completion
 │   ├─ if buffer drained:
 │   │     if close_after_write
-│   │         state = CLOSING
+│   │         state = Closing
 │   │     else
-│   │         state = READING
+│   │         state = Reading
 │   └─ update epoll interest
 │
 ├─ connection_lifecycle
 │   ├─ states
-│   │     READING
-│   │     WRITING
-│   │     CLOSING
+│   │     Reading
+│   │     Writing
+│   │     Closing
 │   └─ invariant
-│         CLOSING is terminal
+│         Closing is terminal
 │         no further transitions
 │
 ├─ connection_flags
@@ -80,14 +80,14 @@ server_design/
 │   │     validate
 │   │     handler.handle_request(req)
 │   │     response_buffer = handler.serialize_current_header()
-│   │     state = WRITING
+│   │     state = Writing
 │   └─ parser.reset()
 │
 ├─ error_handling
 │   ├─ malformed request
 │   │     build_error_response
 │   │     close_after_write = true
-│   │     state = WRITING
+│   │     state = Writing
 │   └─ errors still count as requests
 │
 ├─ request_counting

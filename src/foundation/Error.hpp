@@ -2,7 +2,7 @@
 #include <cerrno>
 #include <iostream>
 
-namespace Base
+namespace base
 {
 
 struct Error {
@@ -13,7 +13,7 @@ struct Error {
     int line;
 
     Error(): code(0), context(""), message(""), file(""), line(0) {}
-    Error( int code_, const char* ctx, const char* msg, const char* fl, int l )
+    Error(int code_, const char* ctx, const char* msg, const char* fl, int l)
     : code(code_),
     context(ctx),
     message(msg),

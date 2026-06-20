@@ -1,53 +1,111 @@
+
 #include "Connection.hpp"
-#include <unistd.h>
-#include <cstring>
-#include <cerrno>
+#include "Context.hpp"
+#include "Dispatcher.hpp"
+#include <iostream>
+#include "Server.hpp"
 
 namespace net {
+
+Connection::Connection(int _fd, io::Event events, ServerContext& server_ctx)
+    : AEventHandler(_fd, events),
+    state_(Reading),
+    close_after_write(false),
+    last_activity_(),
+    lifetime_(),
+    ctx(server_ctx),
+    current_action(ctx.next_action()) {}
+
+Connection::~Connection() {
     
-    Connection::Connection( int _fd, io::EventMask mask )
-        : stream_(_fd, mask),
-        state(READING) {}
+}
 
-    Connection::~Connection() {}
+ConnectionState Connection::state() const { return state_; }
 
-    ConnectionAction Connection::action() const {
+bool Connection::closing() const { return state_ == Closing; }
 
-        switch (state) {
-            case READING:
-                return READ;
-            case WRITING:
-                return WRITE;
-            case CLOSING:
-                return CLOSE;
-            default:
-                break;
-        }
+void Connection::update(http::ContextAction action) {
 
-        return CLOSE;
+    ctx.print_context_action(action);
+    Connection* c = this;
+    c->print_connection_state(state_);
+
+    if (state_ == Closing && http::AC_CLOSE != action) action = http::AC_CLOSE;
+
+    switch (action) {
+        case http::AC_READ: state_ = Reading; break;
+        case http::AC_WRITE: state_ = Writing; break;
+        case http::AC_CLOSE: state_ = Closing; break;
+        default: break;
     }
 
-    bool Connection::timedout() {
-        return false;
+    io::Event new_events = events();
+
+    switch (state_) {
+        case Reading: new_events = io::Readable; break;
+        case Writing: new_events = io::Writable; break;
+        case Closing: new_events = io::Close; break;
     }
 
-    void Connection::consume( DataView& view ) {
-        session.consume(view);
+    if (new_events != events()) {
+        update_events(new_events);
+        std::cout << "Updated Connection Events\n";
     }
+}
 
-    void Connection::produce( BufferWriter& writer ) {
-        session.produce(writer);
-    }
-
-    void Connection::on_stream_error() {
-        state = CLOSING;
-    }
-
-    void Connection::on_stream_closed() {
-        state = CLOSING;
-    }
+void Connection::sync() {
     
-    const io::Stream& Connection::stream() const {
-        return stream_;
+    ctx.refresh_state();
+
+    http::ContextAction next = ctx.next_action();
+
+    current_action = next;
+
+    update(current_action);
+
+}
+
+
+
+void Connection::print_connection_state(ConnectionState state)
+{
+    switch (state) {
+    case Reading:
+        std::cout << "ConnectionState::Reading\n";
+        break;
+    case Writing:
+        std::cout << "ConnectionState::Writing\n";
+        break;
+    case Closing:
+        std::cout << "ConnectionState::Closing\n";
+        break;
+    default:
+        std::cout << "Unknown ConnectionState\n";
+        break;
     }
+}
+
+}
+
+namespace http {
+void Context::print_context_action(ContextAction action) {
+switch (action) {
+    case AC_READ:
+    std::cout << "ContextAction::AC_READ\n";
+    break;
+    case AC_WORK:
+    std::cout << "ContextAction::AC_WORK\n";
+    break;
+    case AC_WRITE:
+    std::cout << "ContextAction::AC_WRITE\n";
+    break;
+    case AC_CLOSE:
+    std::cout << "ContextAction::AC_CLOSE\n";
+    break;
+    default:
+    std::cout << "Unknown ContextAction\n";
+    break;
+}
+}
+
 }

@@ -3,40 +3,49 @@
 #include <cstring>
 #include <iostream>
 
-BufferWriter::BufferWriter(): capacity_(BUFFER_SIZE), offset_(0), size_(0) {}
+BufferWriter::BufferWriter()
+    : capacity_(BuffSize),
+    used_(0),
+    r_offset_(0) {
+    
+}
 
 BufferWriter::~BufferWriter() {}
 
 size_t BufferWriter::size() {
-    return size_;
+    return used_;
 }
 
-size_t BufferWriter::offset() {
-    return offset_;
+char* BufferWriter::write_ptr() {
+    return storage_ + used_;
 }
 
-char* BufferWriter::data() {
-    return buff_ + offset_;
+const char* BufferWriter::read_ptr() const {
+    return storage_ + r_offset_;
 }
 
 bool BufferWriter::full() {
-    return size_ == capacity_;
+    return used_ == capacity_;
 }
 
 bool BufferWriter::empty() {
-    return size_ == 0;
+    return used_ == 0;
 }
 
-size_t BufferWriter::remaining() {
-    return size_ - offset_;
+size_t BufferWriter::bytes_pending() {
+    return used_ - r_offset_;
 }
 
 size_t BufferWriter::bytes_free() {
-    return capacity_ - size_;
+    return capacity_ - used_;
 }
 
-void BufferWriter::advance( size_t n__ ) {
-    offset_ += n__;
+void BufferWriter::advance_read(size_t n__) {
+    r_offset_ += n__;
+}
+
+void BufferWriter::advance_write(size_t n__) {
+    used_ += n__;
 }
 
 size_t BufferWriter::capacity() {
@@ -44,18 +53,26 @@ size_t BufferWriter::capacity() {
 }
 
 void BufferWriter::reset() {
-    size_ = 0;
-    offset_ = 0;
+    used_ = 0;
+    r_offset_ = 0;
 }
 
-char* BufferWriter::write_ptr() {
-    return buff_ + offset_;
+size_t BufferWriter::written() const {
+    return r_offset_;
 }
 
-size_t BufferWriter::write( const char* source, size_t n__ ) {
-    size_t available = capacity_ - size_;
+size_t BufferWriter::write(const char* source, size_t n__) {
+    size_t available = capacity_ - used_;
     size_t to_copy = std::min(available, n__);
-    ::memcpy(buff_ + size_, source, to_copy);
-    size_ += to_copy;
+    ::memcpy(write_ptr(), source, to_copy);
+    used_ += to_copy;
     return to_copy;
+}
+
+
+void BufferWriter::pop(size_t n) {
+    
+    if (n > used_) n = used_;
+    
+    used_ -= n;
 }

@@ -2,12 +2,13 @@
 #include "http/Context.hpp"
 #include "http/Parser/parser.hpp"
 #include "http/routing/Routing.hpp"
-
-#include <sstream>
+#include "HandlerFactory.hpp"
 
 #define HTTP_TMP_DIR ".tmp"
 
 namespace http {
+  
+/*
 
 namespace {
 
@@ -19,6 +20,7 @@ static std::string	body_tmp_path(usize conn_id, usize request_id) {
 }
 
 }
+*/
 
 ParserState::ParserState()
 	: raw_buffer(),
@@ -30,22 +32,15 @@ ParserState::ParserState()
 	  body_buffer(),
 	  body_writer(std::string(), body_buffer, Limits::BODY_BUFFER_SIZE) {}
 
-ParserState::ParserState(const std::string& body_path)
-	: raw_buffer(),
-	  header_bytes(0),
-	  body_received(0),
-	  chunk_size(0),
-	  chunk_received(0),
-	  chunk_state(CHUNK_SIZE),
-	  body_buffer(),
-	  body_writer(body_path, body_buffer, Limits::BODY_BUFFER_SIZE) {}
-
-Context::Context()
+Context::Context(ServerContext& serv_ctx)
 	: parser(),
 	  request(),
 	  response(),
 	  state_(REQUEST_LINE),
-	  action_(AC_READ) {
+	  action_(AC_READ),
+	  handler(NULL),
+	  factory(serv_ctx, *this) {
+
 	request.method = UNKNOWN;
 	request.version = HTTP_UNKNOWN;
 	request.connection = CONNECTION_DEFAULT;
@@ -53,26 +48,27 @@ Context::Context()
 	response.status = OK;
 }
 
-Context::Context(usize conn_id, usize request_id)
-	: parser(body_tmp_path(conn_id, request_id)),
-	  request(),
-	  response(),
-	  state_(REQUEST_LINE),
-	  action_(AC_READ) {
-	request.method = UNKNOWN;
-	request.version = HTTP_UNKNOWN;
-	request.connection = CONNECTION_DEFAULT;
-	request.chunked = false;
-	response.status = OK;
+Context::~Context() {
+	
+	if (handler) delete handler;
+
+	handler = NULL;
 }
 
 Error Context::consume(const char* data, usize size) {
+	
 	Error err;
-
+	
 	if (data == NULL && size != 0)
 		return ERR_BAD_REQUEST;
-
-	action_ = AC_READ;
+	
+	if (!handler)
+	{
+		ResolutionResult r;
+		handler = factory.create(r, request, HandlerFactory::Cgi);
+	}
+	
+	return ERR_NONE;
 	parser.raw_buffer.reserve(parser.raw_buffer.size() + size);
 	parser.raw_buffer.append(data, size);
 
@@ -88,6 +84,7 @@ Error Context::consume(const char* data, usize size) {
 }
 
 Error Context::process(const config::Config& config) {
+	
 	routing::Decision decision;
 	bool has_body;
 
@@ -112,6 +109,42 @@ Error Context::process(const config::Config& config) {
 	}
 	action_ = AC_WORK;
 	return ERR_NONE;
+}
+
+ContextAction Context::next_action() const { return action_; }
+
+Error Context::produce(BufferWriter& w) {
+
+	ssize_t n = response.encoder.encode(response.body, w);
+
+	if (n == 0) {
+		std::cout << "Closed\n";
+		action_ = AC_CLOSE;
+	}
+	
+	if (n < 0) {
+		action_ = AC_CLOSE;
+	}
+
+	return ERR_NONE;
+}
+
+
+void Context::refresh_state() {
+
+	if (!handler) {
+		return;
+	}
+
+	CgiHandler* h = static_cast<CgiHandler*>(handler);
+	h->refresh_state();
+	
+	if (h->finished()) {
+		delete h;
+		h = NULL;
+		handler = NULL;
+		std::cout << "Deleting the CGI handler\n";
+	}
 }
 
 ContextAction Context::next_action() const { return action_; }
