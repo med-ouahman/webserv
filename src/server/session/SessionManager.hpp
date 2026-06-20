@@ -4,8 +4,6 @@
 #include <map>
 #include <ctime>
 
-namespace core {
-
 class SessionManager {
 public:
     static SessionManager& instance();
@@ -33,4 +31,3 @@ private:
     
 };
 
-}

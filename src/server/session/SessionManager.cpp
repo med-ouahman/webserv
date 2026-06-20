@@ -42,13 +42,17 @@ std::string SessionManager::create_session() {
 
 bool SessionManager::has_session(const std::string& id) {
     std::map<std::string, SessionData>::iterator it = sessions.find(id);
+    
     if (it == sessions.end()) return false;
+    
     time_t now = std::time(0);
+    
     if ((size_t)(now - it->second.last_touch) > timeout) {
         // erase by key for C++98 compatibility
         sessions.erase(it->first);
         return false;
     }
+
     it->second.last_touch = now;
     return true;
 }
