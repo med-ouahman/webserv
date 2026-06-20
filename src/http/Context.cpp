@@ -130,7 +130,6 @@ Error Context::produce(BufferWriter& w) {
 	ssize_t n = response.encoder.encode(response.body, w);
 
 	if (n == 0) {
-		std::cout << "Closed\n";
 		action_ = AC_CLOSE;
 	}
 	
@@ -149,7 +148,7 @@ void Context::reconcile() {
 	}
 
 	CgiHandler* h = static_cast<CgiHandler*>(handler);
-	h->refresh_state();
+	h->monitor();
 	
 	if (h->finished()) {
 		delete h;

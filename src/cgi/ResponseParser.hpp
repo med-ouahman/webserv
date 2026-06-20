@@ -68,13 +68,13 @@ private:
 
 	ParseResult parse_header(std::string const& line);
 	ParseResult sanitize_status_header(std::string const& header);
-	ParseResult	read_body(BufferReader& reader);
+	ParseResult	read_body(BufferView& reader);
 
 public:
 	ResponseParser();
 	~ResponseParser();
 	
-	ParseResult	parse(BufferReader& reader);
+	ParseResult	parse(BufferView& reader);
 	bool		finished() const;
 
 	CGIResult result() const;

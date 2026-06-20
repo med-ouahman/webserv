@@ -42,10 +42,10 @@ void Connection::on_writable() {
     if (state_ == Closing) return;
 
     http::Error err = ctx.produce(writer_);
+
     if (err != http::ERR_NONE || writer_.size() == 0) return;
     
     write();
-    
 }
 
 }

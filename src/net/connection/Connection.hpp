@@ -3,7 +3,7 @@
 #include "AEventHandler.hpp"
 #include "Timestamp.hpp"
 #include "Context.hpp"
-#include "BufferReader.hpp"
+#include "BufferView.hpp"
 #include "BufferWriter.hpp"
 
 namespace net {
@@ -52,7 +52,7 @@ private:
     
     http::Context   ctx;
     http::ContextAction current_action;
-    BufferReader reader_;
+    BufferView reader_;
     BufferWriter writer_;
     
     const ConnectionInfo info_;

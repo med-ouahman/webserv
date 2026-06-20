@@ -6,7 +6,7 @@
 
 namespace http {
 
-void CgiHandler::on_readable(BufferReader& reader, Channel& channel) {
+void CgiHandler::on_readable(BufferView& reader, Channel& channel) {
 
     channel.read();
 
@@ -30,7 +30,7 @@ void CgiHandler::on_readable(BufferReader& reader, Channel& channel) {
 }
 
 void CgiHandler::on_writable(BufferWriter& writer, Channel& channel) {
-    static std::string body = "Hello NIGGAS\n";
+    static std::string body = "Hello\n";
     
     if (body.size() == 0) {
         channel.mark_closing();

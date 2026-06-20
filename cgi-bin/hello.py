@@ -2,6 +2,10 @@
 import os
 import time
 
+s = "DOSDOSDOSD"*10
+
+for i in range(100):
+    print(s, end="")
 
 print("""Content-Type: text/html\r\n\r\n""", end="")
 print("""

@@ -23,8 +23,7 @@ Process::Process(const CGIExecContext& ctx)
 
     state_ = Running;
 
-    if (ctx.stdin_fd != STDIN_FILENO)
-        stdin_pipe_.close_write_end();
+    if (ctx.stdin_fd != STDIN_FILENO) stdin_pipe_.close_write_end();
 
     pid_ = ::fork();
 
@@ -44,6 +43,7 @@ Process::Process(const CGIExecContext& ctx)
         stdout_pipe_.close();
         stderr_pipe_.close();
         ::execve(ctx.argv.argv()[0], ctx.argv.argv(), ctx.envp.argv());
+        state_ = Error;
         LOG_ERROR(MAKE_ERRNO_ERROR("execve()"));
         ::exit(EXIT_FAILURE);
     }
@@ -99,14 +99,11 @@ ProcessResult Process::result() const {
     ProcessResult r;
     r.status = status_;
 
-    if (WIFEXITED(status_))
-        r.reason = Exited;
-    else if (WIFSIGNALED(status_))
-        r.reason = Signaled;
-    else if (WIFSTOPPED(status_))
-        r.reason = Stopped;
-    else
-        r.reason = Unknown;
+    if (WIFEXITED(status_)) r.reason = Exited;
+    else if (WIFSIGNALED(status_)) r.reason = Signaled;
+    else if (WIFSTOPPED(status_)) r.reason = Stopped;
+    else r.reason = Unknown;
+
     return r;
 }
 

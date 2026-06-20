@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AEventHandler.hpp"
-#include "BufferReader.hpp"
+#include "BufferView.hpp"
 #include "BufferWriter.hpp"
 
 namespace http {
@@ -32,7 +32,7 @@ private:
 	State state_;
 	CgiHandler& handler_;
 
-	BufferReader reader_;
+	BufferView reader_;
 	BufferWriter writer_;
 
 public:

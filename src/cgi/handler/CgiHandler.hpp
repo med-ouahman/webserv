@@ -17,7 +17,6 @@ struct Request;
 
 class CgiHandler: public IRequestHandler {
 public:
-
 enum State {
 	Working,
 	Cleanup,
@@ -88,10 +87,11 @@ public:
 	bool finished();
 	
 	void on_writable(BufferWriter& writer, Channel& channel);
-	void on_readable(BufferReader& reader, Channel& channel);
+	void on_readable(BufferView& reader, Channel& channel);
 	
 	void close_channel(Channel& channel);
-	void refresh_state();
+
+	void monitor();
 };
 
 }

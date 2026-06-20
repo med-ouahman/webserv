@@ -14,7 +14,7 @@ void LineReader::reset() {
     cr_found = false;
 }
 
-ReadResult LineReader::readline(BufferReader& reader, size_t max_block_len) {
+ReadResult LineReader::readline(BufferView& reader, size_t max_block_len) {
     size_t line_offset = line_.size();
     size_t i = reader.cursor();
     bool nl_found = false;

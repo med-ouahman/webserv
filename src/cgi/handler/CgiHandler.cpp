@@ -100,7 +100,7 @@ void CgiHandler::check_process() {
     }
 }
 
-void CgiHandler::refresh_state() {
+void CgiHandler::monitor() {
 
     if ((response_state == Finished || response_state == Error) || timedout()) state_ = Cleanup;
 

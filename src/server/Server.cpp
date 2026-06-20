@@ -10,6 +10,7 @@ Server::Server()
     ctx.poller = &poller;
     ctx.logger = &logger_;
     logger_.setstream(std::cout);
+    
     running_ = start_listeners();
 }
 
@@ -28,8 +29,8 @@ Server::~Server() {
     for (size_t i(0); i < connections.size(); ++i) {
         delete connections[i];
     }
-    connections.clear();
 
+    connections.clear();
 }
 
 void Server::close_connection(net::Connection* conn) {
@@ -116,4 +117,8 @@ int Server::start() {
         sweep();
     }
 
+}
+
+void Server::abort() {
+    std::abort();
 }

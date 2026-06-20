@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string>
 
-class BufferReader {
+class BufferView {
 private:
 
     const static std::size_t BuffSize = 4096;
@@ -13,12 +13,12 @@ private:
     size_t size_;
     size_t cursor_;
 
-    BufferReader(const BufferReader& v);
-    BufferReader& operator=(const BufferReader& v);
+    BufferView(const BufferView& v);
+    BufferView& operator=(const BufferView& v);
 
 public:
-    BufferReader();
-    ~BufferReader();
+    BufferView();
+    ~BufferView();
     void advance(size_t n);
     void update(size_t n);
     char* write_ptr();

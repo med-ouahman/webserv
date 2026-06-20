@@ -88,8 +88,8 @@
 │   │   │   └── types.hpp
 │   │   ├── BufferWriter.cpp
 │   │   ├── BufferWriter.hpp
-│   │   ├── BufferReader.cpp
-│   │   ├── BufferReader.hpp
+│   │   ├── BufferView.cpp
+│   │   ├── BufferView.hpp
 │   │   ├── Error.hpp
 │   │   ├── Logger.hpp
 │   │   ├── Result.hpp

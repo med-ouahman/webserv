@@ -24,7 +24,7 @@ ResponseParser::~ResponseParser() {
     body_filename.clear();
 }
 
-ResponseParser::ParseResult ResponseParser::parse(BufferReader& reader) {
+ResponseParser::ParseResult ResponseParser::parse(BufferView& reader) {
     std::cout << "Start CGI header parsing...\n";
 
     while (state_ != Done) {
@@ -34,8 +34,6 @@ ResponseParser::ParseResult ResponseParser::parse(BufferReader& reader) {
             if (r != Success) return r;
             continue;
         }
-        
-        parse_ctx.line_reader.reset();
 
         size_t max_scan_size = CGIParseContext::MaxHeaderBlockLen - parse_ctx.header_bytes;
         
@@ -58,6 +56,8 @@ ResponseParser::ParseResult ResponseParser::parse(BufferReader& reader) {
         
         ParseResult res = parse_header(parse_ctx.line_reader.line());
         if (res != Success) return res;
+
+        parse_ctx.line_reader.reset();
     }
 
     std::cout << "finish CGI\n";
@@ -129,7 +129,7 @@ ResponseParser::ParseResult ResponseParser::parse_header(std::string const& line
     return Success;
 }
 
-ResponseParser::ParseResult ResponseParser::read_body(BufferReader& reader) {
+ResponseParser::ParseResult ResponseParser::read_body(BufferView& reader) {
     
     if (reader.size() == 0) {
         state_ = Done;

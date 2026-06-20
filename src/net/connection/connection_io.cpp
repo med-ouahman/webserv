@@ -27,9 +27,8 @@ void Connection::write() {
     }
 
     writer_.advance_read(n);
-    if (writer_.written() == writer_.size()) {
-        writer_.reset();
-    }
+    
+    if (writer_.written() == writer_.size()) writer_.reset();
 }
 
 }

@@ -12,7 +12,7 @@
 
 #define CRLF "\r\n"
 
-class BufferReader;
+class BufferView;
 
 namespace http {
 
@@ -56,7 +56,6 @@ private:
 	HandlerFactory factory;
 
 public:
-
 	Context(ServerContext& serv_ctx);
 	~Context();
 
@@ -66,7 +65,6 @@ public:
 
 	Error produce(BufferWriter& writer);
 
-	void print_context_action(ContextAction action);
 	void on_cgi_ready(const CGIResult result);
 
 	void reconcile();

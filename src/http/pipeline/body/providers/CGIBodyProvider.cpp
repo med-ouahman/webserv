@@ -4,7 +4,7 @@
 
 namespace http {
 
-CGIBodyProvider::CGIBodyProvider(CgiHandler& h, BufferReader& src)
+CGIBodyProvider::CGIBodyProvider(CgiHandler& h, BufferView& src)
     : handler(h),
     source(src) {}
 
