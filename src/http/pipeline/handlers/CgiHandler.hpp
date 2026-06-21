@@ -5,11 +5,53 @@
 #include "ResponseParser.hpp"
 #include "StatusCode.hpp"
 #include "IBodyProvider.hpp"
-#include "Channel.hpp"
+#include "AEventHandler.hpp"
 
 namespace runtime { namespace epoll { class EventPoller; } }
 
+
 namespace http {
+
+class CgiHandler;
+
+class Channel: public io::AEventHandler {
+public:
+enum Stream {
+	Stdin,
+	Stdout,
+	Stderr
+};
+
+enum State {
+	Open,
+	Closing,
+	Closed,
+	Error
+};
+
+private:
+
+	Stream stream_;
+	State state_;
+	CgiHandler& handler_;
+
+	BufferView reader_;
+	BufferWriter writer_;
+
+public:
+	Channel(Stream s, int fd, io::Event events, CgiHandler& handler);
+	~Channel();
+	
+	void on_event(io::Event ev);
+
+	void read();
+	void write();
+
+	Stream stream() const;
+	State state() const;
+	void shutdown();
+	void mark_closing();
+};
 
 class Context;
 struct ResolutionResult;

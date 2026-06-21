@@ -23,20 +23,18 @@ INCLUDES = -Isrc \
 	-Isrc/net/ \
 	-Isrc/net/connection/ \
 	-Isrc/net/listener/ \
-	-Isrc/cgi/ \
-	-Isrc/cgi/process/ \
-	-Isrc/cgi/handler/ \
 	-Isrc/runtime/ \
 	-Isrc/runtime/epoll/ \
 	-Isrc/server/ \
-	-Isrc/server/session/ \
 	-Isrc/server/logger/ \
+	-Isrc/cgi/ \
 	-Isrc/http/ \
 	-Isrc/http/Parser/ \
 	-Isrc/http/Parser/body/ \
 	-Isrc/http/Parser/headers/ \
 	-Isrc/http/routing/ \
 	-Isrc/http/pipeline/ \
+	-Isrc/http/pipeline/handlers \
 	-Isrc/http/pipeline/body/ \
 	-Isrc/http/pipeline/body/providers/ \
 	-Isrc/http/common/ \
@@ -55,12 +53,9 @@ SRCS = src/server/main.cpp \
 	src/runtime/epoll/EventPoller.cpp \
 	src/runtime/epoll/poll.cpp \
 	src/runtime/epoll/event_handlers.cpp \
-	src/cgi/process/Process.cpp \
+	src/cgi/Process.cpp \
 	src/cgi/resolve_cgi.cpp \
 	src/cgi/response_builder.cpp \
-	src/cgi/handler/CgiHandler.cpp \
-	src/cgi/handler/channel_events.cpp \
-	src/cgi/handler/Channel.cpp \
 	src/http/Context.cpp \
 	src/http/cgi.cpp \
 	src/http/common/LineReader.cpp \
@@ -77,6 +72,7 @@ SRCS = src/server/main.cpp \
 	src/http/Parser/body/fixed.cpp \
 	src/http/routing/Routing.cpp \
 	src/http/HandlerFactory.cpp \
+	src/http/pipeline/handlers/CgiHandler.cpp \
 	src/http/pipeline/body/BodyEncoder.cpp \
 	src/http/pipeline/body/providers/CGIBodyProvider.cpp \
 	src/http/pipeline/body/providers/MemoryBodyProvider.cpp \
