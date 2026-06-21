@@ -11,7 +11,6 @@ class CgiHandler;
 
 class Channel: public io::AEventHandler {
 public:
-
 enum Stream {
 	Stdin,
 	Stdout,
@@ -28,6 +27,7 @@ enum State {
 private:
     const static std::size_t ReaderSize = 1024 * 4;
     const static std::size_t WriterSize = 1024 * 4;
+
 	Stream stream_;
 	State state_;
 	CgiHandler& handler_;
@@ -49,6 +49,5 @@ public:
 	void shutdown();
 	void mark_closing();
 };
-
 
 }

@@ -83,8 +83,6 @@ SRCS = src/server/main.cpp \
 	src/http/pipeline/body/providers/FileBodyProvider.cpp \
 	src/config/ConfigParser.cpp \
 	src/config/Lexer.cpp \
-	src/foundation/BufferView.cpp \
-	src/foundation/BufferWriter.cpp \
 	src/base/io/Writer.cpp \
 	src/base/io/Reader.cpp \
 	src/base/file.cpp \

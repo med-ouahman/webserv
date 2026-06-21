@@ -46,6 +46,7 @@ enum ShutdownState {
 };
 
 private:
+	const static time_t SigTermWaitSeconds = 2;
 	static time_t cgi_timeout_sec;
 
 	State state_;

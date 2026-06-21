@@ -87,7 +87,7 @@ void CgiHandler::check_process() {
             shutdown_state = WaitingSigTerm;
             break;
         case WaitingSigTerm:
-            if (sigterm_sent_at.elapsed() > 2) shutdown_state = SigKill;
+            if (sigterm_sent_at.elapsed() > SigTermWaitSeconds) shutdown_state = SigKill;
             break;
         case SigKill:
             process.kill();
@@ -102,9 +102,11 @@ void CgiHandler::check_process() {
 
 void CgiHandler::monitor() {
 
-    if ((response_state == Finished || response_state == Error) || timedout()) state_ = Cleanup;
+    if ((response_state == Finished
+        || response_state == Error) || timedout()) state_ = Cleanup;
 
-    if (state_ == Cleanup && shutdown_state != Reaped) check_process();
+    if (state_ == Cleanup
+        && shutdown_state != Reaped) check_process();
 
     if (process.reaped()) shutdown_state = Reaped;
 
@@ -120,13 +122,11 @@ void CgiHandler::monitor() {
         CGIResult result;
     
         switch (reason_) {
+
+            case None: break;
             case Timeout: result.status_code = GATEWAY_TIMEOUT; std::cout << "Gateway timeout\n"; break;
-
             case ParseError: result.status_code = BAD_GATEWAY; std::cout << "Bad Gateway\n"; break;
-
             case ProcessError: case Internal: result.status_code = INTERNAL_SERVER_ERROR; std::cout << "Internal\n"; break;
-
-            default: break;
         }
     
         protocol_.on_cgi_ready(result);

@@ -1,4 +1,11 @@
 #pragma once
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <unistd.h>
+#include <string>
+#include <iostream>
 
 struct TCPSocket
 {
@@ -35,6 +42,7 @@ struct TCPSocket
             if (n <= 0) return false;
             sent += static_cast<size_t>(n);
         }
+        std::cout << "sent: " << sent << "\n";
         return true;
     }
 

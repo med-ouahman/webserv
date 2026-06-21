@@ -32,6 +32,7 @@ void Channel::on_event(io::Event event) {
 }
 
 Channel::Stream Channel::stream() const { return stream_; }
+
 Channel::State Channel::state() const { return state_; }
 
 void Channel::shutdown() {
@@ -46,10 +47,13 @@ void Channel::mark_closing() {
 
 void Channel::read() {
     
-    ssize_t n = ::read(fd(), reader_.write_ptr(), reader_.capacity());
+    reader_.compact();
+
+    ssize_t n = ::read(fd(), reader_.write_ptr(), reader_.capacity() - reader_.cursor());
 
     if (n < 0) {
         state_ = Closing;
+        return;
     }
 
     if (n == 0) state_ = Closing;
@@ -66,6 +70,7 @@ void Channel::write() {
     }
 
     writer_.advance_read(n);
+    writer_.compact();
 }
 
 }

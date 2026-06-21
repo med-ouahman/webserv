@@ -3,7 +3,8 @@ SOCKET := Socket.cpp
 
 INC  = Socket.hpp
 
-TEST_DIR = load
+TEST_DIR = .
+
 TEST_SRC := $(shell find $(TEST_DIR)/*.cpp)
 
 SRC = $(TEST_SRC)
@@ -18,4 +19,4 @@ all: $(NAME)
 	$(CXX) -c $< -o $@
 
 $(NAME): $(OBJ)
-	$(cxx) $(OBJ) -o $(NAME)
+	$(CXX) $(OBJ) -o $(NAME)
