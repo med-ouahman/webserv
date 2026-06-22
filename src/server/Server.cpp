@@ -87,6 +87,7 @@ void Server::sweep() {
         net::Connection* conn = connections.at(i);
 
         conn->sync();
+
         poller.sync(conn);
 
         if (conn->closing()) close_connection(conn);
@@ -109,14 +110,15 @@ void Server::sweep() {
 
 int Server::start() {
 
-    if (!running_)
-        return EXIT_FAILURE;
-    while (true)
-    {
+    if (!running_) return EXIT_FAILURE;
+    
+    while (running_) {
         poller.poll();
+
         sweep();
     }
-
+    
+    return 0;
 }
 
 void Server::abort() {

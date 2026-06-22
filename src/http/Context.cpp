@@ -156,6 +156,7 @@ void Context::reconcile() {
 		handler = NULL;
 		std::cout << "Deleting the CGI handler\n";
 	}
+
 }
 
 }

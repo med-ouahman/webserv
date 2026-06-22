@@ -1,5 +1,6 @@
 #include "Logger.hpp"
 #include <iostream>
+#include <iomanip>
 
 namespace logger {
 
@@ -12,10 +13,10 @@ Logger::~Logger() {}
 std::string Logger::level_string(LogLevel level) {
 
     switch (level) {
-        case Info: return "INFO";
-        case Debug: return "DEBUG";
-        case Warning: return "WARNING";
-        case Error: return "ERROR";
+        case Info: return "[INFO]";
+        case Debug: return "[DEBUG]";
+        case Warning: return "[WARNING]";
+        case Error: return "[ERROR]";
     }
 
     return "DEBUG";
@@ -34,20 +35,20 @@ std::string Logger::format_date(time_t raw) {
         tm
     );
 
-    return std::string(buffer);
+    return "[ " + std::string(buffer) + " ]";
 }
 
-void Logger::log(LogLevel level, std::string const& message, bool timestamp) {
+void Logger::log(LogLevel level, const std::string& message, bool timestamp) {
+    const std::string ts =
+        timestamp ? format_date(Timestamp::now().seconds()) : "";
 
-    *(out)
-    << "[" 
-    << level_string(level) 
-    << "]"
-    << "\t"
-    << message
-    << "\t"
-    << (timestamp ? format_date(Timestamp::now().seconds()) : "")
-    << "\n";
+    (*out)
+        << std::left
+        << std::setw(10) << level_string(level)
+        << std::setw(60) << message
+        << std::right
+        << std::setw(25) << ts
+        << '\n';
 }
 
 void Logger::setstream(std::ostream& stream) {
