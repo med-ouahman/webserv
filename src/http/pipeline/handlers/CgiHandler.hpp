@@ -15,6 +15,7 @@ namespace http {
 class CgiHandler;
 
 class Channel: public io::AEventHandler {
+
 public:
 enum Stream {
 	Stdin,
@@ -30,7 +31,6 @@ enum State {
 };
 
 private:
-
 	Stream stream_;
 	State state_;
 	CgiHandler& handler_;
@@ -88,8 +88,8 @@ enum ShutdownState {
 };
 
 private:
-	const static time_t SigTermWaitSeconds = 2;
-	static time_t cgi_timeout_sec;
+	const static time_t SigTermWaitSeconds = 3;
+	static time_t CgiTimeoutSeconds;
 
 	State state_;
 
@@ -125,7 +125,7 @@ public:
 		Context& ctx);
 
 	~CgiHandler();
-	
+
 	void handle();
 	bool finished();
 	

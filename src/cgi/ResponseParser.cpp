@@ -27,24 +27,25 @@ ResponseParser::~ResponseParser() {
 ResponseParser::ParseResult ResponseParser::parse(BufferView& reader) {
     std::cout << "Start CGI header parsing...\n";
 
+    if (reader.empty() && state_ == Headers) {
+        return ParseError;
+    }
+
     while (state_ != Done) {
 
         if (state_ == Body) {
-            ParseResult r = read_body(reader);
-            if (r != Success) return r;
-            continue;
+            return read_body(reader);
         }
 
         size_t max_scan_size = CGIParseContext::MaxHeaderBlockLen - parse_ctx.header_bytes;
         
         ReadResult r = parse_ctx.line_reader.readline(reader, max_scan_size);
-        
-        if (r == LIMIT_EXCEEDED) return ParseError;
-        
-        if (r == NEED_MORE) {
-            std::cout << "Need more\n";
-            return Continue;
-        } 
+
+        switch (r) {
+            case LIMIT_EXCEEDED: return ParseError;
+            case NEED_MORE: return Continue;
+            case SUCCESS: break;
+        }
         
         if (parse_ctx.line_reader.line().empty()) {
             std::cout << "Begin body reading\n";

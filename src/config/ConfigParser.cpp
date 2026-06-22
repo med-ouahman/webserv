@@ -27,6 +27,11 @@ Config ConfigParser::build_default_config() {
     server.listens.push_back((ListenEndPoint) {
         0, 3000
     });
+
+    server.listens.push_back((ListenEndPoint) {
+        0, 3001
+    });
+    
     
 
     server.server_names.push_back("localhost");

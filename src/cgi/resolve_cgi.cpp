@@ -55,10 +55,6 @@ CStringArray EnvBuilder::build(const CGIRequestContext& ctx,
     http::Headers const& request_headers) {
 
     http::Headers headers = build_metadata(ctx);
-   
-    http::Headers::iterator it = headers.begin();
-    
-    for (; it != headers.end(); ++it) std::cout << it->name << " " << it->value << "\n";
 
     CStringArray arr;
     

@@ -15,9 +15,10 @@ private:
 	static const std::size_t	MaxMonitorFds = 1000;
 	static const std::size_t	MaxEvents = 128;
 
-	int epoll_fd;
+	int 		epoll_fd;
+	bool		created_;
 	epoll_event events[MaxEvents];
-	size_t monitor_count;
+	size_t 		monitor_count;
 	
 	EventPoller(const EventPoller& other);
 	EventPoller& operator=(const EventPoller& other);
@@ -34,6 +35,7 @@ public:
 	bool mod(io::AEventHandler* handler);
 	bool del(io::AEventHandler* handler);
 	void sync(io::AEventHandler*);
+	bool created() const;
 };
 
 }}

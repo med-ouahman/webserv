@@ -48,10 +48,10 @@ const char* data() const {
 
 char* write_ptr() {
 	return storage_ + cursor_;
-}	
+}
 
 bool empty() const {
-	return cursor_ >= capacity_;
+	return size_ == 0;
 }
 
 void rewind(size_t n) {

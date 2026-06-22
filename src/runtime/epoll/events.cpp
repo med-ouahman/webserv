@@ -90,48 +90,4 @@ void EventPoller::sync(io::AEventHandler* handler) {
 	handler->sync_events();
 }
 
-io::Event EventPoller::encode_events(EpollEvent epoll_event) {
-    io::Event event = io::None;
-
-    if (epoll_event & EPOLLIN)
-        event = (io::Event)(event | io::Readable);
-
-    if (epoll_event & EPOLLOUT)
-        event = (io::Event)(event | io::Writable);
-
-    if (epoll_event & EPOLLHUP)
-        event = (io::Event)(event | io::Hup);
-
-    if (epoll_event & EPOLLRDHUP)
-        event = (io::Event)(event | io::RHup);
-
-    if (epoll_event & EPOLLERR)
-        event = (io::Event)(event | io::Error);
-
-    return event;
-}
-
-EpollEvent EventPoller::decode_events(io::Event event) {
-    EpollEvent ev = 0;
-
-    if (event & io::Readable)
-        ev |= EPOLLIN;
-
-    if (event & io::Writable)
-        ev |= EPOLLOUT;
-
-    if (event & io::Hup)
-        ev |= EPOLLHUP;
-
-    if (event & io::RHup)
-        ev |= EPOLLRDHUP;
-
-    if (event & io::Error)
-        ev |= EPOLLERR;
-
-    return ev;
-}
-
-
-
 }}

@@ -10,8 +10,10 @@ Server::Server()
     ctx.poller = &poller;
     ctx.logger = &logger_;
     logger_.setstream(std::cout);
-    
-    running_ = start_listeners();
+
+    running_ = poller.created();
+
+    running_ = running_ && start_listeners();
 }
 
 logger::Logger& Server::logger() {
@@ -21,12 +23,14 @@ logger::Logger& Server::logger() {
 Server::~Server() {
 
     for (size_t i(0); i < listeners.size(); ++i) {
+        poller.del(listeners[i]);
         delete listeners[i];
     }
     
     listeners.clear();
     
     for (size_t i(0); i < connections.size(); ++i) {
+        poller.del(connections[i]);
         delete connections[i];
     }
 
@@ -114,7 +118,6 @@ int Server::start() {
     
     while (running_) {
         poller.poll();
-
         sweep();
     }
     

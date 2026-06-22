@@ -5,6 +5,42 @@
 #include "EventPoller.hpp"
 #include "Context.hpp"
 
+
+
+
+
+
+
+
+
+/*
+    TODO:
+
+    NIGGA, FIX THAT READLINE THANG, IT'S KILLING  ME FR
+
+    IMMA GO SLEEP NOW OKK
+
+
+
+
+    FXX
+
+
+    X
+    X
+
+
+    
+
+*/
+
+
+
+
+
+
+
+
 namespace http {
 
 Channel::Channel(Stream s, int fd, io::Event events, CgiHandler& h)
@@ -56,12 +92,11 @@ void Channel::read() {
     ssize_t n = ::read(fd(), reader_.write_ptr(), reader_.capacity() - reader_.cursor());
 
     if (n < 0) {
-        state_ = Closing;
+        state_ = Error;
         return;
     }
 
     if (n == 0) state_ = Closing;
-    
     reader_.update(n);
 }
 
@@ -69,17 +104,16 @@ void Channel::write() {
     ssize_t n = ::write(fd(), writer_.read_ptr(), writer_.bytes_pending());
 
     if (n < 0) {
-        state_ = Closing;
+        state_ = Error;
         return;
     }
 
+    state_ = Closing;
     writer_.advance_read(n);
     writer_.compact();
 }
 
-
-
-time_t CgiHandler::cgi_timeout_sec;
+time_t CgiHandler::CgiTimeoutSeconds;
 
 CgiHandler::CgiHandler(const ResolutionResult& res,
         const http::Request& req,
@@ -97,7 +131,7 @@ CgiHandler::CgiHandler(const ResolutionResult& res,
     stderr_ch(Channel::Stderr, process.stderr_pipe().read_end(), io::Readable, *this),
     poller_(p),
     protocol_(ctx) {
-    cgi_timeout_sec = 5; // 30 seconds is generous
+    CgiTimeoutSeconds = 5; // 30 seconds is generous
     
     if (!process.running()) {
         state_ = Cleanup;
@@ -129,6 +163,17 @@ void CgiHandler::on_readable(BufferView& reader, Channel& channel) {
         return;
     }
 
+    if (channel.state() == Channel::Error) {
+        state_ = Cleanup;
+        reason_ = Internal;
+        channel.mark_closing();
+        return;
+    }
+
+    if (channel.state() == Channel::Closing) {
+        channel.mark_closing();
+    }
+
     ResponseParser::ParseResult r = builder.parse(reader);
     
     if (r == ResponseParser::Continue) return;
@@ -144,15 +189,24 @@ void CgiHandler::on_readable(BufferView& reader, Channel& channel) {
 }
 
 void CgiHandler::on_writable(BufferWriter& writer, Channel& channel) {
-    static std::string body = "Hello\n";
-    
-    if (body.size() == 0) {
-        channel.mark_closing();
-        return;
-    }
 
-    writer.write(body.c_str(), body.size());
-    body.clear();
+    // base::Expected<usize, base::io::Error> res = protocol_.request_body().read(writer.write_ptr(), writer.bytes_free());
+
+    // if (!res.has_value()) {
+    //     state_ = Cleanup;
+    //     reason_ = Internal;
+    //     return;
+    // }
+
+    // usize n = res.value();
+
+    // writer.advance_write(n);
+
+    // if (writer.size() == 0) {
+    //     channel.mark_closing();
+    //     return;
+    // }
+    writer.advance_read(0);
 
     channel.write();
 }
@@ -166,7 +220,7 @@ bool CgiHandler::finished() {
 }
 
 bool CgiHandler::timedout() {
-    bool out = spawn_time.elapsed() > cgi_timeout_sec;
+    bool out = spawn_time.elapsed() > CgiTimeoutSeconds;
 
     if (out) reason_ = Timeout;
     return out;

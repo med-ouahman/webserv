@@ -84,6 +84,7 @@ bool Reader::reset(const char* buffer, usize size) {
 	buffer_ = buffer;
 	size_ = size;
 	offset_ = 0;
+	
 	return buffer_ != NULL || size_ == 0;
 }
 

@@ -26,4 +26,10 @@ void Context::on_cgi_ready(const CGIResult result) {
 	action_ = AC_WRITE;
 }
 
+
+base::io::Reader& Context::request_body() {
+	return request.body;
 }
+
+}
+

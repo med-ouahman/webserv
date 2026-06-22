@@ -8,18 +8,16 @@ DEVELOPMENT = -D DEV_MODE=1 -D DEBUG=1
 
 CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 $(DEBUG) $(DEVELOPMENT)
 
-
 # Libraries we might link against in the future, for now just a placeholder
 LIBS := 
 
-SRCDIR = src
+SRCDIR := src
 
 OBJDIR := obj
 
 NAME = webserv
 
 INCLUDES = -Isrc \
-	-Isrc/sys/ \
 	-Isrc/net/ \
 	-Isrc/net/connection/ \
 	-Isrc/net/listener/ \
@@ -43,7 +41,7 @@ INCLUDES = -Isrc \
 	-Isrc/base \
 
 SRCS = src/server/main.cpp \
-	src/sys/signals.cpp \
+	src/server/signals.cpp \
 	src/server/Server.cpp \
 	src/server/logger/Logger.cpp \
 	src/net/connection/Connection.cpp \
@@ -52,10 +50,10 @@ SRCS = src/server/main.cpp \
 	src/net/listener/Listener.cpp \
 	src/runtime/epoll/EventPoller.cpp \
 	src/runtime/epoll/poll.cpp \
-	src/runtime/epoll/event_handlers.cpp \
+	src/runtime/epoll/events.cpp \
 	src/cgi/Process.cpp \
 	src/cgi/resolve_cgi.cpp \
-	src/cgi/response_builder.cpp \
+	src/cgi/ResponseParser.cpp \
 	src/http/Context.cpp \
 	src/http/cgi.cpp \
 	src/http/common/LineReader.cpp \
@@ -87,10 +85,6 @@ SRCS = src/server/main.cpp \
 OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 
 all: $(NAME)
-
-OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
-
-all: $(NAME) 
 	
 $(OBJDIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
@@ -100,11 +94,7 @@ $(OBJDIR)/%.o: %.cpp
 $(NAME): $(OBJS)
 	@$(CXX) $(CXX_FLAGS) $(INCLUDES) $(OBJS) $(LIBS) -o $(NAME)
 	@echo "Build complete: $(NAME)"
-
-
-$(BODY_DIR):
-	@mkdir $(BODY_DIR)
-
+	
 clean:
 	@rm -fr $(OBJDIR)
 

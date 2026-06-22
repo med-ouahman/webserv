@@ -70,6 +70,8 @@ public:
 	void reconcile();
 
 	ContextAction next_action() const;
+
+	base::io::Reader& request_body();
 };
 
 }

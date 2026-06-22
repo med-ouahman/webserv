@@ -6,23 +6,93 @@
 │   └── hello.py
 ├── config
 │   └── default.conf
+├── design
+│   └── HTTP_API_DESIGN.md
 ├── docs
 │   ├── ARCH.md
 │   ├── BODY_HANDLER.md
 │   ├── CGI_STRATEGY.md
 │   ├── EPOLL.md
+│   ├── NEW_PARSER_STRATEGY.md
 │   ├── NOTES.md
 │   ├── Parser.md
 │   ├── PARSER.md
 │   ├── README.md
 │   ├── RESOURCE_PATH_RESOLUTION.md
 │   ├── RESPONSE.md
-│   └── TIMEOUT_STRATEGY.md
+│   ├── structure.txt
+│   ├── TIMEOUT_STRATEGY.md
+│   └── WEBSERV.md
 ├── Makefile
+├── obj
+│   └── src
+│       ├── base
+│       │   ├── file.o
+│       │   ├── io
+│       │   │   ├── Reader.o
+│       │   │   └── Writer.o
+│       │   └── random.o
+│       ├── cgi
+│       │   ├── Process.o
+│       │   ├── resolve_cgi.o
+│       │   └── response_builder.o
+│       ├── config
+│       │   ├── ConfigParser.o
+│       │   └── Lexer.o
+│       ├── http
+│       │   ├── cgi.o
+│       │   ├── common
+│       │   │   ├── Headers.o
+│       │   │   └── LineReader.o
+│       │   ├── Context.o
+│       │   ├── HandlerFactory.o
+│       │   ├── Parser
+│       │   │   ├── body
+│       │   │   │   ├── body.o
+│       │   │   │   ├── body_store.o
+│       │   │   │   ├── body_utils.o
+│       │   │   │   ├── chunked.o
+│       │   │   │   └── fixed.o
+│       │   │   ├── headers
+│       │   │   │   ├── header_rules.o
+│       │   │   │   ├── headers.o
+│       │   │   │   └── header_utils.o
+│       │   │   ├── parser.o
+│       │   │   └── request_line.o
+│       │   ├── pipeline
+│       │   │   ├── body
+│       │   │   │   ├── BodyEncoder.o
+│       │   │   │   └── providers
+│       │   │   │       ├── CGIBodyProvider.o
+│       │   │   │       ├── FileBodyProvider.o
+│       │   │   │       └── MemoryBodyProvider.o
+│       │   │   └── handlers
+│       │   │       └── CgiHandler.o
+│       │   └── routing
+│       │       └── Routing.o
+│       ├── net
+│       │   ├── connection
+│       │   │   ├── connection_events.o
+│       │   │   ├── connection_io.o
+│       │   │   └── Connection.o
+│       │   └── listener
+│       │       └── Listener.o
+│       ├── runtime
+│       │   └── epoll
+│       │       ├── EventPoller.o
+│       │       ├── events.o
+│       │       └── poll.o
+│       └── server
+│           ├── logger
+│           │   └── Logger.o
+│           ├── main.o
+│           ├── Server.o
+│           └── signals.o
 ├── push.sh
+├── resources
+│   └── en.subject.pdf
 ├── sandbox
 │   ├── epoll
-│   │   ├── a
 │   │   ├── epoll
 │   │   ├── epoll.c
 │   │   ├── p
@@ -37,194 +107,186 @@
 │       ├── server
 │       └── server.c
 ├── src
+│   ├── base
+│   │   ├── base.hpp
+│   │   ├── Expected.hpp
+│   │   ├── file.cpp
+│   │   ├── io
+│   │   │   ├── Error.hpp
+│   │   │   ├── Reader.cpp
+│   │   │   ├── Reader.hpp
+│   │   │   ├── Writer.cpp
+│   │   │   └── Writer.hpp
+│   │   ├── memory
+│   │   │   ├── ArenaAllocator.cpp
+│   │   │   ├── ArenaAllocator.hpp
+│   │   │   ├── FixedBufferAllocator.cpp
+│   │   │   ├── FixedBufferAllocator.hpp
+│   │   │   ├── HeapAllocator.cpp
+│   │   │   ├── HeapAllocator.hpp
+│   │   │   └── memory.h
+│   │   ├── Optional.hpp
+│   │   ├── random.cpp
+│   │   └── types.hpp
 │   ├── cgi
-│   │   ├── iochannel
-│   │   │   ├── IOChannel.cpp
-│   │   │   ├── io_channel_handle_event.cpp
-│   │   │   ├── IOChannel.hpp
-│   │   │   ├── io_ch_process.cpp
-│   │   │   └── io_ch_process_data.cpp
-│   │   └── process
-│   │       ├── CGIProcess.cpp
-│   │       ├── CGIProcess.hpp
-│   │       ├── iochannel_closed.cpp
-│   │       ├── on_error.cpp
-│   │       ├── on_input_ready.cpp
-│   │       ├── on_output_ready.cpp
-│   │       ├── parse_headers.cpp
-│   │       ├── PipeGuard.hpp
-│   │       └── spawn.cpp
+│   │   ├── EnvBuilder.hpp
+│   │   ├── Process.cpp
+│   │   ├── Process.hpp
+│   │   ├── resolve_cgi.cpp
+│   │   ├── response_builder.cpp
+│   │   └── ResponseParser.hpp
 │   ├── config
 │   │   ├── Config.hpp
 │   │   ├── ConfigParser.cpp
 │   │   ├── ConfigParser.hpp
-│   │   ├── en.subject.pdf
 │   │   ├── Lexer.cpp
 │   │   ├── Lexer.hpp
-│   │   ├── main.cpp
 │   │   ├── Makefile
 │   │   ├── NEED.md
 │   │   ├── Token.hpp
 │   │   └── webserv.conf
 │   ├── foundation
-│   │   ├── baselib
-│   │   │   ├── Base.hpp
-│   │   │   ├── Expected.hpp
-│   │   │   ├── io
-│   │   │   │   ├── Error.hpp
-│   │   │   │   ├── Reader.cpp
-│   │   │   │   ├── Reader.hpp
-│   │   │   │   ├── Writer.cpp
-│   │   │   │   └── Writer.hpp
-│   │   │   ├── memory
-│   │   │   │   ├── ArenaAllocator.cpp
-│   │   │   │   ├── ArenaAllocator.hpp
-│   │   │   │   ├── FixedBufferAllocator.cpp
-│   │   │   │   ├── FixedBufferAllocator.hpp
-│   │   │   │   ├── HeapAllocator.cpp
-│   │   │   │   ├── HeapAllocator.hpp
-│   │   │   │   └── memory.h
-│   │   │   ├── Optional.hpp
-│   │   │   └── types.hpp
-│   │   ├── BufferWriter.cpp
-│   │   ├── BufferWriter.hpp
-│   │   ├── BufferView.cpp
 │   │   ├── BufferView.hpp
+│   │   ├── BufferWriter.hpp
+│   │   ├── CStringArray.hpp
 │   │   ├── Error.hpp
-│   │   ├── Logger.hpp
+│   │   ├── Pipe.hpp
 │   │   ├── Result.hpp
-│   │   └── Timestamp.hpp
+│   │   ├── Timestamp.hpp
+│   │   └── UniqueFd.hpp
 │   ├── http
-│   │   ├── application
-│   │   │   ├── SessionManager.cpp
-│   │   │   └── SessionManager.hpp
+│   │   ├── cgi.cpp
 │   │   ├── common
 │   │   │   ├── Date.hpp
 │   │   │   ├── Headers.cpp
-│   │   │   └── Headers.hpp
-│   │   ├── execution
-│   │   │   └── handlers
-<<<<<<< HEAD
-│   │   │       ├── CGIRequestContext.hpp
-=======
-│   │   │       ├── CGIContext.hpp
->>>>>>> 2a4fb87 (s)
-│   │   │       ├── CgiHandler.cpp
-│   │   │       └── CgiHandler.hpp
-│   │   ├── parser
-│   │   │   ├── BodyReader.cpp
-│   │   │   ├── BodyReader.hpp
+│   │   │   ├── Headers.hpp
 │   │   │   ├── LineReader.cpp
 │   │   │   ├── LineReader.hpp
-│   │   │   ├── parse_headers.cpp
-│   │   │   ├── parse_http_request.cpp
-│   │   │   ├── Parser.cpp
-│   │   │   ├── parse_request_line.cpp
-│   │   │   ├── Parser.hpp
-│   │   │   └── utils.cpp
-│   │   ├── request
-│   │   │   ├── Request.cpp
-│   │   │   └── Request.hpp
-│   │   ├── response
+│   │   │   └── Types.hpp
+│   │   ├── Context.cpp
+│   │   ├── Context.hpp
+│   │   ├── Error.hpp
+│   │   ├── HandlerFactory.cpp
+│   │   ├── HandlerFactory.hpp
+│   │   ├── IRequestHandler.hpp
+│   │   ├── Parser
 │   │   │   ├── body
-│   │   │   │   ├── cgi_body_chunked.cpp
-│   │   │   │   ├── CGIBodyProvider.cpp
-│   │   │   │   ├── CGIBodyProvider.hpp
-│   │   │   │   ├── cgi_send_body.cpp
-│   │   │   │   ├── FileBodyProvider.hpp
-│   │   │   │   └── IBodyProvider.hpp
-│   │   │   ├── generate_directory_listing.cpp
-│   │   │   ├── MimeType.cpp
-│   │   │   ├── MimeType.hpp
-│   │   │   ├── Response.cpp
-│   │   │   ├── Response.hpp
-│   │   │   ├── response_produce.cpp
-│   │   │   └── serialize_response.cpp
-│   │   ├── routing
-│   │   │   ├── create_request_handler.cpp
+│   │   │   │   ├── body.cpp
+│   │   │   │   ├── body.hpp
+│   │   │   │   ├── body_store.cpp
+│   │   │   │   ├── body_utils.cpp
+│   │   │   │   ├── chunked.cpp
+│   │   │   │   └── fixed.cpp
+│   │   │   ├── headers
+│   │   │   │   ├── header_rules.cpp
+│   │   │   │   ├── headers.cpp
+│   │   │   │   ├── headers.hpp
+│   │   │   │   └── header_utils.cpp
+│   │   │   ├── parser.cpp
+│   │   │   ├── parser.hpp
+│   │   │   └── request_line.cpp
+│   │   ├── pipeline
+│   │   │   ├── body
+│   │   │   │   ├── BodyEncoder.cpp
+│   │   │   │   ├── BodyEncoder.hpp
+│   │   │   │   └── providers
+│   │   │   │       ├── CGIBodyProvider.cpp
+│   │   │   │       ├── CGIBodyProvider.hpp
+│   │   │   │       ├── FileBodyProvider.cpp
+│   │   │   │       ├── FileBodyProvider.hpp
+│   │   │   │       ├── IBodyProvider.hpp
+│   │   │   │       ├── MemoryBodyProvider.cpp
+│   │   │   │       └── MemoryBodyProvider.hpp
 │   │   │   ├── Dispatcher.cpp
 │   │   │   ├── Dispatcher.hpp
-│   │   │   ├── find_location.cpp
-│   │   │   ├── IRequestHandler.hpp
-│   │   │   └── resolve.cpp
-│   │   ├── session
-│   │   │   ├── HttpSession.cpp
-│   │   │   └── HttpSession.hpp
+│   │   │   └── handlers
+│   │   │       ├── CgiHandler.cpp
+│   │   │       └── CgiHandler.hpp
+│   │   ├── Request.hpp
+│   │   ├── Response.hpp
+│   │   ├── routing
+│   │   │   ├── Routing.cpp
+│   │   │   └── Routing.hpp
+│   │   ├── SessionManager.cpp
+│   │   ├── SessionManager.hpp
 │   │   └── StatusCode.hpp
-│   ├── io
-│   │   ├── AEventHandler.hpp
-│   │   └── stream
-│   │       ├── Stream.cpp
-│   │       ├── Stream.hpp
-│   │       ├── stream_on_event.cpp
-│   │       ├── stream_on_readable.cpp
-│   │       ├── stream_on_writable.cpp
-│   │       ├── stream_read.cpp
-│   │       └── stream_write.cpp
 │   ├── net
 │   │   ├── connection
-│   │   │   ├── conn_cgi.cpp
-│   │   │   ├── ConnectionAction.hpp
 │   │   │   ├── Connection.cpp
+│   │   │   ├── connection_events.cpp
 │   │   │   ├── Connection.hpp
-│   │   │   ├── ConnectionState.hpp
-│   │   │   ├── conn_handle_event.cpp
-│   │   │   ├── conn_process.cpp
-│   │   │   ├── conn_request_phase.cpp
-│   │   │   ├── on_cgi_finished.cpp
-│   │   │   ├── process_incoming_data.cpp
-│   │   │   └── process_outgoing_data.cpp
+│   │   │   └── connection_io.cpp
 │   │   └── listener
-│   │       ├── create_sockets.cpp
 │   │       ├── Listener.cpp
-│   │       ├── Listener.hpp
-│   │       └── socket_events.cpp
+│   │       └── Listener.hpp
 │   ├── runtime
+│   │   ├── AEventHandler.hpp
 │   │   ├── epoll
-│   │   │   ├── AIOHandler.hpp
 │   │   │   ├── EventPoller.cpp
 │   │   │   ├── EventPoller.hpp
-│   │   │   ├── poller_sweep.cpp
-│   │   │   ├── Event.hpp
-│   │   │   ├── handle_connections.cpp
-│   │   │   ├── handle_fds.cpp
-│   │   │   └── run.cpp
-│   │   ├── kequeue
-│   │   └── poll
+│   │   │   ├── events.cpp
+│   │   │   └── poll.cpp
+│   │   ├── kqueue
+│   │   │   └── KqueueEventPoller.hpp
+│   │   ├── poll
+│   │   │   ├── PollEventLoop.cpp
+│   │   │   └── PollEventLoop.hpp
+│   │   └── select
 │   └── server
 │       ├── limits.hpp
+│       ├── logger
+│       │   ├── Logger.cpp
+│       │   └── Logger.hpp
 │       ├── main.cpp
-│       └── server.h
-├── src_tree
-├── structure.txt
+│       ├── ServerContext.hpp
+│       ├── Server.cpp
+│       ├── Server.hpp
+│       ├── signals.cpp
+│       └── sys.h
 ├── tests
-│   ├── cgi_tester
-│   ├── cgi_tester.cpp
-│   ├── cpp_tester
-│   ├── cpp_tester.cpp
-│   ├── dos.c
+│   ├── cgi
+│   │   ├── cgi_tester
+│   │   └── test_cgi.sh
+│   ├── config_tester
+│   │   ├── example.conf
+│   │   └── main.cpp
+│   ├── load
+│   │   ├── dos.c
+│   │   ├── send_n_requests.cpp
+│   │   ├── send_n_requests.o
+│   │   ├── test_load.cpp
+│   │   └── test_load.o
+│   ├── main.cpp
+│   ├── main.o
+│   ├── Makefile
+│   ├── parser
+│   │   ├── test_keep_alive.py
+│   │   ├── test_parser.c
+│   │   ├── test_parser.cpp
+│   │   ├── test_parser.js
+│   │   ├── test_parser.php
+│   │   ├── test_parser.py
+│   │   └── test_parser.rs
 │   ├── run_all_tests.sh
-│   ├── send_n_requests.cpp
-│   ├── sliding.cpp
-│   ├── test_cgi.sh
-│   ├── test_keep_alive.py
-│   ├── test_parser.c
-│   ├── test_parser.cpp
-│   ├── test_parser.js
-│   ├── test_parser.php
-│   ├── test_parser.py
-│   ├── test_parser.rs
+│   ├── Socket.cpp
+│   ├── Socket.hpp
+│   ├── Socket.o
+│   ├── test
+│   ├── tester
 │   └── util_tester
 │       └── test_hexa_converter.cpp
-└── var
-    └── www
-        ├── error_pages
-        │   └── 404.html
-        ├── favicon.ico
-        ├── index.html
-        ├── json
-        │   └── tmp.json
-        ├── server_errors.html
-        └── tmp.json
+├── var
+│   └── www
+│       ├── error_pages
+│       │   ├── 404.html
+│       │   ├── 500.html
+│       │   └── 501.html
+│       ├── favicon.ico
+│       ├── index.html
+│       ├── json
+│       │   └── tmp.json
+│       ├── server_errors.html
+│       └── tmp.json
+└── webserv
 
-43 directories, 181 files
+68 directories, 221 files
