@@ -5,49 +5,17 @@
 #include "EventPoller.hpp"
 #include "Context.hpp"
 
-
-
-
-
-
-
-
-
-/*
-    TODO:
-
-    NIGGA, FIX THAT READLINE THANG, IT'S KILLING  ME FR
-
-    IMMA GO SLEEP NOW OKK
-
-
-
-
-    FXX
-
-
-    X
-    X
-
-
-    
-
-*/
-
-
-
-
-
-
-
-
 namespace http {
 
-Channel::Channel(Stream s, int fd, io::Event events, CgiHandler& h)
-  : AEventHandler(fd, events),
+template <size_t N>
+Channel::Channel(Buffer<N>& rdbuf,
+    Stream s, int fd, io::Event events, CgiHandler& h)
+    : AEventHandler(fd, events),
     stream_(s),
     state_(Open),
-    handler_(h) {}
+    handler_(h),
+    reader_(rdbuf),
+    writer_(rdbuf) {}
 
 Channel::~Channel() {}
 
@@ -126,9 +94,9 @@ CgiHandler::CgiHandler(const ResolutionResult& res,
     spawn_time(),
     sigterm_sent_at(0),
     shutdown_state(SigTerm),
-    stdin_ch(Channel::Stdin, process.stdin_pipe().write_end(), io::Writable, *this),
-    stdout_ch(Channel::Stdout, process.stdout_pipe().read_end(), io::Readable, *this),
-    stderr_ch(Channel::Stderr, process.stderr_pipe().read_end(), io::Readable, *this),
+    stdin_ch(stdin_wbuf, Channel::Stdin, process.stdin_pipe().write_end(), io::Writable, *this),
+    stdout_ch(stdout_rdbuf, Channel::Stdout, process.stdout_pipe().read_end(), io::Readable, *this),
+    stderr_ch(stderr_rdbuf, Channel::Stderr, process.stderr_pipe().read_end(), io::Readable, *this),
     poller_(p),
     protocol_(ctx) {
     CgiTimeoutSeconds = 5; // 30 seconds is generous

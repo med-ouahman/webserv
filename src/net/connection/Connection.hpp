@@ -52,9 +52,13 @@ private:
     
     http::Context   ctx;
     http::ContextAction current_action;
+
+    Buffer<ReadbufSize> rdbuf;
+    Buffer<WritebufSize> wbuf;
+    
     BufferView reader_;
     BufferWriter writer_;
-    
+
     const ConnectionInfo info_;
 
     void read();

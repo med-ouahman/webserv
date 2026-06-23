@@ -4,29 +4,36 @@
 #include <string>
 #include <cstring>
 
+#include "Buffer.tpp"
+
 class BufferWriter {
 
 private:
 
-const static std::size_t BuffSize = 4096;
-const static std::size_t Treshold = 1024;
-
-char		storage_[BuffSize];
-size_t		capacity_;
-size_t		used_;
-size_t		r_offset_;
+char*   storage_;
+size_t  capacity_;
+size_t  used_;
+size_t	r_offset_;
+size_t  treshold;
 
 BufferWriter(const BufferWriter& other);
 BufferWriter& operator=(const BufferWriter& other);
 
 public:
+template <size_t N>
+BufferWriter(Buffer<N>& buf)
+    : storage_(buf.buff),
+    capacity_(N),
+    used_(0),
+    r_offset_(0),
+    treshold(0) {}
 
 BufferWriter()
-    : capacity_(BuffSize),
+    : storage_(NULL),
+    capacity_(0),
     used_(0),
-    r_offset_(0) {
-    
-}
+    r_offset_(0),
+    treshold(0) {}
 
 ~BufferWriter() {}
 
@@ -101,7 +108,7 @@ void pop(size_t n) {
 
 void compact() {
 
-    if (r_offset_ < Treshold) return;
+    if (r_offset_ < treshold) return;
 
     used_ -= r_offset_;
 
@@ -110,4 +117,3 @@ void compact() {
 }
 
 };
-

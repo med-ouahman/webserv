@@ -3,16 +3,14 @@
 
 namespace http {
 
-LineReader::LineReader(): cr_found(false) {}
+LineReader::LineReader(): bytes_(0), cr_found(false) {}
 
 LineReader::~LineReader() {}
 
 std::string const& LineReader::line() {
     size_t crlf = line_.size() - 2;
     
-    if (line_[crlf] == '\r' && line_[crlf + 1] == '\n') {
-        line_.resize(crlf);
-    }
+    if (line_[crlf] == '\r' && line_[crlf + 1] == '\n') line_.resize(crlf);
     
     return line_;
 }
@@ -20,6 +18,7 @@ std::string const& LineReader::line() {
 void LineReader::reset() {
     line_.clear();
     cr_found = false;
+    bytes_ = 0;
 }
 
 ReadResult LineReader::readline(BufferView& reader, size_t max_block_len) {
@@ -56,14 +55,15 @@ ReadResult LineReader::readline(BufferView& reader, size_t max_block_len) {
     
     if (to_advance > 0) line_.append(reader.data() + reader.cursor(), to_advance);
     
-    reader.advance(to_advance);
-    
+    bytes_ = to_advance;
+
     if (!nl_found) return NEED_MORE;
 
-
-    std::cout << line_ << "\n";
-
-    std::cout << (line_[line_.size()-2] == '\r' ? "\\r   ":"NO\n") << (line_[line_.size()-1] == '\n' ? "\\n":"nono\n");
     return SUCCESS;
 }
+
+size_t LineReader::bytes_read() const {
+    return bytes_;
+}
+
 }

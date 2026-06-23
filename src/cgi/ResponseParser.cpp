@@ -40,7 +40,8 @@ ResponseParser::ParseResult ResponseParser::parse(BufferView& reader) {
         size_t max_scan_size = CGIParseContext::MaxHeaderBlockLen - parse_ctx.header_bytes;
         
         ReadResult r = parse_ctx.line_reader.readline(reader, max_scan_size);
-
+        reader.advance(parse_ctx.line_reader.bytes_read());
+        
         switch (r) {
             case LIMIT_EXCEEDED: return ParseError;
             case NEED_MORE: return Continue;

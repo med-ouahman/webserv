@@ -3,7 +3,7 @@
 import os
 import time
 
-print("""Content-Type: text/html\r\n\rf""", end="")
+print("""Content-Type: text/html\r\n\r\n""", end="")
 print("""
 <!DOCTYPE html>
 <html lang="en">

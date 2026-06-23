@@ -9,13 +9,11 @@
 
 namespace runtime { namespace epoll { class EventPoller; } }
 
-
 namespace http {
 
 class CgiHandler;
 
 class Channel: public io::AEventHandler {
-
 public:
 enum Stream {
 	Stdin,
@@ -39,7 +37,12 @@ private:
 	BufferWriter writer_;
 
 public:
-	Channel(Stream s, int fd, io::Event events, CgiHandler& handler);
+	template <size_t N>
+	Channel(Buffer<N>& rdbuf,
+		Stream s,
+		int fd,
+		io::Event events,
+		CgiHandler& handler);
 	~Channel();
 	
 	void on_event(io::Event ev);
@@ -88,6 +91,11 @@ enum ShutdownState {
 };
 
 private:
+
+	const static std::size_t StdinWriteSize = 4096;
+	const static std::size_t StdoutReadSize = 4096;
+	const static std::size_t StderrReadSize = 1024;
+
 	const static time_t SigTermWaitSeconds = 3;
 	static time_t CgiTimeoutSeconds;
 
@@ -103,6 +111,10 @@ private:
 	ShutdownState	shutdown_state;
 	
 	ResponseParser builder;
+
+	Buffer<StdinWriteSize> stdin_wbuf;
+	Buffer<StdoutReadSize> stdout_rdbuf;
+	Buffer<StderrReadSize> stderr_rdbuf;
 
 	Channel stdin_ch;
 	Channel stdout_ch;

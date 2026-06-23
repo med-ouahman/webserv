@@ -3,29 +3,35 @@
 #include <stdio.h>
 #include <string>
 #include <cstring>
+#include "Buffer.tpp"
 
 class BufferView {
 private:
 
-const static std::size_t BuffSize = 4096;
-const static std::size_t Treshold = 1024; 
-
-char storage_[BuffSize];
-const size_t capacity_;
+char* storage_;
+size_t capacity_;
 size_t size_;
 size_t cursor_;
+size_t treshold;
 
 BufferView(const BufferView& v);
 BufferView& operator=(const BufferView& v);
 
 public:
 
-BufferView()
-	: storage_(),
-	capacity_(BuffSize),
+template <size_t N>
+BufferView(Buffer<N>& buf)
+	: storage_(buf.buff),
+	capacity_(N),
 	size_(0),
 	cursor_(0) {
 }
+
+BufferView()
+	: storage_(NULL), 
+	capacity_(0),
+	size_(0),
+	cursor_(0) {}
 
 ~BufferView() {}
 
@@ -77,13 +83,12 @@ size_t remaining() const {
 
 void compact() {
 
-	if (cursor_ < Treshold) return;
+	if (cursor_ < treshold) return;
 
 	size_ -= cursor_;
 	
 	::memmove(storage_, storage_ + cursor_, size_);
 	cursor_ = 0;
 }
-    
-};
 
+};
