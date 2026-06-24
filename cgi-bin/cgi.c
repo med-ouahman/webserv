@@ -1,15 +1,15 @@
 #include <unistd.h>
 #include <stdio.h>
 
-int main()
-{
-	char b[101];
-	size_t size = 100;
+int main() {
 
-	printf("CGI C\n");
-	ssize_t s = read(0, b, size);
+	char b[101];
+	size_t	size = 100;
+	printf("%s",b);printf("C G I C \n");
+	ssize_t s = read(0,b,size);
 	if (s == -1) return 1;
 	b[s] = 0;
-	printf("%s", b);
-	return  0;
-}
+	return 0;
+} 
+
+

@@ -8,7 +8,7 @@
 namespace http {
 
 template <size_t N>
-Channel::Channel(Buffer<N>& rdbuf,
+Channel::Channel(BufferStorage<N>& rdbuf,
     Stream s, int fd, io::Event events, CgiHandler& h)
     : AEventHandler(fd, events),
     stream_(s),

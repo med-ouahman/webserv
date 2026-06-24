@@ -22,9 +22,9 @@ struct ConnectionInfo {
     uint16_t remote_port;
 
     ConnectionInfo(const std::string& local_ip,
-        uint16_t local_port,
-        const std::string& remote_ip,
-        uint16_t remote_port)
+    uint16_t local_port,
+    const std::string& remote_ip,
+    uint16_t remote_port)
         : local_ip(local_ip),
         local_port(local_port),
         remote_ip(remote_ip),
@@ -34,8 +34,8 @@ struct ConnectionInfo {
 
 class Connection: public io::AEventHandler {  
 public:
-    const static std::size_t ReadbufSize = 1024 * 4;
-    const static std::size_t WritebufSize = 1024 * 4;
+    const static std::size_t ReadbufSize    = 1024 * 4;
+    const static std::size_t WritebufSize   = 1024 * 4;
 
     Connection(int fd, io::Event events, ServerContext& ctx, const ConnectionInfo& info);
     ~Connection();
@@ -53,8 +53,8 @@ private:
     http::Context   ctx;
     http::ContextAction current_action;
 
-    Buffer<ReadbufSize> rdbuf;
-    Buffer<WritebufSize> wbuf;
+    BufferStorage<ReadbufSize> rdbuf;
+    BufferStorage<WritebufSize> wbuf;
     
     BufferView reader_;
     BufferWriter writer_;

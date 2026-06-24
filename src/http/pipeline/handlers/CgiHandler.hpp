@@ -38,7 +38,7 @@ private:
 
 public:
 	template <size_t N>
-	Channel(Buffer<N>& rdbuf,
+	Channel(BufferStorage<N>& rdbuf,
 		Stream s,
 		int fd,
 		io::Event events,
@@ -112,9 +112,9 @@ private:
 	
 	ResponseParser builder;
 
-	Buffer<StdinWriteSize> stdin_wbuf;
-	Buffer<StdoutReadSize> stdout_rdbuf;
-	Buffer<StderrReadSize> stderr_rdbuf;
+	BufferStorage<StdinWriteSize> stdin_wbuf;
+	BufferStorage<StdoutReadSize> stdout_rdbuf;
+	BufferStorage<StderrReadSize> stderr_rdbuf;
 
 	Channel stdin_ch;
 	Channel stdout_ch;

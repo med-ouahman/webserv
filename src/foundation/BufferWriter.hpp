@@ -4,7 +4,7 @@
 #include <string>
 #include <cstring>
 
-#include "Buffer.tpp"
+#include "BufferStorage.tpp"
 
 class BufferWriter {
 
@@ -21,7 +21,7 @@ BufferWriter& operator=(const BufferWriter& other);
 
 public:
 template <size_t N>
-BufferWriter(Buffer<N>& buf)
+BufferWriter(BufferStorage<N>& buf)
     : storage_(buf.buff),
     capacity_(N),
     used_(0),

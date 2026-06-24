@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string>
 #include <cstring>
-#include "Buffer.tpp"
+#include "BufferStorage.tpp"
 
 class BufferView {
 private:
@@ -20,7 +20,7 @@ BufferView& operator=(const BufferView& v);
 public:
 
 template <size_t N>
-BufferView(Buffer<N>& buf)
+BufferView(BufferStorage<N>& buf)
 	: storage_(buf.buff),
 	capacity_(N),
 	size_(0),
