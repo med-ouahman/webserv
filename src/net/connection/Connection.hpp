@@ -5,6 +5,7 @@
 #include "Context.hpp"
 #include "BufferView.hpp"
 #include "BufferWriter.hpp"
+#include "Buffer.hpp"
 
 namespace net {
 
@@ -53,11 +54,11 @@ private:
     http::Context   ctx;
     http::ContextAction current_action;
 
-    BufferStorage<ReadbufSize> rdbuf;
-    BufferStorage<WritebufSize> wbuf;
-    
-    BufferView reader_;
-    BufferWriter writer_;
+    BufferStorage<ReadbufSize> in;
+    BufferStorage<WritebufSize> out;
+
+    Buffer rcvbuf;
+    Buffer sndbuf;
 
     const ConnectionInfo info_;
 

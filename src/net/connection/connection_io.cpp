@@ -8,7 +8,7 @@ namespace net {
 void Connection::read() {
 
     reader_.compact();
-    ssize_t n = ::recv(fd(), reader_.write_ptr(), reader_.capacity() - reader_.cursor(), 0);
+    ssize_t n = ::recv(fd(), rdbuf.data_, rdbuf, 0);
     
     if (n <= 0) {
         state_ = Closing;
