@@ -61,7 +61,8 @@ public:
 
 	Error consume(const char* data, usize size);
 	Error process(const config::Config& config);
-	Error produce(base::io::Writer& writer);
+
+	size_t produce(char* data_, size_t size);
 
 	Error produce(BufferWriter& writer);
 

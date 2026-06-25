@@ -125,8 +125,9 @@ Error Context::process(const config::Config& config) {
 
 ContextAction Context::next_action() const { return action_; }
 
-Error Context::produce(BufferWriter& w) {
+size_t Context::produce(char* data, size_t size) {
 
+	BufferWriter w;
 	ssize_t n = response.encoder.encode(response.body, w);
 
 	if (n == 0) {
