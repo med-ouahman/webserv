@@ -7,7 +7,7 @@ namespace net {
 
 void Connection::read() {
 
-    ssize_t n = ::recv(fd(), rcvbuf.data_ + rcvbuf.offset_, rcvbuf.capacity_ - rcvbuf.size_, 0);
+    ssize_t n = ::recv(fd(), reader_.write_ptr() + reader_.write_offset(), reader_.bytes_pending(), 0);
     
     if (n <= 0) {
         state_ = Closing;
@@ -20,7 +20,7 @@ void Connection::read() {
 void Connection::write() {
 
     
-    ssize_t n = ::send(fd(), sndbuf.data_ + sndbuf.offset_, sndbuf.size_ ,0);
+    ssize_t n = ::send(fd(), writer_.read_ptr() + writer_.read_offset(), writer_. , 0);
 
     if (n < 0) {
         state_ = Closing;

@@ -15,8 +15,8 @@ Connection::Connection(int _fd, io::Event events, ServerContext& server_ctx, con
     lifetime_(),
     ctx(server_ctx),
     current_action(ctx.next_action()),
-    rcvbuf(in),
-    sndbuf(out),
+    reader_(in),
+    writer_(out),
     info_(info) {
 
 }
