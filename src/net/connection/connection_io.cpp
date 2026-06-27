@@ -7,27 +7,28 @@ namespace net {
 
 void Connection::read() {
 
-    ssize_t n = ::recv(fd(), reader_.write_ptr() + reader_.write_offset(), reader_.bytes_pending(), 0);
+    reader_.compact();
+    ssize_t n = ::recv(fd(), reader_.write_ptr(), reader_.bytes_free(), 0);
     
     if (n <= 0) {
         state_ = Closing;
         return;
     }
     
-    rcvbuf.size_ += n;
+    reader_.advance_write(n);
 }
 
 void Connection::write() {
 
-    
-    ssize_t n = ::send(fd(), writer_.read_ptr() + writer_.read_offset(), writer_. , 0);
+    ssize_t n = ::send(fd(), writer_.read_ptr(), writer_.bytes_pending(), 0);
 
     if (n < 0) {
         state_ = Closing;
         return;
     }
 
-    sndbuf.size_ -= n;
+    writer_.advance_read(n);
+    writer_.compact();
 }
 
 }

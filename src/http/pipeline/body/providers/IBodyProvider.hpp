@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BufferWriter.hpp"
+#include "Buffer.hpp"
 #include <stddef.h>
 #include <cstdio>
 
@@ -10,7 +10,7 @@ class IBodyProvider {
 
 public:
     virtual ~IBodyProvider() {};
-    virtual ssize_t read(BufferWriter& w, size_t size) = 0;
+    virtual ssize_t read(Buffer& dest_, size_t size) = 0;
 };
 
 }

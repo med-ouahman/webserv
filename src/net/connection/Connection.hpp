@@ -4,7 +4,6 @@
 #include "Timestamp.hpp"
 #include "Context.hpp"
 #include "BufferView.hpp"
-#include "BufferWriter.hpp"
 #include "Buffer.hpp"
 
 namespace net {
