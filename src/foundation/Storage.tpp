@@ -3,6 +3,6 @@
 #include <cstddef>
 
 template <size_t N>
-struct BufferStorage {
+struct Storage {
     char buff[N];
 };

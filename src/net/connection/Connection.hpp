@@ -54,11 +54,11 @@ private:
     http::Context   ctx;
     http::ContextAction current_action;
 
-    BufferStorage<ReadbufSize> in;
-    BufferStorage<WritebufSize> out;
+    Storage<ReadbufSize> in;
+    Storage<WritebufSize> out;
 
-    Buffer rcvbuf;
-    Buffer sndbuf;
+    Buffer reader_;
+    Buffer writer_;
 
     const ConnectionInfo info_;
 
