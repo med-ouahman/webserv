@@ -120,7 +120,7 @@ private:
 	Channel stderr_ch;
 
 	runtime::epoll::EventPoller& poller_;
-	Context& protocol_;
+	Context& ctx_;
 	
 	CgiHandler(const CgiHandler&);
 	CgiHandler& operator=(const CgiHandler&);

@@ -104,7 +104,7 @@ CgiHandler::CgiHandler(const ResolutionResult& res,
     stderr_ch(stderr_rdbuf, Channel::Stderr, process.stderr_pipe().read_end(), io::Readable, *this),
 
     poller_(p),
-    protocol_(ctx) {
+    ctx_(ctx) {
     CgiTimeoutSeconds = 5; // 30 seconds is generous
     
     if (!process.running()) {
@@ -159,12 +159,12 @@ void CgiHandler::on_readable(BufferView& reader, Channel& channel) {
     }
 
     response_state = Finished;
-    protocol_.on_cgi_ready(builder.result());
+    ctx_.on_cgi_ready(builder.result());
 }
 
 void CgiHandler::on_writable(Buffer& writer, Channel& channel) {
 
-    base::Expected<usize, base::io::Error> res = protocol_.request_body().read(writer.write_ptr(), writer.bytes_free());
+    base::Expected<usize, base::io::Error> res = ctx_.request_body().read(writer.write_ptr(), writer.bytes_free());
 
     if (!res.has_value()) {
         state_ = Cleanup;
@@ -274,7 +274,7 @@ void CgiHandler::monitor() {
             case ProcessError: case Internal: result.status_code = INTERNAL_SERVER_ERROR; std::cout << "Internal\n"; break;
         }
     
-        protocol_.on_cgi_ready(result);
+        ctx_.on_cgi_ready(result);
     }
 
     if (state_ == Cleanup) state_ = Done;
