@@ -159,6 +159,7 @@ void CgiHandler::on_readable(BufferView& reader, Channel& channel) {
     }
 
     response_state = Finished;
+    
     ctx_.on_cgi_ready(builder.result());
 }
 

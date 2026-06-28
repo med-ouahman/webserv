@@ -21,17 +21,18 @@ Buffer& operator=(const Buffer& other);
 public:
 template <size_t N>
 Buffer(Storage<N>& buf)
-    : storage_(buf.buff),
-    capacity_(N),
-    r_offset_(0),
-    w_offset_(0),
-    treshold(0) {}
+: storage_(buf.buff),
+capacity_(N),
+r_offset_(0),
+w_offset_(0),
+treshold(0) {}
+
 
 Buffer()
-    : storage_(NULL),
-    capacity_(0),
-    r_offset_(0),
-    w_offset_(0),
+: storage_(NULL),
+capacity_(0),
+r_offset_(0),
+w_offset_(0),
     treshold(0) {}
 
 ~Buffer() {}
