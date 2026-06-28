@@ -18,8 +18,6 @@ struct CGIResult {
 	headers(h) {}
 
 	CGIResult(StatusCode code): status_code(code) {}
-
-	CGIResult() {}
 };
 
 

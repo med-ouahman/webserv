@@ -86,6 +86,10 @@ void Channel::write() {
     buf.compact();
 }
 
+BufferView Channel::view() const {
+    return BufferView(buf.read_ptr(), buf.size());
+}
+
 time_t CgiHandler::CgiTimeoutSeconds;
 
 CgiHandler::CgiHandler(const ResolutionResult& res,
@@ -128,7 +132,7 @@ CgiHandler::~CgiHandler() {
 }
 
 
-void CgiHandler::on_readable(BufferView& reader, Channel& channel) {
+void CgiHandler::on_readable(BufferView& view, Channel& channel) {
 
     channel.read();
 
@@ -150,7 +154,7 @@ void CgiHandler::on_readable(BufferView& reader, Channel& channel) {
 
     if (response_state == Processing) {
 
-        ResponseParser::ParseResult r = builder.parse(reader);
+        ResponseParser::ParseResult r = builder.parse(view);
         
         if (r == ResponseParser::Continue) return;
         
@@ -161,11 +165,13 @@ void CgiHandler::on_readable(BufferView& reader, Channel& channel) {
         }
         
         response_state = BodyStreaming;
-    } else if (response_state == BodyStreaming) {
         
+        ctx_.on_cgi_ready(builder.result());
+        
+    } else if (response_state == BodyStreaming) {
+        channel.read();
+        channel.pause();
     }
-
-    ctx_.on_cgi_ready(builder.result());
 }
 
 void CgiHandler::on_writable(Buffer& writer, Channel& channel) {

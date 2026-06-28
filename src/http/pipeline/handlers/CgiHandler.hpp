@@ -52,6 +52,7 @@ public:
 	State state() const;
 	void shutdown();
 	void mark_closing();
+	BufferView view() const;
 };
 
 class Context;

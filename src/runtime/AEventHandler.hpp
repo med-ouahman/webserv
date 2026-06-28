@@ -4,6 +4,11 @@
 #include <unistd.h>
 #include <iostream>
 
+/*
+This minimal interface
+
+*/
+
 namespace io {
 
 enum Event {
@@ -34,41 +39,42 @@ private:
     AEventHandler& operator=(const AEventHandler&);
     
 public:
-    AEventHandler(int __fd, Event events): fd_(__fd), events_(events), applied_(events) {};
-    virtual void on_event(Event event) = 0;
-    
-    virtual ~AEventHandler() {
-        if (fd_ >= 0) {
-            ::close(fd_);
-            fd_ = -1;
-        }
-        
-    };
 
-    int fd() const { return fd_; }
-    Event events() const { return events_; }
-    void update_events(Event new_ev) { events_ = new_ev; }
-    void sync_events() { applied_ = events_; }
-    bool synced() const { return applied_ == events_; }
-   
-    void pause() {
-        ctl_.paused = true;
-        ctl_.saved_events = events();
-        update_events(io::None);
-    }
+AEventHandler(int __fd, Event events): fd_(__fd), events_(events), applied_(events) {};
+virtual void on_event(Event event) = 0;
 
-    void resume() {
-        update_events(ctl_.saved_events);
-        ctl_.saved_events = io::None;
-        ctl_.paused = false;
-    }
-    
-    void close() {
-        events_ = None;
-        applied_ = None;
+virtual ~AEventHandler() {
+    if (fd_ >= 0) {
         ::close(fd_);
         fd_ = -1;
     }
+    
+};
+
+int fd() const { return fd_; }
+Event events() const { return events_; }
+void update_events(Event new_ev) { events_ = new_ev; }
+void sync_events() { applied_ = events_; }
+bool synced() const { return applied_ == events_; }
+
+void pause() {
+    ctl_.paused = true;
+    ctl_.saved_events = events();
+    update_events(io::None);
+}
+
+void resume() {
+    update_events(ctl_.saved_events);
+    ctl_.saved_events = io::None;
+    ctl_.paused = false;
+}
+
+void close() {
+    events_ = None;
+    applied_ = None;
+    ::close(fd_);
+    fd_ = -1;
+}
 };
 
 }
