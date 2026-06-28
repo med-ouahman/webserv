@@ -11,18 +11,9 @@ ResponseParser::ResponseParser()
     : state_(Headers),
     code(OK),
     headers_(),
-    parse_ctx(),
-    body_fd(-1),
-    body_filename(),
-    body_content_length(0) {}
+    parse_ctx() {}
 
-ResponseParser::~ResponseParser() {
-    if (body_fd >= 0) ::close(body_fd);
-    body_fd = -1;
-
-    if (body_filename.empty() == false) ::unlink(body_filename.c_str());
-    body_filename.clear();
-}
+ResponseParser::~ResponseParser() {}
 
 ResponseParser::ParseResult ResponseParser::parse(BufferView& reader) {
     std::cout << "Start CGI header parsing...\n";
@@ -32,10 +23,6 @@ ResponseParser::ParseResult ResponseParser::parse(BufferView& reader) {
     }
 
     while (state_ != Done) {
-
-        if (state_ == Body) {
-            return read_body(reader);
-        }
 
         size_t max_scan_size = CGIParseContext::MaxHeaderBlockLen - parse_ctx.header_bytes;
         
@@ -49,9 +36,8 @@ ResponseParser::ParseResult ResponseParser::parse(BufferView& reader) {
         }
         
         if (parse_ctx.line_reader.line().empty()) {
-            std::cout << "Begin body reading\n";
-            state_ = Body;
-            continue;
+            state_ = Done;
+            break;
         }
 
         parse_ctx.header_bytes += parse_ctx.line_reader.line().size();
@@ -63,6 +49,7 @@ ResponseParser::ParseResult ResponseParser::parse(BufferView& reader) {
     }
 
     std::cout << "finish CGI\n";
+
     return Success;
 }
 
@@ -131,45 +118,10 @@ ResponseParser::ParseResult ResponseParser::parse_header(std::string const& line
     return Success;
 }
 
-ResponseParser::ParseResult ResponseParser::read_body(BufferView& reader) {
-    
-    if (reader.size() == 0) {
-        state_ = Done;
-        return Success;
-    }
-
-    if (body_fd < 0) {
-        body_filename = "/tmp/" + base::random_string(10);
-        body_fd = ::open(body_filename.c_str(), O_WRONLY | O_CREAT, 0600);
-        
-        if (body_fd < 0) {
-            state_ = Error;
-            return ParseError;
-        }
-    }
-
-    ssize_t w = ::write(body_fd, reader.data(), reader.remaining());
-    
-    if (w < 0) {
-        state_ = Error;
-        return ParseError;
-    }
-
-    body_content_length += w;
-    reader.advance(w);
-    return Continue;
-}
-
 
 CGIResult ResponseParser::result() const {
-
-    if (body_fd >= 0) {
-        ::close(body_fd);
-        body_fd = -1;
-    }
-
-    return CGIResult(body_filename,
-        body_content_length,
+    
+    return CGIResult(
         code,
         headers_);
 }

@@ -18,8 +18,6 @@ void Context::on_cgi_ready(const CGIResult result) {
 	}
 
 	response.headers = result.headers;
-
-	response.body = new body::FileBodyProvider(result.body_filename);
 	
 	
 	state_ = WRITING_RESPONSE;
