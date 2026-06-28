@@ -69,6 +69,7 @@ enum State {
 
 enum ResponseState {
 	Processing,
+	BodyStreaming,
 	Finished,
 	Error,
 };

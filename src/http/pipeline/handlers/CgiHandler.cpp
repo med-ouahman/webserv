@@ -148,18 +148,23 @@ void CgiHandler::on_readable(BufferView& reader, Channel& channel) {
         channel.mark_closing();
     }
 
-    ResponseParser::ParseResult r = builder.parse(reader);
-    
-    if (r == ResponseParser::Continue) return;
+    if (response_state == Processing) {
 
-    if (r == ResponseParser::ParseError) {
-        reason_ = ParseError;
-        response_state = Error;
-        return;
+        ResponseParser::ParseResult r = builder.parse(reader);
+        
+        if (r == ResponseParser::Continue) return;
+        
+        if (r == ResponseParser::ParseError) {
+            reason_ = ParseError;
+            response_state = Error;
+            return;
+        }
+        
+        response_state = BodyStreaming;
+    } else if (response_state == BodyStreaming) {
+        
     }
 
-    response_state = Finished;
-    
     ctx_.on_cgi_ready(builder.result());
 }
 
