@@ -136,9 +136,7 @@ size_t Context::produce(char* data, size_t size) {
 
 void Context::reconcile() {
 
-	if (!handler) {
-		return;
-	}
+	if (!handler) return;
 
 	CgiHandler* h = static_cast<CgiHandler*>(handler);
 	h->monitor();
@@ -146,8 +144,13 @@ void Context::reconcile() {
 	if (h->finished()) {
 		delete h;
 		h = NULL;
-		handler = NULL;
 		std::cout << "Deleting the CGI handler\n";
+		return;
+	}
+
+	if (h->state() == CgiHandler::BodyStreaming) {
+		if (h->readable()) action_ = AC_WRITE;
+		else action_ = AC_PAUSE;
 	}
 
 }

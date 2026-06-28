@@ -6,21 +6,6 @@
 
 namespace http {
 
-struct CGIResult {
-	
-	StatusCode	status_code;
-	Headers		headers;
-
-	CGIResult(
-		StatusCode code,
-		const Headers& h)
-	: status_code(code),
-	headers(h) {}
-
-	CGIResult(StatusCode code): status_code(code) {}
-};
-
-
 struct CGIParseContext {
 	static const std::size_t MaxHeaderBlockLen = 4096;
 
@@ -47,7 +32,7 @@ enum ParseResult {
 private:
 	OutputState state_;
 
-	http::StatusCode	code;
+	http::StatusCode	code_;
     http::Headers 		headers_;
 
 	CGIParseContext parse_ctx;
@@ -59,11 +44,11 @@ public:
 	ResponseParser();
 	~ResponseParser();
 	
-	ParseResult	parse(BufferView& reader);
+	ParseResult	parse(BufferView& view);
 	bool		finished() const;
 
-	CGIResult result() const;
+	const http::Headers& headers() const;
+	StatusCode code() const;
 };
-
 
 }

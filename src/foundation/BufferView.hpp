@@ -9,7 +9,7 @@ class BufferView {
 private:
 
 const char* storage_;
-const size_t size_;
+size_t size_;
 
 size_t cursor_;
 
@@ -38,6 +38,11 @@ bool empty() const {
 
 size_t size() const {
 	return size_;
+}
+
+void update(size_t new_size) {
+	size_ = new_size;
+	cursor_ = 0;
 }
 
 };

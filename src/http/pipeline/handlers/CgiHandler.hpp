@@ -33,8 +33,10 @@ private:
 	State state_;
 	CgiHandler& handler_;
 	Buffer buf;
+	BufferView view_;
 
 public:
+
 	template <size_t N>
 	Channel(Storage<N>& storage,
 		Stream s,
@@ -52,12 +54,26 @@ public:
 	State state() const;
 	void shutdown();
 	void mark_closing();
-	BufferView view() const;
+	BufferView& view();
 };
 
 class Context;
 struct ResolutionResult;
 struct Request;
+
+struct CgiResult {
+
+BufferView& body_source;
+Headers headers_;
+StatusCode code_;
+
+CgiResult(BufferView& src, Headers headers, StatusCode status)
+:
+body_source(src),
+headers_(headers),
+code_(status) {}
+
+};
 
 class CgiHandler: public IRequestHandler {
 public:
@@ -140,7 +156,10 @@ public:
 	~CgiHandler();
 
 	void handle();
-	bool finished();
+	bool finished() const;
+	State state() const;
+	bool readable();
+	void resume();
 	
 	void on_writable(Buffer& writer, Channel& channel);
 	void on_readable(BufferView& reader, Channel& channel);

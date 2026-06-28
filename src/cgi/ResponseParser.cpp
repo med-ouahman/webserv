@@ -9,7 +9,7 @@ namespace http {
 
 ResponseParser::ResponseParser()
     : state_(Headers),
-    code(OK),
+    code_(OK),
     headers_(),
     parse_ctx() {}
 
@@ -58,7 +58,7 @@ ResponseParser::ParseResult ResponseParser::sanitize_status_header(std::string c
     size_t space_pos = value.find(' ');
 
     if (space_pos == std::string::npos) {
-        code = INTERNAL_SERVER_ERROR;
+        code_ = INTERNAL_SERVER_ERROR;
         return ParseError;
     }
 
@@ -67,20 +67,21 @@ ResponseParser::ParseResult ResponseParser::sanitize_status_header(std::string c
 
     for (size_t i = 0; i < code_str.size(); ++i) {
         if (!std::isdigit(code_str[i])) {
-            code = INTERNAL_SERVER_ERROR;
+            code_ = INTERNAL_SERVER_ERROR;
             return ParseError;
         }
     }
 
     char* end = NULL;
 
-    int code = std::strtol(code_str.c_str(), &end, 10);
+    int parsed_code = std::strtol(code_str.c_str(), &end, 10);
 
-    if ((end && *end != '\0') || code < 200 or code > 599) {
-        code = INTERNAL_SERVER_ERROR;
+    if ((end && *end != '\0') || parsed_code < 200 or parsed_code > 599) {
+        code_ = INTERNAL_SERVER_ERROR;
         return ParseError;
     }
 
+    code_ = static_cast<StatusCode>(parsed_code);
     return Success;
 }
 
@@ -118,12 +119,12 @@ ResponseParser::ParseResult ResponseParser::parse_header(std::string const& line
     return Success;
 }
 
+const Headers& ResponseParser::headers() const {
+    return headers_;
+}
 
-CGIResult ResponseParser::result() const {
-    
-    return CGIResult(
-        code,
-        headers_);
+StatusCode ResponseParser::code() const {
+    return code_;
 }
 
 }

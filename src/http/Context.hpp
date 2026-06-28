@@ -17,7 +17,7 @@ class BufferView;
 namespace http {
 
 struct ResolutionResult {};
-struct CGIResult;
+struct CgiResult;
 class IRequestHandler;
 
 class Context;
@@ -37,6 +37,7 @@ enum ContextAction {
 	AC_READ,
 	AC_WORK,
 	AC_WRITE,
+	AC_PAUSE,
 	AC_CLOSE,
 };
 
@@ -64,7 +65,8 @@ public:
 
 	size_t produce(char* data_, size_t size);
 
-	void on_cgi_ready(const CGIResult result);
+	void on_cgi_ready(const CgiResult);
+	void on_cgi_error(StatusCode code_);
 
 	void reconcile();
 

@@ -15,11 +15,11 @@ enum BufferState {
 class CGIBodyProvider: public IBodyProvider {
 private:
     CgiHandler& handler;
-    Buffer& source;
+    BufferView& source;
     BufferState state_;
 
 public:
-    CGIBodyProvider(CgiHandler& handler, Buffer& src);
+    CGIBodyProvider(CgiHandler& handler, BuffeView& src);
     ~CGIBodyProvider();
     ssize_t read(std::string& out, size_t size);
 };

@@ -4,21 +4,19 @@
 
 namespace http {
 
-CGIBodyProvider::CGIBodyProvider(CgiHandler& h, Buffer& src)
+CGIBodyProvider::CGIBodyProvider(CgiHandler& h, BufferView& src)
     : handler(h),
     source(src) {}
 
-CGIBodyProvider::~CGIBodyProvider() {
-
-}
+CGIBodyProvider::~CGIBodyProvider() {}
 
 ssize_t CGIBodyProvider::read(std::string& out, size_t size) {
     
-    size_t av = std::min(source.bytes_pending(), size);
+    size_t av = std::min(source.size(), size);
 
-    ::memcpy(&out[0], source.read_ptr(), av);
+    ::memcpy(&out[0], source.data(), av);
 
-    source.advance_read(av);
+    source.advance(av);
 
     return av;
 }

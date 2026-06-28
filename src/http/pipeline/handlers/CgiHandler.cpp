@@ -51,6 +51,8 @@ void Channel::shutdown() {
     state_ = Closed;
 }
 
+BufferView& Channel::view() { return view_; }
+
 void Channel::mark_closing() {
     if (state_ == Closed) return;
     
@@ -70,6 +72,8 @@ void Channel::read() {
 
     if (n == 0) state_ = Closing;
     buf.advance_write(n);
+
+    view_.update(buf.size());
 }
 
 void Channel::write() {
@@ -84,10 +88,6 @@ void Channel::write() {
 
     buf.advance_read(n);
     buf.compact();
-}
-
-BufferView Channel::view() const {
-    return BufferView(buf.read_ptr(), buf.size());
 }
 
 time_t CgiHandler::CgiTimeoutSeconds;
@@ -132,6 +132,8 @@ CgiHandler::~CgiHandler() {
 }
 
 
+CgiHandler::State CgiHandler::state() const { return state_; }
+
 void CgiHandler::on_readable(BufferView& view, Channel& channel) {
 
     channel.read();
@@ -166,7 +168,9 @@ void CgiHandler::on_readable(BufferView& view, Channel& channel) {
         
         response_state = BodyStreaming;
         
-        ctx_.on_cgi_ready(builder.result());
+        CgiResult result(channel.view(), builder.headers(), builder.code());
+
+        ctx_.on_cgi_ready(result);
         
     } else if (response_state == BodyStreaming) {
         channel.read();
@@ -197,12 +201,18 @@ void CgiHandler::on_writable(Buffer& writer, Channel& channel) {
     channel.write();
 }
 
-
-
 void CgiHandler::handle() {}
 
-bool CgiHandler::finished() {
+bool CgiHandler::finished() const {
     return state_ == Done;
+}
+
+bool CgiHandler::readable() {
+    return !stdout_ch.view().empty();
+}
+
+void CgiHandler::resume() {
+    stdout_ch.resume();
 }
 
 bool CgiHandler::timedout() {
@@ -276,17 +286,17 @@ void CgiHandler::monitor() {
     if (res.reason != cgi::Exited && reason_ == None) reason_ = Internal;
 
     if (reason_ != None && response_state != Finished) {
-        CGIResult result;
-    
+
+        StatusCode status_code;
         switch (reason_) {
 
             case None: break;
-            case Timeout: result.status_code = GATEWAY_TIMEOUT; std::cout << "Gateway timeout\n"; break;
-            case ParseError: result.status_code = BAD_GATEWAY; std::cout << "Bad Gateway\n"; break;
-            case ProcessError: case Internal: result.status_code = INTERNAL_SERVER_ERROR; std::cout << "Internal\n"; break;
+            case Timeout: status_code = GATEWAY_TIMEOUT; std::cout << "Gateway timeout\n"; break;
+            case ParseError: status_code = BAD_GATEWAY; std::cout << "Bad Gateway\n"; break;
+            case ProcessError: case Internal: status_code = INTERNAL_SERVER_ERROR; std::cout << "Internal\n"; break;
         }
     
-        ctx_.on_cgi_ready(result);
+        ctx_.on_cgi_error(status_code);
     }
 
     if (state_ == Cleanup) state_ = Done;
