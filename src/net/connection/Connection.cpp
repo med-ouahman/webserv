@@ -14,7 +14,6 @@ Connection::Connection(int _fd, io::Event events, ServerContext& server_ctx, con
     last_activity_(),
     lifetime_(),
     ctx(server_ctx),
-    current_action(ctx.next_action()),
     reader_(in),
     writer_(out),
     info_(info) {
@@ -51,12 +50,9 @@ void Connection::sync() {
     
     ctx.reconcile();
 
-    http::ContextAction next = ctx.next_action();
+    http::ContextAction action = ctx.next_action();
 
-    current_action = next;
-
-    update(current_action);
-
+    update(action);
 }
 
 }

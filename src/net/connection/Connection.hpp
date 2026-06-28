@@ -15,15 +15,15 @@ enum ConnectionState {
 };
 
 struct ConnectionInfo {
-    std::string local_ip;
+    uint32_t local_ip;
     uint16_t local_port;
 
-    std::string remote_ip;
+    uint32_t remote_ip;
     uint16_t remote_port;
 
-    ConnectionInfo(const std::string& local_ip,
+    ConnectionInfo(uint32_t local_ip,
     uint16_t local_port,
-    const std::string& remote_ip,
+    uint32_t remote_ip,
     uint16_t remote_port)
         : local_ip(local_ip),
         local_port(local_port),
@@ -51,7 +51,6 @@ private:
     Timestamp       lifetime_;
     
     http::Context   ctx;
-    http::ContextAction current_action;
 
     Storage<ReadbufSize> in;
     Storage<WritebufSize> out;

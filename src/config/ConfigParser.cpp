@@ -48,7 +48,7 @@ Config ConfigParser::build_default_config() {
     images.allowed_methods = root.allowed_methods;
     images.index = server.index_files;
     server.locations.push_back(images);
-    conf.server = server;
+    conf.servers.push_back(server);
     return conf;
 }
 

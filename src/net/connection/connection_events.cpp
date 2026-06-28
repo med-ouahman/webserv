@@ -34,16 +34,16 @@ void Connection::on_readable() {
     
     if (state_ == Closing) return;
 
-    ctx.consume(rcvbuf.data_, rcvbuf.size_);
+    ctx.consume(reader_.read_ptr(), reader_.size());
 }
 
 void Connection::on_writable() {
 
     if (state_ == Closing) return;
 
-    size_t n   = ctx.produce(sndbuf.data_+sndbuf.offset_, sndbuf.capacity_ - sndbuf.size_);
+    size_t n   = ctx.produce(writer_.write_ptr(), writer_.bytes_free());
 
-    sndbuf.size_ += n;
+    writer_.advance_read(n);
     
     write();
 }

@@ -42,30 +42,44 @@ void Server::close_connection(net::Connection* conn) {
         std::remove(connections.begin(), connections.end(), conn),
         connections.end()
     );
-
-    std::cout << "DELETED CONNECTION: " << conn << "FD: " << conn->fd() << "\n";
     
     delete conn;
 }
 
 bool Server::start_listeners() {
-    
-    const std::vector<config::ListenEndPoint>& endpoints = config::Config::get_config().server.listens;
+
+    const config::Config& conf = config::Config::get_config();
   
-    for (size_t i(0); i < endpoints.size(); ++i) {
+    const std::vector<config::ServerConfig>& servers = conf.servers;
 
-        base::Result<net::Listener*> result = net::create_listening_socket(endpoints[i], *this);
+    for (size_t i(0); i < servers.size(); ++i) {
 
-        if (!result.ok) {
-            LOG_ERROR(result.error);
-            return false;
+        const std::vector<config::ListenEndPoint>& endpoints = servers[i].listens;
+
+        for (size_t j(0); j < endpoints.size(); ++j) {
+            
+            net::Listener* l = find_listener(endpoints[i]);
+
+            if (!l) {
+
+                base::Result<net::Listener*> result = net::create_listening_socket(endpoints[j], *this);
+                
+                if (!result.ok) {
+                    LOG_ERROR(result.error);
+                    return false;
+                }
+                
+                net::Listener* sock = result.result;
+
+                if (!poller.add(sock)) return false;
+                listeners.push_back(sock);
+
+                l = sock;
+            }
+
+            l->add_server(&servers[i]);
+            
         }
-
-        net::Listener* sock = result.result;
-        
-        if (!poller.add(sock)) return false;
-
-        listeners.push_back(sock);
     }
     
     return true;
@@ -126,4 +140,21 @@ int Server::start() {
 
 void Server::abort() {
     std::abort();
+}
+
+
+net::Listener* Server::find_listener(const config::ListenEndPoint& endpoint) {
+
+    for (
+        std::vector<net::Listener*>::const_iterator it = listeners.begin();
+            it != listeners.end();
+            ++it
+    ) {
+        net::Listener* listener = *it;
+        const config::ListenEndPoint& e = listener->endpoint();
+        
+        if (endpoint.host == e.host && endpoint.port == e.port) return listener;
+    }
+
+    return NULL;
 }

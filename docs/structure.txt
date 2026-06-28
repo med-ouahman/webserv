@@ -147,7 +147,7 @@
 │   │   └── webserv.conf
 │   ├── foundation
 │   │   ├── BufferView.hpp
-│   │   ├── BufferWriter.hpp
+│   │   ├── Buffer.hpp
 │   │   ├── CStringArray.hpp
 │   │   ├── Error.hpp
 │   │   ├── Pipe.hpp

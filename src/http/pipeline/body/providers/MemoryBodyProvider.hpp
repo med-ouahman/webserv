@@ -13,7 +13,7 @@ private:
 public:
     MemoryBodyProvider(const std::string& mem);
     ~MemoryBodyProvider();
-    ssize_t read(BufferWriter& w, size_t size);
+    ssize_t read(std::string& out, size_t size);
 };
 
 }

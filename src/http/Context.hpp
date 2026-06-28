@@ -64,8 +64,6 @@ public:
 
 	size_t produce(char* data_, size_t size);
 
-	Error produce(BufferWriter& writer);
-
 	void on_cgi_ready(const CGIResult result);
 
 	void reconcile();

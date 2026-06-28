@@ -8,26 +8,30 @@
 namespace http {
 
 template <size_t N>
-Channel::Channel(Storage<N>& rdbuf,
+Channel::Channel(Storage<N>& storage,
     Stream s, int fd, io::Event events, CgiHandler& h)
     : AEventHandler(fd, events),
     stream_(s),
     state_(Open),
     handler_(h),
-    reader_(rdbuf),
-    writer_(rdbuf) {}
+    buf(storage) {}
 
 Channel::~Channel() {}
 
 void Channel::on_event(io::Event event) {
 
+    BufferView view(buf.read_ptr(), buf.size());
+
     switch (event) {
         case io::Readable: case io::Hup:
             std::cout << "Channel Readable\n";
-            handler_.on_readable(reader_, *this); break;
+            handler_.on_readable(view, *this);
+            buf.advance_read(view.size() - view.remaining());
+            break;
         case io::Writable:
             std::cout << "Channel Writable\n";
-            handler_.on_writable(writer_, *this); break;
+            handler_.on_writable(buf, *this);
+            break;
         case io::RHup:
             std::cout << "Channel ReadEnd hangup\n";
             state_ = Closing; break;
@@ -55,9 +59,9 @@ void Channel::mark_closing() {
 
 void Channel::read() {
     
-    reader_.compact();
+    buf.compact();
 
-    ssize_t n = ::read(fd(), reader_.write_ptr(), reader_.capacity() - reader_.cursor());
+    ssize_t n = ::read(fd(), buf.write_ptr(), buf.bytes_free());
 
     if (n < 0) {
         state_ = Error;
@@ -65,11 +69,11 @@ void Channel::read() {
     }
 
     if (n == 0) state_ = Closing;
-    reader_.update(n);
+    buf.advance_write(n);
 }
 
 void Channel::write() {
-    ssize_t n = ::write(fd(), writer_.read_ptr(), writer_.bytes_pending());
+    ssize_t n = ::write(fd(), buf.read_ptr(), buf.bytes_pending());
 
     if (n < 0) {
         state_ = Error;
@@ -77,8 +81,9 @@ void Channel::write() {
     }
 
     state_ = Closing;
-    writer_.advance_read(n);
-    writer_.compact();
+
+    buf.advance_read(n);
+    buf.compact();
 }
 
 time_t CgiHandler::CgiTimeoutSeconds;
@@ -97,6 +102,7 @@ CgiHandler::CgiHandler(const ResolutionResult& res,
     stdin_ch(stdin_wbuf, Channel::Stdin, process.stdin_pipe().write_end(), io::Writable, *this),
     stdout_ch(stdout_rdbuf, Channel::Stdout, process.stdout_pipe().read_end(), io::Readable, *this),
     stderr_ch(stderr_rdbuf, Channel::Stderr, process.stderr_pipe().read_end(), io::Readable, *this),
+
     poller_(p),
     protocol_(ctx) {
     CgiTimeoutSeconds = 5; // 30 seconds is generous
@@ -156,25 +162,25 @@ void CgiHandler::on_readable(BufferView& reader, Channel& channel) {
     protocol_.on_cgi_ready(builder.result());
 }
 
-void CgiHandler::on_writable(BufferWriter& writer, Channel& channel) {
+void CgiHandler::on_writable(Buffer& writer, Channel& channel) {
 
-    // base::Expected<usize, base::io::Error> res = protocol_.request_body().read(writer.write_ptr(), writer.bytes_free());
+    base::Expected<usize, base::io::Error> res = protocol_.request_body().read(writer.write_ptr(), writer.bytes_free());
 
-    // if (!res.has_value()) {
-    //     state_ = Cleanup;
-    //     reason_ = Internal;
-    //     return;
-    // }
+    if (!res.has_value()) {
+        state_ = Cleanup;
+        reason_ = Internal;
+        return;
+    }
 
-    // usize n = res.value();
+    usize n = res.value();
 
-    // writer.advance_write(n);
+    writer.advance_write(n);
 
-    // if (writer.size() == 0) {
-    //     channel.mark_closing();
-    //     return;
-    // }
-    writer.advance_read(0);
+    if (writer.size() == 0) {
+        channel.mark_closing();
+        return;
+    }
+    writer.advance_read(n);
 
     channel.write();
 }

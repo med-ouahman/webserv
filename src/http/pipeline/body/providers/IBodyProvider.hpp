@@ -7,10 +7,9 @@
 namespace http {
 
 class IBodyProvider {
-
 public:
     virtual ~IBodyProvider() {};
-    virtual ssize_t read(Buffer& dest_, size_t size) = 0;
+    virtual ssize_t read(std::string& out, size_t max_size) = 0;
 };
 
 }

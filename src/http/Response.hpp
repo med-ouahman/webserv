@@ -9,7 +9,6 @@
 #include "http/Error.hpp"
 #include "Headers.hpp"
 #include "IBodyProvider.hpp"
-#include "BodyEncoder.hpp"
 
 namespace http {
 
@@ -19,7 +18,6 @@ struct Response {
 	StatusCode status;
 	Headers headers;
 	IBodyProvider* body;
-	body::BodyEncoder encoder;
 
 	Response(): body(NULL) {}
 	~Response() {

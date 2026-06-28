@@ -32,13 +32,11 @@ private:
 	Stream stream_;
 	State state_;
 	CgiHandler& handler_;
-
-	BufferView reader_;
-	BufferWriter writer_;
+	Buffer buf;
 
 public:
 	template <size_t N>
-	Channel(Storage<N>& rdbuf,
+	Channel(Storage<N>& storage,
 		Stream s,
 		int fd,
 		io::Event events,
@@ -62,6 +60,7 @@ struct Request;
 
 class CgiHandler: public IRequestHandler {
 public:
+
 enum State {
 	Working,
 	Cleanup,
@@ -141,7 +140,7 @@ public:
 	void handle();
 	bool finished();
 	
-	void on_writable(BufferWriter& writer, Channel& channel);
+	void on_writable(Buffer& writer, Channel& channel);
 	void on_readable(BufferView& reader, Channel& channel);
 	
 	void close_channel(Channel& channel);

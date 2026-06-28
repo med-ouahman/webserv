@@ -1,3 +1,4 @@
+
 #include "Context.hpp"
 #include "CgiHandler.hpp"
 #include "FileBodyProvider.hpp"
@@ -20,7 +21,6 @@ void Context::on_cgi_ready(const CGIResult result) {
 
 	response.body = new body::FileBodyProvider(result.body_filename);
 	
-	response.encoder = body::BodyEncoder(result.body_content_length);
 	
 	state_ = WRITING_RESPONSE;
 	action_ = AC_WRITE;

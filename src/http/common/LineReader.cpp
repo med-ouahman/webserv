@@ -24,12 +24,12 @@ void LineReader::reset() {
 ReadResult LineReader::readline(BufferView& reader, size_t max_block_len) {
 
     size_t line_offset = line_.size();
-    size_t i = reader.cursor();
+    size_t i = 0;
     bool nl_found = false;
 
-    if (i == reader.size()) return NEED_MORE;
+    if (i == reader.remaining()) return NEED_MORE;
     
-    while (i < reader.size())
+    while (i < reader.remaining())
     {
         if (line_offset >= max_block_len) return LIMIT_EXCEEDED;
         
@@ -51,9 +51,9 @@ ReadResult LineReader::readline(BufferView& reader, size_t max_block_len) {
         }
     }
     
-    size_t to_advance = i - reader.cursor();
+    size_t to_advance = i;
     
-    if (to_advance > 0) line_.append(reader.data() + reader.cursor(), to_advance);
+    if (to_advance > 0) line_.append(reader.data(), to_advance);
     
     bytes_ = to_advance;
 

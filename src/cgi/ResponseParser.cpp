@@ -148,7 +148,7 @@ ResponseParser::ParseResult ResponseParser::read_body(BufferView& reader) {
         }
     }
 
-    ssize_t w = ::write(body_fd, reader.data() + reader.cursor(), reader.remaining());
+    ssize_t w = ::write(body_fd, reader.data(), reader.remaining());
     
     if (w < 0) {
         state_ = Error;

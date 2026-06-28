@@ -29,15 +29,10 @@ FileBodyProvider::~FileBodyProvider() {
     fd_ = -1;
 }
 
-ssize_t FileBodyProvider::read(BufferWriter& writer, size_t size) {
+ssize_t FileBodyProvider::read(std::string& out, size_t size) {
     
-    if (fd_ < 0) return -1;
+    ssize_t n = ::read(fd_, &out[0], size);
 
-    ssize_t n = ::read(fd_, writer.write_ptr(), std::min(size, writer.bytes_free()));
-    
-    if (n < 0) return n;
-
-    writer.advance_write(n);
     return n;
 }
 

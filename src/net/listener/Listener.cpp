@@ -11,12 +11,13 @@
 
 namespace net {
 	
-Listener::Listener(int fd, io::Event mask, Server& server, std::string const& ip, uint16_t port)
+Listener::Listener(int fd, io::Event mask, Server& server, const config::ListenEndPoint& ep)
 	: AEventHandler(fd, mask),
 	state_(Listening),
-	webserv_(server),
-	ip_(ip),
-	port_(port) {}
+	server_(server),
+	host_(ep.host),
+	port_(ep.port),
+	endpoint_(ep) {}
 
 Listener::~Listener() {}
 
@@ -47,9 +48,9 @@ bool Listener::accept_clients() {
 	
 	if (client_fd < 0) return false;
 	
-	ConnectionInfo info(ip_, port_, int_to_ip(client_addr.sin_addr.s_addr), client_addr.sin_port);
+	ConnectionInfo info(host_, port_, client_addr.sin_addr.s_addr, client_addr.sin_port);
 
-	webserv_.add_connection(client_fd, info);
+	server_.add_connection(client_fd, info);
 	
 	std::cout << "CONNECTION_FD: " << client_fd << "\n";
 	return true;
@@ -91,11 +92,20 @@ base::Result<Listener*> create_listening_socket(
 	
 	std::cout << "server listening on " <<  int_to_ip(endpoint.host) << ":"<< endpoint.port << '\n';
 	
-	return new Listener(socket_fd, io::Readable, server, int_to_ip(endpoint.host), endpoint.port);
+	return new Listener(socket_fd, io::Readable, server, endpoint);
 }
 
 bool Listener::error() const {
 	return state_ == ListenerError;
+}
+
+void Listener::add_server(const config::ServerConfig* s) {
+	servers_.push_back(s);
+}
+
+
+const config::ListenEndPoint& Listener::endpoint() const {
+	return endpoint_;
 }
 
 std::string int_to_ip(uint32_t ip_addr) {

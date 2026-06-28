@@ -70,6 +70,8 @@ Context::~Context() {
 Error Context::consume(const char* data, usize size) {
 	
 	Error err;
+
+	return ERR_NONE;
 	
 	if (data == NULL && size != 0)
 		return ERR_BAD_REQUEST;
@@ -127,18 +129,8 @@ ContextAction Context::next_action() const { return action_; }
 
 size_t Context::produce(char* data, size_t size) {
 
-	BufferWriter w;
-	ssize_t n = response.encoder.encode(response.body, w);
-
-	if (n == 0) {
-		action_ = AC_CLOSE;
-	}
-	
-	if (n < 0) {
-		action_ = AC_CLOSE;
-	}
-
-	return ERR_NONE;
+	data[0]='d';
+	return size;
 }
 
 

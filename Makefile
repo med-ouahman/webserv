@@ -71,7 +71,6 @@ SRCS = src/server/main.cpp \
 	src/http/routing/Routing.cpp \
 	src/http/HandlerFactory.cpp \
 	src/http/pipeline/handlers/CgiHandler.cpp \
-	src/http/pipeline/body/BodyEncoder.cpp \
 	src/http/pipeline/body/providers/CGIBodyProvider.cpp \
 	src/http/pipeline/body/providers/MemoryBodyProvider.cpp \
 	src/http/pipeline/body/providers/FileBodyProvider.cpp \
