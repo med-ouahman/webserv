@@ -39,6 +39,7 @@ enum ConnectionType { CONNECTION_DEFAULT, CONNECTION_CLOSE, CONNECTION_KEEP_ALIV
  *		Authorization
  *		Proxy-Authorization
  */
+
 struct Header {
 	std::string key;
 	std::string value;

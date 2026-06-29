@@ -15,6 +15,17 @@ struct CGIParseContext {
 	CGIParseContext(): line_reader(), header_bytes(0) {}
 };
 
+struct CgiResult {
+
+StatusCode status;
+Headers headers_;
+
+CgiResult(StatusCode code, Headers headers)
+:
+status(code),
+headers_(headers) {}
+};
+
 class ResponseParser {
 public:
 enum OutputState {
@@ -47,8 +58,7 @@ public:
 	ParseResult	parse(BufferView& view);
 	bool		finished() const;
 
-	const http::Headers& headers() const;
-	StatusCode code() const;
+	const CgiResult result() const;
 };
 
 }

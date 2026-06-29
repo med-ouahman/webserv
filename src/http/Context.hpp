@@ -65,7 +65,8 @@ public:
 
 	size_t produce(char* data_, size_t size);
 
-	void on_cgi_ready(const CgiResult);
+	void on_cgi_headers(const CgiResult);
+	size_t on_cgi_body(const BufferView& view);
 	void on_cgi_error(StatusCode code_);
 
 	void reconcile();

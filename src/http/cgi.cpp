@@ -7,9 +7,9 @@
 
 namespace http {
  
-void Context::on_cgi_ready(const CgiResult result) {
+void Context::on_cgi_headers(const CgiResult result) {
 
-	response.status = result.code_;
+	response.status = result.status;
 
 	if (response.status != http::OK) {
 		response.headers.add("Connection", "close");
@@ -18,12 +18,7 @@ void Context::on_cgi_ready(const CgiResult result) {
 	}
 
 	response.headers = result.headers_;
-
-	CgiHandler& h = static_cast<CgiHandler&>(*handler);
-
-	response.body = new CGIBodyProvider(h, result.body_source);
 	
-	state_ = WRITING_RESPONSE;
 	action_ = AC_WRITE;
 }
 
@@ -31,6 +26,11 @@ void Context::on_cgi_ready(const CgiResult result) {
 void Context::on_cgi_error(StatusCode code_) {
 	response.status = code_;
 	action_ = AC_CLOSE;
+}
+
+size_t Context::on_cgi_body(const BufferView& view) {
+
+	return view.size();
 }
 
 base::io::Reader& Context::request_body() {

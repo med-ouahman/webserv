@@ -47,10 +47,8 @@ void Server::close_connection(net::Connection* conn) {
 }
 
 bool Server::start_listeners() {
-
-    const config::Config& conf = config::Config::get_config();
   
-    const std::vector<config::ServerConfig>& servers = conf.servers;
+    const std::vector<config::ServerConfig>& servers = config::Config::get_config().servers;
 
     for (size_t i(0); i < servers.size(); ++i) {
 
@@ -120,7 +118,6 @@ void Server::sweep() {
             /*
                 What to do here?
                 1. close only the listening socket?
-                2. shutdown the server?
             */
         }
     }

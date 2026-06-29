@@ -14,19 +14,17 @@ Channel::Channel(Storage<N>& storage,
     stream_(s),
     state_(Open),
     handler_(h),
-    buf(storage) {}
+    buf(storage),
+    view_(buf.read_ptr(), 0) {}
 
 Channel::~Channel() {}
 
 void Channel::on_event(io::Event event) {
 
-    BufferView view(buf.read_ptr(), buf.size());
-
     switch (event) {
         case io::Readable: case io::Hup:
             std::cout << "Channel Readable\n";
-            handler_.on_readable(view, *this);
-            buf.advance_read(view.size() - view.remaining());
+            handler_.on_readable(buf, *this);
             break;
         case io::Writable:
             std::cout << "Channel Writable\n";
@@ -49,6 +47,10 @@ Channel::State Channel::state() const { return state_; }
 
 void Channel::shutdown() {
     state_ = Closed;
+}
+
+bool Channel::writable() const {
+    return buf.writable();
 }
 
 BufferView& Channel::view() { return view_; }
@@ -109,6 +111,7 @@ CgiHandler::CgiHandler(const ResolutionResult& res,
 
     poller_(p),
     ctx_(ctx) {
+
     CgiTimeoutSeconds = 5; // 30 seconds is generous
     
     if (!process.running()) {
@@ -134,9 +137,7 @@ CgiHandler::~CgiHandler() {
 
 CgiHandler::State CgiHandler::state() const { return state_; }
 
-void CgiHandler::on_readable(BufferView& view, Channel& channel) {
-
-    channel.read();
+void CgiHandler::on_readable(Buffer& rdbuf, Channel& channel) {
 
     if (channel.stream() == Channel::Stderr) {
         channel.mark_closing();
@@ -156,8 +157,8 @@ void CgiHandler::on_readable(BufferView& view, Channel& channel) {
 
     if (response_state == Processing) {
 
-        ResponseParser::ParseResult r = builder.parse(view);
-        
+        channel.read();
+        ResponseParser::ParseResult r = builder.parse(channel.view());
         if (r == ResponseParser::Continue) return;
         
         if (r == ResponseParser::ParseError) {
@@ -168,13 +169,17 @@ void CgiHandler::on_readable(BufferView& view, Channel& channel) {
         
         response_state = BodyStreaming;
         
-        CgiResult result(channel.view(), builder.headers(), builder.code());
-
-        ctx_.on_cgi_ready(result);
+        ctx_.on_cgi_headers(builder.result());
         
     } else if (response_state == BodyStreaming) {
+
         channel.read();
-        channel.pause();
+        
+        size_t w = ctx_.on_cgi_body(channel.view());
+        
+        rdbuf.advance_read(w);
+        
+        if (!rdbuf.writable()) channel.pause();
     }
 }
 
@@ -207,19 +212,18 @@ bool CgiHandler::finished() const {
     return state_ == Done;
 }
 
-bool CgiHandler::readable() {
-    return !stdout_ch.view().empty();
-}
 
 void CgiHandler::resume() {
     stdout_ch.resume();
 }
 
 bool CgiHandler::timedout() {
-    bool out = spawn_time.elapsed() > CgiTimeoutSeconds;
 
-    if (out) reason_ = Timeout;
-    return out;
+    bool t = spawn_time.elapsed() > CgiTimeoutSeconds;
+
+    if (t) reason_ = Timeout;
+    
+    return t;
 }
 
 void CgiHandler::check_channels() {
@@ -269,6 +273,10 @@ void CgiHandler::check_process() {
 
 void CgiHandler::monitor() {
 
+    bool buffer_has_space = stdout_ch.writable();
+
+    if (response_state == BodyStreaming && buffer_has_space) stdout_ch.resume();
+
     if ((response_state == Finished
         || response_state == Error) || timedout()) state_ = Cleanup;
 
@@ -286,7 +294,6 @@ void CgiHandler::monitor() {
     if (res.reason != cgi::Exited && reason_ == None) reason_ = Internal;
 
     if (reason_ != None && response_state != Finished) {
-
         StatusCode status_code;
         switch (reason_) {
 

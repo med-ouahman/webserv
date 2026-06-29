@@ -112,4 +112,12 @@ void compact() {
     w_offset_ = len;
 }
 
+bool writable() const {
+    return w_offset_ < capacity_;
+}
+
+bool readable() const {
+    return w_offset_ > 0;
+}
+
 };

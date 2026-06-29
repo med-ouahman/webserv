@@ -119,12 +119,13 @@ ResponseParser::ParseResult ResponseParser::parse_header(std::string const& line
     return Success;
 }
 
-const Headers& ResponseParser::headers() const {
-    return headers_;
-}
+const CgiResult ResponseParser::result() const {
 
-StatusCode ResponseParser::code() const {
-    return code_;
+    return CgiResult(
+        code_,
+        headers_
+    );
+    
 }
 
 }
