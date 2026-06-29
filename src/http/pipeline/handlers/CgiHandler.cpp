@@ -72,7 +72,11 @@ void Channel::read() {
         return;
     }
 
-    if (n == 0) state_ = Closing;
+    if (n == 0) {
+        std::cout << "Done reading from cgi pipe\n";
+        state_ = Closing;
+    }   
+
     buf.advance_write(n);
 
     view_.update(buf.size());
@@ -82,11 +86,9 @@ void Channel::write() {
     ssize_t n = ::write(fd(), buf.read_ptr(), buf.bytes_pending());
 
     if (n < 0) {
-        state_ = Error;
+        state_ = Closing;
         return;
     }
-
-    state_ = Closing;
 
     buf.advance_read(n);
     buf.compact();
@@ -176,32 +178,33 @@ void CgiHandler::on_readable(Buffer& rdbuf, Channel& channel) {
         channel.read();
         
         size_t w = ctx_.on_cgi_body(channel.view());
-        
+    
         rdbuf.advance_read(w);
-        
-        if (!rdbuf.writable()) channel.pause();
     }
 }
 
 void CgiHandler::on_writable(Buffer& writer, Channel& channel) {
 
-    base::Expected<usize, base::io::Error> res = ctx_.request_body().read(writer.write_ptr(), writer.bytes_free());
+    // base::Expected<usize, base::io::Error> res = ctx_.request_body().read(writer.write_ptr(), writer.bytes_free());
 
-    if (!res.has_value()) {
-        state_ = Cleanup;
-        reason_ = Internal;
-        return;
-    }
+    // if (!res.has_value()) {
+    //     state_ = Cleanup;
+    //     reason_ = Internal;
+    //     return;
+    // }
 
-    usize n = res.value();
+    // usize n = res.value();
 
-    writer.advance_write(n);
+    static std::string body = "hello";
+    ::memcpy(writer.write_ptr(), body.c_str(), body.size());
+
+    writer.advance_write(body.size());
+    body.clear();
 
     if (writer.size() == 0) {
         channel.mark_closing();
         return;
     }
-    writer.advance_read(n);
 
     channel.write();
 }

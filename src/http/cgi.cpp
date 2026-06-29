@@ -30,6 +30,9 @@ void Context::on_cgi_error(StatusCode code_) {
 
 size_t Context::on_cgi_body(const BufferView& view) {
 
+	response.b.clear();
+	response.b.append(view.data(), view.size());
+	action_ = AC_WRITE;
 	return view.size();
 }
 

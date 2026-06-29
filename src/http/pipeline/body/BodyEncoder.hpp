@@ -62,8 +62,8 @@ public:
     BodyEncoder(size_t content_length);
     ~BodyEncoder();
     const std::string& encode(IBodyProvider* body);
-
 };
 
 }
+
 }

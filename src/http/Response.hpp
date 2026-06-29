@@ -18,7 +18,8 @@ struct Response {
 	StatusCode status;
 	Headers headers;
 	IBodyProvider* body;
-
+	std::string b;
+	
 	Response(): body(NULL) {}
 	~Response() {
 		

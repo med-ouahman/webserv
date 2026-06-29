@@ -71,6 +71,9 @@ Error Context::consume(const char* data, usize size) {
 	
 	Error err;
 
+	struct ResolutionResult r;
+	handler = factory.create(r, request, HandlerFactory::Cgi);
+
 	return ERR_NONE;
 	
 	if (data == NULL && size != 0)
@@ -129,10 +132,16 @@ ContextAction Context::next_action() const { return action_; }
 
 size_t Context::produce(char* data, size_t size) {
 
-	data[0]='d';
-	return size;
-}
+	size_t s = std::min(size, response.b.size());
+	::memcpy(data, response.b.c_str(), s);
+	response.b.erase(0, s);
+	
+	if (s == 0) {
+		action_ = AC_READ;
+	}
 
+	return s;
+}
 
 void Context::reconcile() {
 
@@ -145,10 +154,10 @@ void Context::reconcile() {
 	if (h->finished()) {
 		delete h;
 		h = NULL;
+		handler = NULL;
 		std::cout << "Deleting the CGI handler\n";
 		return;
 	}
-
 }
 
 }

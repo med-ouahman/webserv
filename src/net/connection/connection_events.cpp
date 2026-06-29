@@ -8,23 +8,17 @@ void Connection::on_event(io::Event events) {
     switch (events) {
         case io::Readable:
             std::cout << "Connection Readable\n";
-            on_readable();
-            break;
+            on_readable(); break;
         case io::Writable:
             std::cout << "Connection Writable\n";
-            on_writable();
-            break;
+            on_writable(); break;
         case io::Hup: case io::RHup:
             std::cout << "Connection Hangup\n";
-            state_ = Closing;
-            break;
+            state_ = Closing; break;
         case io::Error:
             std::cout << "Channel Error\n";
-            /* need log */
-            state_ = Closing;
-            break;
-        default:
-            break;
+            state_ = Closing; break;
+        default: break;
     }
     
 }
