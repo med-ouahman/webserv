@@ -85,6 +85,8 @@ void compact() {
 
     size_t len = w_offset_ - r_offset_;
 
+    if (len < capacity_ / 2) return;
+    
     ::memmove(storage_, storage_ + r_offset_, len);
 
     r_offset_ = 0;

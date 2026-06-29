@@ -176,10 +176,12 @@ void CgiHandler::on_readable(Buffer& rdbuf, Channel& channel) {
     } else if (response_state == BodyStreaming) {
 
         channel.read();
+        std::cout << "reading...\n";
         
         size_t w = ctx_.on_cgi_body(channel.view());
     
         rdbuf.advance_read(w);
+        rdbuf.compact();
     }
 }
 
@@ -201,12 +203,8 @@ void CgiHandler::on_writable(Buffer& writer, Channel& channel) {
     writer.advance_write(body.size());
     body.clear();
 
-    if (writer.size() == 0) {
-        channel.mark_closing();
-        return;
-    }
-
     channel.write();
+    channel.mark_closing();
 }
 
 void CgiHandler::handle() {}
