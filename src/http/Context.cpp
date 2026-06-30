@@ -70,11 +70,6 @@ Context::~Context() {
 Error Context::consume(const char* data, usize size) {
 	
 	Error err;
-
-	return ERR_NONE;
-	
-	if (data == NULL && size != 0)
-		return ERR_BAD_REQUEST;
 	
 	if (!handler)
 	{

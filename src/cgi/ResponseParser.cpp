@@ -28,14 +28,15 @@ ResponseParser::ParseResult ResponseParser::parse(BufferView& reader) {
     std::cout << "Start CGI header parsing...\n";
 
     if (reader.empty() && state_ == Headers) {
+        std::cout << 
+        " I am the bitch that's causing the issue that is holding you back now and I won't really tell you until you're really fucked up because you deserve this \
+        because what the fuck do you mean you cannot help me in this tough situation I am in right now" "\n";
         return ParseError;
     }
 
     while (state_ != Done) {
 
-        if (state_ == Body) {
-            return read_body(reader);
-        }
+        if (state_ == Body) return read_body(reader);
 
         size_t max_scan_size = CGIParseContext::MaxHeaderBlockLen - parse_ctx.header_bytes;
         
