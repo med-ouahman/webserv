@@ -52,11 +52,11 @@ bool empty() const {
     return w_offset_ == 0;
 }
 
-size_t bytes_pending() {
+size_t bytes_pending() const {
     return w_offset_ - r_offset_;
 }
 
-size_t bytes_free() {
+size_t bytes_free() const {
     return capacity_ - w_offset_;
 }
 
@@ -76,19 +76,6 @@ void reset() {
     r_offset_ = 0;
     w_offset_ = 0;
 }
-
-size_t write(const char* source, size_t n__) {
-    size_t available = bytes_free();
-
-    size_t to_copy = std::min(available, n__);
-    
-    ::memcpy(write_ptr(), source, to_copy);
-    
-    w_offset_ += to_copy;
-
-    return to_copy;
-}
-
 
 size_t size() const { 
     return w_offset_;

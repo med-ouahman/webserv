@@ -17,10 +17,13 @@ ResponseParser::ResponseParser()
     body_content_length(0) {}
 
 ResponseParser::~ResponseParser() {
-    if (body_fd >= 0) ::close(body_fd);
-    body_fd = -1;
+    if (body_fd >= 0) {
+        ::close(body_fd);
+        body_fd = -1;
+    }
 
-    if (body_filename.empty() == false) ::unlink(body_filename.c_str());
+    if (!body_filename.empty()) ::unlink(body_filename.c_str());
+    
     body_filename.clear();
 }
 

@@ -43,7 +43,7 @@ void Connection::on_writable() {
 
     size_t n   = ctx.produce(writer_.write_ptr(), writer_.bytes_free());
 
-    writer_.advance_read(n);
+    writer_.advance_write(n);
     
     write();
 }

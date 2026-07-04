@@ -19,7 +19,7 @@ private:
     Server(const Server&);
     Server& operator=(const Server&);
     bool start_listeners();
-    
+
 public:
     Server();
     ~Server();

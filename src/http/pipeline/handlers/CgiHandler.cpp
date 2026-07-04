@@ -20,17 +20,17 @@ Channel::~Channel() {}
 
 void Channel::on_event(io::Event event) {
 
-    BufferView view(buf.read_ptr(), buf.size());
-
+    size_t w = 0;
     switch (event) {
         case io::Readable: case io::Hup:
             std::cout << "Channel Readable\n";
-            handler_.on_readable(view, *this);
-            buf.advance_read(view.size() - view.remaining());
+            w = handler_.on_readable(*this);
+            buf.advance_read(w);
             break;
         case io::Writable:
             std::cout << "Channel Writable\n";
-            handler_.on_writable(buf, *this);
+            w = handler_.on_writable(buf, *this);
+            buf.advance_write(w);
             break;
         case io::RHup:
             std::cout << "Channel ReadEnd hangup\n";
@@ -46,6 +46,10 @@ void Channel::on_event(io::Event event) {
 Channel::Stream Channel::stream() const { return stream_; }
 
 Channel::State Channel::state() const { return state_; }
+
+BufferView Channel::view() const {
+    return BufferView(buf.read_ptr(), buf.bytes_pending());
+}
 
 void Channel::shutdown() {
     state_ = Closed;
@@ -128,20 +132,22 @@ CgiHandler::~CgiHandler() {
 }
 
 
-void CgiHandler::on_readable(BufferView& reader, Channel& channel) {
+size_t CgiHandler::on_readable(Channel& channel) {
 
     channel.read();
 
+    BufferView reader = channel.view();
+    std::cout << "reader size: " << reader.size() << "\n";
     if (channel.stream() == Channel::Stderr) {
         channel.mark_closing();
-        return;
+        return reader.cursor();
     }
 
     if (channel.state() == Channel::Error) {
         state_ = Cleanup;
         reason_ = Internal;
         channel.mark_closing();
-        return;
+        return reader.cursor();
     }
 
     if (channel.state() == Channel::Closing) {
@@ -150,26 +156,28 @@ void CgiHandler::on_readable(BufferView& reader, Channel& channel) {
 
     ResponseParser::ParseResult r = builder.parse(reader);
     
-    if (r == ResponseParser::Continue) return;
+    if (r == ResponseParser::Continue) return reader.cursor();
 
     if (r == ResponseParser::ParseError) {
         reason_ = ParseError;
         response_state = Error;
-        return;
+        return reader.cursor();
     }
 
     response_state = Finished;
     ctx_.on_cgi_ready(builder.result());
+
+    return reader.cursor();
 }
 
-void CgiHandler::on_writable(Buffer& writer, Channel& channel) {
+size_t CgiHandler::on_writable(Buffer& writer, Channel& channel) {
 
     base::Expected<usize, base::io::Error> res = ctx_.request_body().read(writer.write_ptr(), writer.bytes_free());
 
     if (!res.has_value()) {
         state_ = Cleanup;
         reason_ = Internal;
-        return;
+        return 0;
     }
 
     usize n = res.value();
@@ -178,14 +186,14 @@ void CgiHandler::on_writable(Buffer& writer, Channel& channel) {
 
     if (writer.size() == 0) {
         channel.mark_closing();
-        return;
+        return 0;
     }
+
     writer.advance_read(n);
 
     channel.write();
+    return 0;
 }
-
-
 
 void CgiHandler::handle() {}
 

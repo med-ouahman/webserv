@@ -11,6 +11,7 @@ void Context::on_cgi_ready(const CGIResult result) {
 
 	response.status = result.status_code;
 
+	std::cout << "Response ready\n";
 	if (response.status != http::OK) {
 		response.headers.add("Connection", "close");
 		action_ = AC_CLOSE;

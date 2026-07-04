@@ -52,6 +52,7 @@ public:
 	State state() const;
 	void shutdown();
 	void mark_closing();
+	BufferView view() const;
 };
 
 class Context;
@@ -140,8 +141,8 @@ public:
 	void handle();
 	bool finished();
 	
-	void on_writable(Buffer& writer, Channel& channel);
-	void on_readable(BufferView& reader, Channel& channel);
+	size_t on_writable(Buffer& writer, Channel& channel);
+	size_t on_readable(Channel& channel);
 	
 	void close_channel(Channel& channel);
 

@@ -128,7 +128,6 @@ size_t Context::produce(char* data, size_t size) {
 	return size;
 }
 
-
 void Context::reconcile() {
 
 	if (!handler) {
