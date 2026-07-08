@@ -124,8 +124,11 @@ ContextAction Context::next_action() const { return action_; }
 
 size_t Context::produce(char* data, size_t size) {
 
-	data[0]='d';
-	return size;
+	(void)(data), (void)(&size);
+	action_ = AC_CLOSE;
+	std::cout << "connection close\n";
+	return 0;;
+
 }
 
 void Context::reconcile() {

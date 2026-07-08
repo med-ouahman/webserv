@@ -41,7 +41,7 @@ void Connection::on_writable() {
 
     if (state_ == Closing) return;
 
-    size_t n   = ctx.produce(writer_.write_ptr(), writer_.bytes_free());
+    size_t n = ctx.produce(writer_.write_ptr(), writer_.bytes_free());
 
     writer_.advance_write(n);
     

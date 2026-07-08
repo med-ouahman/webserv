@@ -30,10 +30,7 @@ ResponseParser::~ResponseParser() {
 ResponseParser::ParseResult ResponseParser::parse(BufferView& reader) {
     std::cout << "Start CGI header parsing...\n";
 
-    if (reader.empty() && state_ == Headers) {
-        std::cout << 
-        " I am the bitch that's causing the issue that is holding you back now and I won't really tell you until you're really fucked up because you deserve this \
-        because what the fuck do you mean you cannot help me in this tough situation I am in right now" "\n";
+    if (reader.empty() && state_ == Headers) {        
         return ParseError;
     }
 

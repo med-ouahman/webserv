@@ -80,11 +80,11 @@ void Channel::write() {
     ssize_t n = ::write(fd(), buf.read_ptr(), buf.bytes_pending());
 
     if (n < 0) {
-        state_ = Error;
+        state_ = Closing;
         return;
     }
 
-    state_ = Closing;
+    if (n == 0) state_ = Closing;
 
     buf.advance_read(n);
     buf.compact();
@@ -137,7 +137,7 @@ size_t CgiHandler::on_readable(Channel& channel) {
     channel.read();
 
     BufferView reader = channel.view();
-    std::cout << "reader size: " << reader.size() << "\n";
+
     if (channel.stream() == Channel::Stderr) {
         channel.mark_closing();
         return reader.cursor();
@@ -159,6 +159,7 @@ size_t CgiHandler::on_readable(Channel& channel) {
     if (r == ResponseParser::Continue) return reader.cursor();
 
     if (r == ResponseParser::ParseError) {
+        std::cout << "Parse Error\n";
         reason_ = ParseError;
         response_state = Error;
         return reader.cursor();
@@ -172,24 +173,18 @@ size_t CgiHandler::on_readable(Channel& channel) {
 
 size_t CgiHandler::on_writable(Buffer& writer, Channel& channel) {
 
-    base::Expected<usize, base::io::Error> res = ctx_.request_body().read(writer.write_ptr(), writer.bytes_free());
+    static std::string b = "BODY OF THE CGI REQUEST BY THE CGI HANDLER: get it from me??\r\n";
 
-    if (!res.has_value()) {
-        state_ = Cleanup;
-        reason_ = Internal;
-        return 0;
-    }
+    size_t n = std::min(b.size(), writer.bytes_free());
+    ::memcpy(writer.write_ptr(), b.c_str(), n);
 
-    usize n = res.value();
-
+    b.clear();
     writer.advance_write(n);
 
     if (writer.size() == 0) {
         channel.mark_closing();
         return 0;
     }
-
-    writer.advance_read(n);
 
     channel.write();
     return 0;
