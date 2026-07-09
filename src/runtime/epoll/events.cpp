@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include "Result.hpp"
 #include "Server.hpp"
+#include <sstream>
 
 namespace runtime {
 
@@ -12,7 +13,10 @@ namespace epoll {
 bool EventPoller::add(io::AEventHandler* handler) {
 
 	if (monitor_count >= MaxMonitorFds) {
-		std::cerr << "Cannot add fd, limit reached\n";
+		std::stringstream ss;
+		ss << "Cannot watch for FD (" << handler->fd() << "), Limit reached";
+
+		Server::logger().log(logger::Warning, ss.str() , true);
 		return false;
 	}
 
@@ -37,9 +41,9 @@ bool EventPoller::add(io::AEventHandler* handler) {
 		return false;
 	}
 
-	#ifdef DEBUG
-	std::cout << "REGISTERED FD: "  << handler->fd() << "\n";
-	#endif
+	std::stringstream ss;
+	ss << "Watching for FD (" <<  handler->fd() << ")";
+	Server::logger().log(logger::Info, ss.str() , true);
 	++monitor_count;
 	return true;
 }

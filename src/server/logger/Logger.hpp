@@ -9,15 +9,16 @@
 
 namespace logger {
 
-class Logger {
-public:
-    enum LogLevel {
-        Info,
-        Debug,
-        Warning,
-        Error,
-    };
+enum LogLevel {
+    Info,
+    Debug,
+    Warning,
+    Error,
+};
 
+class Logger {
+
+public:
     explicit Logger(std::ostream& out);
     Logger();
     ~Logger();

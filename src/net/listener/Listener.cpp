@@ -88,9 +88,11 @@ base::Result<Listener*> create_listening_socket(
 	
 	if (::listen(socket_fd, BACKLOG) < 0)
 		return MAKE_ERRNO_ERROR("EventPoller::create_listening_socket::listen()");
-	
-	std::cout << "server listening on " <<  int_to_ip(endpoint.host) << ":"<< endpoint.port << '\n';
-	
+
+	std::stringstream ss;
+	ss << "Server Listening on " << endpoint.host << ":" << endpoint.port;
+	server.logger().log(logger::Info, ss.str(), true);
+
 	return new Listener(socket_fd, io::Readable, server, endpoint);
 }
 

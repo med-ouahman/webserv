@@ -45,9 +45,9 @@ void Logger::log(LogLevel level, const std::string& message, bool timestamp) {
     (*out)
         << std::left
         << std::setw(10) << level_string(level)
-        << std::setw(60) << message
+        << std::setw(30) << message
         << std::right
-        << std::setw(25) << ts
+        << std::setw(50) << ts
         << '\n';
 }
 

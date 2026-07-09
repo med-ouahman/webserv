@@ -9,6 +9,10 @@
 class Server {
 private:
     bool running_;
+    
+    static const std::size_t MaxConnections = 1000;
+    static const std::size_t MaxListens = 10;
+
     std::vector<net::Connection*> connections;
     std::vector<net::Listener*> listeners;
     runtime::epoll::EventPoller poller;
