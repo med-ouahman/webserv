@@ -92,6 +92,8 @@ void Server::add_connection(int conn_fd, const net::ConnectionInfo& info) {
     if (!poller.add(connection)) return;
 
     connections.push_back(connection);
+
+	std::cout << "CONNECTION_FD: " << conn_fd << "\n";
 }
 
 /*

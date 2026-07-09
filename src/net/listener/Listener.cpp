@@ -52,7 +52,6 @@ bool Listener::accept_clients() {
 
 	server_.add_connection(client_fd, info);
 	
-	std::cout << "CONNECTION_FD: " << client_fd << "\n";
 	return true;
 }
 
