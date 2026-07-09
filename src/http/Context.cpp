@@ -7,6 +7,8 @@
 #include <sstream>
 #include "Connection.hpp"
 
+#include <fcntl.h>
+
 #define HTTP_TMP_DIR ".tmp"
 
 namespace http {
@@ -124,10 +126,9 @@ ContextAction Context::next_action() const { return action_; }
 
 size_t Context::produce(char* data, size_t size) {
 
-	(void)(data), (void)(&size);
-	action_ = AC_CLOSE;
-	std::cout << "connection close\n";
-	return 0;;
+	(void)data;
+	(void)size;
+	return 0;
 
 }
 
