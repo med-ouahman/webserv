@@ -58,7 +58,7 @@ bool Server::start_listeners() {
 
         for (size_t j(0); j < endpoints.size(); ++j) {
             
-            net::Listener* l = find_listener(endpoints[i]);
+            net::Listener* l = find_listener(endpoints[j]);
 
             if (!l) {
 

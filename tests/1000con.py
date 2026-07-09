@@ -1,15 +1,59 @@
 import socket
 import time
+import os
 
 connections = []
 
-host = input("ip (x.x.x.x): ")
-port = int(input("port: "))
+h = input("ip (x.x.x.x): ")
+p = input("port: ")
+
+HOST = h if len(h) != 0 else "127.0.0.1"
+PORT = int(p) if len(p) != 0 else 3000
+
+
+def clear():
+    os.system("cls" if os.name == "nt" else "clear")
+
+def print_help():
+    print("""
+Available commands:
+
+  connect <count>
+      Open <count> new TCP connections.
+      Example:
+          connect 1000
+
+  send <start> <end> <bytes>
+      Send <bytes> bytes on every connection in the range.
+      Example:
+          send 0 999 4096
+
+  recv <start> <end> [bytes]
+      Receive up to <bytes> bytes (default 4096) from each connection.
+      Examples:
+          recv 0 99
+          recv 0 99 1024
+
+  close <start> <end>
+      Close all connections in the range.
+      Example:
+          close 500 999
+
+  list
+      Show the number of currently open connections.
+
+  help | ?
+      Display this help message.
+
+  quit | exit
+      Close all remaining connections and exit.
+""")
 
 def connect(count):
     for _ in range(count):
         try:
             s = socket.create_connection((HOST, PORT))
+            s.setblocking(False)
             connections.append(s)
         except Exception as e:
             print(e)
@@ -58,7 +102,7 @@ def list_connections():
     alive = sum(1 for s in connections if s is not None)
     print(f"{alive}/{len(connections)} open")
 
-
+print_help()
 while True:
     try:
         cmd = input("> ").split()
@@ -104,6 +148,11 @@ while True:
 
             case "quit" | "exit":
                 break
+            case "help":
+                print_help()
+
+            case "clear":
+                clear()
 
             case _:
                 print("Unknown command")
