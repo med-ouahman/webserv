@@ -7,7 +7,7 @@
 #include "IBodyProvider.hpp"
 #include "AEventHandler.hpp"
 
-namespace runtime { namespace epoll { class EventPoller; } }
+namespace runtime { namespace epoll { class EventLoop; } }
 
 namespace http {
 
@@ -120,7 +120,7 @@ private:
 	Channel stdout_ch;
 	Channel stderr_ch;
 
-	runtime::epoll::EventPoller& poller_;
+	runtime::epoll::EventLoop& poller_;
 	Context& ctx_;
 	
 	CgiHandler(const CgiHandler&);
@@ -133,7 +133,7 @@ private:
 public:
 	CgiHandler(const ResolutionResult& result,
 		const http::Request& req,
-		runtime::epoll::EventPoller& p,
+		runtime::epoll::EventLoop& p,
 		Context& ctx);
 
 	~CgiHandler();

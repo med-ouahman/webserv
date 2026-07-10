@@ -87,6 +87,7 @@ void Connection::on_readable() {
     read();
     
     if (state_ == Closing) return;
+
 }
 
 void Connection::on_writable() {

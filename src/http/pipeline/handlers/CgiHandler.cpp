@@ -2,7 +2,7 @@
 #include "CgiHandler.hpp"
 #include "Request.hpp"
 #include "EnvBuilder.hpp"
-#include "EventPoller.hpp"
+#include "EventLoop.hpp"
 #include "Context.hpp"
 
 namespace http {
@@ -94,7 +94,7 @@ time_t CgiHandler::CgiTimeoutSeconds;
 
 CgiHandler::CgiHandler(const ResolutionResult& res,
         const http::Request& req,
-        runtime::epoll::EventPoller& p,
+        runtime::epoll::EventLoop& p,
         Context& ctx)
     : state_(Working),
     response_state(Processing),

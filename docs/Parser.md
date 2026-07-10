@@ -439,10 +439,10 @@ The parser is strictly responsible for structural parsing only. The following ar
 | URI decoding and normalization               | Handler / Router               |
 | Routing                                      | Router                         |
 | Response generation                          | `Dispatcher`          |
-| Socket I/O                                   | `Connection` / `EventPoller`     |
+| Socket I/O                                   | `Connection` / `EventLoop`     |
 | Keep-alive decision                          | `Connection`                   |
 | Request counting                             | `Connection`                   |
-| Connection timeout enforcement               | `EventPoller` / `Connection`     |
+| Connection timeout enforcement               | `EventLoop` / `Connection`     |
 
 The parser proves a request is **well-formed**. The `Connection` proves it is **meaningful**. Everything downstream assumes both.
 

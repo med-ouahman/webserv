@@ -5,7 +5,7 @@ HTTP RESPONSE LAYER SUMMARY
 ARCHITECTURE
 ------------
 
-EventPoller
+EventLoop
     handles epoll + all I/O
 
 Connection
@@ -288,7 +288,7 @@ File can be deleted while reading because:
 DESIGN PRINCIPLES
 -----------------
 
-1. EventPoller does I/O only
+1. EventLoop does I/O only
 2. Connection orchestrates
 3. Parser builds requests
 4. Handler builds responses

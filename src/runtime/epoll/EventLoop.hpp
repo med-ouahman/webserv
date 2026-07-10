@@ -3,13 +3,14 @@
 #include <stdint.h>
 #include <sys/epoll.h>
 #include "AEventHandler.hpp"
+#include "Logger.hpp"
 
 namespace runtime {
 namespace epoll {
 
 typedef uint32_t EpollEvent;
 
-class EventPoller {
+class EventLoop {
 private:
 	static const std::size_t	EpollMaxTimeoutMs = 1000;
 	static const std::size_t	MaxMonitorFds = 1000;
@@ -19,16 +20,17 @@ private:
 	bool		created_;
 	epoll_event events[MaxEvents];
 	size_t 		monitor_count;
+	logger::Logger& logger;
 	
-	EventPoller(const EventPoller& other);
-	EventPoller& operator=(const EventPoller& other);
+	EventLoop(const EventLoop& other);
+	EventLoop& operator=(const EventLoop& other);
 	
 	static io::Event encode_events (EpollEvent ev);
 	static EpollEvent decode_events(io::Event event);
 
 public:
-	EventPoller();
-	~EventPoller();
+	EventLoop();
+	~EventLoop();
 	int poll();
 	
 	bool add(io::AEventHandler* handler);

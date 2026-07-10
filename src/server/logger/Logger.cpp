@@ -1,6 +1,9 @@
 #include "Logger.hpp"
 #include <iostream>
 #include <iomanip>
+#include <cstring>
+#include <cerrno>
+#include <sstream>
 
 namespace logger {
 
@@ -53,6 +56,30 @@ void Logger::log(LogLevel level, const std::string& message, bool timestamp) {
 
 void Logger::setstream(std::ostream& stream) {
     out = &stream;
+}
+
+
+std::string Logger::make_errno_error(std::string const& ctx) {
+    std::stringstream ss;
+    
+    ss << ctx
+    << " | code="
+    << errno << " | "
+    << strerror(errno) << " | "
+    << __FILE__ << ":" << __LINE__;
+
+    return ss.str();
+}
+
+std::string Logger::make_error(std::string const& context, std::string const& message) {
+    std::stringstream ss;
+    
+    ss << context
+    << " | "
+    << message << " | "
+    << __FILE__ << ":" << __LINE__;
+
+    return ss.str();
 }
 
 }

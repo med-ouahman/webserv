@@ -56,7 +56,7 @@ Process::Process(const CGIExecContext& ctx)
 }
 
 Process::~Process() {
-    ::waitpid(pid_, &status_, 0);
+
 }
 
 Pipe& Process::stdin_pipe() { return stdin_pipe_; }

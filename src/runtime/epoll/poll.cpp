@@ -1,5 +1,5 @@
 
-#include "EventPoller.hpp"
+#include "EventLoop.hpp"
 #include "Connection.hpp"
 #include <sys/epoll.h>
 #include <sys/socket.h>
@@ -8,12 +8,12 @@
 namespace runtime {
 namespace epoll {
 
-int EventPoller::poll() {
+int EventLoop::poll() {
 
     int nfds = ::epoll_wait(epoll_fd, events, MaxEvents, EpollMaxTimeoutMs);
 
     if (nfds < 0) {
-        LOG_ERROR(MAKE_ERRNO_ERROR("EventPoller::run()"));
+        LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::run()"));
         return 1;
     }
 

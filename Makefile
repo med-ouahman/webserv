@@ -6,7 +6,9 @@ FT := -pg  -finstrument-functions
 
 DEVELOPMENT = -D DEV_MODE=1 -D DEBUG=1
 
-CXX_FLAGS := -Wall -Wextra -Werror -std=c++98 $(DEBUG) $(DEVELOPMENT)
+STD = -std=c++98
+
+CXX_FLAGS := -Wall -Wextra -Werror $(STD) $(DEBUG) $(DEVELOPMENT)
 
 # Libraries we might link against in the future, for now just a placeholder
 LIBS := 
@@ -48,7 +50,7 @@ SRCS = src/server/main.cpp \
 	src/net/connection/connection_io.cpp \
 	src/net/connection/connection_events.cpp \
 	src/net/listener/Listener.cpp \
-	src/runtime/epoll/EventPoller.cpp \
+	src/runtime/epoll/EventLoop.cpp \
 	src/runtime/epoll/poll.cpp \
 	src/runtime/epoll/events.cpp \
 	src/cgi/Process.cpp \

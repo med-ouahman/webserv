@@ -79,7 +79,7 @@
 │       │       └── Listener.o
 │       ├── runtime
 │       │   └── epoll
-│       │       ├── EventPoller.o
+│       │       ├── EventLoop.o
 │       │       ├── events.o
 │       │       └── poll.o
 │       └── server
@@ -222,12 +222,12 @@
 │   ├── runtime
 │   │   ├── AEventHandler.hpp
 │   │   ├── epoll
-│   │   │   ├── EventPoller.cpp
-│   │   │   ├── EventPoller.hpp
+│   │   │   ├── EventLoop.cpp
+│   │   │   ├── EventLoop.hpp
 │   │   │   ├── events.cpp
 │   │   │   └── poll.cpp
 │   │   ├── kqueue
-│   │   │   └── KqueueEventPoller.hpp
+│   │   │   └── KqueueEventLoop.hpp
 │   │   ├── poll
 │   │   │   ├── PollEventLoop.cpp
 │   │   │   └── PollEventLoop.hpp

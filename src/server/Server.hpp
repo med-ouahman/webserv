@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ServerContext.hpp"
-#include "EventPoller.hpp"
+#include "EventLoop.hpp"
 #include "Connection.hpp"
 #include "Listener.hpp"
 #include "Logger.hpp"
@@ -15,7 +15,7 @@ private:
 
     std::vector<net::Connection*> connections;
     std::vector<net::Listener*> listeners;
-    runtime::epoll::EventPoller poller;
+    runtime::epoll::EventLoop poller;
     static logger::Logger      logger_;
 
     ServerContext ctx;

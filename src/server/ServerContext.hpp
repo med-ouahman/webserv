@@ -5,10 +5,10 @@ namespace http {
 }
 
 namespace logger { class Logger; }
-namespace runtime { namespace epoll { class EventPoller; }}
+namespace runtime { namespace epoll { class EventLoop; }}
 
 struct ServerContext {
-	runtime::epoll::EventPoller* poller;
+	runtime::epoll::EventLoop* poller;
 	logger::Logger* logger;
 };
 
