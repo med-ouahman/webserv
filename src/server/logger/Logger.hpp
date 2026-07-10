@@ -4,9 +4,6 @@
 #include <ostream>
 #include "Timestamp.hpp"
 
-#define LOG(logger, level, msg) \
-    (logger).log(level, __FILE__, __LINE__, msg)
-
 namespace logger {
 
 enum LogLevel {

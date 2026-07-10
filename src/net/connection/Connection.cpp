@@ -106,7 +106,7 @@ void Connection::read() {
         state_ = Closing;
         return;
     }
-    
+    std::cout << "Received bytes: " << n << "\n";
     reader_.advance_write(n);
 }
 

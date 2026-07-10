@@ -4,13 +4,6 @@ import os
 
 connections = []
 
-h = input("ip (x.x.x.x): ")
-p = input("port: ")
-
-HOST = h if len(h) != 0 else "127.0.0.1"
-PORT = int(p) if len(p) != 0 else 3000
-
-
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
 
@@ -18,8 +11,8 @@ def print_help():
     print("""
 Available commands:
 
-  connect <count>
-      Open <count> new TCP connections.
+  connect <count> [HOST] [PORT]
+      Open <count> new TCP connections with HOST (default 0.0.0.0) PORT (default 3000).
       Example:
           connect 1000
 
@@ -49,7 +42,7 @@ Available commands:
       Close all remaining connections and exit.
 """)
 
-def connect(count):
+def connect(count, HOST="0.0.0.0", PORT=3000):
     for _ in range(count):
         try:
             s = socket.create_connection((HOST, PORT))
@@ -103,6 +96,7 @@ def list_connections():
     print(f"{alive}/{len(connections)} open")
 
 print_help()
+
 while True:
     try:
         cmd = input("> ").split()
@@ -115,8 +109,10 @@ while True:
     try:
         match cmd[0]:
             case "connect":
-                connect(int(cmd[1]))
-
+                if len(cmd) == 3:
+                    connect(int(cmd[1]), cmd[2], int(cmd[3]))
+                else:
+                    connect(int(cmd[1]))
             case "send":
                 send_range(
                     int(cmd[1]),
@@ -148,7 +144,7 @@ while True:
 
             case "quit" | "exit":
                 break
-            case "help":
+            case "help" | "?":
                 print_help()
 
             case "clear":
