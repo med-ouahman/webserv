@@ -1,21 +1,29 @@
-#include "http/Parser/body/body.hpp"
+
+#include "http/Parser/parser.hpp"
 #include "http/Context.hpp"
-#include "server/limits.hpp"
 
 namespace http {
 
-Error ParserState::parse_chunk_size_state(Context& ctx) {
+Error Parser::chunkSizeState() {
 	std::string line;
 	bool found;
 	Error err;
+	usize end;
 
-	if (raw_buffer.size() > Limits::MAX_CHUNK_SIZE_LINE)
+	end = raw_buffer.find(CRLF);
+	if ((end == std::string::npos
+		&& raw_buffer.size() > limits::CHUNK_SIZE_LINE_MAX)
+		|| (end != std::string::npos
+			&& end > limits::CHUNK_SIZE_LINE_MAX))
 		return ERR_BAD_REQUEST;
-	err = get_chunk(ctx, line, found);
+	err = getChunk(line, found);
 	if (err != ERR_NONE || !found)
 		return err;
-	if (!parser::body_parse_chunk_size(line, chunk_size))
+	if (!parseChunkSize(line, chunk_size))
 		return ERR_BAD_REQUEST;
+	if (body_received > max_body_size
+		|| chunk_size > max_body_size - body_received)
+		return ERR_BODY_TOO_LARGE;
 	chunk_received = 0;
 	if (chunk_size == 0) {
 		chunk_state = CHUNK_TRAILER;
@@ -25,16 +33,16 @@ Error ParserState::parse_chunk_size_state(Context& ctx) {
 	return ERR_NONE;
 }
 
-Error ParserState::parse_chunk_data_state() {
+Error Parser::chunkDataState() {
 	usize take;
 	Error err;
 
-	take = parser::body_min_size(
+	take = minSize(
 		chunk_size - chunk_received,
 		raw_buffer.size());
 	if (take == 0)
 		return ERR_NONE;
-	err = body_write(take);
+	err = bodyWrite(take);
 	if (err != ERR_NONE)
 		return err;
 	chunk_received += take;
@@ -43,7 +51,7 @@ Error ParserState::parse_chunk_data_state() {
 	return ERR_NONE;
 }
 
-Error ParserState::parse_chunk_crlf_state() {
+Error Parser::chunkCrlfState() {
 	if (raw_buffer.size() < 2)
 		return ERR_NONE;
 	if (raw_buffer[0] != '\r' || raw_buffer[1] != '\n')
@@ -55,29 +63,29 @@ Error ParserState::parse_chunk_crlf_state() {
 	return ERR_NONE;
 }
 
-Error ParserState::parse_chunk_trailer_state(Context& ctx) {
+Error Parser::chunkTrailerState(Context& ctx) {
 	std::string line;
 	bool found;
 	Error err;
 
-	err = get_chunk(ctx, line, found);
+	err = getChunk(line, found);
 	if (err != ERR_NONE || !found)
 		return err;
 	if (line.empty())
-		return finish_body(ctx);
+		return finishBody(ctx);
 	return ERR_NONE;
 }
 
-Error ParserState::parse_chunked_body(Context& ctx) {
+Error Parser::parseChunkedBody(Context& ctx) {
 	switch (chunk_state) {
 		case CHUNK_SIZE:
-			return parse_chunk_size_state(ctx);
+			return chunkSizeState();
 		case CHUNK_DATA:
-			return parse_chunk_data_state();
+			return chunkDataState();
 		case CHUNK_CRLF:
-			return parse_chunk_crlf_state();
+			return chunkCrlfState();
 		case CHUNK_TRAILER:
-			return parse_chunk_trailer_state(ctx);
+			return chunkTrailerState(ctx);
 	}
 	return ERR_NONE;
 }

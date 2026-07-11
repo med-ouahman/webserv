@@ -23,11 +23,51 @@ ChunkedEncoder::~ChunkedEncoder() {
 
 }
 
-ssize_t ChunkedEncoder::process(IBodyProvider* body, std::string& out) {
-    ssize_t n = body->read(out, out.capacity());
-
-    if (n < 0) return n;
+ssize_t ChunkedEncoder::process(IBodyProvider* body, BufferWriter& writer) {
     
+    switch (state_) {
+
+        case Header: {
+
+            write_ptr = writer.write_ptr();
+            
+            std::string overhead = std::string(header_overhead, '0');
+            writer.write(overhead.c_str(), overhead.size());
+            state_ = Data;
+           
+        }
+        /* fall through */
+        case Data: {
+            
+            ssize_t n = body->read(writer, writer.bytes_free());
+            std::cout << "N: " << n << " Size: " << writer.size() << "\n";
+            std::cout.write(writer.read_ptr(), writer.size());
+            if (n < 0) return -1;
+            
+            current_chunk_ = n;
+    
+            std::string header = format(current_chunk_);
+            std::cout << "Formated chunk: " << header << "\n";
+            ::memcpy(write_ptr, header.c_str(), header.size());
+            std::cout << header_overhead - header.size() << "\n";
+            std::cout << "Move size: " << writer.size() - header_overhead << "\n";
+            std::memmove(write_ptr + header.size(), write_ptr + header_overhead, writer.size() - header_overhead);
+            writer.pop(header_overhead - header.size());
+
+            state_ = Trail;
+           
+        }
+        /* fall through */
+        case Trail:
+            writer.write(trailer.c_str(), trailer.size());
+            state_ = current_chunk_ == 0 ? Final: Header;
+            break;
+        case Final:
+            std::cout << "Final chunk\n";
+            return 0;
+    }
+
+    return writer.size();
 }
 
 
@@ -63,11 +103,11 @@ BodyEncoder::BodyEncoder(size_t content_length)
 BodyEncoder::~BodyEncoder() {}
 
 
-const std::string& BodyEncoder::encode(IBodyProvider* body) {
+ssize_t BodyEncoder::encode(IBodyProvider* body, BufferWriter& writer) {
 
     switch (encoding_) {
         case Chunked:
-            chunked_.process(body, chunk_);
+            return chunked_.process(body, writer);
         case ContentLength: {
 
             std::cout << "Content-Length: " << fixed_.content_length << "\n";
@@ -75,13 +115,20 @@ const std::string& BodyEncoder::encode(IBodyProvider* body) {
 
             size_t rem = fixed_.content_length - fixed_.written;
             
-            ssize_t n = body->read(chunk_, rem);
+            ssize_t n = body->read(writer, rem);
             
             if (n >= 0) fixed_.written += n;
+            
+            return n;
         }
+
+        default:
+            #ifdef DEBUG
+                assert(false && "Unknown encoding type");
+            #endif
     }
     
-    return chunk_;
+    return 0;
 }
 
 }

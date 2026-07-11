@@ -6,7 +6,7 @@
 
 namespace {
 
-static bool	check_spaces(const std::string& line, usize& first, usize& second) {
+static bool	checkSpaces(const std::string& line, usize& first, usize& second) {
 
 	first = line.find(' ');
 	if (first == std::string::npos)
@@ -17,19 +17,7 @@ static bool	check_spaces(const std::string& line, usize& first, usize& second) {
 	return line.find(' ', second + 1) == std::string::npos;
 }
 
-static bool	set_method(http::Request& request, const std::string& line, usize end) {
-	if (end == 3 && line.compare(0, 3, "GET") == 0)
-		request.method = http::GET;
-	else if (end == 4 && line.compare(0, 4, "POST") == 0)
-		request.method = http::POST;
-	else if (end == 6 && line.compare(0, 6, "DELETE") == 0)
-		request.method = http::DELETE;
-	else
-		request.method = http::UNKNOWN;
-	return true;
-}
-
-static http::Error	set_version(http::Request& request, const std::string& line, usize start) {
+static http::Error	setVersion(http::Request& request, const std::string& line, usize start) {
 
 	usize len = line.size() - start;
 
@@ -45,7 +33,7 @@ static http::Error	set_version(http::Request& request, const std::string& line, 
 	return http::ERR_NONE;
 }
 
-static bool	set_target(http::Request& request, const std::string& target) {
+static bool	setTarget(http::Request& request, const std::string& target) {
 
 	usize query_pos;
 
@@ -68,7 +56,7 @@ static bool	set_target(http::Request& request, const std::string& target) {
 
 namespace http {
 
-Error ParserState::parse_request_line(Context& ctx) {
+Error Parser::parseRequestLine(Context& ctx) {
 
 	std::string line;
 	std::string target;
@@ -78,29 +66,32 @@ Error ParserState::parse_request_line(Context& ctx) {
 	bool found;
 	Error err;
 
-	err = get_chunk(ctx, line, found);
+	err = getChunk(line, found);
 	if (err != ERR_NONE)
 		return err;
 	if (!found)
 		return ERR_NONE;
 
-	if (!check_spaces(line, first_space, second_space))
+	if (!checkSpaces(line, first_space, second_space))
 		return ERR_BAD_REQUEST;
 
 	target = line.substr(first_space + 1, second_space - first_space - 1);
 	if (first_space == 0 || target.empty() || second_space + 1 >= line.size())
 		return ERR_BAD_REQUEST;
 
-	if (!set_method(ctx.request, line, first_space))
-		return ERR_BAD_REQUEST;
-	err = set_version(ctx.request, line, second_space + 1);
+	ctx.request.method = methodOf(line.substr(0, first_space));
+	if (ctx.request.method == UNKNOWN)
+		return ERR_METHOD_NOT_ALLOWED;
+
+	err = setVersion(ctx.request, line, second_space + 1);
 	if (err != ERR_NONE)
 		return err;
-	if (!set_target(ctx.request, target))
+	if (!setTarget(ctx.request, target))
 		return ERR_BAD_REQUEST;
 
 	header_bytes = 0;
-	ctx.state_ = HEADERS;
+	phase = PARSING_HEADERS;
+	timer.update();
 	return ERR_NONE;
 }
 

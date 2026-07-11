@@ -1,77 +1,86 @@
 
 #pragma once
 
-#include <string>
-
 #include "base/base.hpp"
 #include "config/Config.hpp"
 #include "http/Request.hpp"
 #include "http/Response.hpp"
 #include "http/Parser/parser.hpp"
-#include "HandlerFactory.hpp"
+#include "http/routing/Routing.hpp"
 
 #define CRLF "\r\n"
 
-class BufferView;
+class BufferReader;
 
 namespace http {
 
-struct ResolutionResult {};
-struct CGIResult;
-class IRequestHandler;
-
 class Context;
+class ErrorHandler;
+class RequestHandler;
 
 enum ContextState {
-	REQUEST_LINE,
-	HEADERS,
+	PARSING,
 	PROCESSING,
-	CGI_RUNNING,
-	RESPONSE_READY,
-	WRITING_RESPONSE,
 	DONE,
 	ERROR,
 };
 
 enum ContextAction {
 	AC_READ,
-	AC_WORK,
 	AC_WRITE,
-	AC_CLOSE,
+	AC_CLOSE
 };
 
 class Context {
 
 private:
-	ParserState parser;
-	Request		request;
-	Response	response;
+
+	Parser parser;
+	Request request;
+	Response response;
+	std::string response_head_;
+
+	base::Optional<Decision> route;
+	RequestHandler* handler_;
+
+	usize conn_id_;
+	usize request_id_;
+	usize response_head_offset_;
+	usize response_body_offset_;
+	Error error_;
 
 	ContextState	state_;
 	ContextAction	action_;
-	
-	friend struct ParserState;
 
-	IRequestHandler* handler;
-	HandlerFactory factory;
+	Context(const Context&);
+	Context& operator=(const Context&);
+	void responseReady();
+
+	Error setError(Error error);
+	Error routeRequest(const config::Config& config);
+	Error readBody();
+	Error createHandler();
+	Error writeResponse(base::io::Writer& writer, usize& sent);
+	Error writeResponseHead(base::io::Writer& writer, usize& sent);
+	Error writeResponseBody(base::io::Writer& writer, usize& sent);
+
+
+	friend class Parser;
+	friend class RequestHandler;
+	friend class ErrorHandler;
+
+	void process(const config::Config& config);
 
 public:
-	Context(ServerContext& serv_ctx);
+
+	Context();
+	Context(usize conn_id, usize request_id);
 	~Context();
 
-	Error consume(const char* data, usize size);
-	Error process(const config::Config& config);
+	usize consume(const char* data, usize size);
+	usize produce(base::io::Writer& writer);
 
-	size_t produce(char* data_, size_t size);
-
-	void on_cgi_ready(const CGIResult result);
-
-	size_t serialize(char *, size_t);
-	void reconcile();
-
-	ContextAction next_action() const;
-
-	base::io::Reader& request_body();
+	ContextAction nextAction() const;
 };
 
 }

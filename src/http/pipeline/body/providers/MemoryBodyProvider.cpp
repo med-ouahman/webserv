@@ -13,20 +13,14 @@ MemoryBodyProvider::~MemoryBodyProvider() {
 }
 
 
-ssize_t MemoryBodyProvider::read(char* out, size_t size) {
+ssize_t MemoryBodyProvider::read(BufferWriter& writer, size_t size) {
 
-  if (memory_.empty()) return 0;
+  if (offset_ == memory_.size()) return 0;
 
-  size_t w = std::min(size, memory_.size() - offset_);
+  size_t to_write = std::min(memory_.size() - offset_, size);
+  size_t w = writer.write(memory_.c_str() + offset_, to_write);
 
-  ::memcpy(out, memory_.c_str() + offset_, w);
-  
   offset_ += w;
-
-  if (offset_ == memory_.size()) {
-    memory_.clear();
-    offset_ = 0;
-  }
 
   return w;
 

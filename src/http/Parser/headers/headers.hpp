@@ -16,16 +16,16 @@ enum SpecialHeader {
 	HEADER_CONNECTION
 };
 
-std::string	lower_name(const std::string& name);
+std::string	lowerName(const std::string& name);
 void		trim(std::string& value);
 
-Header*		find_header(Request& request, const std::string& normalized);
-Error		store_header(Request& request, const std::string& name, const std::string& value);
-bool		is_single_header(const std::string& normalized);
-bool		parse_content_length(const std::string& value, usize& out);
-SpecialHeader	special_header(const std::string& normalized);
-Error		handle_special_header(Request& request, const std::string& normalized, const std::string& value);
-Error		end_headers(Request& request);
+Header*		findHeader(Request& request, const std::string& normalized);
+Error		storeHeader(Request& request, const std::string& name, const std::string& value);
+bool		isSingleHeader(const std::string& normalized);
+bool		parseContentLength(const std::string& value, usize& out);
+SpecialHeader	specialHeader(const std::string& normalized);
+Error		handleSpecialHeader(Request& request, const std::string& normalized, const std::string& value);
+Error		endHeaders(Request& request);
 
 }
 }

@@ -1,12 +1,29 @@
-#include "http/Parser/body/body.hpp"
+#include "http/Parser/parser.hpp"
 #include "http/Context.hpp"
 
 namespace http {
 
-Error ParserState::parse_body(Context& ctx) {
+Error Parser::parseBody(Context& ctx) {
 	if (ctx.request.chunked)
-		return parse_chunked_body(ctx);
-	return parse_fixed_body(ctx);
+		return parseChunkedBody(ctx);
+	return parseFixedBody(ctx);
+}
+
+bool Parser::progressBody(const Request& request) const {
+	if (!request.chunked)
+		return !raw_buffer.empty()
+			|| (request.content_length.has_value()
+				&& body_received >= request.content_length.value);
+	switch (chunk_state) {
+		case CHUNK_SIZE:
+		case CHUNK_TRAILER:
+			return raw_buffer.find(CRLF) != std::string::npos;
+		case CHUNK_DATA:
+			return !raw_buffer.empty();
+		case CHUNK_CRLF:
+			return raw_buffer.size() >= 2;
+	}
+	return false;
 }
 
 }

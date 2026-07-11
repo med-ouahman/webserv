@@ -1,11 +1,11 @@
 #pragma once
 
 #include <string>
-#include "BufferView.hpp"
+#include "BufferReader.hpp"
 
 namespace http {
 
-enum ReadResult {
+enum ScanResult {
 	SUCCESS,
 	NEED_MORE,
 	LIMIT_EXCEEDED,
@@ -13,15 +13,12 @@ enum ReadResult {
 
 class LineReader {
 private:
-	size_t		bytes_;
-	std::string line_;
+	std::string linebuff;
 	bool		cr_found;
-	
 public:
 	void reset();
 	std::string const& line();
-	ReadResult readline(BufferView& buf, size_t max_block_len);
-	size_t		bytes_read() const;
+	ScanResult scan(BufferReader& view, size_t max_block_len);
 	
 	LineReader();
 	~LineReader();

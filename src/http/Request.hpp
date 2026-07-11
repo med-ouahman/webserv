@@ -9,20 +9,30 @@
 
 namespace http {
 
-enum Method     { GET, POST, DELETE, UNKNOWN };
+enum Method { GET, POST, DELETE, UNKNOWN };
+
+inline Method methodOf(const std::string& value) {
+	if (value == "GET")
+		return GET;
+	if (value == "POST")
+		return POST;
+	if (value == "DELETE")
+		return DELETE;
+	return UNKNOWN;
+}
 
 /**
 	* This classification is produced after routing and file inspection and
 	* is used to select the response path.
 */
-enum PathType   { file, directory, executable, not_found };
+enum PathType { file, directory, executable, not_found };
 
 /**
 	* @HTTP_1_0: version with non-persistent connections unless explicitly requested
 	* @HTTP_1_1: version with persistent connections unless explicitly closed
 	* @HTTP_UNKNOWN: parsed version token is not supported by the server
 */
-enum Version	{ HTTP_1_0, HTTP_1_1, HTTP_UNKNOWN };
+enum Version { HTTP_1_0, HTTP_1_1, HTTP_UNKNOWN };
 
 enum ConnectionType { CONNECTION_DEFAULT, CONNECTION_CLOSE, CONNECTION_KEEP_ALIVE };
 
@@ -46,8 +56,6 @@ struct Header {
 
 struct Request {
 
-	Method						method;
-	Version						version;
 	std::string					url;
 	std::string					path;
 	base::Optional<std::string>	query;
@@ -55,9 +63,12 @@ struct Request {
 
 	base::Optional<std::string>	host;
 	base::Optional<usize>		content_length;
+	base::io::Reader			body;
+
+	Method						method;
+	Version						version;
 	ConnectionType				connection;
 	bool						chunked;
-	base::io::Reader			body;
 
 };
 

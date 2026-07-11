@@ -1,19 +1,18 @@
 
 #include "http/Context.hpp"
-#include "http/Parser/body/body.hpp"
+#include "http/Parser/parser.hpp"
 
 namespace http {
-namespace parser {
 
-usize	body_min_size(usize a, usize b) { return a < b ? a : b; }
+usize Parser::minSize(usize a, usize b) { return a < b ? a : b; }
 
-static bool	is_hex(char c) {
+static bool	isHex(char c) {
 	return (c >= '0' && c <= '9')
 		|| (c >= 'a' && c <= 'f')
 		|| (c >= 'A' && c <= 'F');
 }
 
-static usize	hex_value(char c) {
+static usize	hexValue(char c) {
 	if (c >= '0' && c <= '9')
 		return c - '0';
 	if (c >= 'a' && c <= 'f')
@@ -21,8 +20,8 @@ static usize	hex_value(char c) {
 	return c - 'A' + 10;
 }
 
-static bool	add_hex_digit(usize& size, char c) {
-	usize digit = hex_value(c);
+static bool	addHexDigit(usize& size, char c) {
+	usize digit = hexValue(c);
 	usize max = static_cast<usize>(-1);
 
 	if (size > (max - digit) / 16)
@@ -31,32 +30,34 @@ static bool	add_hex_digit(usize& size, char c) {
 	return true;
 }
 
-bool	body_parse_chunk_size(const std::string& line, usize& size) {
+bool Parser::parseChunkSize(const std::string& line, usize& size) {
 	usize i;
 
-	if (line.empty() || !is_hex(line[0]))
+	if (line.empty() || !isHex(line[0]))
 		return false;
 	size = 0;
 	for (i = 0; i < line.size() && line[i] != ';'; ++i) {
-		if (!is_hex(line[i]))
+		if (!isHex(line[i]))
 			return false;
-		if (!add_hex_digit(size, line[i]))
+		if (!addHexDigit(size, line[i]))
 			return false;
 	}
 	return true;
 }
 
-}
-
-Error ParserState::body_write(usize size) {
+Error Parser::bodyWrite(usize size) {
+	if (body_received > max_body_size
+		|| size > max_body_size - body_received)
+		return ERR_BODY_TOO_LARGE;
 	base::Expected<usize, base::io::Error> written =
-		body_writer.write(raw_buffer.data(), size);
+		bodyWriter.write(raw_buffer.data(), size);
 
 	if (!written || written.value() != size)
 		return ERR_INTERNAL;
 	raw_buffer.erase(0, size);
 	body_received += size;
-	return parser::check_body_size(body_received);
+	timer.update();
+	return ERR_NONE;
 }
 
 }

@@ -3,6 +3,8 @@
 
 namespace http {
 
+class Context;
+
 enum Error {
 
 	ERR_NONE = 0,
@@ -21,6 +23,7 @@ enum Error {
 	/* Size bound checking */
 	ERR_HEADER_TOO_LARGE,
 	ERR_BODY_TOO_LARGE,
+	ERR_REQUEST_TIMEOUT,
 
 	/* handlers */
 	ERR_NOT_FOUND,
@@ -35,3 +38,10 @@ enum Error {
 };
 
 }
+
+#define TRY(expr, fail) \
+	do { \
+		err = (expr); \
+		if (err != http::ERR_NONE) \
+			return fail; \
+	} while (0)

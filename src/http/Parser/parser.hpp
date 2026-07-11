@@ -5,55 +5,60 @@
 
 #include "base/base.hpp"
 #include "http/Error.hpp"
-#include "server/limits.hpp"
+#include "http/limits.hpp"
+#include "foundation/Timestamp.hpp"
 
 namespace http {
 
 class Context;
+struct Request;
 
-enum ChunkState {
-	CHUNK_SIZE,
-	CHUNK_DATA,
-	CHUNK_CRLF,
-	CHUNK_TRAILER
-};
+enum ChunkState { CHUNK_SIZE, CHUNK_DATA, CHUNK_CRLF, CHUNK_TRAILER };
 
-struct ParserState {
+enum ParserPhase { PARSING_REQUEST_LINE, PARSING_HEADERS, PARSING_BODY };
+
+class Parser {
+public:
 	std::string	raw_buffer;
 
 	usize header_bytes;
 	usize body_received;
 	usize chunk_size;
 	usize chunk_received;
+	usize max_body_size;
 
+	ParserPhase phase;
 	ChunkState chunk_state;
+	Timestamp timer;
 
-	char body_buffer[Limits::BODY_BUFFER_SIZE];
-	base::io::Writer body_writer;
+	char body_buffer[limits::BODY_BUFFER_SIZE];
+	base::io::Writer bodyWriter;
 
-	ParserState();
-	ParserState(const std::string& body_path);
+	Parser();
+	Parser(const std::string& body_path);
 
-	Error	get_chunk(Context& ctx, std::string& out, bool& found);
+	Error	getChunk(std::string& out, bool& found);
 
 	Error	parse(Context& ctx);
-	Error	parse_request_line(Context& ctx);
-	Error	parse_headers(Context& ctx);
-	Error	parse_body(Context& ctx);
-	Error	parse_fixed_body(Context& ctx);
-	Error	parse_chunked_body(Context& ctx);
-	Error	parse_chunk_size_state(Context& ctx);
-	Error	parse_chunk_data_state();
-	Error	parse_chunk_crlf_state();
-	Error	parse_chunk_trailer_state(Context& ctx);
-	Error	finish_body(Context& ctx);
-	Error	body_write(usize size);
+	Error	parseRequestLine(Context& ctx);
+	Error	parseHeaders(Context& ctx);
+	Error	parseBody(Context& ctx);
+	Error	parseFixedBody(Context& ctx);
+	Error	parseChunkedBody(Context& ctx);
+	Error	chunkSizeState();
+	Error	chunkDataState();
+	Error	chunkCrlfState();
+	Error	chunkTrailerState(Context& ctx);
+	Error	finishBody(Context& ctx);
+	Error	bodyWrite(usize size);
+	bool	progressBody(const Request& request) const;
+	bool	progressParsing() const;
+	bool	timedOut() const;
+	void	startBody();
+
+private:
+	static usize minSize(usize a, usize b);
+	static bool parseChunkSize(const std::string& line, usize& size);
 };
-
-namespace parser {
-
-Error	check_body_size(usize read_bytes);
-
-}
 
 }

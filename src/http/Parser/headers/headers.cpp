@@ -13,7 +13,7 @@ struct Entity {
 	http::Error err;
 };
 
-static http::Error	prepare_header_line(const std::string& line, Entity& entity) {
+static http::Error	prepareHeaderLine(const std::string& line, Entity& entity) {
 
 	entity.colon = line.find(':');
 	if (entity.colon == std::string::npos || entity.colon == 0)
@@ -26,56 +26,56 @@ static http::Error	prepare_header_line(const std::string& line, Entity& entity) 
 	if (entity.name.empty() || entity.value.empty())
 		return http::ERR_BAD_REQUEST;
 
-	entity.normalized = http::parser::lower_name(entity.name);
+	entity.normalized = http::parser::lowerName(entity.name);
 	return http::ERR_NONE;
 }
 
-static http::Error	store_header_line(http::Request& request, Entity& entity) {
+static http::Error	storeHeaderLine(http::Request& request, Entity& entity) {
 
-	entity.err = http::parser::store_header(request, entity.name, entity.value);
+	entity.err = http::parser::storeHeader(request, entity.name, entity.value);
 	if (entity.err != http::ERR_NONE)
 		return entity.err;
 
-	return http::parser::handle_special_header(request, entity.normalized, entity.value);
+	return http::parser::handleSpecialHeader(request, entity.normalized, entity.value);
 }
 
-static http::Error	parse_header_line(http::Request& request, const std::string& line) {
+static http::Error	parseHeaderLine(http::Request& request, const std::string& line) {
 
 	Entity entity;
 	http::Error err;
 
-	err = prepare_header_line(line, entity);
+	err = prepareHeaderLine(line, entity);
 	if (err != http::ERR_NONE)
 		return err;
-	return store_header_line(request, entity);
+	return storeHeaderLine(request, entity);
 }
 
 }
 
 namespace http {
 
-Error ParserState::parse_headers(Context& ctx) {
+Error Parser::parseHeaders(Context& ctx) {
 
 	std::string line;
 	Error err;
 	bool found;
 
 	while (true) {
-		err = get_chunk(ctx, line, found);
+		err = getChunk(line, found);
 		if (err != ERR_NONE)
 			return err;
 		if (!found)
 			return ERR_NONE;
 		if (line.empty()) {
-			err = parser::end_headers(ctx.request);
+			err = parser::endHeaders(ctx.request);
 			if (err != ERR_NONE)
 				return err;
 			header_bytes = 0;
 			ctx.state_ = PROCESSING;
-			ctx.action_ = AC_WORK;
+			ctx.action_ = AC_WRITE;
 			return ERR_NONE;
 		}
-		err = parse_header_line(ctx.request, line);
+		err = parseHeaderLine(ctx.request, line);
 		if (err != ERR_NONE)
 			return err;
 	}

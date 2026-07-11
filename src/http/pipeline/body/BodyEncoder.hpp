@@ -35,7 +35,7 @@ private:
 public:
     ChunkedEncoder();
     ~ChunkedEncoder();
-    ssize_t process(IBodyProvider* body, std::string& out);
+    ssize_t process(IBodyProvider* body, BufferWriter& w);
     void reset();
 };
 
@@ -52,7 +52,6 @@ enum Encoding {
 
 class BodyEncoder {
 private:
-    std::string     chunk_;
     Encoding        encoding_;
     ChunkedEncoder  chunked_;
     FixedEncoder    fixed_;
@@ -61,7 +60,7 @@ public:
     BodyEncoder();
     BodyEncoder(size_t content_length);
     ~BodyEncoder();
-    const std::string& encode(IBodyProvider* body);
+    ssize_t encode(IBodyProvider* body, BufferWriter& writer);
 };
 
 }

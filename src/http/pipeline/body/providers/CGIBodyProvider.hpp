@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IBodyProvider.hpp"
-#include "Buffer.hpp"
+#include "BufferReader.hpp"
 
 namespace http {
 
@@ -15,13 +15,13 @@ enum BufferState {
 class CGIBodyProvider: public IBodyProvider {
 private:
     CgiHandler& handler;
-    Buffer& source;
+    BufferReader& source;
     BufferState state_;
 
 public:
-    CGIBodyProvider(CgiHandler& handler, Buffer& src);
+    CGIBodyProvider(CgiHandler& handler, BufferReader& src);
     ~CGIBodyProvider();
-    ssize_t read(std::string& out, size_t size);
+    ssize_t read(BufferWriter& w, size_t size);
 };
 
 }

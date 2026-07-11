@@ -1,19 +1,19 @@
-#include "http/Parser/body/body.hpp"
+#include "http/Parser/parser.hpp"
 #include "http/Context.hpp"
 
 namespace http {
 
-Error ParserState::finish_body(Context& ctx) {
-	if (body_writer.file_created()) {
-		if (!body_writer.flush())
+Error Parser::finishBody(Context& ctx) {
+	if (bodyWriter.file_created()) {
+		if (!bodyWriter.flush())
 			return ERR_INTERNAL;
-		ctx.request.body.reset(body_writer.path());
+		ctx.request.body.reset(bodyWriter.path());
 	} else {
-		ctx.request.body.reset(body_writer.data(), body_writer.size());
+		ctx.request.body.reset(bodyWriter.data(), bodyWriter.size());
 	}
 	body_received = 0;
 	ctx.state_ = PROCESSING;
-	ctx.action_ = AC_WORK;
+	ctx.action_ = AC_WRITE;
 	return ERR_NONE;
 }
 
