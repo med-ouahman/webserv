@@ -38,16 +38,9 @@ struct Response {
 	base::io::Reader body_reader;
 	std::map<std::string, std::string> headers;
 	StatusCode status;
-	Headers headers;
-	IBodyProvider* body;
-	body::BodyEncoder encoder;
-
+	
 	Response(): body(NULL) {}
-	~Response() {
-		
-		if (body) delete body;
-		body = NULL;
-	}
+	~Response() {}
 };
 
 }

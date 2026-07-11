@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "BufferReader.hpp"
+#include "BufferView.hpp"
 
 namespace http {
 
@@ -18,7 +18,7 @@ private:
 public:
 	void reset();
 	std::string const& line();
-	ScanResult scan(BufferReader& view, size_t max_block_len);
+	ScanResult scan(BufferView& view, size_t max_block_len);
 	
 	LineReader();
 	~LineReader();
