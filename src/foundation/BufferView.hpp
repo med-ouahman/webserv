@@ -36,10 +36,6 @@ bool empty() const {
 	return cursor_ == size_;
 }
 
-size_t size() const {
-	return size_;
-}
-
 size_t cursor() const { return cursor_; }
 
 };

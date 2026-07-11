@@ -14,7 +14,9 @@ ResponseParser::ResponseParser()
     parse_ctx(),
     body_fd(-1),
     body_filename(),
-    body_content_length(0) {}
+    body_content_length(0),
+    body_(),
+    body_mode_(Mem) {}
 
 ResponseParser::~ResponseParser() {
     if (body_fd >= 0) {
@@ -134,19 +136,40 @@ ResponseParser::ParseResult ResponseParser::parse_header(std::string const& line
 
 ResponseParser::ParseResult ResponseParser::read_body(BufferView& reader) {
     
-    if (reader.size() == 0) {
+    if (reader.remaining() == 0) {
         state_ = Done;
         return Success;
+    }
+
+    switch (body_mode_) {
+        case Mem: {
+            size_t estimate = body_.size() + reader.remaining();
+            if (estimate > MaxBodyMemSize) {
+                body_mode_ = Disk;
+            } else {
+                size_t prev = body_.size();
+                body_.append(reader.data(), reader.remaining());
+                
+                reader.advance(body_.size() - prev);
+                return Continue;
+            }
+        }
+
+        case Disk:
+            break;
     }
 
     if (body_fd < 0) {
         body_filename = "/tmp/" + base::random_string(10);
         body_fd = ::open(body_filename.c_str(), O_WRONLY | O_CREAT, 0600);
-        
+        std::cout << "Cgi body fd: (" << body_fd << ")\n";
         if (body_fd < 0) {
             state_ = Error;
             return ParseError;
         }
+        
+        ::write(body_fd, body_.c_str(), body_.size());
+        body_.clear();
     }
 
     ssize_t w = ::write(body_fd, reader.data(), reader.remaining());
@@ -164,12 +187,20 @@ ResponseParser::ParseResult ResponseParser::read_body(BufferView& reader) {
 
 CGIResult ResponseParser::result() const {
 
+    if (body_mode_ == Mem) return CGIResult(body_, code, headers_);
+
+
+    std::cout << "Will be printed only if the body is bigger than whateven??\n";
+    
     if (body_fd >= 0) {
         ::close(body_fd);
         body_fd = -1;
     }
 
-    return CGIResult(body_filename,
+    std::string temp = body_filename;
+    body_filename.clear();
+    
+    return CGIResult(temp,
         body_content_length,
         code,
         headers_);

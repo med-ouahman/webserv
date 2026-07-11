@@ -86,7 +86,7 @@ void Connection::on_event(io::Event events) {
 void Connection::on_readable() {
     read();
     
-    if (state_ == Closing) return;
+    ctx.consume(reader_.read_ptr(), reader_.bytes_pending());
 
 }
 
@@ -106,20 +106,32 @@ void Connection::read() {
         state_ = Closing;
         return;
     }
-    std::cout << "Received bytes: " << n << "\n";
+
     reader_.advance_write(n);
 }
 
 void Connection::write() {
 
-    ssize_t n = ::send(fd(), writer_.read_ptr(), writer_.bytes_pending(), 0);
-
-    if (n < 0) {
+    size_t m = ctx.produce(writer_.write_ptr(), writer_.bytes_free());
+    
+    if (ctx.next_action() == http::AC_CLOSE) {
         state_ = Closing;
         return;
     }
 
-    std::cout << "write: " << n << "\n";
+    writer_.advance_write(m);
+    
+    ssize_t n = ::send(fd(), writer_.read_ptr(), writer_.bytes_pending(), 0);
+
+    if (n <  0) {
+        state_ = Closing;
+        return;
+    }
+
+    if (n == 0) {
+        state_ = Reading;
+    }
+
     writer_.advance_read(n);
     writer_.compact();
     

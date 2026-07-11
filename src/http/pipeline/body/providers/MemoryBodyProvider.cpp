@@ -13,13 +13,13 @@ MemoryBodyProvider::~MemoryBodyProvider() {
 }
 
 
-ssize_t MemoryBodyProvider::read(std::string& out, size_t size) {
+ssize_t MemoryBodyProvider::read(char* out, size_t size) {
 
   if (memory_.empty()) return 0;
 
   size_t w = std::min(size, memory_.size() - offset_);
 
-  out.append(memory_.c_str() + offset_, w);
+  ::memcpy(out, memory_.c_str() + offset_, w);
   
   offset_ += w;
 

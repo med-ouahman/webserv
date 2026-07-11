@@ -66,6 +66,7 @@ private:
     void on_writable();
     void on_readable();
     void update(http::ContextAction action);
+    
 };
 
 }

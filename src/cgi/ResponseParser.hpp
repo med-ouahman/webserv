@@ -7,7 +7,8 @@
 namespace http {
 
 struct CGIResult {
-	
+	bool mem_;
+	std::string body_;
 	std::string body_filename;
 	size_t		body_content_length;
 
@@ -16,11 +17,24 @@ struct CGIResult {
 
 	CGIResult(
 		std::string const& filename,
-		size_t body_len,
+		size_t content_len,
+		StatusCode code,
+		const Headers& h)	
+	: mem_(false),
+	body_(""),
+	body_filename(filename),
+	body_content_length(content_len),
+	status_code(code),
+	headers(h) {}
+
+	CGIResult(
+		std::string const& body,
 		StatusCode code,
 		const Headers& h)
-	: body_filename(filename),
-	body_content_length(body_len),
+	: mem_(true),
+	body_(body),
+	body_filename(""),
+	body_content_length(0),
 	status_code(code),
 	headers(h) {}
 
@@ -41,6 +55,11 @@ struct CGIParseContext {
 
 class ResponseParser {
 public:
+enum BodyMode {
+	Mem,
+	Disk
+};
+
 enum OutputState {
 	Headers,
 	Body,
@@ -55,6 +74,7 @@ enum ParseResult {
 };
 
 private:
+	static const std::size_t MaxBodyMemSize = 1024; /* Maximum in-memory body size */
 	OutputState state_;
 
 	http::StatusCode	code;
@@ -65,6 +85,9 @@ private:
 	mutable int	body_fd;
 	mutable std::string body_filename;
 	size_t		body_content_length;
+	
+	std::string body_;
+	BodyMode body_mode_;
 
 	ParseResult parse_header(std::string const& line);
 	ParseResult sanitize_status_header(std::string const& header);

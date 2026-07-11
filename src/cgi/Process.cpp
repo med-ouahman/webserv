@@ -42,6 +42,7 @@ Process::Process(const CGIExecContext& ctx)
         stdin_pipe_.close();
         stdout_pipe_.close();
         stderr_pipe_.close();
+        
         ::execve(ctx.argv.argv()[0], ctx.argv.argv(), ctx.envp.argv());
         state_ = Error;
         LOG_ERROR(MAKE_ERRNO_ERROR("execve()"));

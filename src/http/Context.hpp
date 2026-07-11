@@ -66,6 +66,7 @@ public:
 
 	void on_cgi_ready(const CGIResult result);
 
+	size_t serialize(char *, size_t);
 	void reconcile();
 
 	ContextAction next_action() const;

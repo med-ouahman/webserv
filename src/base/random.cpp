@@ -13,7 +13,9 @@ std::string random_string(std::size_t length) {
         "_-";
 
     std::ostringstream oss;
+    
     oss << time(NULL) << '_';
+
     srand(time(NULL));
     for (std::size_t i = 0; i < length; ++i)
         oss << charset[rand() % (sizeof(charset) - 1)];

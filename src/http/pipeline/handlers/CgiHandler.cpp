@@ -166,6 +166,8 @@ size_t CgiHandler::on_readable(Channel& channel) {
     }
 
     response_state = Finished;
+    
+
     ctx_.on_cgi_ready(builder.result());
 
     return reader.cursor();

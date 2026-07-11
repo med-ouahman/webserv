@@ -125,11 +125,7 @@ Error Context::process(const config::Config& config) {
 ContextAction Context::next_action() const { return action_; }
 
 size_t Context::produce(char* data, size_t size) {
-
-	(void)data;
-	(void)size;
-	return 0;
-
+	return	serialize(data, size);
 }
 
 void Context::reconcile() {
@@ -147,6 +143,7 @@ void Context::reconcile() {
 		handler = NULL;
 		std::cout << "Deleting the CGI handler\n";
 	}
+
 
 }
 
