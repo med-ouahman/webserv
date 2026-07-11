@@ -51,7 +51,7 @@ void Connection::sync() {
     
     ctx.reconcile();
 
-    http::ContextAction action = ctx.next_action();
+    http::ContextAction action = ctx.nextAction();
 
     update(action);
 }
@@ -114,7 +114,7 @@ void Connection::write() {
 
     size_t m = ctx.produce(writer_.write_ptr(), writer_.bytes_free());
     
-    if (ctx.next_action() == http::AC_CLOSE) {
+    if (ctx.nextAction() == http::AC_CLOSE) {
         state_ = Closing;
         return;
     }

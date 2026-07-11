@@ -387,7 +387,7 @@ void Context::refresh_state() {
 	}
 }
 
-ContextAction Context::next_action() const { return action_; }
+ContextAction Context::nextAction() const { return action_; }
 =======
 void Context::response_ready() { action_ = AC_WRITE; }
 >>>>>>> 8e7c4116533be1dc064e7cfaf34184364f7d1026

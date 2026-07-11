@@ -39,7 +39,7 @@ struct Response {
 	std::map<std::string, std::string> headers;
 	StatusCode status;
 	
-	Response(): body(NULL) {}
+	Response() {}
 	~Response() {}
 };
 
