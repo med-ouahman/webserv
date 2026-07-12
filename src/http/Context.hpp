@@ -5,10 +5,11 @@
 #include "config/Config.hpp"
 #include "http/Request.hpp"
 #include "http/Response.hpp"
-#include "http/Parser/parser.hpp"
+#include "http/Parser/Parser.hpp"
 #include "http/routing/Routing.hpp"
 
 #define CRLF "\r\n"
+#define HTTP_SERVER_ROOT "server/root"
 
 class BufferReader;
 
@@ -17,6 +18,8 @@ namespace http {
 class Context;
 class ErrorHandler;
 class RequestHandler;
+struct CGIRequestContext;
+struct CGIExecContext;
 
 enum ContextState {
 	PARSING,
@@ -51,6 +54,7 @@ private:
 
 	ContextState	state_;
 	ContextAction	action_;
+	bool			response_started_;
 
 	Context(const Context&);
 	Context& operator=(const Context&);
@@ -60,16 +64,23 @@ private:
 	Error routeRequest(const config::Config& config);
 	Error readBody();
 	Error createHandler();
+	Error handleError();
 	Error writeResponse(base::io::Writer& writer, usize& sent);
 	Error writeResponseHead(base::io::Writer& writer, usize& sent);
 	Error writeResponseBody(base::io::Writer& writer, usize& sent);
+	usize handleResponseFailure(Error err);
+
+	void process(const config::Config& config);
 
 
 	friend class Parser;
 	friend class RequestHandler;
 	friend class ErrorHandler;
+	friend Error buildCGIContext(const Context& context,
+		const config::Config& config,
+		CGIRequestContext& request_ctx,
+		CGIExecContext& exec_ctx);
 
-	void process(const config::Config& config);
 
 public:
 
@@ -77,10 +88,11 @@ public:
 	Context(usize conn_id, usize request_id);
 	~Context();
 
-	usize consume(const char* data, usize size);
-	usize produce(base::io::Writer& writer);
+	usize consume(const config::Config& config, const char* data, usize size);
+	usize produce(char *buffer, usize size);
 
 	ContextAction nextAction() const;
+	bool timedOut();
 };
 
 }
