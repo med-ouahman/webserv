@@ -47,6 +47,8 @@ public:
 	bool error() const;
 	const config::ListenEndPoint& endpoint() const;
 	void add_server(const config::ServerConfig* server);
+
+	const std::vector<const config::ServerConfig*>& servers() const;
 };
 
 base::Result<Listener*>

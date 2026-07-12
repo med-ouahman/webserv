@@ -48,7 +48,7 @@ bool Listener::accept_clients() {
 	
 	if (client_fd < 0) return false;
 	
-	ConnectionInfo info(host_, port_, client_addr.sin_addr.s_addr, client_addr.sin_port);
+	ConnectionInfo info(host_, port_, client_addr.sin_addr.s_addr, client_addr.sin_port, servers_);
 
 	server_.add_connection(client_fd, info);
 	
@@ -117,6 +117,11 @@ std::string int_to_ip(uint32_t ip_addr) {
         << (ip_addr & 0xFF);
 
     return oss.str();
+}
+
+
+const std::vector<const config::ServerConfig*>& Listener::servers() const {
+	return servers_;
 }
 
 }

@@ -13,7 +13,8 @@ public:
 	enum Type {
 		NONE,
 		BUFFER,
-		BUFFERED_FILE
+		BUFFERED_FILE,
+		BUFFERED_FD
 	};
 
 private:
@@ -41,6 +42,7 @@ public:
 	Writer(const std::string& path, char* buffer, usize capacity);
 
 	Writer(char* buffer, usize capacity);
+	Writer(i32 fd, bool owns_fd, char* buffer, usize capacity);
 
 	/**
 	 * ~Writer - release owned resources
@@ -54,16 +56,20 @@ public:
 	bool reset(const std::string& path, char* buffer, usize capacity);
 		
 	bool reset(char* buffer, usize capacity);
+	bool reset(i32 fd, bool owns_fd, char* buffer, usize capacity);
 
 	base::Expected<usize, Error> write(const char* data, usize size);
 	base::Expected<usize, Error> write(const std::string& data);
 	base::Expected<usize, Error> flush();
 
 	char* data();
+	char* writePtr();
 	usize size() const;
 	usize offset() const;
 	usize remaining() const;
+	usize freeSpace() const;
 	void advance(usize size);
+	bool commit(usize size);
 
 	bool file_created() const;
 	const std::string& path() const;

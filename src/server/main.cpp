@@ -4,12 +4,6 @@
 #include "Server.hpp"
 #include "sys.h"
 
-namespace config {
-    bool Config::has_instance = false;
-    Config Config::instance;
-}
-
-
 int main(int argc, const char* argv[]) {
 
     if (argc > 2) {
@@ -19,13 +13,11 @@ int main(int argc, const char* argv[]) {
 
     sys::handle_signals();
 
-    std::string configfile = argv[1] != NULL ? argv[1]: "config/webserv.conf";
+    std::string configfile = argv[1] != NULL ? argv[1]: "config/default.conf";
     
     config::Config conf = config::ConfigParser::build_default_config();
-    
-    config::Config::set(conf);
 
-    Server webserv;
+    Server webserv(conf);
     
     return webserv.start();
 }

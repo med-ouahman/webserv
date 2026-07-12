@@ -1,5 +1,6 @@
 #include "Writer.hpp"
 #include <algorithm>
+#include <cerrno>
 #include <cstring>
 #include <fcntl.h>
 #include <unistd.h>
@@ -40,12 +41,18 @@ Writer::Writer(char* buffer, usize capacity)
 	reset(buffer, capacity);
 }
 
+Writer::Writer(i32 fd, bool owns_fd, char* buffer, usize capacity)
+	: path_(), buffer_(NULL), capacity_(0), used_(0), offset_(0), fd_(-1),
+	  type_(NONE), owns_fd_(false) {
+	reset(fd, owns_fd, buffer, capacity);
+}
+
 Writer::~Writer() {
 	close_fd();
 }
 
 bool Writer::reset() {
-	if (type_ == BUFFER || type_ == BUFFERED_FILE) {
+	if (type_ == BUFFER || type_ == BUFFERED_FILE || type_ == BUFFERED_FD) {
 		close_fd();
 		used_ = 0;
 		offset_ = 0;
@@ -82,6 +89,19 @@ bool Writer::reset(char* buffer, usize capacity) {
 	return buffer_ != NULL || capacity_ == 0;
 }
 
+bool Writer::reset(i32 fd, bool owns_fd, char* buffer, usize capacity) {
+	close_fd();
+	type_ = BUFFERED_FD;
+	path_.clear();
+	fd_ = fd;
+	owns_fd_ = owns_fd;
+	buffer_ = buffer;
+	capacity_ = capacity;
+	used_ = 0;
+	offset_ = 0;
+	return fd_ >= 0 && buffer_ != NULL && capacity_ > 0;
+}
+
 base::Expected<usize, Error> Writer::write(const char* data, usize size) {
 	if (size == 0)
 		return base::Expected<usize, Error>(static_cast<usize>(0));
@@ -94,7 +114,7 @@ base::Expected<usize, Error> Writer::write(const char* data, usize size) {
 		used_ += size;
 		return base::Expected<usize, Error>(size);
 	}
-	if (type_ == BUFFERED_FILE) {
+	if (type_ == BUFFERED_FILE || type_ == BUFFERED_FD) {
 		usize written = 0;
 		while (written < size) {
 			usize available = used_ < capacity_ ? capacity_ - used_ : 0;
@@ -125,24 +145,46 @@ base::Expected<usize, Error> Writer::write(const std::string& data) {
 }
 
 base::Expected<usize, Error> Writer::flush() {
-	if (type_ != BUFFERED_FILE)
+	usize total;
+	ssize_t n;
+
+	if (type_ != BUFFERED_FILE && type_ != BUFFERED_FD)
 		return base::Expected<usize, Error>(static_cast<usize>(0));
 	if (used_ == 0)
 		return base::Expected<usize, Error>(static_cast<usize>(0));
 	if (!open_file())
 		return base::Expected<usize, Error>(OPEN_FAILED);
-	ssize_t n = ::write(fd_, buffer_, used_);
-	if (n < 0)
-		return base::Expected<usize, Error>(WRITE_FAILED);
+	total = 0;
+	while (total < used_) {
+		n = ::write(fd_, buffer_ + total, used_ - total);
+		if (n < 0 && errno == EINTR)
+			continue;
+		if (n <= 0) {
+			if (total > 0) {
+				::memmove(buffer_, buffer_ + total, used_ - total);
+				used_ -= total;
+			}
+			return base::Expected<usize, Error>(WRITE_FAILED);
+		}
+		total += static_cast<usize>(n);
+	}
 	used_ = 0;
 	offset_ = 0;
-	return base::Expected<usize, Error>(static_cast<usize>(n));
+	return base::Expected<usize, Error>(total);
 }
 
 char* Writer::data() {
-	if ((type_ != BUFFER && type_ != BUFFERED_FILE) || offset_ >= used_)
+	if ((type_ != BUFFER && type_ != BUFFERED_FILE && type_ != BUFFERED_FD)
+		|| offset_ >= used_)
 		return NULL;
 	return buffer_ + offset_;
+}
+
+char* Writer::writePtr() {
+	if ((type_ != BUFFER && type_ != BUFFERED_FILE && type_ != BUFFERED_FD)
+		|| used_ >= capacity_)
+		return NULL;
+	return buffer_ + used_;
 }
 
 usize Writer::size() const {
@@ -154,14 +196,28 @@ usize Writer::offset() const {
 }
 
 usize Writer::remaining() const {
-	if ((type_ != BUFFER && type_ != BUFFERED_FILE) || offset_ >= used_)
+	if ((type_ != BUFFER && type_ != BUFFERED_FILE && type_ != BUFFERED_FD)
+		|| offset_ >= used_)
 		return 0;
 	return used_ - offset_;
+}
+
+usize Writer::freeSpace() const {
+	if (type_ != BUFFER && type_ != BUFFERED_FILE && type_ != BUFFERED_FD)
+		return 0;
+	return used_ < capacity_ ? capacity_ - used_ : 0;
 }
 
 void Writer::advance(usize size) {
 	usize left = remaining();
 	offset_ += size < left ? size : left;
+}
+
+bool Writer::commit(usize size) {
+	if (size > freeSpace())
+		return false;
+	used_ += size;
+	return true;
 }
 
 bool Writer::file_created() const {

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../types.hpp"
-#include <new>
 
 namespace mem {
 

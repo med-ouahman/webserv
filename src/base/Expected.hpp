@@ -14,14 +14,15 @@ class Expected {
 private:
 	union Storage {
 		char		t_buf[sizeof(T)];
-		T			align_;
+		long double	align_;
+		void*		ptr_;
 	} storage;
 
 	int err_code;
 
 private:
-	T*			val_ptr()		{ return reinterpret_cast<T*>(&storage); }
-	const T*	val_ptr() const	{ return reinterpret_cast<const T*>(&storage); }
+	T*			val_ptr()		{ return reinterpret_cast<T*>(storage.t_buf); }
+	const T*	val_ptr() const	{ return reinterpret_cast<const T*>(storage.t_buf); }
 
 	void destroy() {
 		if (err_code == 0)

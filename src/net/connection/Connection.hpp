@@ -6,6 +6,8 @@
 #include "BufferView.hpp"
 #include "Buffer.hpp"
 
+struct ServerContext;
+
 namespace net {
 
 enum ConnectionState {
@@ -21,14 +23,19 @@ uint16_t local_port;
 uint32_t remote_ip;
 uint16_t remote_port;
 
+std::vector<const config::ServerConfig*>& servers;
+
 ConnectionInfo(uint32_t local_ip,
 uint16_t local_port,
 uint32_t remote_ip,
-uint16_t remote_port)
-    : local_ip(local_ip),
-    local_port(local_port),
-    remote_ip(remote_ip),
-    remote_port(remote_port) {}
+uint16_t remote_port,
+std::vector<const config::ServerConfig*>& srvs
+)
+: local_ip(local_ip),
+local_port(local_port),
+remote_ip(remote_ip),
+remote_port(remote_port),
+servers(srvs) {}
     
 };
 

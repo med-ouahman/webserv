@@ -4,9 +4,11 @@
 
 logger::Logger Server::logger_;
 
-Server::Server()
+Server::Server(const config::Config& c)
     : running_(false),
-    poller() {
+    poller(),
+    ctx(c),
+    conf(c) {
     ctx.poller = &poller;
     ctx.logger = &logger_;
     logger_.setstream(std::cout);
@@ -47,9 +49,7 @@ void Server::close_connection(net::Connection* conn) {
 }
 
 bool Server::start_listeners() {
-
-    const config::Config& conf = config::Config::get_config();
-  
+    
     const std::vector<config::ServerConfig>& servers = conf.servers;
 
     for (size_t i(0); i < servers.size(); ++i) {

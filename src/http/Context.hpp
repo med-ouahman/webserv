@@ -5,7 +5,7 @@
 #include "config/Config.hpp"
 #include "http/Request.hpp"
 #include "http/Response.hpp"
-#include "http/Parser/Parser.hpp"
+#include "http/Parser/parser.hpp"
 #include "http/routing/Routing.hpp"
 
 #define CRLF "\r\n"
@@ -37,7 +37,7 @@ enum ContextAction {
 class Context {
 
 private:
-
+	
 	Parser parser;
 	Request request;
 	Response response;
@@ -55,6 +55,8 @@ private:
 	ContextState	state_;
 	ContextAction	action_;
 	bool			response_started_;
+	
+	const std::vector<const config::ServerConfig*>& servers;
 
 	Context(const Context&);
 	Context& operator=(const Context&);
@@ -83,12 +85,10 @@ private:
 
 
 public:
-
-	Context();
-	Context(usize conn_id, usize request_id);
+	Context(const std::vector<const config::ServerConfig*>& servers, usize conn_id, usize request_id);
 	~Context();
 
-	usize consume(const config::Config& config, const char* data, usize size);
+	usize consume(const char* data, usize size);
 	usize produce(char *buffer, usize size);
 
 	ContextAction nextAction() const;

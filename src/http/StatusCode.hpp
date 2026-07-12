@@ -97,6 +97,7 @@ inline StatusCode	status_from_error(Error err) {
 			return REQUEST_TIMEOUT;
 		case ERR_INTERNAL:
 			return INTERNAL_SERVER_ERROR;
+		default: break;
 	}
 	return INTERNAL_SERVER_ERROR;
 }

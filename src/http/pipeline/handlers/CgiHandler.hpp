@@ -4,8 +4,8 @@
 #include "IRequestHandler.hpp"
 #include "ResponseParser.hpp"
 #include "StatusCode.hpp"
-#include "IBodyProvider.hpp"
 #include "AEventHandler.hpp"
+#include "Buffer.hpp"
 
 namespace runtime { namespace epoll { class EventLoop; } }
 
@@ -58,6 +58,15 @@ public:
 class Context;
 struct ResolutionResult;
 struct Request;
+
+
+struct CgiContext {
+	const Request& req;
+	const ResolutionResult& result;
+	runtime::epoll::EventLoop& elp;
+	Context& ctx;
+};
+
 
 class CgiHandler: public IRequestHandler {
 public:

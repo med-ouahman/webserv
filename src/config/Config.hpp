@@ -90,21 +90,6 @@ struct Config {
         : servers()
     {}
 
-    static Config instance;
-    static bool has_instance;
-
-    static void set(Config& conf) {
-        if (!has_instance) {
-            instance = conf;
-            has_instance = true;
-        }
-
-    }
-
-    static const Config& get_config() {
-        return instance;
-    }
-
 };
 
 }

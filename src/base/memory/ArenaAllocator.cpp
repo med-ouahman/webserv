@@ -1,4 +1,5 @@
 
+#include <new>
 #include "ArenaAllocator.hpp"
 
 namespace mem {

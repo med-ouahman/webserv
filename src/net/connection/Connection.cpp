@@ -14,11 +14,11 @@ Connection::Connection(int _fd, io::Event events, ServerContext& server_ctx, con
     close_after_write(false),
     last_activity_(),
     lifetime_(),
-    ctx(server_ctx),
+    ctx(info.servers, _fd, _fd),
     reader_(in),
     writer_(out),
     info_(info) {
-
+        (void)server_ctx;
 }
 
 Connection::~Connection() {}
@@ -49,7 +49,7 @@ void Connection::update(http::ContextAction action) {
 
 void Connection::sync() {
     
-    ctx.reconcile();
+    ctx.timedOut();
 
     http::ContextAction action = ctx.nextAction();
 

@@ -10,22 +10,23 @@ class Server {
 private:
     bool running_;
     
+    static logger::Logger      logger_;
     static const std::size_t MaxConnections = 1000;
     static const std::size_t MaxListens = 10;
 
     std::vector<net::Connection*> connections;
     std::vector<net::Listener*> listeners;
     runtime::epoll::EventLoop poller;
-    static logger::Logger      logger_;
 
     ServerContext ctx;
+    const config::Config& conf;
 
     Server(const Server&);
     Server& operator=(const Server&);
     bool start_listeners();
 
 public:
-    Server();
+    Server(const config::Config& conf);
     ~Server();
     int start();
     void sweep();
