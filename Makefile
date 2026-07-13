@@ -35,7 +35,6 @@ INCLUDES = -Isrc \
 	-Isrc/http/routing/ \
 	-Isrc/http/pipeline/ \
 	-Isrc/http/pipeline/handlers \
-	-Isrc/http/pipeline/body/ \
 	-Isrc/http/common/ \
 	-Isrc/config/ \
 	-Isrc/foundation/ \
@@ -70,10 +69,6 @@ SRCS = src/server/main.cpp \
 	src/http/Parser/body/chunked.cpp \
 	src/http/Parser/body/fixed.cpp \
 	src/http/routing/Routing.cpp \
-	src/http/HandlerFactory.cpp \
-	src/http/pipeline/body/providers/CGIBodyProvider.cpp \
-	src/http/pipeline/body/providers/MemoryBodyProvider.cpp \
-	src/http/pipeline/body/providers/FileBodyProvider.cpp \
 	src/config/ConfigParser.cpp \
 	src/config/Lexer.cpp \
 	src/base/io/Writer.cpp \
