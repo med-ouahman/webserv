@@ -7,6 +7,7 @@
 #include "http/Response.hpp"
 #include "http/Parser/parser.hpp"
 #include "http/routing/Routing.hpp"
+#include "ServerContext.hpp"
 
 #define CRLF "\r\n"
 #define HTTP_SERVER_ROOT "server/root"

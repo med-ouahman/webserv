@@ -2,7 +2,7 @@
 
 #include "http/common/Headers.hpp"
 #include "LineReader.hpp"
-#include "StatusCode.hpp"
+#include "Response.hpp"
 
 namespace http {
 

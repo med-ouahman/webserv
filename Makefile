@@ -48,6 +48,7 @@ SRCS = src/server/main.cpp \
 	src/net/connection/Connection.cpp \
 	src/net/connection/connection_io.cpp \
 	src/net/connection/connection_events.cpp \
+	src/http/pipeline/handlers/CgiHandler.cpp \
 	src/net/listener/Listener.cpp \
 	src/runtime/epoll/EventLoop.cpp \
 	src/runtime/epoll/poll.cpp \
@@ -70,7 +71,6 @@ SRCS = src/server/main.cpp \
 	src/http/Parser/body/fixed.cpp \
 	src/http/routing/Routing.cpp \
 	src/http/HandlerFactory.cpp \
-	src/http/pipeline/handlers/CgiHandler.cpp \
 	src/http/pipeline/body/providers/CGIBodyProvider.cpp \
 	src/http/pipeline/body/providers/MemoryBodyProvider.cpp \
 	src/http/pipeline/body/providers/FileBodyProvider.cpp \

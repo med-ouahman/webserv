@@ -96,7 +96,8 @@ CgiHandler::CgiHandler(const ResolutionResult& res,
         const http::Request& req,
         runtime::epoll::EventLoop& p,
         Context& ctx)
-    : state_(Working),
+    : RequestHandler(ctx),
+    state_(Working),
     response_state(Processing),
     reason_(None),
     process(cgi::resolve(req, res)),
@@ -125,7 +126,6 @@ CgiHandler::CgiHandler(const ResolutionResult& res,
 }
 
 CgiHandler::~CgiHandler() {
-    
     if (stdin_ch.state() != Channel::Closed) poller_.del(&stdin_ch);
     if (stdout_ch.state() != Channel::Closed) poller_.del(&stdout_ch);
     if (stderr_ch.state() != Channel::Closed) poller_.del(&stderr_ch);
@@ -167,9 +167,6 @@ size_t CgiHandler::on_readable(Channel& channel) {
 
     response_state = Finished;
     
-
-    ctx_.on_cgi_ready(builder.result());
-
     return reader.cursor();
 }
 
@@ -192,7 +189,10 @@ size_t CgiHandler::on_writable(Buffer& writer, Channel& channel) {
     return 0;
 }
 
-void CgiHandler::handle() {}
+http::Error CgiHandler::handle() {
+    
+    return ERR_NONE;
+}
 
 bool CgiHandler::finished() {
     return state_ == Done;
@@ -278,8 +278,7 @@ void CgiHandler::monitor() {
             case ParseError: result.status_code = BAD_GATEWAY; std::cout << "Bad Gateway\n"; break;
             case ProcessError: case Internal: result.status_code = INTERNAL_SERVER_ERROR; std::cout << "Internal\n"; break;
         }
-    
-        ctx_.on_cgi_ready(result);
+ 
     }
 
     if (state_ == Cleanup) state_ = Done;

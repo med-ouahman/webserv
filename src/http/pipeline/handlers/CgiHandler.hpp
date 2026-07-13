@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Process.hpp"
-#include "IRequestHandler.hpp"
 #include "ResponseParser.hpp"
 #include "StatusCode.hpp"
 #include "AEventHandler.hpp"
 #include "Buffer.hpp"
+#include "RequestHandler.hpp"
 
 namespace runtime { namespace epoll { class EventLoop; } }
 
@@ -60,15 +60,18 @@ struct ResolutionResult;
 struct Request;
 
 
-struct CgiContext {
-	const Request& req;
-	const ResolutionResult& result;
-	runtime::epoll::EventLoop& elp;
-	Context& ctx;
+struct CgiContext
+{
+
+const Request& req;
+const ResolutionResult& result;
+runtime::epoll::EventLoop& elp;
+Context& ctx;
+
 };
 
 
-class CgiHandler: public IRequestHandler {
+class CgiHandler: public RequestHandler {
 public:
 
 enum State {
@@ -147,14 +150,14 @@ public:
 
 	~CgiHandler();
 
-	void handle();
 	bool finished();
 	
 	size_t on_writable(Buffer& writer, Channel& channel);
-	size_t on_readable(Channel& channel);
-	
+	size_t on_readable(Channel& channel);	
 	void close_channel(Channel& channel);
 
+ 	http::Error handle();
+	
 	void monitor();
 };
 
