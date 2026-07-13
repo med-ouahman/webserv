@@ -65,7 +65,7 @@ struct CgiContext
 
 const Request& req;
 const ResolutionResult& result;
-runtime::epoll::EventLoop& elp;
+runtime::epoll::EventLoop& evlp;
 
 };
 

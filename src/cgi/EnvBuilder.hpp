@@ -9,6 +9,7 @@ namespace http { class Request; struct ResolutionResult; }
 namespace cgi {
 
 struct CGIRequestContext {
+
     std::string request_method;
     std::string mime_type;
     std::string interpreter;
@@ -16,6 +17,7 @@ struct CGIRequestContext {
     std::string query_string;
     std::string content_length;
     std::string path_info;
+
     std::string server_name;
     std::string server_protocol;
     std::string server_port;

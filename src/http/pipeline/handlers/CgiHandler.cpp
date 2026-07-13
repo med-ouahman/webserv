@@ -165,9 +165,22 @@ size_t CgiHandler::on_readable(Channel& channel) {
         return reader.cursor();
     }
 
-    Headers::iterator it = header
+    CGIResult result = builder.result();
+
+    setStatus(result.status_code);
+    const Headers& headers = result.headers;
+    Headers::const_iterator it = headers.begin();
+    for (; it != headers.end(); ++it) {
+        setHeader(it->name, it->value);
+    }
+
+    if (result.mem_) {
+        setBody(result.body_);
+    } else {
+        setBodyFile(result.body_filename);
+    }
+
     response_state = Finished;
-    
     return reader.cursor();
 }
 
@@ -281,6 +294,7 @@ void CgiHandler::monitor() {
 
             setStatus(c);
             setHeader("Connection", "close");
+            
         }
  
     }
