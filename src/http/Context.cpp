@@ -101,28 +101,6 @@ Parser::Parser(const std::string& body_path)
 	  body_buffer(),
 	  bodyWriter(body_path, body_buffer, limits::BODY_BUFFER_SIZE) {}
 
-// Context::Context()
-// 	: parser(),
-// 	  request(),
-// 	  response(),
-// 	  response_head_(),
-// 	  route(),
-// 	  handler_(NULL),
-// 	  conn_id_(0),
-// 	  request_id_(0),
-// 	  response_head_offset_(0),
-// 	  response_body_offset_(0),
-// 	  error_(ERR_NONE),
-// 	  state_(PARSING),
-// 	  action_(AC_READ),
-// 	  response_started_(false) {
-// 	request.method = UNKNOWN;
-// 	request.version = HTTP_UNKNOWN;
-// 	request.connection = CONNECTION_DEFAULT;
-// 	request.chunked = false;
-// 	response.status = OK;
-// }
-
 Context::Context(const std::vector<const config::ServerConfig*>& srvs, usize conn_id, usize request_id)
 	: parser(),
 	  request(),

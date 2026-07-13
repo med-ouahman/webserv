@@ -165,6 +165,7 @@ size_t CgiHandler::on_readable(Channel& channel) {
         return reader.cursor();
     }
 
+    Headers::iterator it = header
     response_state = Finished;
     
     return reader.cursor();
@@ -269,14 +270,17 @@ void CgiHandler::monitor() {
     if (res.reason != cgi::Exited && reason_ == None) reason_ = Internal;
 
     if (reason_ != None && response_state != Finished) {
-        CGIResult result;
-    
+
+        StatusCode c = OK;
         switch (reason_) {
 
             case None: break;
-            case Timeout: result.status_code = GATEWAY_TIMEOUT; std::cout << "Gateway timeout\n"; break;
-            case ParseError: result.status_code = BAD_GATEWAY; std::cout << "Bad Gateway\n"; break;
-            case ProcessError: case Internal: result.status_code = INTERNAL_SERVER_ERROR; std::cout << "Internal\n"; break;
+            case Timeout: c = GATEWAY_TIMEOUT; std::cout << "Gateway timeout\n"; break;
+            case ParseError: c = BAD_GATEWAY; std::cout << "Bad Gateway\n"; break;
+            case ProcessError: case Internal: c = INTERNAL_SERVER_ERROR; std::cout << "Internal\n"; break;
+
+            setStatus(c);
+            setHeader("Connection", "close");
         }
  
     }
