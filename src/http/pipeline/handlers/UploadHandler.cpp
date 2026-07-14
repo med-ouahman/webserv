@@ -3,6 +3,9 @@
 #include "http/Context.hpp"
 #include "http/limits.hpp"
 
+#include <sys/stat.h>
+#include <unistd.h>
+
 namespace http {
 
 namespace {
@@ -24,13 +27,27 @@ static std::string basenameOf(const std::string& path) {
 	return path.substr(slash + 1);
 }
 
+static bool pathExists(const std::string& path) {
+	struct stat info;
+
+	return stat(path.c_str(), &info) == 0;
+}
+
+static bool validUploadDirectory(const std::string& path) {
+	struct stat info;
+
+	return stat(path.c_str(), &info) == 0
+		&& S_ISDIR(info.st_mode)
+		&& access(path.c_str(), W_OK) == 0;
+}
+
 static Error copyBody(base::io::Reader& reader, const std::string& path) {
 	char read_buffer[limits::BODY_BUFFER_SIZE];
 	char write_buffer[limits::BODY_BUFFER_SIZE];
 	base::io::Writer writer;
 
 	if (!writer.reset(path, write_buffer, limits::BODY_BUFFER_SIZE))
-		return ERR_FORBIDDEN;
+		return ERR_INTERNAL;
 	if (reader.type() == base::io::Reader::NONE)
 		return ERR_NONE;
 	while (true) {
@@ -62,11 +79,15 @@ Error UploadHandler::handle() {
 	std::string filename;
 	std::string path;
 
+	if (!validUploadDirectory(*decision().upload_path))
+		return ERR_INTERNAL;
 	filename = basenameOf(decision().normalized_path);
 	path = pathJoin(*decision().upload_path, filename);
+	if (pathExists(path))
+		return ERR_METHOD_NOT_ALLOWED;
 	TRY(copyBody(request().body, path), err);
 	setStatus(CREATED);
-	setBody("");
+	setBodyFixed("");
 	setHeader("Location", path);
 	setContentLength();
 	setConnection();

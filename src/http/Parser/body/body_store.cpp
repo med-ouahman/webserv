@@ -1,4 +1,4 @@
-#include "http/Parser/parser.hpp"
+#include "http/Parser/Parser.hpp"
 #include "http/Context.hpp"
 
 namespace http {
@@ -7,9 +7,9 @@ Error Parser::finishBody(Context& ctx) {
 	if (bodyWriter.file_created()) {
 		if (!bodyWriter.flush())
 			return ERR_INTERNAL;
-		ctx.request.body.reset(bodyWriter.path());
+		ctx.actor.request.body.reset(bodyWriter.path());
 	} else {
-		ctx.request.body.reset(bodyWriter.data(), bodyWriter.size());
+		ctx.actor.request.body.reset(bodyWriter.data(), bodyWriter.size());
 	}
 	body_received = 0;
 	ctx.state_ = PROCESSING;

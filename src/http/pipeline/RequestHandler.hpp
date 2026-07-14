@@ -9,7 +9,7 @@
 namespace http {
 
 class Context;
-struct Decision;
+struct DispatchInfo;
 struct Request;
 
 class RequestHandler {
@@ -19,14 +19,17 @@ protected:
 
 	void setStatus(StatusCode status);
 	void setHeader(const std::string& key, const std::string& value);
-	void setBody(const std::string& body);
+	void eraseHeader(const std::string& key);
+
+	void setBodyFixed(const std::string& body);
 	Error setBodyFile(const std::string& path);
+
 	void setContentType(const std::string& type);
 	void setContentLength();
 	void setContentLength(usize size);
 	void setConnection();
 	void setDate();
-	const Decision& decision() const;
+	const DispatchInfo& decision() const;
 	Request& request();
 	Response& response();
 

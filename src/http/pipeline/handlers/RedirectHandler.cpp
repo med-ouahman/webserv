@@ -29,7 +29,7 @@ RedirectHandler::~RedirectHandler() {}
 
 Error RedirectHandler::handle() {
 	setStatus(redirectStatus(decision().location->redirect.return_code));
-	setBody("");
+	setBodyFixed("");
 	setHeader("Location", decision().location->redirect.return_target);
 	setContentLength();
 	setConnection();

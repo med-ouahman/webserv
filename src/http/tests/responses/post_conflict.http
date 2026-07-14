@@ -1,0 +1,4 @@
+HTTP/1.1 405 Method Not Allowed
+Allow: 
+
+<!doctype html><html><body><h1>405 Method Not Allowed</h1></body></html>

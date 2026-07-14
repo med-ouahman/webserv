@@ -49,7 +49,7 @@ void Connection::update(http::ContextAction action) {
 
 void Connection::sync() {
     
-    ctx.timedOut();
+    ctx.reconcile();
 
     http::ContextAction action = ctx.nextAction();
 

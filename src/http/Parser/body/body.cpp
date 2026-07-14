@@ -1,10 +1,10 @@
-#include "http/Parser/parser.hpp"
+#include "http/Parser/Parser.hpp"
 #include "http/Context.hpp"
 
 namespace http {
 
 Error Parser::parseBody(Context& ctx) {
-	if (ctx.request.chunked)
+	if (ctx.actor.request.chunked)
 		return parseChunkedBody(ctx);
 	return parseFixedBody(ctx);
 }

@@ -37,7 +37,6 @@ Implemented:
 Not final:
 - non-existing paths cannot be fully checked with realpath. - todo
 - config location paths are not normalized before matching. - todo
-- filesystem mapping still needs tests for nested locations. - todo
 
 
 ## HTTP Method Rules

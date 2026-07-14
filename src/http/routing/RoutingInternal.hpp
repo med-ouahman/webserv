@@ -6,6 +6,10 @@
 namespace http {
 namespace routing {
 
+Error decideServer(const Request& request,
+	const std::vector<const config::ServerConfig*>& servers,
+	const config::ServerConfig*& server);
+
 /* filesystem and path confirmation */
 Error pathNormalize(const std::string& path, std::string& out);
 Error fsBuildPath(const config::ServerConfig& server,
@@ -32,6 +36,7 @@ bool isCGIRequest(
 		const config::LocationConfig& location,
 		const std::string** cgi_path );
 Error checkUploadAllowed(const config::LocationConfig& location);
+Error checkUploadFraming(const Request& request);
 RequestType getRequestType(
 		const Request& request,
 		const std::string& path,

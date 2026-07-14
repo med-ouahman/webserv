@@ -1,6 +1,13 @@
 
 #pragma once
 
+#define TRY(expr, fail) \
+	do { \
+		err = (expr); \
+		if (err != http::ERR_NONE) \
+			return fail; \
+	} while (0)
+
 namespace http {
 
 class Context;
@@ -29,6 +36,7 @@ enum Error {
 	ERR_NOT_FOUND,
 	ERR_FORBIDDEN,
 	ERR_METHOD_NOT_ALLOWED,
+	ERR_LENGTH_REQUIRED,
 
 	/* cgi */
 	ERR_CGI_FAILED,
@@ -38,10 +46,3 @@ enum Error {
 };
 
 }
-
-#define TRY(expr, fail) \
-	do { \
-		err = (expr); \
-		if (err != http::ERR_NONE) \
-			return fail; \
-	} while (0)

@@ -1,4 +1,4 @@
-#include "http/Parser/parser.hpp"
+#include "http/Parser/Parser.hpp"
 #include "http/Context.hpp"
 
 namespace http {
@@ -8,10 +8,10 @@ Error Parser::parseFixedBody(Context& ctx) {
 	usize take;
 	Error err;
 
-	if (!ctx.request.content_length.has_value())
+	if (!ctx.actor.request.content_length.has_value())
 		return ERR_BAD_REQUEST;
 
-	expected = ctx.request.content_length.value;
+	expected = ctx.actor.request.content_length.value;
 	if (body_received >= expected)
 		return finishBody(ctx);
 

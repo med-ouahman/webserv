@@ -13,22 +13,45 @@ RequestHandler::RequestHandler(Context& context)
 RequestHandler::~RequestHandler() {}
 
 void RequestHandler::setStatus(StatusCode status) {
-	context_.response.status = status;
+	context_.actor.response.status = status;
 }
 
 void RequestHandler::setHeader(const std::string& key,
 		const std::string& value) {
-	context_.response.headers[key] = value;
+	usize i = 0;
+	Header header;
+
+	while (i < context_.actor.response.headers.size()) {
+		if (context_.actor.response.headers[i].key == key) {
+			context_.actor.response.headers[i].value = value;
+			return ;
+		}
+		++i;
+	}
+	header.key = key;
+	header.value = value;
+	context_.actor.response.headers.push_back(header);
 }
 
-void RequestHandler::setBody(const std::string& body) {
-	context_.response.body = body;
-	context_.response.body_reader.reset();
+void RequestHandler::eraseHeader(const std::string& key) {
+	std::vector<Header>::iterator it = context_.actor.response.headers.begin();
+
+	while (it != context_.actor.response.headers.end()) {
+		if (it->key == key)
+			it = context_.actor.response.headers.erase(it);
+		else
+			++it;
+	}
+}
+
+void RequestHandler::setBodyFixed(const std::string& body) {
+	context_.actor.response.body = body;
+	context_.actor.response.body_reader.reset();
 }
 
 Error RequestHandler::setBodyFile(const std::string& path) {
-	context_.response.body.clear();
-	if (!context_.response.body_reader.reset(path))
+	context_.actor.response.body.clear();
+	if (!context_.actor.response.body_reader.reset(path))
 		return ERR_NOT_FOUND;
 	return ERR_NONE;
 }
@@ -38,7 +61,7 @@ void RequestHandler::setContentType(const std::string& type) {
 }
 
 void RequestHandler::setContentLength() {
-	setContentLength(context_.response.body.size());
+	setContentLength(context_.actor.response.body.size());
 }
 
 void RequestHandler::setContentLength(usize size) {
@@ -49,13 +72,13 @@ void RequestHandler::setContentLength(usize size) {
 }
 
 void RequestHandler::setConnection() {
-	if (context_.request.version == HTTP_1_1
-		&& context_.request.connection != CONNECTION_CLOSE) {
+	if (context_.actor.request.version == HTTP_1_1
+		&& context_.actor.request.connection != CONNECTION_CLOSE) {
 		setHeader("Connection", "keep-alive");
 		return ;
 	}
-	if (context_.request.version == HTTP_1_0
-		&& context_.request.connection == CONNECTION_KEEP_ALIVE) {
+	if (context_.actor.request.version == HTTP_1_0
+		&& context_.actor.request.connection == CONNECTION_KEEP_ALIVE) {
 		setHeader("Connection", "keep-alive");
 		return ;
 	}
@@ -75,16 +98,16 @@ void RequestHandler::setDate() {
 	setHeader("Date", buffer);
 }
 
-const Decision& RequestHandler::decision() const {
-	return context_.route.value;
+const DispatchInfo& RequestHandler::decision() const {
+	return context_.info.dispatch.value;
 }
 
 Request& RequestHandler::request() {
-	return context_.request;
+	return context_.actor.request;
 }
 
 Response& RequestHandler::response() {
-	return context_.response;
+	return context_.actor.response;
 }
 
 }

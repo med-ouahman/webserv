@@ -43,6 +43,12 @@ Error checkUploadAllowed(const config::LocationConfig& location) {
 	return ERR_NONE;
 }
 
+Error checkUploadFraming(const Request& request) {
+	if (!request.chunked && !request.content_length.has_value())
+		return ERR_LENGTH_REQUIRED;
+	return ERR_NONE;
+}
+
 RequestType getRequestType(const Request& request,
 		const std::string& path,
 		const config::LocationConfig& location,

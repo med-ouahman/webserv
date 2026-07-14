@@ -1,15 +1,16 @@
 
 #pragma once
 
-#include <map>
 #include <string>
+#include <vector>
 
 #include "base/base.hpp"
-#include "StatusCode.hpp"
 #include "base/io/Reader.hpp"
+#include "http/Error.hpp"
+#include "http/Request.hpp"
 
 namespace http {
-	
+
 enum StatusCode {
 	OK = 200,
 	CREATED = 201,
@@ -30,20 +31,30 @@ enum StatusCode {
 	INTERNAL_SERVER_ERROR = 500,
 	NOT_IMPLEMENTED = 501,
 	BAD_GATEWAY = 502,
-	GATEWAY_TIMEOUT = 504,
 	HTTP_VERSION_NOT_SUPPORTED = 505
 };
-
 
 struct Response {
 
 	std::string body;
 	base::io::Reader body_reader;
-	std::map<std::string, std::string> headers;
+	std::vector<Header> headers;
 	StatusCode status;
-	
-	Response() {}
-	~Response() {}
+
+	std::string head;
+
+	usize head_offset;
+	usize body_offset;
+	bool started_;
+	bool finished_;
+
+	Response();
+
+	void resetWriteState();
+	Error write(char* buffer, usize size, Version version, usize& sent);
+	bool started() const;
+	bool finished() const;
+	bool shouldClose() const;
 };
 
 }

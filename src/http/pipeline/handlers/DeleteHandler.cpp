@@ -3,7 +3,7 @@
 #include "http/Context.hpp"
 
 #include <cerrno>
-#include <unistd.h>
+#include <cstdio>
 
 namespace http {
 
@@ -18,7 +18,7 @@ static Error deleteError() {
 }
 
 static Error deleteFile(const std::string& path) {
-	if (unlink(path.c_str()) != 0)
+	if (std::remove(path.c_str()) != 0)
 		return deleteError();
 	return ERR_NONE;
 }
@@ -39,7 +39,7 @@ Error DeleteHandler::handle() {
 		return ERR_FORBIDDEN;
 	TRY(deleteFile(decision().filesystem_path), err);
 	setStatus(NO_CONTENT);
-	setBody("");
+	setBodyFixed("");
 	setContentLength();
 	setConnection();
 	setDate();

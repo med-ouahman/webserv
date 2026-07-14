@@ -116,7 +116,7 @@ Error DirectoryHandler::handle() {
 		if (regularFile(path)) {
 			TRY(readFile(path, body), err);
 			setStatus(OK);
-			setBody(body);
+			setBodyFixed(body);
 			setContentType("text/html");
 			setContentLength();
 			setConnection();
@@ -130,7 +130,7 @@ Error DirectoryHandler::handle() {
 	TRY(buildAutoindex(decision().filesystem_path,
 		decision().normalized_path, body), err);
 	setStatus(OK);
-	setBody(body);
+	setBodyFixed(body);
 	setContentType("text/html");
 	setContentLength();
 	setConnection();

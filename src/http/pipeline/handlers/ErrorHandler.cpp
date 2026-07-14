@@ -36,29 +36,52 @@ static bool readErrorPage(StatusCode status, std::string& body) {
 ErrorHandler::ErrorHandler(Context& context, Error error)
 	: RequestHandler(context), error_(error) {}
 
+void ErrorHandler::setAllowedMethods() {
+	std::set<std::string>::const_iterator it;
+	std::ostringstream methods;
+	bool first = true;
+
+	if (!context_.info.dispatch.has_value()
+		|| context_.info.dispatch.value.location == NULL)
+		return ;
+	it = context_.info.dispatch.value.location->allowed_methods.begin();
+	while (it != context_.info.dispatch.value.location->allowed_methods.end()) {
+		if (methodOf(*it) != context_.actor.request.method) {
+			if (!first)
+				methods << ", ";
+			methods << *it;
+			first = false;
+		}
+		++it;
+	}
+	setHeader("Allow", methods.str());
+}
+
 Error ErrorHandler::handle() {
 	std::ostringstream body;
 	StatusCode status;
 
-	delete context_.handler_;
-	context_.handler_ = NULL;
 	status = statusFromError(error_);
 	setStatus(status);
+	if (status == METHOD_NOT_ALLOWED)
+		setAllowedMethods();
 	if (!readErrorPage(status, response().body)) {
 		body << "<!doctype html><html><body><h1>"
 			<< static_cast<int>(status) << " "
 			<< statusMsg(status)
-			<< "</h1></body></html>";
-		setBody(body.str());
+			<< "</h1></body></html>\n";
+		setBodyFixed(body.str());
 	}
 	setContentType("text/html");
 	setContentLength();
 	setConnection();
+	if (error_ == ERR_REQUEST_TIMEOUT)
+		setHeader("Connection", "close");
 	setDate();
 
 	context_.responseReady();
 
-	return error_;
+	return ERR_NONE;
 }
 
 const char* ErrorHandler::statusMsg(StatusCode code) {
@@ -77,6 +100,7 @@ const char* ErrorHandler::statusMsg(StatusCode code) {
 		case METHOD_NOT_ALLOWED: return "Method Not Allowed";
 		case REQUEST_TIMEOUT: return "Request Timeout";
 		case CONFLICT: return "Conflict";
+		case LENGTH_REQUIRED: return "Length Required";
 		case PAYLOAD_TOO_LARGE: return "Payload Too Large";
 		case INTERNAL_SERVER_ERROR: return "Internal Server Error";
 		case NOT_IMPLEMENTED: return "Not Implemented";
@@ -113,6 +137,8 @@ StatusCode ErrorHandler::statusFromError(Error error) {
 			return FORBIDDEN;
 		case ERR_METHOD_NOT_ALLOWED:
 			return METHOD_NOT_ALLOWED;
+		case ERR_LENGTH_REQUIRED:
+			return LENGTH_REQUIRED;
 		case ERR_CGI_FAILED:
 			return BAD_GATEWAY;
 		case ERR_INTERNAL:

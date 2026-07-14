@@ -1,5 +1,5 @@
 
-#include "http/Parser/parser.hpp"
+#include "http/Parser/Parser.hpp"
 #include "http/Parser/headers/headers.hpp"
 #include "http/Context.hpp"
 
@@ -67,7 +67,7 @@ Error Parser::parseHeaders(Context& ctx) {
 		if (!found)
 			return ERR_NONE;
 		if (line.empty()) {
-			err = parser::endHeaders(ctx.request);
+			err = parser::endHeaders(ctx.actor.request);
 			if (err != ERR_NONE)
 				return err;
 			header_bytes = 0;
@@ -75,7 +75,7 @@ Error Parser::parseHeaders(Context& ctx) {
 			ctx.action_ = AC_WRITE;
 			return ERR_NONE;
 		}
-		err = parseHeaderLine(ctx.request, line);
+		err = parseHeaderLine(ctx.actor.request, line);
 		if (err != ERR_NONE)
 			return err;
 	}

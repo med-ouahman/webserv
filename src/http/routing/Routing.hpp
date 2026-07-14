@@ -18,7 +18,8 @@ enum RequestType {
 };
 
 
-struct Decision {
+struct DispatchInfo {
+	const config::ServerConfig* server;
 	const config::LocationConfig* location;
 	const std::string* upload_path;
 	const std::string* cgi_path;
@@ -30,10 +31,29 @@ struct Decision {
 	RequestType handlerType;
 	bool read_body;
 
-	Decision();
+	DispatchInfo();
 };
 
-base::Expected<Decision, Error> route(const Request& request,
-	const config::Config& config);
+base::Expected<DispatchInfo, Error> route(const Request& request,
+	const config::Config& config, DispatchInfo* partial = NULL);
+
+base::Expected<DispatchInfo, Error> route(const Request& request,
+	const config::ServerConfig& server, DispatchInfo* partial = NULL);
+
+base::Expected<DispatchInfo, Error> route(const Request& request,
+	const std::vector<const config::ServerConfig*>& servers,
+	DispatchInfo* partial = NULL);
+
+Error decide(const Request& request,
+	const config::Config& config,
+	base::Optional<DispatchInfo>& dispatch_info);
+
+Error decide(const Request& request,
+	const config::ServerConfig& server,
+	base::Optional<DispatchInfo>& dispatch_info);
+
+Error decide(const Request& request,
+	const std::vector<const config::ServerConfig*>& servers,
+	base::Optional<DispatchInfo>& dispatch_info);
 
 }

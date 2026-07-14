@@ -13,13 +13,13 @@ CXX_FLAGS := -Wall -Wextra -Werror $(STD) $(DEBUG) $(DEVELOPMENT)
 # Libraries we might link against in the future, for now just a placeholder
 LIBS := 
 
-SRCDIR := src
+SRCDIR := ./src/
 
 OBJDIR := obj
 
 NAME = webserv
 
-INCLUDES = -Isrc \
+INCLUDES = -Isrc/ \
 	-Isrc/net/ \
 	-Isrc/net/connection/ \
 	-Isrc/net/listener/ \
@@ -38,7 +38,7 @@ INCLUDES = -Isrc \
 	-Isrc/http/common/ \
 	-Isrc/config/ \
 	-Isrc/foundation/ \
-	-Isrc/base \
+	-Isrc/base/ \
 
 SRCS = src/server/main.cpp \
 	src/server/signals.cpp \

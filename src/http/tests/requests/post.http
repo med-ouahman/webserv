@@ -1,0 +1,6 @@
+POST /uploads/post.txt HTTP/1.1
+Host: localhost
+Content-Length: 17
+Connection: close
+
+uploaded content

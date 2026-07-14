@@ -1,5 +1,5 @@
 
-#include "http/Parser/parser.hpp"
+#include "http/Parser/Parser.hpp"
 #include "http/Context.hpp"
 
 #include <string>
@@ -79,14 +79,14 @@ Error Parser::parseRequestLine(Context& ctx) {
 	if (first_space == 0 || target.empty() || second_space + 1 >= line.size())
 		return ERR_BAD_REQUEST;
 
-	ctx.request.method = methodOf(line.substr(0, first_space));
-	if (ctx.request.method == UNKNOWN)
+	ctx.actor.request.method = methodOf(line.substr(0, first_space));
+	if (ctx.actor.request.method == UNKNOWN)
 		return ERR_METHOD_NOT_ALLOWED;
 
-	err = setVersion(ctx.request, line, second_space + 1);
+	err = setVersion(ctx.actor.request, line, second_space + 1);
 	if (err != ERR_NONE)
 		return err;
-	if (!setTarget(ctx.request, target))
+	if (!setTarget(ctx.actor.request, target))
 		return ERR_BAD_REQUEST;
 
 	header_bytes = 0;
