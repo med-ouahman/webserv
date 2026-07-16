@@ -1,14 +1,10 @@
 
 #include "http/Context.hpp"
-
 #include "http/Parser/Parser.hpp"
 #include "http/Parser/body/temp_storage.hpp"
-
 #include "http/pipeline/pipeline.hpp"
 #include "http/pipeline/handlers/ErrorHandler.hpp"
-
 #include "http/routing/Routing.hpp"
-
 #include <cstdio>
 
 namespace http {
@@ -50,6 +46,13 @@ Actor::Actor()
 	  request(),
 	  response(),
 	  handler(NULL) {}
+
+Info::Info(const std::vector<const config::ServerConfig*>& sr,
+usize c, usize req)
+: servers(sr),
+conn_id(c),
+request_id(req)
+{}
 
 Context::Context(const std::vector<const config::ServerConfig*>& servers,
 		usize conn_id, usize request_id)

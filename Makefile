@@ -68,6 +68,7 @@ SRCS = src/server/main.cpp \
 	src/http/Parser/body/body_utils.cpp \
 	src/http/Parser/body/chunked.cpp \
 	src/http/Parser/body/fixed.cpp \
+	src/http/Parser/body/temp_storage.cpp \
 	src/http/routing/Routing.cpp \
 	src/http/routing/server.cpp \
 	src/http/routing/handlers.cpp \
