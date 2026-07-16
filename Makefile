@@ -27,14 +27,14 @@ INCLUDES = -Isrc/ \
 	-Isrc/runtime/epoll/ \
 	-Isrc/server/ \
 	-Isrc/server/logger/ \
-	-Isrc/cgi/ \
 	-Isrc/http/ \
 	-Isrc/http/Parser/ \
 	-Isrc/http/Parser/body/ \
 	-Isrc/http/Parser/headers/ \
 	-Isrc/http/routing/ \
 	-Isrc/http/pipeline/ \
-	-Isrc/http/pipeline/handlers \
+	-Isrc/http/pipeline/handlers/ \
+	-Isrc/http/pipeline/handlers/cgi/ \
 	-Isrc/http/common/ \
 	-Isrc/config/ \
 	-Isrc/foundation/ \
@@ -55,6 +55,7 @@ SRCS = src/server/main.cpp \
 	src/cgi/resolve_cgi.cpp \
 	src/cgi/ResponseParser.cpp \
 	src/http/Context.cpp \
+	src/http/response_writer.cpp \
 	src/http/common/LineReader.cpp \
 	src/http/common/Headers.cpp \
 	src/http/Parser/Parser.cpp \
@@ -76,7 +77,6 @@ SRCS = src/server/main.cpp \
 	src/http/pipeline/pipeline.cpp \
 	src/http/pipeline/RequestHandler.cpp \
 	src/http/pipeline/Dispatcher.cpp \
-	src/http/pipeline/handlers/CgiHandler.cpp \
 	src/http/pipeline/handlers/DeleteHandler.cpp \
 	src/http/pipeline/handlers/DirectoryHandler.cpp \
 	src/http/pipeline/handlers/ErrorHandler.cpp \
