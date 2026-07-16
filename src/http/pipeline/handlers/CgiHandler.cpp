@@ -175,7 +175,7 @@ size_t CgiHandler::on_readable(Channel& channel) {
     }
 
     if (result.mem_) {
-        setBody(result.body_);
+        setBodyFixed(result.body_);
     } else {
         setBodyFile(result.body_filename);
     }
@@ -186,7 +186,7 @@ size_t CgiHandler::on_readable(Channel& channel) {
 
 size_t CgiHandler::on_writable(Buffer& writer, Channel& channel) {
 
-    static std::string b = "BODY OF THE CGI REQUEST BY THE CGI HANDLER: get it from me??\r\n";
+    
 
     size_t n = std::min(b.size(), writer.bytes_free());
     ::memcpy(writer.write_ptr(), b.c_str(), n);

@@ -12,10 +12,11 @@ DispatchInfo::DispatchInfo()
 	  filesystem_path(),
 	  path_type(not_found),
 	  max_body_size(0),
+	  cgi_timeout(0),
 	  handlerType(STATIC_FILE),
 	  read_body(false) {}
 
-base::Expected<DispatchInfo, Error> route(const Request& request,
+static base::Expected<DispatchInfo, Error> routeSelectedServer(const Request& request,
 		const config::ServerConfig& server, DispatchInfo* partial) {
 	DispatchInfo decision;
 	Error err;
@@ -27,6 +28,7 @@ base::Expected<DispatchInfo, Error> route(const Request& request,
 	TRY(routing::pathNormalize(request.path, decision.normalized_path), err);
 	TRY(routing::findLocation(decision.normalized_path,
 		server, decision.location), err);
+	decision.cgi_timeout = decision.location->cgi_timeout;
 	if (partial != NULL)
 		*partial = decision;
 	TRY(routing::checkMethodAllowed(request.method, *decision.location), err);
@@ -57,54 +59,13 @@ base::Expected<DispatchInfo, Error> route(const Request& request,
 }
 
 base::Expected<DispatchInfo, Error> route(const Request& request,
-		const config::Config& config, DispatchInfo* partial) {
-	return route(request, config.server, partial);
-}
-
-base::Expected<DispatchInfo, Error> route(const Request& request,
 		const std::vector<const config::ServerConfig*>& servers,
 		DispatchInfo* partial) {
 	const config::ServerConfig* server = NULL;
 	Error err;
 
 	TRY(routing::decideServer(request, servers, server), err);
-	return route(request, *server, partial);
-}
-
-Error decide(const Request& request,
-		const config::ServerConfig& server,
-		base::Optional<DispatchInfo>& dispatch_info) {
-	DispatchInfo partial;
-	base::Expected<DispatchInfo, Error> result = route(request, server, &partial);
-
-	if (!result) {
-		if (partial.location != NULL)
-			dispatch_info = partial;
-		return result.error();
-	}
-	dispatch_info = result.value();
-	return ERR_NONE;
-}
-
-Error decide(const Request& request,
-		const std::vector<const config::ServerConfig*>& servers,
-		base::Optional<DispatchInfo>& dispatch_info) {
-	DispatchInfo partial;
-	base::Expected<DispatchInfo, Error> result = route(request, servers, &partial);
-
-	if (!result) {
-		if (partial.location != NULL || partial.server != NULL)
-			dispatch_info = partial;
-		return result.error();
-	}
-	dispatch_info = result.value();
-	return ERR_NONE;
-}
-
-Error decide(const Request& request,
-		const config::Config& config,
-		base::Optional<DispatchInfo>& dispatch_info) {
-	return decide(request, config.server, dispatch_info);
+	return routeSelectedServer(request, *server, partial);
 }
 
 }

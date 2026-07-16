@@ -77,7 +77,8 @@ private:
 	void responseReady();
 
 	Error setError(Error error);
-	Error decideRequest(const config::Config& config);
+	Error resolveDispatch();
+	Error prepareBodyStorage();
 	Error readBody();
 
 	Error createHandler();
@@ -85,7 +86,7 @@ private:
 
 	usize handleResponseFailure(Error err);
 
-	void process(const config::Config& config);
+	void process();
 
 
 	friend class Parser;

@@ -27,6 +27,7 @@ struct DispatchInfo {
 	std::string filesystem_path;
 	PathType path_type;
 	usize max_body_size;
+	size_t cgi_timeout;
 
 	RequestType handlerType;
 	bool read_body;
@@ -35,25 +36,7 @@ struct DispatchInfo {
 };
 
 base::Expected<DispatchInfo, Error> route(const Request& request,
-	const config::Config& config, DispatchInfo* partial = NULL);
-
-base::Expected<DispatchInfo, Error> route(const Request& request,
-	const config::ServerConfig& server, DispatchInfo* partial = NULL);
-
-base::Expected<DispatchInfo, Error> route(const Request& request,
 	const std::vector<const config::ServerConfig*>& servers,
 	DispatchInfo* partial = NULL);
-
-Error decide(const Request& request,
-	const config::Config& config,
-	base::Optional<DispatchInfo>& dispatch_info);
-
-Error decide(const Request& request,
-	const config::ServerConfig& server,
-	base::Optional<DispatchInfo>& dispatch_info);
-
-Error decide(const Request& request,
-	const std::vector<const config::ServerConfig*>& servers,
-	base::Optional<DispatchInfo>& dispatch_info);
 
 }

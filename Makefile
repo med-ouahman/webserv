@@ -47,7 +47,6 @@ SRCS = src/server/main.cpp \
 	src/net/connection/Connection.cpp \
 	src/net/connection/connection_io.cpp \
 	src/net/connection/connection_events.cpp \
-	src/http/pipeline/handlers/CgiHandler.cpp \
 	src/net/listener/Listener.cpp \
 	src/runtime/epoll/EventLoop.cpp \
 	src/runtime/epoll/poll.cpp \
@@ -58,7 +57,7 @@ SRCS = src/server/main.cpp \
 	src/http/Context.cpp \
 	src/http/common/LineReader.cpp \
 	src/http/common/Headers.cpp \
-	src/http/Parser/parser.cpp \
+	src/http/Parser/Parser.cpp \
 	src/http/Parser/request_line.cpp \
 	src/http/Parser/headers/headers.cpp \
 	src/http/Parser/headers/header_rules.cpp \
@@ -69,6 +68,21 @@ SRCS = src/server/main.cpp \
 	src/http/Parser/body/chunked.cpp \
 	src/http/Parser/body/fixed.cpp \
 	src/http/routing/Routing.cpp \
+	src/http/routing/server.cpp \
+	src/http/routing/handlers.cpp \
+	src/http/routing/checks.cpp \
+	src/http/routing/normalization.cpp \
+	src/http/routing/path.cpp \
+	src/http/pipeline/pipeline.cpp \
+	src/http/pipeline/RequestHandler.cpp \
+	src/http/pipeline/Dispatcher.cpp \
+	src/http/pipeline/handlers/CgiHandler.cpp \
+	src/http/pipeline/handlers/DeleteHandler.cpp \
+	src/http/pipeline/handlers/DirectoryHandler.cpp \
+	src/http/pipeline/handlers/ErrorHandler.cpp \
+	src/http/pipeline/handlers/RedirectHandler.cpp \
+	src/http/pipeline/handlers/StaticFileHandler.cpp \
+	src/http/pipeline/handlers/UploadHandler.cpp \
 	src/config/ConfigParser.cpp \
 	src/config/Lexer.cpp \
 	src/base/io/Writer.cpp \

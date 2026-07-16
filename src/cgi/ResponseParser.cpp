@@ -1,6 +1,6 @@
 #include "ResponseParser.hpp"
 #include <iostream>
-#include "http/Parser/parser.hpp"
+#include "http/Parser/Parser.hpp"
 #include <cstdlib>
 #include <fcntl.h>
 #include <unistd.h>

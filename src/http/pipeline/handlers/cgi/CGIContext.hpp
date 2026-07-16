@@ -41,6 +41,7 @@ struct CGIRequestContext {
 	std::string server_name;
 	std::string server_protocol;
 	std::string server_port;
+	size_t		timeout;
 };
 
 struct CGIExecContext {

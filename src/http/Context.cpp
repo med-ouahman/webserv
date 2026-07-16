@@ -87,18 +87,22 @@ Error Context::setError(Error error) {
 	return error;
 }
 
-Error Context::decideRequest(const config::Config& config) {
-	std::vector<const config::ServerConfig*> fallback;
-	Error err;
-
-	if (info.servers.empty()) {
-		fallback.push_back(&config.server);
-		err = http::decide(actor.request, fallback, info.dispatch);
+Error Context::resolveDispatch() {
+	if (info.servers.empty())
+		return setError(ERR_INTERNAL);
+	DispatchInfo partial;
+	base::Expected<DispatchInfo, Error> result =
+		http::route(actor.request, info.servers, &partial);
+	if (!result) {
+		if (partial.location != NULL || partial.server != NULL)
+			info.dispatch = partial;
+		return setError(result.error());
 	}
-	else
-		err = http::decide(actor.request, info.servers, info.dispatch);
-	if (err != ERR_NONE)
-		return setError(err);
+	info.dispatch = result.value();
+	return ERR_NONE;
+}
+
+Error Context::prepareBodyStorage() {
 	actor.parser.max_body_size = info.dispatch.value.max_body_size;
 	if (info.dispatch.value.read_body
 		&& actor.request.body.type() == base::io::Reader::NONE) {
@@ -171,7 +175,8 @@ usize Context::consume(const char* data, usize size) {
 			if (err != ERR_NONE)
 				setError(err);
 			if (state_ == PROCESSING && !info.dispatch.has_value()) {
-				TRY(decideRequest(config::Config::get_config()),
+				TRY(resolveDispatch(), (setError(err), static_cast<usize>(0)));
+				TRY(prepareBodyStorage(),
 					(setError(err), static_cast<usize>(0)));
 				if (action_ == AC_READ) return 0;
 			}
@@ -194,14 +199,16 @@ usize Context::consume(const char* data, usize size) {
 	return consumed;
 }
 
-void Context::process(const config::Config& config) {
+void Context::process() {
 	Error err;
 
 	switch (state_) {
 		case PARSING:
 			TRY(actor.parser.parse(*this), (setError(err), void()));
-			if (state_ == PROCESSING && !info.dispatch.has_value())
-				TRY(decideRequest(config), (setError(err), void()));
+			if (state_ == PROCESSING && !info.dispatch.has_value()) {
+				TRY(resolveDispatch(), (setError(err), void()));
+				TRY(prepareBodyStorage(), (setError(err), void()));
+			}
 			break;
 		case PROCESSING: {
 			if (action_ == AC_READ) return ;
@@ -247,7 +254,7 @@ usize Context::produce(char *buffer, usize size) {
 	if (action_ != AC_WRITE)
 		return 0;
 	if (state_ != DONE)
-		process(config::Config::get_config());
+		process();
 	if (state_ != DONE || action_ != AC_WRITE)
 		return 0;
 	TRY(actor.response.write(buffer, size, actor.request.version, sent),

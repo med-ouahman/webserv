@@ -1,3 +1,4 @@
+
 #include "http/pipeline/handlers/CGI/CGIContext.hpp"
 #include "http/Context.hpp"
 
@@ -106,16 +107,13 @@ static std::string serverName(const Request& request,
 		return server.server_names[0];
 	return "localhost";
 }
-
-static std::string serverPort(const config::ServerConfig& server) {
-	if (server.listens.empty())
+static std::string serverPort(const config::ServerConfig& server) { if (server.listens.empty())
 		return "";
 	return toString(server.listens[0].port);
 }
 
 static void fillRequestContext(const Request& request,
 		const DispatchInfo& decision,
-		const config::Config& config,
 		CGIRequestContext& out) {
 	const Header* content_type = findHeader(request, "content-type");
 
@@ -127,9 +125,10 @@ static void fillRequestContext(const Request& request,
 	out.content_length = request.content_length.has_value()
 		? toString(request.content_length.value) : "";
 	out.path_info = "";
-	out.server_name = serverName(request, config.server);
+	out.server_name = serverName(request, *decision.server);
 	out.server_protocol = versionName(request.version);
-	out.server_port = serverPort(config.server);
+	out.server_port = serverPort(*decision.server);
+	out.timeout = decision.cgi_timeout;
 }
 
 static void fillEnv(const Request& request,
@@ -195,9 +194,10 @@ usize CStringArray::size() const {
 
 Error buildCGIContext(const Request& request,
 		const DispatchInfo& decision,
-		const config::Config& config,
 		CGIRequestContext& request_ctx,
 		CGIExecContext& exec_ctx) {
+	if (decision.server == NULL)
+		return ERR_INTERNAL;
 	if (decision.cgi_path == NULL || decision.cgi_path->empty())
 		return ERR_INTERNAL;
 	if (decision.filesystem_path.empty())
@@ -209,7 +209,7 @@ Error buildCGIContext(const Request& request,
 	exec_ctx.stdin_fd = -1;
 	exec_ctx.argv.clear();
 	exec_ctx.envp.clear();
-	fillRequestContext(request, decision, config, request_ctx);
+	fillRequestContext(request, decision, request_ctx);
 	exec_ctx.argv.add(request_ctx.interpreter);
 	exec_ctx.argv.add(decision.filesystem_path);
 	fillEnv(request, request_ctx, exec_ctx);

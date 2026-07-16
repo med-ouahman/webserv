@@ -183,7 +183,7 @@
 │   │   │   │   ├── headers.hpp
 │   │   │   │   └── header_utils.cpp
 │   │   │   ├── parser.cpp
-│   │   │   ├── parser.hpp
+│   │   │   ├── Parser.hpp
 │   │   │   └── request_line.cpp
 │   │   ├── pipeline
 │   │   │   ├── body

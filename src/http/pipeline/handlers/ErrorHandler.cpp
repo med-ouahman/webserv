@@ -2,7 +2,6 @@
 #include "http/pipeline/handlers/ErrorHandler.hpp"
 #include "http/Context.hpp"
 #include "http/pipeline/RequestHandler.hpp"
-#include "config/Config.hpp"
 
 #include <cstddef>
 #include <fstream>
@@ -12,8 +11,8 @@ namespace http {
 
 namespace {
 
-static bool readErrorPage(StatusCode status, std::string& body) {
-	const config::ServerConfig& server = config::Config::get_config().server;
+static bool readErrorPage(const config::ServerConfig& server,
+		StatusCode status, std::string& body) {
 	std::map<int, std::string>::const_iterator it =
 		server.error_pages.find(static_cast<int>(status));
 	std::ifstream file;
@@ -65,7 +64,10 @@ Error ErrorHandler::handle() {
 	setStatus(status);
 	if (status == METHOD_NOT_ALLOWED)
 		setAllowedMethods();
-	if (!readErrorPage(status, response().body)) {
+	if (!context_.info.dispatch.has_value()
+		|| context_.info.dispatch.value.server == NULL
+		|| !readErrorPage(*context_.info.dispatch.value.server,
+			status, response().body)) {
 		body << "<!doctype html><html><body><h1>"
 			<< static_cast<int>(status) << " "
 			<< statusMsg(status)

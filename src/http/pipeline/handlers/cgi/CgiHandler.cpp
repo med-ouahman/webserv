@@ -1,8 +1,8 @@
 
-#include "CGIHandler.hpp"
+#include "CgiHandler.hpp"
 #include "Request.hpp"
 #include "EnvBuilder.hpp"
-#include "EventPoller.hpp"
+#include "EventLoop.hpp"
 #include "Context.hpp"
 
 namespace http {
@@ -80,11 +80,11 @@ void Channel::write() {
     ssize_t n = ::write(fd(), buf.read_ptr(), buf.bytes_pending());
 
     if (n < 0) {
-        state_ = Error;
+        state_ = Closing;
         return;
     }
 
-    state_ = Closing;
+    if (n == 0) state_ = Closing;
 
     buf.advance_read(n);
     buf.compact();
@@ -94,9 +94,10 @@ time_t CgiHandler::CgiTimeoutSeconds;
 
 CgiHandler::CgiHandler(const ResolutionResult& res,
         const http::Request& req,
-        runtime::epoll::EventPoller& p,
+        runtime::epoll::EventLoop& p,
         Context& ctx)
-    : state_(Working),
+    : RequestHandler(ctx),
+    state_(Working),
     response_state(Processing),
     reason_(None),
     process(cgi::resolve(req, res)),
@@ -125,7 +126,6 @@ CgiHandler::CgiHandler(const ResolutionResult& res,
 }
 
 CgiHandler::~CgiHandler() {
-    
     if (stdin_ch.state() != Channel::Closed) poller_.del(&stdin_ch);
     if (stdout_ch.state() != Channel::Closed) poller_.del(&stdout_ch);
     if (stderr_ch.state() != Channel::Closed) poller_.del(&stderr_ch);
@@ -137,7 +137,7 @@ size_t CgiHandler::on_readable(Channel& channel) {
     channel.read();
 
     BufferView reader = channel.view();
-    std::cout << "reader size: " << reader.size() << "\n";
+
     if (channel.stream() == Channel::Stderr) {
         channel.mark_closing();
         return reader.cursor();
@@ -159,28 +159,35 @@ size_t CgiHandler::on_readable(Channel& channel) {
     if (r == ResponseParser::Continue) return reader.cursor();
 
     if (r == ResponseParser::ParseError) {
+        std::cout << "Parse Error\n";
         reason_ = ParseError;
         response_state = Error;
         return reader.cursor();
     }
 
-    response_state = Finished;
-    ctx_.on_cgi_ready(builder.result());
+    CGIResult result = builder.result();
 
+    setStatus(result.status_code);
+    const Headers& headers = result.headers;
+    Headers::const_iterator it = headers.begin();
+    for (; it != headers.end(); ++it) {
+        setHeader(it->name, it->value);
+    }
+
+    if (result.mem_) {
+        setBodyFixed(result.body_);
+    } else {
+        setBodyFile(result.body_filename);
+    }
+
+    response_state = Finished;
     return reader.cursor();
 }
 
 size_t CgiHandler::on_writable(Buffer& writer, Channel& channel) {
+    base::io::Reader& body = request().body;
 
-    base::Expected<usize, base::io::Error> res = ctx_.request_body().read(writer.write_ptr(), writer.bytes_free());
-
-    if (!res.has_value()) {
-        state_ = Cleanup;
-        reason_ = Internal;
-        return 0;
-    }
-
-    usize n = res.value();
+    size_t n = body.read(writer.write_ptr(), writer.bytes_free());
 
     writer.advance_write(n);
 
@@ -189,13 +196,14 @@ size_t CgiHandler::on_writable(Buffer& writer, Channel& channel) {
         return 0;
     }
 
-    writer.advance_read(n);
-
     channel.write();
-    return 0;
+    return n;
 }
 
-void CgiHandler::handle() {}
+http::Error CgiHandler::handle() {
+    
+    return ERR_NONE;
+}
 
 bool CgiHandler::finished() {
     return state_ == Done;
@@ -272,17 +280,20 @@ void CgiHandler::monitor() {
     if (res.reason != cgi::Exited && reason_ == None) reason_ = Internal;
 
     if (reason_ != None && response_state != Finished) {
-        CGIResult result;
-    
+
+        StatusCode c = OK;
         switch (reason_) {
 
             case None: break;
-            case Timeout: result.status_code = GATEWAY_TIMEOUT; std::cout << "Gateway timeout\n"; break;
-            case ParseError: result.status_code = BAD_GATEWAY; std::cout << "Bad Gateway\n"; break;
-            case ProcessError: case Internal: result.status_code = INTERNAL_SERVER_ERROR; std::cout << "Internal\n"; break;
+            case Timeout: c = GATEWAY_TIMEOUT; std::cout << "Gateway timeout\n"; break;
+            case ParseError: c = BAD_GATEWAY; std::cout << "Bad Gateway\n"; break;
+            case ProcessError: case Internal: c = INTERNAL_SERVER_ERROR; std::cout << "Internal\n"; break;
+
+            setStatus(c);
+            setHeader("Connection", "close");
+            
         }
-    
-        ctx_.on_cgi_ready(result);
+ 
     }
 
     if (state_ == Cleanup) state_ = Done;

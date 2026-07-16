@@ -1,14 +1,13 @@
-
 #pragma once
 
 #include "Process.hpp"
-#include "http/pipeline/RequestHandler.hpp"
 #include "ResponseParser.hpp"
-#include "StatusCode.hpp"
-#include "IBodyProvider.hpp"
+#include "Response.hpp"
 #include "AEventHandler.hpp"
+#include "Buffer.hpp"
+#include "RequestHandler.hpp"
 
-namespace runtime { namespace epoll { class EventPoller; } }
+namespace runtime { namespace epoll { class EventLoop; } }
 
 namespace http {
 
@@ -59,6 +58,17 @@ public:
 class Context;
 struct ResolutionResult;
 struct Request;
+
+
+struct CgiContext
+{
+
+const Request& req;
+const ResolutionResult& result;
+runtime::epoll::EventLoop& evlp;
+
+};
+
 
 class CgiHandler: public RequestHandler {
 public:
@@ -121,7 +131,7 @@ private:
 	Channel stdout_ch;
 	Channel stderr_ch;
 
-	runtime::epoll::EventPoller& poller_;
+	runtime::epoll::EventLoop& poller_;
 	Context& ctx_;
 	
 	CgiHandler(const CgiHandler&);
@@ -134,19 +144,19 @@ private:
 public:
 	CgiHandler(const ResolutionResult& result,
 		const http::Request& req,
-		runtime::epoll::EventPoller& p,
+		runtime::epoll::EventLoop& p,
 		Context& ctx);
 
 	~CgiHandler();
 
-	void handle();
 	bool finished();
 	
 	size_t on_writable(Buffer& writer, Channel& channel);
-	size_t on_readable(Channel& channel);
-	
+	size_t on_readable(Channel& channel);	
 	void close_channel(Channel& channel);
 
+ 	http::Error handle();
+	
 	void monitor();
 };
 

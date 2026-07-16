@@ -103,7 +103,7 @@ DirectoryHandler::DirectoryHandler(Context& context)
 DirectoryHandler::~DirectoryHandler() {}
 
 Error DirectoryHandler::handle() {
-	const config::ServerConfig& server = config::Config::get_config().server;
+	const config::ServerConfig& server = *decision().server;
 	const std::vector<std::string>& indexes =
 		indexFiles(*decision().location, server);
 	std::string body;
