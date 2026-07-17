@@ -1,5 +1,5 @@
 
-#include "http/pipeline/handlers/CGI/CGIContext.hpp"
+#include "cgi/CGIContext.hpp"
 #include "http/Context.hpp"
 
 #include <cctype>
@@ -133,69 +133,37 @@ static void fillRequestContext(const Request& request,
 
 static void fillEnv(const Request& request,
 		const CGIRequestContext& request_ctx,
-		CGIExecContext& exec_ctx) {
+		ProcessContext& exec_ctx) {
 	usize i = 0;
 
-	exec_ctx.envp.add("REQUEST_METHOD", request_ctx.request_method);
-	exec_ctx.envp.add("SERVER_PROTOCOL", request_ctx.server_protocol);
-	exec_ctx.envp.add("QUERY_STRING", request_ctx.query_string);
-	exec_ctx.envp.add("CONTENT_TYPE", request_ctx.mime_type);
-	exec_ctx.envp.add("CONTENT_LENGTH", request_ctx.content_length);
-	exec_ctx.envp.add("GATEWAY_INTERFACE", "CGI/1.1");
-	exec_ctx.envp.add("SCRIPT_NAME", request_ctx.script_name);
-	exec_ctx.envp.add("PATH_INFO", request_ctx.path_info);
-	exec_ctx.envp.add("SERVER_NAME", request_ctx.server_name);
-	exec_ctx.envp.add("SERVER_PORT", request_ctx.server_port);
+	exec_ctx.envp.push("REQUEST_METHOD""="+request_ctx.request_method);
+	exec_ctx.envp.push("SERVER_PROTOCOL""="+request_ctx.server_protocol);
+	exec_ctx.envp.push("QUERY_STRING""="+request_ctx.query_string);
+	exec_ctx.envp.push("CONTENT_TYPE""="+request_ctx.mime_type);
+	exec_ctx.envp.push("CONTENT_LENGTH""="+request_ctx.content_length);
+	exec_ctx.envp.push("GATEWAY_INTERFACE""="+std::string("CGI/1.1"));
+	exec_ctx.envp.push("SCRIPT_NAME""="+request_ctx.script_name);
+	exec_ctx.envp.push("PATH_INFO""="+request_ctx.path_info);
+	exec_ctx.envp.push("SERVER_NAME""="+request_ctx.server_name);
+	exec_ctx.envp.push("SERVER_PORT""="+request_ctx.server_port);
 	while (i < request.headers.size()) {
 		std::string normalized = lowerName(request.headers[i].key);
 
 		if (!skipHTTPHeader(normalized))
-			exec_ctx.envp.add(envHeaderName(request.headers[i].key),
-				request.headers[i].value);
+			exec_ctx.envp.push(envHeaderName(request.headers[i].key)+"="
+				+request.headers[i].value);
 		++i;
 	}
 }
 
 }
 
-CStringArray::CStringArray()
-	: storage_(),
-	  values_() {}
 
-void CStringArray::clear() {
-	storage_.clear();
-	values_.clear();
-}
-
-void CStringArray::add(const std::string& value) {
-	storage_.push_back(value);
-}
-
-void CStringArray::add(const std::string& key, const std::string& value) {
-	storage_.push_back(key + "=" + value);
-}
-
-char* const* CStringArray::data() {
-	usize i = 0;
-
-	values_.clear();
-	values_.reserve(storage_.size() + 1);
-	while (i < storage_.size()) {
-		values_.push_back(const_cast<char*>(storage_[i].c_str()));
-		++i;
-	}
-	values_.push_back(NULL);
-	return &values_[0];
-}
-
-usize CStringArray::size() const {
-	return storage_.size();
-}
 
 Error buildCGIContext(const Request& request,
 		const DispatchInfo& decision,
 		CGIRequestContext& request_ctx,
-		CGIExecContext& exec_ctx) {
+		ProcessContext& exec_ctx) {
 	if (decision.server == NULL)
 		return ERR_INTERNAL;
 	if (decision.cgi_path == NULL || decision.cgi_path->empty())
@@ -207,11 +175,10 @@ Error buildCGIContext(const Request& request,
 		&& !decision.location->cgi_dir.empty()
 		? decision.location->cgi_dir : dirnameOf(decision.filesystem_path);
 	exec_ctx.stdin_fd = -1;
-	exec_ctx.argv.clear();
-	exec_ctx.envp.clear();
+	
 	fillRequestContext(request, decision, request_ctx);
-	exec_ctx.argv.add(request_ctx.interpreter);
-	exec_ctx.argv.add(decision.filesystem_path);
+	exec_ctx.argv.push(request_ctx.interpreter);
+	exec_ctx.argv.push(decision.filesystem_path);
 	fillEnv(request, request_ctx, exec_ctx);
 	return ERR_NONE;
 }
@@ -219,7 +186,7 @@ Error buildCGIContext(const Request& request,
 Error buildCGIContext(const Context& context,
 		const config::Config& config,
 		CGIRequestContext& request_ctx,
-		CGIExecContext& exec_ctx) {
+		ProcessContext& exec_ctx) {
 	if (!context.info.dispatch.has_value())
 		return ERR_INTERNAL;
 	return buildCGIContext(context.actor.request, context.info.dispatch.value, config,

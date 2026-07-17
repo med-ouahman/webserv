@@ -17,7 +17,7 @@ class Context;
 class ErrorHandler;
 class RequestHandler;
 struct CGIRequestContext;
-struct CGIExecContext;
+struct ProcessContext;
 
 enum ContextState {
 	PARSING,
@@ -96,7 +96,7 @@ private:
 	friend Error buildCGIContext(const Context& context,
 		const config::Config& config,
 		CGIRequestContext& request_ctx,
-		CGIExecContext& exec_ctx);
+		ProcessContext& exec_ctx);
 
 
 public:

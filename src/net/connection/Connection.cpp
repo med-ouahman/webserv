@@ -85,9 +85,10 @@ void Connection::on_event(io::Event events) {
 
 void Connection::on_readable() {
     read();
-    
-    ctx.consume(reader_.read_ptr(), reader_.bytes_pending());
+    std::cout.write(reader_.read_ptr(), reader_.bytes_pending());
+    size_t n = ctx.consume(reader_.read_ptr(), reader_.bytes_pending());
 
+    reader_.advance_read(n);
 }
 
 void Connection::on_writable() {

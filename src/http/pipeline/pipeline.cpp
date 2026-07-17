@@ -5,6 +5,7 @@
 #include "http/pipeline/handlers/RedirectHandler.hpp"
 #include "http/pipeline/handlers/StaticFileHandler.hpp"
 #include "http/pipeline/handlers/UploadHandler.hpp"
+#include "http/pipeline/handlers/CgiHandler.hpp"
 
 #include <cstddef>
 #include <new>
@@ -25,14 +26,14 @@ base::Expected<RequestHandler*, Error> createHandler( RequestType type, Context&
 		case UPLOAD:
 			handler = new (std::nothrow) UploadHandler(context);
 			break;
-		case CGI:
-			return ERR_INTERNAL;
 		case REDIRECT:
 			handler = new (std::nothrow) RedirectHandler(context);
 			break;
 		case DELETE_RESOURCE:
 			handler = new (std::nothrow) DeleteHandler(context);
 			break;
+		case CGI:
+			handler = new (std::nothrow) CgiHandler(context);
 		default:
 			return ERR_INTERNAL;
 	}

@@ -52,8 +52,8 @@ SRCS = src/server/main.cpp \
 	src/runtime/epoll/poll.cpp \
 	src/runtime/epoll/events.cpp \
 	src/cgi/Process.cpp \
-	src/cgi/resolve_cgi.cpp \
 	src/cgi/ResponseParser.cpp \
+	src/cgi/CGIContext.cpp \
 	src/http/Context.cpp \
 	src/http/response_writer.cpp \
 	src/http/common/LineReader.cpp \

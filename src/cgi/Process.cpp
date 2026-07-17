@@ -2,13 +2,13 @@
 #include <csignal>
 #include <sys/wait.h>
 #include <cstdlib>
-#include "EnvBuilder.hpp"
 #include <iostream>
 #include "Result.hpp"
+#include "CGIContext.hpp"
 
 namespace cgi {
 
-Process::Process(const CGIExecContext& ctx)
+Process::Process(const http::ProcessContext& ctx)
     : state_(Spawn), 
     pid_(-1),
     status_(0),

@@ -4,11 +4,10 @@
 #include <vector>
 #include "Pipe.hpp"
 #include "Timestamp.hpp"
-#include "CStringArray.hpp"
+#include "CGIContext.hpp"
 
 namespace cgi {
 
-struct CGIExecContext;
 
 enum ProcessExitReason {
     Exited,
@@ -44,7 +43,7 @@ private:
 
 public:
     bool running() const;
-    Process(const CGIExecContext& ctx);
+    Process(const http::ProcessContext& ctx);
     ~Process();
 
     Pipe& stdin_pipe();

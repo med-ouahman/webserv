@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Process.hpp"
-#include "ResponseParser.hpp"
-#include "Response.hpp"
-#include "AEventHandler.hpp"
+#include "runtime/AEventHandler.hpp"
+
+#include "cgi/Process.hpp"
+#include "cgi/ResponseParser.hpp"
 #include "Buffer.hpp"
 #include "RequestHandler.hpp"
+#include "cgi/CGIContext.hpp"
 
 namespace runtime { namespace epoll { class EventLoop; } }
 
@@ -55,17 +56,17 @@ public:
 	BufferView view() const;
 };
 
-class Context;
-struct ResolutionResult;
-struct Request;
 
+struct CgiContext {
 
-struct CgiContext
-{
-
-const Request& req;
-const ResolutionResult& result;
+CGIRequestContext request_ctx;
+ProcessContext exec_ctx;
 runtime::epoll::EventLoop& evlp;
+Context& ctx;
+
+CgiContext(runtime::epoll::EventLoop& l, Context& c)
+: evlp(l),
+ctx(c) {}
 
 };
 
@@ -108,31 +109,30 @@ private:
 	const static std::size_t StderrReadSize = 1024;
 
 	const static time_t SigTermWaitSeconds = 3;
-	static time_t CgiTimeoutSeconds;
 
 	State state_;
-
+	
 	ResponseState response_state;
 	FailureReason reason_;
-
+	
 	cgi::Process 	process;
     Timestamp		spawn_time;
     Timestamp		sigterm_sent_at;
-
+	
 	ShutdownState	shutdown_state;
 	
 	ResponseParser builder;
-
+	
 	Storage<StdinWriteSize> stdin_wbuf;
 	Storage<StdoutReadSize> stdout_rdbuf;
 	Storage<StderrReadSize> stderr_rdbuf;
-
+	
 	Channel stdin_ch;
 	Channel stdout_ch;
 	Channel stderr_ch;
-
-	runtime::epoll::EventLoop& poller_;
-	Context& ctx_;
+	
+	runtime::epoll::EventLoop& event_loop;
+	time_t CgiTimeoutSeconds;
 	
 	CgiHandler(const CgiHandler&);
 	CgiHandler& operator=(const CgiHandler&);
@@ -142,10 +142,7 @@ private:
 	void check_channels();
 	
 public:
-	CgiHandler(const ResolutionResult& result,
-		const http::Request& req,
-		runtime::epoll::EventLoop& p,
-		Context& ctx);
+	CgiHandler(CgiContext& ctx);
 
 	~CgiHandler();
 

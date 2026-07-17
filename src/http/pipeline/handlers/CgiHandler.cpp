@@ -1,9 +1,7 @@
 
 #include "CgiHandler.hpp"
 #include "Request.hpp"
-#include "EnvBuilder.hpp"
 #include "EventLoop.hpp"
-#include "Context.hpp"
 
 namespace http {
 
@@ -92,15 +90,12 @@ void Channel::write() {
 
 time_t CgiHandler::CgiTimeoutSeconds;
 
-CgiHandler::CgiHandler(const ResolutionResult& res,
-        const http::Request& req,
-        runtime::epoll::EventLoop& p,
-        Context& ctx)
-    : RequestHandler(ctx),
+CgiHandler::CgiHandler(CgiContext& ctx)
+    : RequestHandler(ctx.ctx),
     state_(Working),
     response_state(Processing),
     reason_(None),
-    process(cgi::resolve(req, res)),
+    process(ctx.exec_ctx),
     spawn_time(),
     sigterm_sent_at(0),
     shutdown_state(SigTerm),
@@ -108,9 +103,8 @@ CgiHandler::CgiHandler(const ResolutionResult& res,
     stdout_ch(stdout_rdbuf, Channel::Stdout, process.stdout_pipe().read_end(), io::Readable, *this),
     stderr_ch(stderr_rdbuf, Channel::Stderr, process.stderr_pipe().read_end(), io::Readable, *this),
 
-    poller_(p),
-    ctx_(ctx) {
-    CgiTimeoutSeconds = 5; // 30 seconds is generous
+    event_loop(ctx.evlp) {
+    CgiTimeoutSeconds = ctx.request_ctx.timeout; // 30 seconds is generous
     
     if (!process.running()) {
         state_ = Cleanup;
@@ -118,17 +112,17 @@ CgiHandler::CgiHandler(const ResolutionResult& res,
         return;
     }
 
-    if (process.want_stdin()) poller_.add(&stdin_ch);
+    if (process.want_stdin()) event_loop.add(&stdin_ch);
     else stdin_ch.shutdown();
 
-    poller_.add(&stdout_ch);
-    poller_.add(&stderr_ch);
+    event_loop.add(&stdout_ch);
+    event_loop.add(&stderr_ch);
 }
 
 CgiHandler::~CgiHandler() {
-    if (stdin_ch.state() != Channel::Closed) poller_.del(&stdin_ch);
-    if (stdout_ch.state() != Channel::Closed) poller_.del(&stdout_ch);
-    if (stderr_ch.state() != Channel::Closed) poller_.del(&stderr_ch);
+    if (stdin_ch.state() != Channel::Closed) event_loop.del(&stdin_ch);
+    if (stdout_ch.state() != Channel::Closed) event_loop.del(&stdout_ch);
+    if (stderr_ch.state() != Channel::Closed) event_loop.del(&stderr_ch);
 }
 
 
@@ -233,7 +227,7 @@ void CgiHandler::check_channels() {
 }
 
 void CgiHandler::close_channel(Channel& ch) {
-    poller_.del(&ch);
+    event_loop.del(&ch);
     ch.close();
 }
 

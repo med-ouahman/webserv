@@ -154,7 +154,7 @@ Error Context::handleError() {
 	actor.handler = NULL;
 	return handler.handle();
 }
-
+int printf(const char*, ...);
 usize Context::consume(const char* data, usize size) {
 	Error err;
 	usize consumed;
@@ -165,9 +165,7 @@ usize Context::consume(const char* data, usize size) {
 		setError(ERR_BAD_REQUEST);
 		return 0;
 	}
-	if (action_ != AC_READ)
-		return 0;
-
+	
 	actor.parser.raw_buffer.reserve(actor.parser.raw_buffer.size() + size);
 	actor.parser.raw_buffer.append(data, size);
 	consumed = size;
@@ -234,11 +232,12 @@ void Context::process() {
 ContextAction Context::nextAction() const { return action_; }
 
 bool Context::reconcile() {
+	return false;
 	if (action_ != AC_READ
 		|| (state_ != PARSING && state_ != PROCESSING))
 		return false;
-	if (!actor.parser.timedOut())
-		return false;
+	// if (!actor.parser.timedOut())
+		// return false;
 	setError(ERR_REQUEST_TIMEOUT);
 	return true;
 }
