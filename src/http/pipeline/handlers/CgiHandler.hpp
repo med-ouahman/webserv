@@ -111,7 +111,6 @@ private:
 	const static time_t SigTermWaitSeconds = 3;
 
 	State state_;
-	
 	ResponseState response_state;
 	FailureReason reason_;
 	
@@ -132,7 +131,7 @@ private:
 	Channel stderr_ch;
 	
 	runtime::epoll::EventLoop& event_loop;
-	time_t CgiTimeoutSeconds;
+	time_t timeout_seconds;
 	
 	CgiHandler(const CgiHandler&);
 	CgiHandler& operator=(const CgiHandler&);

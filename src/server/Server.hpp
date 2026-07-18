@@ -7,17 +7,16 @@
 #include "Logger.hpp"
 
 class Server {
-private:
-    bool running_;
-    
-    static logger::Logger      logger_;
+public:
     static const std::size_t MaxConnections = 1000;
     static const std::size_t MaxListens = 10;
 
+private:
+    bool running_;
+    static logger::Logger      logger_;
     std::vector<net::Connection*> connections;
     std::vector<net::Listener*> listeners;
     runtime::epoll::EventLoop poller;
-
     ServerContext ctx;
     const config::Config& conf;
 
@@ -36,4 +35,5 @@ public:
     static logger::Logger& logger();
     
     net::Listener* find_listener(const config::ListenEndPoint& endpoint);
+    size_t num_connections() const;
 };

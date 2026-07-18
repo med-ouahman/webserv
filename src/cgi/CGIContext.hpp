@@ -37,7 +37,6 @@ struct ProcessContext {
 
 Error buildCGIContext(const Request& request,
 	const DispatchInfo& decision,
-	const config::Config& config,
 	CGIRequestContext& request_ctx,
 	ProcessContext& exec_ctx);
 

@@ -42,6 +42,11 @@ void Listener::on_event(io::Event event) {
 
 bool Listener::accept_clients() {
 
+	if (server_.num_connections() >= Server::MaxConnections) {
+		server_.logger().log(logger::Warning, "Connection Limit reached, try again later", true);
+		return false;
+	}
+
 	struct sockaddr_in client_addr;
 	socklen_t client_addr_len = sizeof(client_addr);
 	int client_fd = ::accept(fd(), (struct sockaddr*)&client_addr, &client_addr_len);

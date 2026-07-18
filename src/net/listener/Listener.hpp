@@ -33,10 +33,11 @@ private:
 	uint16_t	port_;
 
 	const config::ListenEndPoint& endpoint_;
-
 	std::vector<const config::ServerConfig*> servers_;
+	
 	Listener(const Listener& socket);
 	Listener& operator=(const Listener& socket);
+
 	bool accept_clients();
 	bool on_error();
 

@@ -158,8 +158,6 @@ static void fillEnv(const Request& request,
 
 }
 
-
-
 Error buildCGIContext(const Request& request,
 		const DispatchInfo& decision,
 		CGIRequestContext& request_ctx,
@@ -184,12 +182,11 @@ Error buildCGIContext(const Request& request,
 }
 
 Error buildCGIContext(const Context& context,
-		const config::Config& config,
 		CGIRequestContext& request_ctx,
 		ProcessContext& exec_ctx) {
 	if (!context.info.dispatch.has_value())
 		return ERR_INTERNAL;
-	return buildCGIContext(context.actor.request, context.info.dispatch.value, config,
+	return buildCGIContext(context.actor.request, context.info.dispatch.value,
 		request_ctx, exec_ctx);
 }
 

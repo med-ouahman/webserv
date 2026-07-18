@@ -19,6 +19,9 @@ public:
     explicit Logger(std::ostream& out);
     Logger();
     ~Logger();
+
+    Logger(const Logger&);
+    Logger& operator=(const Logger&);
     void log(LogLevel level, const std::string& message, bool timestamp);
     void setstream(std::ostream& stream);
 

@@ -88,7 +88,7 @@ void Channel::write() {
     buf.compact();
 }
 
-time_t CgiHandler::CgiTimeoutSeconds;
+time_t CgiHandler::timeout_seconds;
 
 CgiHandler::CgiHandler(CgiContext& ctx)
     : RequestHandler(ctx.ctx),
@@ -104,7 +104,7 @@ CgiHandler::CgiHandler(CgiContext& ctx)
     stderr_ch(stderr_rdbuf, Channel::Stderr, process.stderr_pipe().read_end(), io::Readable, *this),
 
     event_loop(ctx.evlp) {
-    CgiTimeoutSeconds = ctx.request_ctx.timeout; // 30 seconds is generous
+    timeout_seconds = ctx.request_ctx.timeout; // 30 seconds is generous
     
     if (!process.running()) {
         state_ = Cleanup;
@@ -204,7 +204,7 @@ bool CgiHandler::finished() {
 }
 
 bool CgiHandler::timedout() {
-    bool out = spawn_time.elapsed() > CgiTimeoutSeconds;
+    bool out = spawn_time.elapsed() > timeout_seconds;
 
     if (out) reason_ = Timeout;
     return out;

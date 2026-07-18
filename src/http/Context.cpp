@@ -154,7 +154,7 @@ Error Context::handleError() {
 	actor.handler = NULL;
 	return handler.handle();
 }
-int printf(const char*, ...);
+
 usize Context::consume(const char* data, usize size) {
 	Error err;
 	usize consumed;

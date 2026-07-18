@@ -159,3 +159,7 @@ net::Listener* Server::find_listener(const config::ListenEndPoint& endpoint) {
 
     return NULL;
 }
+
+size_t Server::num_connections() const {
+    return connections.size();
+}
