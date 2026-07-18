@@ -71,6 +71,12 @@ Error Parser::parseRequestLine(Context& ctx) {
 		return err;
 	if (!found)
 		return ERR_NONE;
+	if (line.empty()) {
+		if (leading_crlf) return ERR_BAD_REQUEST;
+
+		leading_crlf = true;
+		return ERR_NONE;
+	}
 
 	if (!checkSpaces(line, first_space, second_space))
 		return ERR_BAD_REQUEST;

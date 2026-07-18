@@ -1,4 +1,5 @@
 
+#include "http/Context.hpp"
 #include "http/pipeline/pipeline.hpp"
 #include "http/pipeline/handlers/DeleteHandler.hpp"
 #include "http/pipeline/handlers/DirectoryHandler.hpp"
@@ -26,17 +27,15 @@ base::Expected<RequestHandler*, Error> createHandler( RequestType type, Context&
 		case UPLOAD:
 			handler = new (std::nothrow) UploadHandler(context);
 			break;
+		case CGI:
+			handler = new (std::nothrow) CgiHandler(context);
+			break;
 		case REDIRECT:
 			handler = new (std::nothrow) RedirectHandler(context);
 			break;
 		case DELETE_RESOURCE:
 			handler = new (std::nothrow) DeleteHandler(context);
 			break;
-		case CGI: {
-			// CgiContext ctx();
-			// handler = new (std::nothrow) CgiHandler(ctx);
-			break;
-		}
 		default:
 			return ERR_INTERNAL;
 	}

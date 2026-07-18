@@ -110,7 +110,6 @@ const char* ErrorHandler::statusMsg(StatusCode code) {
 		case GATEWAY_TIMEOUT: return "Gateway timeout";
 		case HTTP_VERSION_NOT_SUPPORTED:
 			return "HTTP Version Not Supported";
-		default: break;
 	}
 	return "Internal Server Error";
 }

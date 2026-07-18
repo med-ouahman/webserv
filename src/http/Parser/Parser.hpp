@@ -34,6 +34,8 @@ public:
 	char body_buffer[limits::BODY_BUFFER_SIZE];
 	base::io::Writer bodyWriter;
 
+	bool leading_crlf;
+
 	Parser();
 	Parser(const std::string& body_path);
 

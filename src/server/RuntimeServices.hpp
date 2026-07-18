@@ -6,15 +6,18 @@ namespace logger { class Logger; }
 
 namespace runtime { namespace epoll { class EventLoop; } }
 
-struct ServerContext
+struct RuntimeServices
 
 {
 
-runtime::epoll::EventLoop* poller;
-logger::Logger* logger;
+runtime::epoll::EventLoop& poller;
+logger::Logger& logger;
 const config::Config& conf;
 
-ServerContext(const config::Config& c)
-: conf(c) {}
+RuntimeServices(runtime::epoll::EventLoop& p, logger::Logger& l, const config::Config& c)
+:
+poller(p),
+logger(l),
+conf(c) {}
 
 };

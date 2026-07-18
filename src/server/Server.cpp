@@ -7,14 +7,11 @@ logger::Logger Server::logger_;
 Server::Server(const config::Config& c)
     : running_(false),
     poller(),
-    ctx(c),
+    services_(poller, logger(), c),
     conf(c) {
-    ctx.poller = &poller;
-    ctx.logger = &logger_;
+
     logger_.setstream(std::cout);
-
     running_ = poller.created();
-
     running_ = running_ && start_listeners();
 }
 
@@ -87,7 +84,7 @@ bool Server::start_listeners() {
 
 void Server::add_connection(int conn_fd, const net::ConnectionInfo& info) {
 
-    net::Connection* connection = new net::Connection(conn_fd, io::Readable, ctx, info);
+    net::Connection* connection = new net::Connection(conn_fd, io::Readable, services_, info);
     
     if (!poller.add(connection)) return;
 

@@ -88,14 +88,12 @@ void Channel::write() {
     buf.compact();
 }
 
-time_t CgiHandler::timeout_seconds;
-
-CgiHandler::CgiHandler(CgiContext& ctx)
-    : RequestHandler(ctx.ctx),
+CgiHandler::CgiHandler(Context& ctx)
+    : RequestHandler(ctx),
     state_(Working),
     response_state(Processing),
     reason_(None),
-    process(ctx.exec_ctx),
+    process(),
     spawn_time(),
     sigterm_sent_at(0),
     shutdown_state(SigTerm),
@@ -103,7 +101,7 @@ CgiHandler::CgiHandler(CgiContext& ctx)
     stdout_ch(stdout_rdbuf, Channel::Stdout, process.stdout_pipe().read_end(), io::Readable, *this),
     stderr_ch(stderr_rdbuf, Channel::Stderr, process.stderr_pipe().read_end(), io::Readable, *this),
 
-    event_loop(ctx.evlp) {
+    event_loop(ctx.services_.poller) {
     timeout_seconds = ctx.request_ctx.timeout; // 30 seconds is generous
     
     if (!process.running()) {

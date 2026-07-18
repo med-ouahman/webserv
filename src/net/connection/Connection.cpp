@@ -1,24 +1,22 @@
 
 #include "Connection.hpp"
 #include "Context.hpp"
-#include "Dispatcher.hpp"
 #include <iostream>
 #include "Server.hpp"
 #include <sys/socket.h>
 
 namespace net {
 
-Connection::Connection(int _fd, io::Event events, ServerContext& server_ctx, const ConnectionInfo& info)
+Connection::Connection(int _fd, io::Event events, RuntimeServices& services, const ConnectionInfo& info)
     : AEventHandler(_fd, events),
     state_(Reading),
     close_after_write(false),
     last_activity_(),
     lifetime_(),
-    ctx(info.servers, _fd, _fd),
+    ctx(info.servers, _fd, _fd, services),
     reader_(in),
     writer_(out),
     info_(info) {
-        (void)server_ctx;
 }
 
 Connection::~Connection() {}

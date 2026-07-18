@@ -4,17 +4,13 @@
 
 #include "http/Parser/Parser.hpp"
 #include "http/Parser/body/temp_storage.hpp"
-
 #include "http/pipeline/pipeline.hpp"
 #include "http/pipeline/handlers/ErrorHandler.hpp"
-
 #include "http/routing/Routing.hpp"
 
 #include <cstdio>
 
 namespace http {
-
-
 
 Info::Info(const std::vector<const config::ServerConfig*>& srvs,
 		usize conn, usize req)
@@ -73,12 +69,13 @@ void Request::reset() {
 }
 
 Context::Context(const std::vector<const config::ServerConfig*>& servers,
-		usize conn_id, usize request_id)
+		usize conn_id, usize request_id, RuntimeServices& services)
 	: actor(),
 	  info(servers, conn_id, request_id),
 	  error_(ERR_NONE),
 	  state_(PARSING),
-	  action_(AC_READ) {
+	  action_(AC_READ),
+	  services_(services) {
 	resetCycle();
 	++request_count.active_requests;
 }
@@ -255,7 +252,6 @@ void Context::process() {
 ContextAction Context::nextAction() const { return action_; }
 
 bool Context::reconcile() {
-	return false;
 	if (action_ != AC_READ
 		|| (state_ != PARSING && state_ != PROCESSING))
 		return false;

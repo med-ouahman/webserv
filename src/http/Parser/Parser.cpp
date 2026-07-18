@@ -35,7 +35,8 @@ Parser::Parser()
 	  chunk_state(CHUNK_SIZE),
 	  timer(),
 	  body_buffer(),
-	  bodyWriter(std::string(), body_buffer, limits::BODY_BUFFER_SIZE) {}
+	  bodyWriter(std::string(), body_buffer, limits::BODY_BUFFER_SIZE),
+	  leading_crlf(false) {}
 
 Parser::Parser(const std::string& body_path)
 	: raw_buffer(),
@@ -48,11 +49,14 @@ Parser::Parser(const std::string& body_path)
 	  chunk_state(CHUNK_SIZE),
 	  timer(),
 	  body_buffer(),
-	  bodyWriter(body_path, body_buffer, limits::BODY_BUFFER_SIZE) {}
+	  bodyWriter(body_path, body_buffer, limits::BODY_BUFFER_SIZE),
+	  leading_crlf(false) {}
 
-void Parser::reset() {
+void Parser::reset()
+{
 	if (bodyWriter.file_created())
 		std::remove(bodyWriter.path().c_str());
+
 	raw_buffer.clear();
 	header_bytes = 0;
 	body_received = 0;
@@ -61,6 +65,8 @@ void Parser::reset() {
 	max_body_size = limits::BODY_MAX_SIZE;
 	phase = PARSING_REQUEST_LINE;
 	chunk_state = CHUNK_SIZE;
+	leading_crlf = false;
+
 	timer.update();
 	bodyWriter.reset();
 }

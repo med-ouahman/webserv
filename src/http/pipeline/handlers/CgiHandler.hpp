@@ -141,7 +141,7 @@ private:
 	void check_channels();
 	
 public:
-	CgiHandler(CgiContext& ctx);
+	CgiHandler(Context& ctx);
 
 	~CgiHandler();
 

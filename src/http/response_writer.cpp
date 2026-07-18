@@ -33,7 +33,6 @@ static const char* statusMsg(StatusCode code) {
 		case HTTP_VERSION_NOT_SUPPORTED:
 			return "HTTP Version Not Supported";
 	}
-	
 	return "Internal Server Error";
 }
 

@@ -77,7 +77,6 @@ SRCS = src/server/main.cpp \
 	src/http/routing/path.cpp \
 	src/http/pipeline/pipeline.cpp \
 	src/http/pipeline/RequestHandler.cpp \
-	src/http/pipeline/Dispatcher.cpp \
 	src/http/pipeline/handlers/DeleteHandler.cpp \
 	src/http/pipeline/handlers/DirectoryHandler.cpp \
 	src/http/pipeline/handlers/ErrorHandler.cpp \

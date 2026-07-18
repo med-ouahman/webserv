@@ -6,7 +6,7 @@
 #include "BufferView.hpp"
 #include "Buffer.hpp"
 
-struct ServerContext;
+struct RuntimeServices;
 
 namespace net {
 
@@ -45,7 +45,7 @@ public:
     const static std::size_t ReadbufSize    = 4096;
     const static std::size_t WritebufSize   = 4096;
 
-    Connection(int fd, io::Event events, ServerContext& ctx, const ConnectionInfo& info);
+    Connection(int fd, io::Event events, RuntimeServices& ctx, const ConnectionInfo& info);
     ~Connection();
     void on_event(io::Event events);
     bool closing() const;

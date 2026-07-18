@@ -8,6 +8,7 @@
 #include "http/Parser/Parser.hpp"
 #include "http/routing/Routing.hpp"
 #include "cgi/CGIContext.hpp"
+#include "server/RuntimeServices.hpp"
 
 #define CRLF "\r\n"
 #define HTTP_SERVER_ROOT "server/root"
@@ -95,15 +96,18 @@ private:
 	friend class Parser;
 	friend class RequestHandler;
 	friend class ErrorHandler;
-	friend class CGIHandler;
+	friend class CgiHandler;
+
 	friend Error buildCGIContext(const Context& context,
 		CGIRequestContext& request_ctx,
 		ProcessContext& exec_ctx);
 
-public:
 
+public:
+	RuntimeServices& services_;
+	
 	Context(const std::vector<const config::ServerConfig*>& servers,
-		usize conn_id, usize request_id);
+		usize conn_id, usize request_id, RuntimeServices& services);
 	~Context();
 
 	usize consume(const char* data, usize size);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ServerContext.hpp"
+#include "RuntimeServices.hpp"
 #include "EventLoop.hpp"
 #include "Connection.hpp"
 #include "Listener.hpp"
@@ -17,7 +17,7 @@ private:
     std::vector<net::Connection*> connections;
     std::vector<net::Listener*> listeners;
     runtime::epoll::EventLoop poller;
-    ServerContext ctx;
+    RuntimeServices services_;
     const config::Config& conf;
 
     Server(const Server&);
