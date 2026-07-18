@@ -37,7 +37,7 @@ struct LocationConfig {
     std::map<std::string, std::string> cgi_pass;
     std::string cgi_dir;
     size_t cgi_timeout;
-
+//khass ntchecki had elements yla kano khawyiin nrejectihom
     LocationConfig()
         : path(),
           root(),
