@@ -2,6 +2,8 @@
 #include "http/Parser/Parser.hpp"
 #include "http/Context.hpp"
 
+#include <cstdio>
+
 namespace http {
 namespace parser {
 
@@ -20,6 +22,47 @@ static Error checkSize(ParserPhase phase, usize read_bytes) {
 	}
 }
 
+}
+
+Parser::Parser()
+	: raw_buffer(),
+	  header_bytes(0),
+	  body_received(0),
+	  chunk_size(0),
+	  chunk_received(0),
+	  max_body_size(limits::BODY_MAX_SIZE),
+	  phase(PARSING_REQUEST_LINE),
+	  chunk_state(CHUNK_SIZE),
+	  timer(),
+	  body_buffer(),
+	  bodyWriter(std::string(), body_buffer, limits::BODY_BUFFER_SIZE) {}
+
+Parser::Parser(const std::string& body_path)
+	: raw_buffer(),
+	  header_bytes(0),
+	  body_received(0),
+	  chunk_size(0),
+	  chunk_received(0),
+	  max_body_size(limits::BODY_MAX_SIZE),
+	  phase(PARSING_REQUEST_LINE),
+	  chunk_state(CHUNK_SIZE),
+	  timer(),
+	  body_buffer(),
+	  bodyWriter(body_path, body_buffer, limits::BODY_BUFFER_SIZE) {}
+
+void Parser::reset() {
+	if (bodyWriter.file_created())
+		std::remove(bodyWriter.path().c_str());
+	raw_buffer.clear();
+	header_bytes = 0;
+	body_received = 0;
+	chunk_size = 0;
+	chunk_received = 0;
+	max_body_size = limits::BODY_MAX_SIZE;
+	phase = PARSING_REQUEST_LINE;
+	chunk_state = CHUNK_SIZE;
+	timer.update();
+	bodyWriter.reset();
 }
 
 Error Parser::getChunk(std::string& out, bool& found) {

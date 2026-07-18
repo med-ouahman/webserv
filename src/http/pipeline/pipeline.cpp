@@ -32,9 +32,11 @@ base::Expected<RequestHandler*, Error> createHandler( RequestType type, Context&
 		case DELETE_RESOURCE:
 			handler = new (std::nothrow) DeleteHandler(context);
 			break;
-		case CGI:
-			handler = NULL;// new (std::nothrow) CgiHandler(context);
+		case CGI: {
+			// CgiContext ctx();
+			// handler = new (std::nothrow) CgiHandler(ctx);
 			break;
+		}
 		default:
 			return ERR_INTERNAL;
 	}

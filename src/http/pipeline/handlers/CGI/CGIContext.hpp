@@ -4,7 +4,6 @@
 #include "http/Error.hpp"
 #include "http/Request.hpp"
 #include "http/routing/Routing.hpp"
-#include "CStringArray.hpp"
 
 #include <string>
 #include <vector>
@@ -12,6 +11,24 @@
 namespace http {
 
 class Context;
+
+class CStringArray {
+private:
+	std::vector<std::string> storage_;
+	std::vector<char*> values_;
+
+	CStringArray(const CStringArray&);
+	CStringArray& operator=(const CStringArray&);
+
+public:
+	CStringArray();
+
+	void clear();
+	void add(const std::string& value);
+	void add(const std::string& key, const std::string& value);
+	char* const* data();
+	usize size() const;
+};
 
 struct CGIRequestContext {
 	std::string request_method;
@@ -27,7 +44,7 @@ struct CGIRequestContext {
 	size_t		timeout;
 };
 
-struct ProcessContext {
+struct CGIExecContext {
 	std::string working_dir;
 	int         stdin_fd;
 
@@ -38,11 +55,10 @@ struct ProcessContext {
 Error buildCGIContext(const Request& request,
 	const DispatchInfo& decision,
 	CGIRequestContext& request_ctx,
-	ProcessContext& exec_ctx);
+	CGIExecContext& exec_ctx);
 
 Error buildCGIContext(const Context& context,
-
 	CGIRequestContext& request_ctx,
-	ProcessContext& exec_ctx);
+	CGIExecContext& exec_ctx);
 
 }

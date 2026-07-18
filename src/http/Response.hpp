@@ -51,6 +51,7 @@ struct Response {
 
 	Response();
 
+	void reset();
 	void resetWriteState();
 	Error write(char* buffer, usize size, Version version, usize& sent);
 	bool started() const;

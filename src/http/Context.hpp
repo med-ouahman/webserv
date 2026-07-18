@@ -7,6 +7,7 @@
 #include "http/Response.hpp"
 #include "http/Parser/Parser.hpp"
 #include "http/routing/Routing.hpp"
+#include "cgi/CGIContext.hpp"
 
 #define CRLF "\r\n"
 #define HTTP_SERVER_ROOT "server/root"
@@ -17,7 +18,7 @@ class Context;
 class ErrorHandler;
 class RequestHandler;
 struct CGIRequestContext;
-struct ProcessContext;
+struct CGIExecContext;
 
 enum ContextState {
 	PARSING,
@@ -39,6 +40,7 @@ struct Actor {
 	RequestHandler* handler;
 
 	Actor();
+	void reset();
 };
 
 struct Info {
@@ -75,6 +77,7 @@ private:
 	Context& operator=(const Context&);
 
 	void responseReady();
+	void resetCycle();
 
 	Error setError(Error error);
 	Error resolveDispatch();
@@ -96,7 +99,6 @@ private:
 	friend Error buildCGIContext(const Context& context,
 		CGIRequestContext& request_ctx,
 		ProcessContext& exec_ctx);
-
 
 public:
 

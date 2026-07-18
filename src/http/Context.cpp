@@ -1,39 +1,27 @@
 
+#include "base/base.hpp"
 #include "http/Context.hpp"
+
 #include "http/Parser/Parser.hpp"
 #include "http/Parser/body/temp_storage.hpp"
+
 #include "http/pipeline/pipeline.hpp"
 #include "http/pipeline/handlers/ErrorHandler.hpp"
+
 #include "http/routing/Routing.hpp"
+
 #include <cstdio>
 
 namespace http {
 
-Parser::Parser()
-	: raw_buffer(),
-	  header_bytes(0),
-	  body_received(0),
-	  chunk_size(0),
-	  chunk_received(0),
-	  max_body_size(limits::BODY_MAX_SIZE),
-	  phase(PARSING_REQUEST_LINE),
-	  chunk_state(CHUNK_SIZE),
-	  timer(),
-	  body_buffer(),
-	  bodyWriter(std::string(), body_buffer, limits::BODY_BUFFER_SIZE) {}
 
-Parser::Parser(const std::string& body_path)
-	: raw_buffer(),
-	  header_bytes(0),
-	  body_received(0),
-	  chunk_size(0),
-	  chunk_received(0),
-	  max_body_size(limits::BODY_MAX_SIZE),
-	  phase(PARSING_REQUEST_LINE),
-	  chunk_state(CHUNK_SIZE),
-	  timer(),
-	  body_buffer(),
-	  bodyWriter(body_path, body_buffer, limits::BODY_BUFFER_SIZE) {}
+
+Info::Info(const std::vector<const config::ServerConfig*>& srvs,
+		usize conn, usize req)
+	: servers(srvs),
+	  conn_id(conn),
+	  request_id(req),
+	  dispatch() {}
 
 RequestCount::RequestCount()
 	: active_cgi(0),
@@ -45,14 +33,44 @@ Actor::Actor()
 	: parser(),
 	  request(),
 	  response(),
-	  handler(NULL) {}
+	  handler(NULL) {
+	reset();
+}
 
-Info::Info(const std::vector<const config::ServerConfig*>& sr,
-usize c, usize req)
-: servers(sr),
-conn_id(c),
-request_id(req)
-{}
+void Actor::reset() {
+	delete handler;
+	handler = NULL;
+	parser.reset();
+	request.reset();
+	response.reset();
+}
+
+Request::Request()
+	: url(),
+	  path(),
+	  query(),
+	  headers(),
+	  host(),
+	  content_length(),
+	  body(),
+	  method(UNKNOWN),
+	  version(HTTP_UNKNOWN),
+	  connection(CONNECTION_DEFAULT),
+	  chunked(false) {}
+
+void Request::reset() {
+	url.clear();
+	path.clear();
+	query = base::Optional<std::string>();
+	headers.clear();
+	host = base::Optional<std::string>();
+	content_length = base::Optional<usize>();
+	body.reset();
+	method = UNKNOWN;
+	version = HTTP_UNKNOWN;
+	connection = CONNECTION_DEFAULT;
+	chunked = false;
+}
 
 Context::Context(const std::vector<const config::ServerConfig*>& servers,
 		usize conn_id, usize request_id)
@@ -61,17 +79,12 @@ Context::Context(const std::vector<const config::ServerConfig*>& servers,
 	  error_(ERR_NONE),
 	  state_(PARSING),
 	  action_(AC_READ) {
-	actor.request.method = UNKNOWN;
-	actor.request.version = HTTP_UNKNOWN;
-	actor.request.connection = CONNECTION_DEFAULT;
-	actor.request.chunked = false;
+	resetCycle();
 	++request_count.active_requests;
 }
 
 Context::~Context() {
-	if (actor.parser.bodyWriter.file_created())
-		std::remove(actor.parser.bodyWriter.path().c_str());
-	delete actor.handler;
+	actor.reset();
 	if (request_count.active_requests > 0)
 		--request_count.active_requests;
 }
@@ -88,6 +101,14 @@ Error Context::setError(Error error) {
 	state_ = ERROR;
 	action_ = AC_WRITE;
 	return error;
+}
+
+void Context::resetCycle() {
+	actor.reset();
+	info.dispatch = base::Optional<DispatchInfo>();
+	error_ = ERR_NONE;
+	state_ = PARSING;
+	action_ = AC_READ;
 }
 
 Error Context::resolveDispatch() {
@@ -165,7 +186,9 @@ usize Context::consume(const char* data, usize size) {
 		setError(ERR_BAD_REQUEST);
 		return 0;
 	}
-	
+	if (action_ != AC_READ)
+		return 0;
+
 	actor.parser.raw_buffer.reserve(actor.parser.raw_buffer.size() + size);
 	actor.parser.raw_buffer.append(data, size);
 	consumed = size;
@@ -236,8 +259,8 @@ bool Context::reconcile() {
 	if (action_ != AC_READ
 		|| (state_ != PARSING && state_ != PROCESSING))
 		return false;
-	// if (!actor.parser.timedOut())
-		// return false;
+	if (!actor.parser.timedOut())
+		return false;
 	setError(ERR_REQUEST_TIMEOUT);
 	return true;
 }
@@ -265,7 +288,7 @@ usize Context::produce(char *buffer, usize size) {
 		if (actor.response.shouldClose())
 			action_ = AC_CLOSE;
 		else
-			action_ = AC_READ;
+			resetCycle();
 	}
 	return sent;
 }

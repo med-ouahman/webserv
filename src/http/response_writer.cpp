@@ -32,8 +32,8 @@ static const char* statusMsg(StatusCode code) {
 		case GATEWAY_TIMEOUT: return "Gateway timeout";
 		case HTTP_VERSION_NOT_SUPPORTED:
 			return "HTTP Version Not Supported";
-		default: break;
 	}
+	
 	return "Internal Server Error";
 }
 
@@ -129,6 +129,14 @@ Response::Response()
 	  body_offset(0),
 	  started_(false),
 	  finished_(false) {}
+
+void Response::reset() {
+	body.clear();
+	body_reader.reset();
+	headers.clear();
+	status = OK;
+	resetWriteState();
+}
 
 void Response::resetWriteState() {
 	head.clear();

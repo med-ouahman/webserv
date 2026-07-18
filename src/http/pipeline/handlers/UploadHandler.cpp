@@ -2,7 +2,7 @@
 #include "http/pipeline/handlers/UploadHandler.hpp"
 #include "http/Context.hpp"
 #include "http/limits.hpp"
-
+#include"Server.hpp"
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -36,6 +36,8 @@ static bool pathExists(const std::string& path) {
 static bool validUploadDirectory(const std::string& path) {
 	struct stat info;
 
+
+	Server::logger().log(logger::Debug, path.c_str(), true);
 	return stat(path.c_str(), &info) == 0
 		&& S_ISDIR(info.st_mode)
 		&& access(path.c_str(), W_OK) == 0;

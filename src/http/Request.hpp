@@ -70,6 +70,9 @@ struct Request {
 	ConnectionType				connection;
 	bool						chunked;
 
+	Request();
+	void reset();
+
 };
 
 }

@@ -13,7 +13,7 @@ char*   storage_;
 size_t  capacity_;
 size_t	r_offset_;
 size_t  w_offset_;
-size_t  treshold;
+
 
 Buffer(const Buffer& other);
 Buffer& operator=(const Buffer& other);
@@ -24,15 +24,7 @@ Buffer(Storage<N>& buf)
     : storage_(buf.buff),
     capacity_(N),
     r_offset_(0),
-    w_offset_(0),
-    treshold(0) {}
-
-Buffer()
-    : storage_(NULL),
-    capacity_(0),
-    r_offset_(0),
-    w_offset_(0),
-    treshold(0) {}
+    w_offset_(0) {}
 
 ~Buffer() {}
 
@@ -49,7 +41,7 @@ bool full() const {
 }
 
 bool empty() const {
-    return w_offset_ == 0;
+    return bytes_pending() == 0;
 }
 
 size_t bytes_pending() const {

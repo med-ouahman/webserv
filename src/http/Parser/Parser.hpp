@@ -37,6 +37,7 @@ public:
 	Parser();
 	Parser(const std::string& body_path);
 
+	void	reset();
 	Error	getChunk(std::string& out, bool& found);
 
 	Error	parse(Context& ctx);

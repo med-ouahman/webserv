@@ -209,8 +209,8 @@ int main(int argc, const char* argv[]) {
         config::Config conf = parser.parse(configfile.c_str());
         Server webserv(conf);
         return webserv.start();
-    } catch (...) {
-        std::cerr << "Errir\n";
+    } catch (std::runtime_error& error) {
+        std::cerr << error.what() << "\n";
     }
     
 }

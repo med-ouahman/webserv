@@ -27,6 +27,10 @@ bool Connection::closing() const { return state_ == Closing; }
 
 void Connection::update(http::ContextAction action) {
 
+    if (action == http::AC_CLOSE && !writer_.empty()) {
+        return ;
+    }
+
     if (state_ == Closing && http::AC_CLOSE != action) action = http::AC_CLOSE;
 
     switch (action) {
@@ -85,9 +89,7 @@ void Connection::on_event(io::Event events) {
 
 void Connection::on_readable() {
     read();
-    std::cout.write(reader_.read_ptr(), reader_.bytes_pending());
     size_t n = ctx.consume(reader_.read_ptr(), reader_.bytes_pending());
-
     reader_.advance_read(n);
 }
 
@@ -115,11 +117,6 @@ void Connection::write() {
 
     size_t m = ctx.produce(writer_.write_ptr(), writer_.bytes_free());
     
-    if (ctx.nextAction() == http::AC_CLOSE) {
-        state_ = Closing;
-        return;
-    }
-
     writer_.advance_write(m);
     
     ssize_t n = ::send(fd(), writer_.read_ptr(), writer_.bytes_pending(), 0);
@@ -127,10 +124,6 @@ void Connection::write() {
     if (n <  0) {
         state_ = Closing;
         return;
-    }
-
-    if (n == 0) {
-        state_ = Reading;
     }
 
     writer_.advance_read(n);
