@@ -56,21 +56,6 @@ public:
 	BufferView view() const;
 };
 
-
-struct CgiContext {
-
-CGIRequestContext request_ctx;
-ProcessContext exec_ctx;
-runtime::epoll::EventLoop& evlp;
-Context& ctx;
-
-CgiContext(runtime::epoll::EventLoop& l, Context& c)
-: evlp(l),
-ctx(c) {}
-
-};
-
-
 class CgiHandler: public RequestHandler {
 public:
 
@@ -120,6 +105,7 @@ private:
 	
 	ShutdownState	shutdown_state;
 	
+	cgi::CGIRequestContext request_ctx;
 	ResponseParser builder;
 	
 	Storage<StdinWriteSize> stdin_wbuf;

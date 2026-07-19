@@ -98,7 +98,7 @@ void Server::add_connection(int conn_fd, const net::ConnectionInfo& info) {
 */
 
 void Server::sweep() {
-
+    
     for (size_t i(0); i < connections.size();) {
         net::Connection* conn = connections.at(i);
 
@@ -124,22 +124,9 @@ void Server::sweep() {
     }
 }
 
-int Server::start() {
-
-    if (!running_) return EXIT_FAILURE;
-    
-    while (running_) {
-        poller.poll();
-        sweep();
-    }
-    
-    return 0;
-}
-
 void Server::abort() {
     std::abort();
 }
-
 
 net::Listener* Server::find_listener(const config::ListenEndPoint& endpoint) {
 
@@ -159,4 +146,16 @@ net::Listener* Server::find_listener(const config::ListenEndPoint& endpoint) {
 
 size_t Server::num_connections() const {
     return connections.size();
+}
+
+int Server::start() {
+
+    if (!running_) return EXIT_FAILURE;
+    
+    while (running_) {
+        poller.poll();
+        sweep();
+    }
+    
+    return 0;
 }

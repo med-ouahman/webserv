@@ -110,6 +110,9 @@ Reader::Type Reader::type() const {
 	return type_;
 }
 
+const std::string& Reader::path() const {
+	return path_;
+}
 }
 
 }

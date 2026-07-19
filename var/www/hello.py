@@ -4,8 +4,6 @@ import os
 import time
 import sys
 
-data = sys.stdin.read()
-
 print("""Content-Type: text/html\r\n\r\n""", end="")
 print("""
 <!DOCTYPE html>

@@ -48,6 +48,7 @@ public:
 	base::Expected<usize, Error> read(char* buff, usize max_size);
 
 	Type type() const;
+	const std::string& path() const;
 };
 
 }

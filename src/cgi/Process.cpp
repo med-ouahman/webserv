@@ -8,8 +8,8 @@
 
 namespace cgi {
 
-Process::Process(const http::ProcessContext& ctx)
-    : state_(Spawn), 
+Process::Process()
+    : state_(Spawn),
     pid_(-1),
     status_(0),
     stdin_pipe_(),
@@ -22,43 +22,9 @@ Process::Process(const http::ProcessContext& ctx)
     }
 
     state_ = Running;
-
-    if (ctx.stdin_fd != STDIN_FILENO) stdin_pipe_.close_write_end();
-
-    pid_ = ::fork();
-
-    if (pid_ == 0) {
-        
-        if (ctx.stdin_fd != STDIN_FILENO) {
-            ::dup2(ctx.stdin_fd, STDIN_FILENO);
-            ::close(ctx.stdin_fd);
-        } else {
-            ::dup2(stdin_pipe_.read_end(), STDIN_FILENO);
-        }
-
-        ::dup2(stdout_pipe_.write_end(), STDOUT_FILENO);
-        ::dup2(stderr_pipe_.write_end(), STDERR_FILENO);
-        
-        stdin_pipe_.close();
-        stdout_pipe_.close();
-        stderr_pipe_.close();
-        
-        ::execve(ctx.argv.argv()[0], ctx.argv.argv(), ctx.envp.argv());
-        state_ = Error;
-        LOG_ERROR(MAKE_ERRNO_ERROR("execve()"));
-        ::exit(EXIT_FAILURE);
-    }
-
-    stdin_pipe_.close_read_end();
-    stdout_pipe_.close_write_end();
-    stderr_pipe_.close_write_end();
-    
-    if (pid_ < 0) state_ = Error;
 }
 
-Process::~Process() {
-
-}
+Process::~Process() {}
 
 Pipe& Process::stdin_pipe() { return stdin_pipe_; }
 
@@ -120,5 +86,44 @@ int Process::status_code(const ProcessResult& result) {
     return 0;
 }
 
+bool Process::start(const ProcessContext& context) {
+
+    state_ = Running;
+
+    if (context.stdin_fd != STDIN_FILENO) stdin_pipe_.close_write_end();
+
+    pid_ = ::fork();
+
+    if (pid_ == 0) {
+        
+        if (context.stdin_fd != STDIN_FILENO) {
+            ::dup2(context.stdin_fd, STDIN_FILENO);
+            ::close(context.stdin_fd);
+        } else {
+            ::dup2(stdin_pipe_.read_end(), STDIN_FILENO);
+        }
+
+        ::dup2(stdout_pipe_.write_end(), STDOUT_FILENO);
+        ::dup2(stderr_pipe_.write_end(), STDERR_FILENO);
+        
+        stdin_pipe_.close();
+        stdout_pipe_.close();
+        stderr_pipe_.close();
+
+        ::execve(context.argv.argv()[0], context.argv.argv(), context.envp.argv());
+        ::exit(EXIT_FAILURE);
+    }
+
+    stdin_pipe_.close_read_end();
+    stdout_pipe_.close_write_end();
+    stderr_pipe_.close_write_end();
+    
+    if (state_ == Error || pid_ < 0) {
+        state_ = Error;
+        return false;
+    }
+
+    return true;
+}
 
 }

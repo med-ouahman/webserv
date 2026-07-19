@@ -1,17 +1,16 @@
 #pragma once
 
+#include <unistd.h>
 #include "config/Config.hpp"
 #include "http/Error.hpp"
 #include "http/Request.hpp"
 #include "http/routing/Routing.hpp"
 #include "CStringArray.hpp"
-
+#include <iostream>
 #include <string>
 #include <vector>
 
-namespace http {
-
-class Context;
+namespace cgi {
 
 struct CGIRequestContext {
 	std::string request_method;
@@ -33,14 +32,30 @@ struct ProcessContext {
 
 	CStringArray argv;
 	CStringArray envp;
+
+	~ProcessContext() {
+		argv.clear();
+		envp.clear();
+		
+		if (stdin_fd > 0) {
+			::close(stdin_fd);
+			stdin_fd = -1;
+		}
+	}
+
+	ProcessContext()
+	:
+	stdin_fd(-1) {
+
+	}
 };
 
-Error buildCGIContext(const Request& request,
-	const DispatchInfo& decision,
+http::Error buildCGIContext(const http::Request& request,
+	const http::DispatchInfo& decision,
 	CGIRequestContext& request_ctx,
 	ProcessContext& exec_ctx);
 
-Error buildCGIContext(const Context& context,
+http::Error buildCGIContext(const http::Context& context,
 
 	CGIRequestContext& request_ctx,
 	ProcessContext& exec_ctx);

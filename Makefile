@@ -83,6 +83,7 @@ SRCS = src/server/main.cpp \
 	src/http/pipeline/handlers/RedirectHandler.cpp \
 	src/http/pipeline/handlers/StaticFileHandler.cpp \
 	src/http/pipeline/handlers/UploadHandler.cpp \
+	src/http/pipeline/handlers/CgiHandler.cpp \
 	src/config/ConfigParser.cpp \
 	src/config/Lexer.cpp \
 	src/base/io/Writer.cpp \

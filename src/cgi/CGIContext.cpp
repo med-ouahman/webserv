@@ -1,11 +1,11 @@
 
 #include "cgi/CGIContext.hpp"
 #include "http/Context.hpp"
-
+#include <fcntl.h>
 #include <cctype>
 #include <sstream>
 
-namespace http {
+namespace cgi {
 
 namespace {
 
@@ -16,27 +16,27 @@ static std::string toString(usize value) {
 	return out.str();
 }
 
-static const char* methodName(Method method) {
+static const char* methodName(http::Method method) {
 	switch (method) {
-		case GET:
+		case http::GET:
 			return "GET";
-		case POST:
+		case http::POST:
 			return "POST";
-		case DELETE:
+		case http::DELETE:
 			return "DELETE";
-		case UNKNOWN:
+		case http::UNKNOWN:
 			return "";
 	}
 	return "";
 }
 
-static const char* versionName(Version version) {
+static const char* versionName(http::Version version) {
 	switch (version) {
-		case HTTP_1_0:
+		case http::HTTP_1_0:
 			return "HTTP/1.0";
-		case HTTP_1_1:
+		case http::HTTP_1_1:
 			return "HTTP/1.1";
-		case HTTP_UNKNOWN:
+		case http::HTTP_UNKNOWN:
 			return "HTTP/1.1";
 	}
 	return "HTTP/1.1";
@@ -57,7 +57,7 @@ static std::string lowerName(const std::string& value) {
 	return out;
 }
 
-static const Header* findHeader(const Request& request,
+static const http::Header* findHeader(const http::Request& request,
 		const std::string& name) {
 	usize i = 0;
 
@@ -99,7 +99,7 @@ static std::string dirnameOf(const std::string& path) {
 	return path.substr(0, slash);
 }
 
-static std::string serverName(const Request& request,
+static std::string serverName(const http::Request& request,
 		const config::ServerConfig& server) {
 	if (request.host.has_value())
 		return request.host.value;
@@ -112,10 +112,10 @@ static std::string serverPort(const config::ServerConfig& server) { if (server.l
 	return toString(server.listens[0].port);
 }
 
-static void fillRequestContext(const Request& request,
-		const DispatchInfo& decision,
+static void fillRequestContext(const http::Request& request,
+		const http::DispatchInfo& decision,
 		CGIRequestContext& out) {
-	const Header* content_type = findHeader(request, "content-type");
+	const http::Header* content_type = findHeader(request, "content-type");
 
 	out.request_method = methodName(request.method);
 	out.mime_type = content_type == NULL ? "" : content_type->value;
@@ -131,7 +131,7 @@ static void fillRequestContext(const Request& request,
 	out.timeout = decision.cgi_timeout;
 }
 
-static void fillEnv(const Request& request,
+static void fillEnv(const http::Request& request,
 		const CGIRequestContext& request_ctx,
 		ProcessContext& exec_ctx) {
 	usize i = 0;
@@ -158,34 +158,43 @@ static void fillEnv(const Request& request,
 
 }
 
-Error buildCGIContext(const Request& request,
-		const DispatchInfo& decision,
+http::Error buildCGIContext(const http::Request& request,
+		const http::DispatchInfo& decision,
 		CGIRequestContext& request_ctx,
 		ProcessContext& exec_ctx) {
 	if (decision.server == NULL)
-		return ERR_INTERNAL;
+		return http::ERR_INTERNAL;
 	if (decision.cgi_path == NULL || decision.cgi_path->empty())
-		return ERR_INTERNAL;
+		return http::ERR_INTERNAL;
 	if (decision.filesystem_path.empty())
-		return ERR_NOT_FOUND;
+		return http::ERR_NOT_FOUND;
 	request_ctx = CGIRequestContext();
 	exec_ctx.working_dir = decision.location != NULL
 		&& !decision.location->cgi_dir.empty()
 		? decision.location->cgi_dir : dirnameOf(decision.filesystem_path);
-	exec_ctx.stdin_fd = -1;
 	
+	if (base::io::Reader::BUFFER == request.body.type()) {
+		exec_ctx.stdin_fd = 0;
+	}
+
+	else if (base::io::Reader::FILE == request.body.type()) {		
+		exec_ctx.stdin_fd = ::open(request.body.path().c_str(), O_RDONLY);
+		if (exec_ctx.stdin_fd < 0) return http::ERR_INTERNAL;
+	}
+
 	fillRequestContext(request, decision, request_ctx);
 	exec_ctx.argv.push(request_ctx.interpreter);
 	exec_ctx.argv.push(decision.filesystem_path);
 	fillEnv(request, request_ctx, exec_ctx);
-	return ERR_NONE;
+	return http::ERR_NONE;
 }
 
-Error buildCGIContext(const Context& context,
+http::Error buildCGIContext(const http::Context& context,
 		CGIRequestContext& request_ctx,
 		ProcessContext& exec_ctx) {
+
 	if (!context.info.dispatch.has_value())
-		return ERR_INTERNAL;
+		return http::ERR_INTERNAL;
 	return buildCGIContext(context.actor.request, context.info.dispatch.value,
 		request_ctx, exec_ctx);
 }

@@ -1,7 +1,9 @@
 
 #include "CgiHandler.hpp"
 #include "Request.hpp"
-#include "EventLoop.hpp"
+
+#include "runtime/epoll/EventLoop.hpp"
+#include "Context.hpp"
 
 namespace http {
 
@@ -93,7 +95,6 @@ CgiHandler::CgiHandler(Context& ctx)
     state_(Working),
     response_state(Processing),
     reason_(None),
-    process(),
     spawn_time(),
     sigterm_sent_at(0),
     shutdown_state(SigTerm),
@@ -102,9 +103,25 @@ CgiHandler::CgiHandler(Context& ctx)
     stderr_ch(stderr_rdbuf, Channel::Stderr, process.stderr_pipe().read_end(), io::Readable, *this),
 
     event_loop(ctx.services_.poller) {
-    timeout_seconds = ctx.request_ctx.timeout; // 30 seconds is generous
     
-    if (!process.running()) {
+    if (!process.running() || state_ != Working) {
+        state_ = Cleanup;
+        reason_ = Internal;
+        return;
+    }
+
+    cgi::CGIRequestContext request_ctx;
+    cgi::ProcessContext process_ctx;
+
+    http::Error r = cgi::buildCGIContext(ctx, request_ctx, process_ctx);
+
+    if (r != ERR_NONE) {
+        state_ = Cleanup;
+        reason_ = Internal;
+        return ;
+    }
+
+    if (!process.start(process_ctx)) {
         state_ = Cleanup;
         reason_ = Internal;
         return;
@@ -125,6 +142,8 @@ CgiHandler::~CgiHandler() {
 
 
 size_t CgiHandler::on_readable(Channel& channel) {
+
+    std::cout << "CHANNLE READABLE\n";
 
     channel.read();
 
@@ -151,7 +170,6 @@ size_t CgiHandler::on_readable(Channel& channel) {
     if (r == ResponseParser::Continue) return reader.cursor();
 
     if (r == ResponseParser::ParseError) {
-        std::cout << "Parse Error\n";
         reason_ = ParseError;
         response_state = Error;
         return reader.cursor();
@@ -162,6 +180,7 @@ size_t CgiHandler::on_readable(Channel& channel) {
     setStatus(result.status_code);
     const Headers& headers = result.headers;
     Headers::const_iterator it = headers.begin();
+
     for (; it != headers.end(); ++it) {
         setHeader(it->name, it->value);
     }
@@ -177,6 +196,9 @@ size_t CgiHandler::on_readable(Channel& channel) {
 }
 
 size_t CgiHandler::on_writable(Buffer& writer, Channel& channel) {
+
+    std::cout << "CHANNEL WRITABLE\n";
+
     base::io::Reader& body = request().body;
 
     size_t n = body.read(writer.write_ptr(), writer.bytes_free());
@@ -193,7 +215,6 @@ size_t CgiHandler::on_writable(Buffer& writer, Channel& channel) {
 }
 
 http::Error CgiHandler::handle() {
-    
     return ERR_NONE;
 }
 
@@ -282,8 +303,6 @@ void CgiHandler::monitor() {
             case ProcessError: case Internal: c = INTERNAL_SERVER_ERROR; std::cout << "Internal\n"; break;
 
             setStatus(c);
-            setHeader("Connection", "close");
-            
         }
  
     }

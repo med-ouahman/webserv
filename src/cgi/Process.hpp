@@ -8,6 +8,7 @@
 
 namespace cgi {
 
+struct ProcessContext;
 
 enum ProcessExitReason {
     Exited,
@@ -43,7 +44,7 @@ private:
 
 public:
     bool running() const;
-    Process(const http::ProcessContext& ctx);
+    Process();
     ~Process();
 
     Pipe& stdin_pipe();
@@ -60,7 +61,8 @@ public:
     void reap();
 
     ProcessResult result() const;
-    static int status_code(const ProcessResult& result); 
+    static int status_code(const ProcessResult& result);
+    bool start(const ProcessContext& ctx);
 };
 
 }

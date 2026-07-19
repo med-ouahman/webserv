@@ -64,4 +64,10 @@ char** argv() const {
     return cache_.data();
 }
 
+void clear() {
+    cache_.clear();
+    storage_.clear();
+    cache_expired_ = true;
+}
+
 };

@@ -98,9 +98,9 @@ private:
 	friend class ErrorHandler;
 	friend class CgiHandler;
 
-	friend Error buildCGIContext(const Context& context,
-		CGIRequestContext& request_ctx,
-		ProcessContext& exec_ctx);
+	friend Error cgi::buildCGIContext(const Context& context,
+		cgi::CGIRequestContext& request_ctx,
+		cgi::ProcessContext& exec_ctx);
 
 
 public:
