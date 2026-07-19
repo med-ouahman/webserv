@@ -1,15 +1,12 @@
 #pragma once
 
-namespace http { class Context; }
 namespace config { struct Config; }
 namespace logger { class Logger; }
 
 namespace runtime { namespace epoll { class EventLoop; } }
 
 struct RuntimeServices
-
 {
-
 runtime::epoll::EventLoop& poller;
 logger::Logger& logger;
 const config::Config& conf;

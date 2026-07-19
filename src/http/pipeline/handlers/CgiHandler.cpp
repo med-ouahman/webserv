@@ -121,6 +121,7 @@ CgiHandler::CgiHandler(Context& ctx)
         return ;
     }
 
+    timeout_seconds = request_ctx.timeout;
     if (!process.start(process_ctx)) {
         state_ = Cleanup;
         reason_ = Internal;
@@ -142,8 +143,6 @@ CgiHandler::~CgiHandler() {
 
 
 size_t CgiHandler::on_readable(Channel& channel) {
-
-    std::cout << "CHANNLE READABLE\n";
 
     channel.read();
 
@@ -172,54 +171,60 @@ size_t CgiHandler::on_readable(Channel& channel) {
     if (r == ResponseParser::ParseError) {
         reason_ = ParseError;
         response_state = Error;
+        std::cout << "Error\n";
         return reader.cursor();
     }
 
-    CGIResult result = builder.result();
-
-    setStatus(result.status_code);
-    const Headers& headers = result.headers;
-    Headers::const_iterator it = headers.begin();
-
-    for (; it != headers.end(); ++it) {
-        setHeader(it->name, it->value);
-    }
-
-    if (result.mem_) {
-        setBodyFixed(result.body_);
-    } else {
-        setBodyFile(result.body_filename);
-    }
+    std::cout << "good to go\n";
 
     response_state = Finished;
     return reader.cursor();
 }
 
 size_t CgiHandler::on_writable(Buffer& writer, Channel& channel) {
-
-    std::cout << "CHANNEL WRITABLE\n";
-
     base::io::Reader& body = request().body;
-
     size_t n = body.read(writer.write_ptr(), writer.bytes_free());
-
     writer.advance_write(n);
-
     if (writer.size() == 0) {
         channel.mark_closing();
         return 0;
     }
-
     channel.write();
     return n;
 }
 
 http::Error CgiHandler::handle() {
+
+    if (response_state == Finished) {
+        CGIResult result = builder.result();
+        setStatus(result.status_code);
+
+        const Headers& headers = result.headers;
+        Headers::const_iterator it = headers.begin();
+
+        for ( ;it != headers.end(); ++it) {
+            setHeader(it->name, it->value);
+        }
+    
+        if (result.mem_) {
+            setBodyFixed(result.body_);
+        } else {
+            setBodyFile(result.body_filename);
+        }
+    }
+
+    switch (reason_) {
+        case None: break;
+        case Timeout: return ERR_CGI_TIMEOUT;
+        case ParseError: return ERR_BAD_GATEWAY;
+        case ProcessError: case Internal: return ERR_INTERNAL;
+    }
+
     return ERR_NONE;
 }
 
-bool CgiHandler::finished() {
-    return state_ == Done;
+bool CgiHandler::done() const {
+    return response_state == Finished || response_state == Error;
 }
 
 bool CgiHandler::timedout() {
@@ -291,22 +296,7 @@ void CgiHandler::monitor() {
     cgi::ProcessResult res = process.result();
 
     if (res.reason != cgi::Exited && reason_ == None) reason_ = Internal;
-
-    if (reason_ != None && response_state != Finished) {
-
-        StatusCode c = OK;
-        switch (reason_) {
-
-            case None: break;
-            case Timeout: c = GATEWAY_TIMEOUT; std::cout << "Gateway timeout\n"; break;
-            case ParseError: c = BAD_GATEWAY; std::cout << "Bad Gateway\n"; break;
-            case ProcessError: case Internal: c = INTERNAL_SERVER_ERROR; std::cout << "Internal\n"; break;
-
-            setStatus(c);
-        }
- 
-    }
-
+    
     if (state_ == Cleanup) state_ = Done;
 }
 

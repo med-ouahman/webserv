@@ -238,10 +238,9 @@ void Context::process() {
 			TRY(readBody(), (setError(err), void()));
 			if (action_ == AC_READ) return ;
 			action_ = AC_READ;
-			actor.handler->handle();
 			TRY(actor.handler->handle(), (setError(err), void()));
 			/* need a way of telling if we are finished or not because CGI is async might not finish in a single call to handle() */
-			/* if (!handler->done()) return */
+			if (!actor.handler->done()) return;
 			responseReady();
 			return ;
 		}
@@ -257,10 +256,20 @@ void Context::process() {
 ContextAction Context::nextAction() const { return action_; }
 
 bool Context::reconcile() {
+	
 	/* need a way to know if the current request is CGI TO call handler->monitor which is a cgi special case */
-	if (actor.handler) {
+	if (info.dispatch.has_value() && info.dispatch.value.handlerType == CGI && actor.handler) {
 		CgiHandler* h = static_cast<CgiHandler*>(actor.handler);
+		http::Error err;
 		h->monitor();
+		TRY(actor.handler->handle(), (setError(err), false));
+		
+		if (h->done()) responseReady();
+
+		if (h->tobenamedlater()) {
+			delete h;
+			h = NULL;
+		}
 	}
 
 	if (action_ != AC_READ

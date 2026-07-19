@@ -41,6 +41,7 @@ enum Error {
 	/* cgi */
 	ERR_CGI_FAILED,
 	ERR_CGI_TIMEOUT,
+	ERR_BAD_GATEWAY,
 
 	ERR_INTERNAL,
 };

@@ -36,6 +36,7 @@ protected:
 public:
 	explicit RequestHandler(Context& context);
 	virtual Error handle() = 0;
+	virtual bool done() const { return true; }
 	virtual ~RequestHandler();
 };
 

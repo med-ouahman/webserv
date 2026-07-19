@@ -132,8 +132,9 @@ StatusCode ErrorHandler::statusFromError(Error error) {
 		case ERR_BODY_TOO_LARGE:
 			return PAYLOAD_TOO_LARGE;
 		case ERR_REQUEST_TIMEOUT:
-		case ERR_CGI_TIMEOUT:
 			return REQUEST_TIMEOUT;
+		case ERR_CGI_TIMEOUT:
+			return GATEWAY_TIMEOUT;
 		case ERR_NOT_FOUND:
 			return NOT_FOUND;
 		case ERR_FORBIDDEN:
@@ -142,7 +143,7 @@ StatusCode ErrorHandler::statusFromError(Error error) {
 			return METHOD_NOT_ALLOWED;
 		case ERR_LENGTH_REQUIRED:
 			return LENGTH_REQUIRED;
-		case ERR_CGI_FAILED:
+		case ERR_CGI_FAILED: case ERR_BAD_GATEWAY:
 			return BAD_GATEWAY;
 		case ERR_INTERNAL:
 			return INTERNAL_SERVER_ERROR;
