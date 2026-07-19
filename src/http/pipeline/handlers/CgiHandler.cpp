@@ -5,6 +5,15 @@
 #include "runtime/epoll/EventLoop.hpp"
 #include "Context.hpp"
 
+/*
+    TODO:
+    while parsing CGI Headers, the last character doesn't get included in the header
+    example:
+    Content-Length: 506
+    expected: 506
+    got: 50
+*/
+
 namespace http {
 
 template <size_t N>
@@ -296,7 +305,7 @@ void CgiHandler::monitor() {
     cgi::ProcessResult res = process.result();
 
     if (res.reason != cgi::Exited && reason_ == None) reason_ = Internal;
-    
+
     if (state_ == Cleanup) state_ = Done;
 }
 
