@@ -4,43 +4,45 @@
 
 class UniqueFd {
 private:
-    int fd_;
-    UniqueFd(const UniqueFd& other);
-    UniqueFd& operator=(const UniqueFd& other);
+int fd_;
+UniqueFd(const UniqueFd& other);
+UniqueFd& operator=(const UniqueFd& other);
 
 public:
-    UniqueFd() : fd_(-1) {}
+UniqueFd() : fd_(-1) {}
 
-    explicit UniqueFd(int fd) : fd_(fd) {}
+explicit UniqueFd(int fd) : fd_(fd) {}
 
-    ~UniqueFd() { reset(); }
+~UniqueFd() { reset(); }
 
-    int get() const {
-        return fd_;
-    }
+int get() const {
+    return fd_;
+}
 
-    bool valid() const {
-        return fd_ >= 0;
-    }
+bool valid() const {
+    return fd_ >= 0;
+}
 
-    void close() {
+void close() {
+    ::close(fd_);
+    fd_ = -1;
+}
+
+void reset(int newfd = -1) {
+    if (fd_ >= 0)
         ::close(fd_);
-        fd_ = -1;
-    }
+    fd_ = newfd;
+}
 
-    void reset(int newfd = -1) {
-        if (fd_ >= 0)
-            ::close(fd_);
-        fd_ = newfd;
-    }
+void set(int newfd) {
+    reset(newfd);
+}
 
-    void set(int newfd) {
-        reset(newfd);
-    }
+int release() {
+    int tmp = fd_;
+    fd_ = -1;
+    return tmp;
+}
 
-    int release() {
-        int tmp = fd_;
-        fd_ = -1;
-        return tmp;
-    }
+
 };

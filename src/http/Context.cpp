@@ -266,7 +266,7 @@ bool Context::reconcile() {
 		
 		if (h->done()) responseReady();
 
-		if (h->tobenamedlater()) {
+		if (h->can_close()) {
 			delete h;
 			h = NULL;
 		}

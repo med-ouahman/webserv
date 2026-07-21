@@ -26,18 +26,18 @@ bool EventLoop::add(io::AEventHandler* handler) {
 	
 	int flags = ::fcntl(handler->fd(), F_GETFL);
 	if (flags < 0 || ::fcntl(handler->fd(), F_SETFL, flags | O_NONBLOCK)) {
-		LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::add::fcntl()"));
+		Server::logger.log(logger::Error, Server::logger.make_errno_error("EventLoop::add::fcntl()", __FILE__, __LINE__), true);
 		return false;
 	}
 	
 	flags = ::fcntl(handler->fd(), F_GETFD);
 	if (flags < 0 || ::fcntl(handler->fd(), F_SETFD, flags | O_CLOEXEC)) {
-		LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::add::fcntl()"));
+		Server::logger.log(logger::Error, Server::logger.make_errno_error("EventLoop::add::fcntl()", __FILE__, __LINE__), true);
 		return false;
 	}
 	
-	if (::epoll_ctl(epoll_fd, EPOLL_CTL_ADD, handler->fd(), &event)) {
-		LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::add::epoll_ctl(EPOLL_CTL_ADD)"));
+	if (::epoll_ctl(epoll_fd.get(), EPOLL_CTL_ADD, handler->fd(), &event)) {
+		Server::logger.log(logger::Error, Server::logger.make_errno_error("EventLoop::add::epoll_ctl(EPOLL_CTL_ADD)", __FILE__, __LINE__), true);
 		return false;
 	}
 
@@ -54,9 +54,9 @@ bool EventLoop::mod(io::AEventHandler* handler) {
 	event.events = decode_events(handler->events());
 	event.data.ptr = const_cast<io::AEventHandler*>(handler);
 	
-	if (::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, handler->fd(), &event) < 0) {
+	if (::epoll_ctl(epoll_fd.get(), EPOLL_CTL_MOD, handler->fd(), &event) < 0) {
 		
-		logger.log(logger::Error, logger::Logger::make_errno_error("epoll_ctl(EPOLL_CTL_MOD)"), true);
+		logger.log(logger::Error, logger::Logger::make_errno_error("epoll_ctl(EPOLL_CTL_MOD)", __FILE__, __LINE__), true);
 		return false;
 	}
 	
@@ -67,8 +67,9 @@ bool EventLoop::mod(io::AEventHandler* handler) {
 }
 
 bool EventLoop::del(io::AEventHandler* handler) {
-	if (::epoll_ctl(epoll_fd, EPOLL_CTL_DEL, handler->fd(), NULL)) {
-		LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::del::epoll_ctl(EPOLL_CTL_DEL)"));
+	if (::epoll_ctl(epoll_fd.get(), EPOLL_CTL_DEL, handler->fd(), NULL)) {
+		Server::logger.log(logger::Error,
+			Server::logger.make_errno_error("EventLoop::del::epoll_ctl(EPOLL_CTL_DEL)", __FILE__, __LINE__), true);
 		return false;
 	}
 

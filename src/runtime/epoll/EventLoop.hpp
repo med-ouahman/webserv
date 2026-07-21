@@ -4,6 +4,7 @@
 #include <sys/epoll.h>
 #include "AEventHandler.hpp"
 #include "Logger.hpp"
+#include "UniqueFd.hpp"
 
 namespace runtime {
 namespace epoll {
@@ -16,10 +17,10 @@ private:
 	static const std::size_t	MaxMonitorFds = 1000;
 	static const std::size_t	MaxEvents = 128;
 
-	int 		epoll_fd;
-	bool		created_;
-	epoll_event events[MaxEvents];
-	size_t 		monitor_count;
+	UniqueFd 		epoll_fd;
+	bool			created_;
+	epoll_event 	events[MaxEvents];
+	size_t 			monitor_count;
 	logger::Logger& logger;
 	
 	EventLoop(const EventLoop& other);

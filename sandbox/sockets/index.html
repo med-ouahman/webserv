@@ -14,7 +14,7 @@
     </h1>
     <script>
         const btn = document.getElementById('close-btn');
-        btn.addEventListener('click', () => {
+        btn.addEventSocket('click', () => {
             fetch('/shutdown', { method: 'POST' })
                 .then(response => {
                     if (response.ok) {

@@ -11,7 +11,7 @@ STD = -std=c++98
 CXX_FLAGS := -Wall -Wextra -Werror $(STD) $(DEBUG) $(DEVELOPMENT)
 
 # Libraries we might link against in the future, for now just a placeholder
-LIBS := 
+LIBS :=
 
 SRCDIR := ./src/
 
@@ -22,7 +22,7 @@ NAME = webserv
 INCLUDES = -Isrc/ \
 	-Isrc/net/ \
 	-Isrc/net/connection/ \
-	-Isrc/net/listener/ \
+	-Isrc/net/socket/ \
 	-Isrc/runtime/ \
 	-Isrc/runtime/epoll/ \
 	-Isrc/server/ \
@@ -47,7 +47,7 @@ SRCS = src/server/main.cpp \
 	src/net/connection/Connection.cpp \
 	src/net/connection/connection_io.cpp \
 	src/net/connection/connection_events.cpp \
-	src/net/listener/Listener.cpp \
+	src/net/socket/Socket.cpp \
 	src/runtime/epoll/EventLoop.cpp \
 	src/runtime/epoll/poll.cpp \
 	src/runtime/epoll/events.cpp \
@@ -94,7 +94,16 @@ SRCS = src/server/main.cpp \
 OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 
 all: $(NAME)
-	
+
+fast: $(NAME)
+	@make fclean
+	@make -j4
+
+debug: DEBUG = -g
+debug:
+	@echo "Compiling in Debug mode"
+	@$(MAKE) fast
+
 $(OBJDIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	@$(CXX) $(CXX_FLAGS) $(INCLUDES) $(LIBS) -c $< -o $@
@@ -113,4 +122,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re fast debug

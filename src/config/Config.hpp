@@ -32,10 +32,10 @@ struct LocationConfig {
     bool autoindex;
     bool upload_enabled;
     std::string upload_path;
-    std::string cgi_extension;
-    std::string cgi_path;
+    std::string cgi_extension; // deprecated
+    std::string cgi_path; // deprecated
     std::map<std::string, std::string> cgi_pass;
-    std::string cgi_dir;
+    std::string cgi_dir; // where scripts, executables live
     size_t cgi_timeout;
 
     LocationConfig()

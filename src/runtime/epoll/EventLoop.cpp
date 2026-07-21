@@ -10,26 +10,24 @@ namespace runtime {
 namespace epoll {
 
 EventLoop::EventLoop()
-    : epoll_fd(-1),
+    : epoll_fd(epoll_create(MaxMonitorFds)),
     created_(false),
     monitor_count(0),
-    logger(Server::logger()) {
+    logger(Server::logger) {
 
-    epoll_fd = epoll_create(MaxMonitorFds);
-
-    if (epoll_fd < 0) {
+    if (!epoll_fd.valid()) {
         LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_create()"));
         return;
     }
   
-    int flags = ::fcntl(epoll_fd, F_GETFD);
+    int flags = ::fcntl(epoll_fd.get(), F_GETFD);
     
     if (flags < 0) {
         LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_create()"));
         return;
     }
     
-    if (::fcntl(epoll_fd, F_SETFD, flags | O_CLOEXEC) < 0) {
+    if (::fcntl(epoll_fd.get(), F_SETFD, flags | O_CLOEXEC) < 0) {
         LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_create()"));
         return;
     }
@@ -43,10 +41,6 @@ bool EventLoop::created() const {
 
 EventLoop::~EventLoop() {
 
-    if (epoll_fd < 0) return;
-    
-    ::close(epoll_fd);
-    epoll_fd = -1;
 }
 
 

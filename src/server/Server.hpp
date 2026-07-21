@@ -3,26 +3,36 @@
 #include "RuntimeServices.hpp"
 #include "EventLoop.hpp"
 #include "Connection.hpp"
-#include "Listener.hpp"
+#include "Socket.hpp"
 #include "Logger.hpp"
 
 class Server {
-public:
-    static const std::size_t MaxConnections = 1000;
-    static const std::size_t MaxListens = 10;
 
+public:
+enum ServerErrors {
+AllocFailed,
+SockFailed,
+ConfError,
+IOError,
+ConnError,
+
+};
+
+static const std::size_t MaxConnections = 1000;
+static const std::size_t MaxListens = 10;
+
+static logger::Logger      logger;
 private:
     bool running_;
-    static logger::Logger      logger_;
     std::vector<net::Connection*> connections;
-    std::vector<net::Listener*> listeners;
+    std::vector<net::Socket*> Sockets;
     runtime::epoll::EventLoop poller;
     RuntimeServices services_;
     const config::Config& conf;
 
     Server(const Server&);
     Server& operator=(const Server&);
-    bool start_listeners();
+    bool start_Sockets();
 
 public:
     Server(const config::Config& conf);
@@ -30,10 +40,10 @@ public:
     int start();
     void sweep();
     void abort();
-    void add_connection(int client_fd, const net::ConnectionInfo& info);
+    void add_connection(UniqueFd& uniq, const net::ConnectionInfo& info);
     void close_connection(net::Connection* conn);
-    static logger::Logger& logger();
+    void close_Socket(net::Socket* Socket);
     
-    net::Listener* find_listener(const config::ListenEndPoint& endpoint);
+    net::Socket* find_Socket(const config::ListenEndPoint& endpoint);
     size_t num_connections() const;
 };

@@ -82,6 +82,7 @@ void close() {
     ::close(fd_);
     fd_ = -1;
 }
+
 };
 
 }

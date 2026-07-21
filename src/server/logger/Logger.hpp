@@ -25,8 +25,8 @@ public:
     void log(LogLevel level, const std::string& message, bool timestamp);
     void setstream(std::ostream& stream);
 
-    static std::string make_errno_error(std::string const& ctx);
-    static std::string make_error(std::string const& context, std::string const& message);
+    static std::string make_errno_error(std::string const& ctx, const char* file, int line);
+    static std::string make_error(std::string const& context, std::string const& message, const char* file, int line);
 private:
     std::ostream* out;
     std::string level_string(LogLevel level);

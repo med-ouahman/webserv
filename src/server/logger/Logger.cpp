@@ -58,26 +58,25 @@ void Logger::setstream(std::ostream& stream) {
     out = &stream;
 }
 
-
-std::string Logger::make_errno_error(std::string const& ctx) {
+std::string Logger::make_errno_error(std::string const& ctx,  const char* file, int line) {
     std::stringstream ss;
     
     ss << ctx
     << " | code="
     << errno << " | "
     << strerror(errno) << " | "
-    << __FILE__ << ":" << __LINE__;
+    << file << ":" << line;
 
     return ss.str();
 }
 
-std::string Logger::make_error(std::string const& context, std::string const& message) {
+std::string Logger::make_error(std::string const& context, std::string const& message, const char* file, int line) {
     std::stringstream ss;
     
     ss << context
     << " | "
     << message << " | "
-    << __FILE__ << ":" << __LINE__;
+    << file << ":" << line;
 
     return ss.str();
 }

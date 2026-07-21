@@ -5,14 +5,24 @@
 
 namespace base {
 
-template <typename T> struct Result {
-bool ok;
-T result;
-Error error;
+template <typename T>
+class Result {
+private:
+bool ok_;
+T val;
+Error error_;
 
-Result(const Error& err): ok(false), error(err) {}
-Result(const T& res): ok(true), result(res) {}
-Result(): ok(true) {}
+public:
+Result(const Error& err): ok_(false), error_(err) {}
+Result(const T& res): ok_(true), val(res) {}
+Result(): ok_(true) {}
+
+bool ok() { return ok_; }
+
+T& value() { return val; }
+const T& value() const { return val; }
+
+const Error& error() const { return error_; }
 
 };
 
