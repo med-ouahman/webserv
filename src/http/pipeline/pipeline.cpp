@@ -13,8 +13,8 @@
 
 namespace http {
 
-base::Expected<RequestHandler*, Error> createHandler( RequestType type, Context& context ) {
-	RequestHandler* handler;
+base::Expected<ARequestHandler*, Error> createHandler( RequestType type, Context& context ) {
+	ARequestHandler* handler;
 
 	handler = NULL;
 	switch (type) {

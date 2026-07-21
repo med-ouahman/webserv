@@ -12,7 +12,7 @@ class Context;
 struct DispatchInfo;
 struct Request;
 
-class RequestHandler {
+class ARequestHandler {
 
 protected:
 	Context& context_;
@@ -34,10 +34,11 @@ protected:
 	Response& response();
 
 public:
-	explicit RequestHandler(Context& context);
+	explicit ARequestHandler(Context& context);
 	virtual Error handle() = 0;
-	virtual bool done() const { return true; }
-	virtual ~RequestHandler();
+	virtual Error timeout();
+	virtual bool done() const = 0;
+	virtual ~ARequestHandler();
 };
 
 }

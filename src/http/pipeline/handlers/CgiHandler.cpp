@@ -100,7 +100,7 @@ void Channel::write() {
 }
 
 CgiHandler::CgiHandler(Context& ctx)
-    : RequestHandler(ctx),
+    : ARequestHandler(ctx),
     state_(Working),
     response_state(Processing),
     reason_(None),

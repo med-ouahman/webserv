@@ -3,12 +3,16 @@
 
 #include "base/base.hpp"
 #include "config/Config.hpp"
+
 #include "http/Request.hpp"
 #include "http/Response.hpp"
 #include "http/Parser/Parser.hpp"
 #include "http/routing/Routing.hpp"
+
 #include "cgi/CGIContext.hpp"
 #include "server/RuntimeServices.hpp"
+
+#include "http/Error.hpp"
 
 #define CRLF "\r\n"
 #define HTTP_SERVER_ROOT "server/root"
@@ -17,7 +21,7 @@ namespace http {
 
 class Context;
 class ErrorHandler;
-class RequestHandler;
+class ARequestHandler;
 struct CGIRequestContext;
 struct CGIExecContext;
 
@@ -31,14 +35,15 @@ enum ContextState {
 enum ContextAction {
 	AC_READ,
 	AC_WRITE,
-	AC_CLOSE
+	AC_CLOSE,
+	AC_NONE
 };
 
 struct Actor {
 	Parser parser;
 	Request request;
 	Response response;
-	RequestHandler* handler;
+	ARequestHandler* handler;
 
 	Actor();
 	void reset();
@@ -54,25 +59,18 @@ struct Info {
 		usize conn_id, usize request_id);
 };
 
-struct RequestCount {
-	usize active_cgi;
-	usize active_requests;
-
-	RequestCount();
-};
-
 class Context {
 
 private:
 
-	Actor actor;
-	Info info;
+	Actor actor_;
+	Info info_;
 	Error error_;
 
 	ContextState	state_;
-	ContextAction	action_;
 
-	static RequestCount request_count;
+	static usize active_cgi;
+	usize active_requests;
 
 	Context(const Context&);
 	Context& operator=(const Context&);
@@ -90,11 +88,8 @@ private:
 
 	usize handleResponseFailure(Error err);
 
-	void process();
-
-
 	friend class Parser;
-	friend class RequestHandler;
+	friend class ARequestHandler;
 	friend class ErrorHandler;
 	friend class CgiHandler;
 
@@ -105,16 +100,19 @@ private:
 
 public:
 	RuntimeServices& services_;
+	ContextAction action_;
 	
 	Context(const std::vector<const config::ServerConfig*>& servers,
 		usize conn_id, usize request_id, RuntimeServices& services);
 	~Context();
 
 	usize consume(const char* data, usize size);
+	void process();
 	usize produce(char *buffer, usize size);
 
 	ContextAction nextAction() const;
-	bool reconcile();
+
+	bool timeout();
 };
 
 }

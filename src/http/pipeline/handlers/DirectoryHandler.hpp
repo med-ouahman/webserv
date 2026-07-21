@@ -6,7 +6,7 @@ namespace http {
 
 class Context;
 
-class DirectoryHandler : public RequestHandler {
+class DirectoryHandler : public ARequestHandler {
 public:
 	explicit DirectoryHandler(Context& context);
 	virtual ~DirectoryHandler();

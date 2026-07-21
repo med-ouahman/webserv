@@ -10,6 +10,6 @@ namespace http {
 
 class Context;
 
-base::Expected<RequestHandler*, Error> createHandler( RequestType type, Context& context );
+base::Expected<ARequestHandler*, Error> createHandler( RequestType type, Context& context );
 
 }

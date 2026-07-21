@@ -33,7 +33,7 @@ static bool readErrorPage(const config::ServerConfig& server,
 }
 
 ErrorHandler::ErrorHandler(Context& context, Error error)
-	: RequestHandler(context), error_(error) {}
+	: ARequestHandler(context), error_(error) {}
 
 void ErrorHandler::setAllowedMethods() {
 	std::set<std::string>::const_iterator it;

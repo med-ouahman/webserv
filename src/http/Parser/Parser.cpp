@@ -1,6 +1,7 @@
 
 #include "http/Parser/Parser.hpp"
 #include "http/Context.hpp"
+#include ""
 
 #include <cstdio>
 
@@ -8,6 +9,7 @@ namespace http {
 namespace parser {
 
 static Error checkSize(ParserPhase phase, usize read_bytes) {
+	
 	switch (phase) {
 		case PARSING_REQUEST_LINE:
 			return read_bytes > limits::REQUEST_LINE_MAX_SIZE
@@ -16,7 +18,8 @@ static Error checkSize(ParserPhase phase, usize read_bytes) {
 			return read_bytes > limits::HEADER_MAX_SIZE
 				? ERR_HEADER_TOO_LARGE : ERR_NONE;
 		case PARSING_BODY:
-			return ERR_NONE;
+			return read_bytes > limits::BODY_MAX_SIZE
+				? ERR_BODY_TOO_LARGE : ERR_NONE;
 		default:
 			return ERR_NONE;
 	}
@@ -52,8 +55,8 @@ Parser::Parser(const std::string& body_path)
 	  bodyWriter(body_path, body_buffer, limits::BODY_BUFFER_SIZE),
 	  leading_crlf(false) {}
 
-void Parser::reset()
-{
+void Parser::reset() {
+
 	if (bodyWriter.file_created())
 		std::remove(bodyWriter.path().c_str());
 
@@ -93,7 +96,7 @@ Error Parser::getChunk(std::string& out, bool& found) {
 	return parser::checkSize(phase, consumed);
 }
 
-Error Parser::parse(Context& ctx) {
+	Error Parser::progress(	Context& ctx, char* data, usize size, usize consumed) {
 	Error err;
 
 	switch (phase) {
@@ -110,7 +113,7 @@ Error Parser::parse(Context& ctx) {
 			return ERR_INTERNAL;
 	}
 	if (err == ERR_NONE && ctx.state_ == PARSING)
-		ctx.action_ = progressParsing() ? AC_WRITE : AC_READ;
+		ctx.action_ = canProgress(ctx.actor.request) ? AC_WRITE : AC_READ;
 	return err;
 }
 
@@ -131,8 +134,15 @@ void Parser::startBody() {
 	timer.update();
 }
 
-bool Parser::progressParsing() const {
-	return phase != PARSING_BODY
-		&& raw_buffer.find(CRLF) != std::string::npos;
+void Parser::incrementBuffer(const char* data, usize size) {
+	raw_buffer.reserve(raw_buffer.size() + size);
+	raw_buffer.append(data, size);
 }
+
+bool Parser::canProgress(const Request& request) const {
+	if (phase == PARSING_BODY)
+		return progressBody(request);
+	return phase != PARSING_BODY && raw_buffer.find(CLRF) != std::string::npos;
 }
+
+	}

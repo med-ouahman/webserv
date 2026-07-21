@@ -6,7 +6,7 @@ namespace http {
 
 class Context;
 
-class RedirectHandler : public RequestHandler {
+class RedirectHandler : public ARequestHandler {
 public:
 	explicit RedirectHandler(Context& context);
 	virtual ~RedirectHandler();

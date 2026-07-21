@@ -11,7 +11,7 @@ struct MimeEntry {
 
 class Context;
 
-class StaticFileHandler : public RequestHandler {
+class StaticFileHandler : public ARequestHandler {
 public:
 	explicit StaticFileHandler(Context& context);
 	virtual ~StaticFileHandler();

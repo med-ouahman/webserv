@@ -98,7 +98,7 @@ static const std::vector<std::string>& indexFiles(
 }
 
 DirectoryHandler::DirectoryHandler(Context& context)
-	: RequestHandler(context) {}
+	: ARequestHandler(context) {}
 
 DirectoryHandler::~DirectoryHandler() {}
 

@@ -26,7 +26,7 @@ static Error deleteFile(const std::string& path) {
 }
 
 DeleteHandler::DeleteHandler(Context& context)
-	: RequestHandler(context) {}
+	: ARequestHandler(context) {}
 
 DeleteHandler::~DeleteHandler() {}
 

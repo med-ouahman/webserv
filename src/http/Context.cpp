@@ -7,8 +7,7 @@
 #include "http/pipeline/pipeline.hpp"
 #include "http/pipeline/handlers/ErrorHandler.hpp"
 #include "http/routing/Routing.hpp"
-
-#include "CgiHandler.hpp"
+#include "http/Error.hpp"
 #include <cstdio>
 
 namespace http {
@@ -96,8 +95,22 @@ void Context::responseReady() {
 
 Error Context::setError(Error error) {
 	error_ = error;
-	state_ = ERROR;
-	action_ = AC_WRITE;
+
+	actor.response.reset();
+	delete actor.handler;
+
+	actor.handler = new (std::nothrow) ErrorHandler(*this, error);
+	if (actor.handler) {
+		state_ = PROCESSING;
+		action_ = AC_NONE;
+		return error;
+	}
+
+	actor.handler = NULL;
+	actor.response.status = INTERNAL_SERVER_ERROR;
+	actor.response.body = "";
+	responseReady();
+
 	return error;
 }
 
@@ -144,20 +157,8 @@ Error Context::prepareBodyStorage() {
 	return ERR_NONE;
 }
 
-Error Context::readBody() {
-	Error err;
-
-	if (!info.dispatch.value.read_body
-		|| actor.request.body.type() != base::io::Reader::NONE)
-		return ERR_NONE;
-	TRY(actor.parser.parseBody(*this), setError(err));
-	if (actor.request.body.type() == base::io::Reader::NONE)
-		action_ = actor.parser.progressBody(actor.request) ? AC_WRITE : AC_READ;
-	return ERR_NONE;
-}
-
 Error Context::createHandler() {
-	base::Expected<RequestHandler*, Error> created =
+	base::Expected<ARequestHandler*, Error> created =
 		http::createHandler(info.dispatch.value.handlerType, *this);
 
 	if (!created)
@@ -176,109 +177,55 @@ Error Context::handleError() {
 
 usize Context::consume(const char* data, usize size) {
 	Error err;
-	usize consumed;
+	usize consumed = 0;
 
-	if (reconcile())
-		return 0;
 	if (data == NULL && size != 0) {
 		setError(ERR_BAD_REQUEST);
-		return 0;
+		return consumed;
 	}
-	if (action_ != AC_READ)
-		return 0;
+	if (action_ != AC_READ) return consumed;
 
-	actor.parser.raw_buffer.reserve(actor.parser.raw_buffer.size() + size);
-	actor.parser.raw_buffer.append(data, size);
-	consumed = size;
-
-	switch (state_) {
-		case PARSING:
-			err = actor.parser.parse(*this);
-			if (err != ERR_NONE)
-				setError(err);
-			if (state_ == PROCESSING && !info.dispatch.has_value()) {
-				TRY(resolveDispatch(), (setError(err), static_cast<usize>(0)));
-				TRY(prepareBodyStorage(),
-					(setError(err), static_cast<usize>(0)));
-				if (action_ == AC_READ) return 0;
-			}
-
-			break;
-		case PROCESSING:
-			if (!info.dispatch.has_value() || !info.dispatch.value.read_body
-				|| actor.request.body.type() != base::io::Reader::NONE)
-				return 0;
-			err = actor.parser.parseBody(*this);
-			if (err != ERR_NONE)
-				setError(err);
-			else if (actor.request.body.type() == base::io::Reader::NONE)
-				action_ = actor.parser.progressBody(actor.request) ? AC_WRITE : AC_READ;
-			break;
-		case DONE:
-		case ERROR:
-			return 0;
+	if (state_ == PARSING) {
+		TRY(actor.parser.progress(*this, data, size, consumed),
+				(setError(err), consumed));
+		if (state_ == PROCESSING && !info.dispatch.has_value()) {
+			TRY(resolveDispatch(), (setError(err), consumed));
+			TRY(prepareBodyStorage(), (setError(err), consumed));
+			TRY(createHandler(), (setError(err), consumed));
+		}
+		return consumed;
 	}
+
+	if (state_ == PROCESSING) {
+		TRY(actor.parser.progress(*this, data, size, consumed),
+				(setError(err), consumed));
+		action_ = AC_NONE;
+		return consumed;
+	}
+
 	return consumed;
 }
 
 void Context::process() {
 	Error err;
 
-	switch (state_) {
-		case PARSING:
-			TRY(actor.parser.parse(*this), (setError(err), void()));
-			if (state_ == PROCESSING && !info.dispatch.has_value()) {
-				TRY(resolveDispatch(), (setError(err), void()));
-				TRY(prepareBodyStorage(), (setError(err), void()));
-			}
-			break;
-		case PROCESSING: {
-			if (action_ == AC_READ) return ;
-			if (actor.handler == NULL) TRY(createHandler(), (setError(err), void()));
-			TRY(readBody(), (setError(err), void()));
-			if (action_ == AC_READ) return ;
-			action_ = AC_READ;
-			TRY(actor.handler->handle(), (setError(err), void()));
-			/* need a way of telling if we are finished or not because CGI is async might not finish in a single call to handle() */
-			if (!actor.handler->done()) return;
-			responseReady();
-			return ;
-		}
-		case DONE:
-			return ;
-		case ERROR: {
-			TRY(handleError(), (setError(err), void()));
-			return ;
-		}
-	}
+	if (state_ != PROCESSING and action_ != AC_NONE) return ;
+	TRY(actor.handler->handle(), (setError(err), void()));
+	if (actor.handler->done()) responseReady();
 }
 
 ContextAction Context::nextAction() const { return action_; }
 
-bool Context::reconcile() {
-	
-	/* need a way to know if the current request is CGI TO call handler->monitor which is a cgi special case */
-	if (info.dispatch.has_value() && info.dispatch.value.handlerType == CGI && actor.handler) {
-		CgiHandler* h = static_cast<CgiHandler*>(actor.handler);
-		http::Error err;
-		h->monitor();
-		TRY(actor.handler->handle(), (setError(err), false));
-		
-		if (h->done()) responseReady();
-
-		if (h->tobenamedlater()) {
-			delete h;
-			h = NULL;
-		}
+void Context::timeout() {
+	if (state_ == PARSING and actor.parser.timedOut()) {
+		setError(ERR_REQUEST_TIMEOUT);
+		return ;
 	}
 
-	if (action_ != AC_READ
-		|| (state_ != PARSING && state_ != PROCESSING))
-		return false;
-	if (!actor.parser.timedOut())
-		return false;
-	setError(ERR_REQUEST_TIMEOUT);
-	return true;
+	if (state_ == PROCESSING and actor.handler != NULL) {
+		Error err = actor.handler->timeout();
+		if (err != ERR_NONE) setError(err);
+	}
 }
 
 usize Context::handleResponseFailure(Error err) {
@@ -292,12 +239,7 @@ usize Context::produce(char *buffer, usize size) {
 	Error err;
 	usize sent = 0;
 
-	if (action_ != AC_WRITE)
-		return 0;
-	if (state_ != DONE)
-		process();
-	if (state_ != DONE || action_ != AC_WRITE)
-		return 0;
+	if (state_ != DONE || action_ != AC_WRITE) return 0;
 	TRY(actor.response.write(buffer, size, actor.request.version, sent),
 		(handleResponseFailure(err)));
 	if (actor.response.finished()) {

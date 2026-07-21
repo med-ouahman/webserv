@@ -7,7 +7,7 @@ namespace http {
 
 class Context;
 
-class UploadHandler : public RequestHandler {
+class UploadHandler : public ARequestHandler {
 public:
 	explicit UploadHandler(Context& context);
 	virtual ~UploadHandler();

@@ -5,7 +5,7 @@ NAME := http_tests
 SOURCES := \
 	main.cpp \
 	../Context.cpp \
-	../response_writer.cpp \
+	../Response.cpp \
 	../Parser/Parser.cpp \
 	../Parser/request_line.cpp \
 	../Parser/headers/header_rules.cpp \

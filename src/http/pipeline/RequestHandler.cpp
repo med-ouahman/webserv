@@ -7,16 +7,16 @@
 
 namespace http {
 
-RequestHandler::RequestHandler(Context& context)
+ARequestHandler::ARequestHandler(Context& context)
 	: context_(context) {}
 
-RequestHandler::~RequestHandler() {}
+ARequestHandler::~ARequestHandler() {}
 
-void RequestHandler::setStatus(StatusCode status) {
+void ARequestHandler::setStatus(StatusCode status) {
 	context_.actor.response.status = status;
 }
 
-void RequestHandler::setHeader(const std::string& key,
+void ARequestHandler::setHeader(const std::string& key,
 		const std::string& value) {
 	usize i = 0;
 	Header header;
@@ -33,7 +33,7 @@ void RequestHandler::setHeader(const std::string& key,
 	context_.actor.response.headers.push_back(header);
 }
 
-void RequestHandler::eraseHeader(const std::string& key) {
+void ARequestHandler::eraseHeader(const std::string& key) {
 	std::vector<Header>::iterator it = context_.actor.response.headers.begin();
 
 	while (it != context_.actor.response.headers.end()) {
@@ -44,34 +44,34 @@ void RequestHandler::eraseHeader(const std::string& key) {
 	}
 }
 
-void RequestHandler::setBodyFixed(const std::string& body) {
+void ARequestHandler::setBodyFixed(const std::string& body) {
 	context_.actor.response.body = body;
 	context_.actor.response.body_reader.reset();
 }
 
-Error RequestHandler::setBodyFile(const std::string& path) {
+Error ARequestHandler::setBodyFile(const std::string& path) {
 	context_.actor.response.body.clear();
 	if (!context_.actor.response.body_reader.reset(path))
 		return ERR_NOT_FOUND;
 	return ERR_NONE;
 }
 
-void RequestHandler::setContentType(const std::string& type) {
+void ARequestHandler::setContentType(const std::string& type) {
 	setHeader("Content-Type", type);
 }
 
-void RequestHandler::setContentLength() {
+void ARequestHandler::setContentLength() {
 	setContentLength(context_.actor.response.body.size());
 }
 
-void RequestHandler::setContentLength(usize size) {
+void ARequestHandler::setContentLength(usize size) {
 	std::ostringstream length;
 
 	length << size;
 	setHeader("Content-Length", length.str());
 }
 
-void RequestHandler::setConnection() {
+void ARequestHandler::setConnection() {
 	if (context_.actor.request.version == HTTP_1_1
 		&& context_.actor.request.connection != CONNECTION_CLOSE) {
 		setHeader("Connection", "keep-alive");
@@ -85,7 +85,7 @@ void RequestHandler::setConnection() {
 	setHeader("Connection", "close");
 }
 
-void RequestHandler::setDate() {
+void ARequestHandler::setDate() {
 	char buffer[64];
 	time_t now = time(NULL);
 	struct tm* time_info = gmtime(&now);
@@ -98,15 +98,15 @@ void RequestHandler::setDate() {
 	setHeader("Date", buffer);
 }
 
-const DispatchInfo& RequestHandler::decision() const {
+const DispatchInfo& ARequestHandler::decision() const {
 	return context_.info.dispatch.value;
 }
 
-Request& RequestHandler::request() {
+Request& ARequestHandler::request() {
 	return context_.actor.request;
 }
 
-Response& RequestHandler::response() {
+Response& ARequestHandler::response() {
 	return context_.actor.response;
 }
 

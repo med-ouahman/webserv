@@ -55,7 +55,7 @@ SRCS = src/server/main.cpp \
 	src/cgi/ResponseParser.cpp \
 	src/cgi/CGIContext.cpp \
 	src/http/Context.cpp \
-	src/http/response_writer.cpp \
+	src/http/Response.cpp \
 	src/http/common/LineReader.cpp \
 	src/http/common/Headers.cpp \
 	src/http/Parser/Parser.cpp \

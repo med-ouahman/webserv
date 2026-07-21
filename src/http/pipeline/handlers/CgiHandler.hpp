@@ -56,7 +56,7 @@ public:
 	BufferView view() const;
 };
 
-class CgiHandler: public RequestHandler {
+class CgiHandler: public ARequestHandler {
 public:
 
 enum State {

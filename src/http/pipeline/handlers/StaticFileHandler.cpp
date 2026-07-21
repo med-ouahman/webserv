@@ -60,7 +60,7 @@ static std::string httpDate(time_t value) {
 }
 
 StaticFileHandler::StaticFileHandler(Context& context)
-	: RequestHandler(context) {}
+	: ARequestHandler(context) {}
 
 StaticFileHandler::~StaticFileHandler() {}
 

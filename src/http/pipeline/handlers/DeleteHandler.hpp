@@ -7,7 +7,7 @@ namespace http {
 
 class Context;
 
-class DeleteHandler : public RequestHandler {
+class DeleteHandler : public ARequestHandler {
 public:
 	explicit DeleteHandler(Context& context);
 	virtual ~DeleteHandler();

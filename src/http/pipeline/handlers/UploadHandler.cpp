@@ -70,7 +70,7 @@ static Error copyBody(base::io::Reader& reader, const std::string& path) {
 }
 
 UploadHandler::UploadHandler(Context& context)
-	: RequestHandler(context) {}
+	: ARequestHandler(context) {}
 
 UploadHandler::~UploadHandler() {}
 

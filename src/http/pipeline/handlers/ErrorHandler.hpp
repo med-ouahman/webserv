@@ -7,7 +7,7 @@ namespace http {
 
 class Context;
 
-class ErrorHandler : public RequestHandler {
+class ErrorHandler : public ARequestHandler {
 private:
 	Error error_;
 

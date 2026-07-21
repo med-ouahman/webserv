@@ -18,7 +18,7 @@ enum ChunkState { CHUNK_SIZE, CHUNK_DATA, CHUNK_CRLF, CHUNK_TRAILER };
 enum ParserPhase { PARSING_REQUEST_LINE, PARSING_HEADERS, PARSING_BODY };
 
 class Parser {
-public:
+private:
 	std::string	raw_buffer;
 
 	usize header_bytes;
@@ -36,13 +36,7 @@ public:
 
 	bool leading_crlf;
 
-	Parser();
-	Parser(const std::string& body_path);
-
-	void	reset();
 	Error	getChunk(std::string& out, bool& found);
-
-	Error	parse(Context& ctx);
 	Error	parseRequestLine(Context& ctx);
 	Error	parseHeaders(Context& ctx);
 	Error	parseBody(Context& ctx);
@@ -54,14 +48,23 @@ public:
 	Error	chunkTrailerState(Context& ctx);
 	Error	finishBody(Context& ctx);
 	Error	bodyWrite(usize size);
+	bool	canProgress(const Request& request) const;
 	bool	progressBody(const Request& request) const;
 	bool	progressParsing() const;
-	bool	timedOut() const;
-	void	startBody();
 
-private:
 	static usize minSize(usize a, usize b);
 	static bool parseChunkSize(const std::string& line, usize& size);
+
+public:
+	Parser();
+	Parser(const std::string& body_path);
+
+	Error progress(Context& ctx);
+
+	void reset();
+	void incrementBuffer(const char* data, usize size);
+	bool timedOut() const;
+	void startBody();
 };
 
 }

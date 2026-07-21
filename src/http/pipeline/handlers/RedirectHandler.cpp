@@ -23,7 +23,7 @@ static StatusCode redirectStatus(int code) {
 }
 
 RedirectHandler::RedirectHandler(Context& context)
-	: RequestHandler(context) {}
+	: ARequestHandler(context) {}
 
 RedirectHandler::~RedirectHandler() {}
 
