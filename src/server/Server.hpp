@@ -25,14 +25,14 @@ static logger::Logger      logger;
 private:
     bool running_;
     std::vector<net::Connection*> connections;
-    std::vector<net::Socket*> Sockets;
+    std::vector<net::Socket*> listeners;
     runtime::epoll::EventLoop poller;
     RuntimeServices services_;
     const config::Config& conf;
 
     Server(const Server&);
     Server& operator=(const Server&);
-    bool start_Sockets();
+    bool start_listeners();
 
 public:
     Server(const config::Config& conf);
@@ -44,6 +44,6 @@ public:
     void close_connection(net::Connection* conn);
     void close_Socket(net::Socket* Socket);
     
-    net::Socket* find_Socket(const config::ListenEndPoint& endpoint);
+    net::Socket* find_listener(const config::ListenEndPoint& endpoint);
     size_t num_connections() const;
 };

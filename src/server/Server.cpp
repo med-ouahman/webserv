@@ -26,17 +26,17 @@ Server::Server(const config::Config& c)
 
     logger.setstream(std::cout);
     running_ = poller.created();
-    running_ = running_ && start_Sockets();
+    running_ = running_ && start_listeners();
 }
 
 Server::~Server() {
 
-    for (size_t i(0); i < Sockets.size(); ++i) {
-        poller.del(Sockets[i]);
-        delete Sockets[i];
+    for (size_t i(0); i < listeners.size(); ++i) {
+        poller.del(listeners[i]);
+        delete listeners[i];
     }
     
-    Sockets.clear();
+    listeners.clear();
     
     for (size_t i(0); i < connections.size(); ++i) {
         poller.del(connections[i]);
@@ -56,15 +56,15 @@ void Server::close_connection(net::Connection* conn) {
 }
 
 void Server::close_Socket(net::Socket* Socket) {
-    Sockets.erase(
-        std::remove(Sockets.begin(), Sockets.end(), Socket),
-        Sockets.end()
+    listeners.erase(
+        std::remove(listeners.begin(), listeners.end(), Socket),
+        listeners.end()
     );
     
     delete Socket;
 }
 
-bool Server::start_Sockets() {
+bool Server::start_listeners() {
     
     const std::vector<config::ServerConfig>& servers = conf.servers;
 
@@ -74,21 +74,26 @@ bool Server::start_Sockets() {
 
         for (size_t j(0); j < endpoints.size(); ++j) {
             
-            net::Socket* l = find_Socket(endpoints[j]);
+            net::Socket* l = find_listener(endpoints[j]);
 
             if (!l) {
 
                 base::Result<net::Socket*> result = net::create_listening_socket(endpoints[j], *this);
                 
                 if (!result.ok()) {
-                    logger.log(logger::Error, logger.make_error(result.error().context, result.error().message, result.error().file, result.error().line), true);
+                    logger.log(logger::Error,
+                        logger.make_error(result.error().context,
+                        result.error().message,
+                        result.error().file,
+                        result.error().line), true);
+
                     return false;
                 }
                 
                 net::Socket* sock = result.value();
 
                 if (!poller.add(sock)) return false;
-                Sockets.push_back(sock);
+                listeners.push_back(sock);
 
                 l = sock;
             }
@@ -118,10 +123,6 @@ void Server::add_connection(UniqueFd& conn_fd, const net::ConnectionInfo& info) 
     logger.log(logger::Info, "Connection accepted", true);
 }
 
-/*
-    sweep:
-    function to be called on each event loop cycle to check the state of the connections
-*/
 
 void Server::sweep() {
     
@@ -137,8 +138,8 @@ void Server::sweep() {
         else ++i;
     }
 
-    for (size_t i(0); i < Sockets.size(); ) {
-        net::Socket* Socket = Sockets.at(i);
+    for (size_t i(0); i < listeners.size(); ) {
+        net::Socket* Socket = listeners.at(i);
         poller.sync(Socket);
         if (Socket->error()) {
 
@@ -153,11 +154,11 @@ void Server::abort() {
     std::abort();
 }
 
-net::Socket* Server::find_Socket(const config::ListenEndPoint& endpoint) {
+net::Socket* Server::find_listener(const config::ListenEndPoint& endpoint) {
 
     for (
-        std::vector<net::Socket*>::const_iterator it = Sockets.begin();
-            it != Sockets.end();
+        std::vector<net::Socket*>::const_iterator it = listeners.begin();
+            it != listeners.end();
             ++it
     ) {
         net::Socket* Socket = *it;
@@ -176,7 +177,7 @@ size_t Server::num_connections() const {
 int Server::start() {
 
     if (!running_) return EXIT_FAILURE;
-    
+
     while (running_) {
         poller.poll();
         sweep();
