@@ -1,57 +1,88 @@
-#include "http/Parser/Parser.hpp"
-#include "conf.h"
+#include "TestSupport.hpp"
 
 #include <iostream>
-#include <string>
 
-static const char* errorName(http::Error err) {
-	switch (err) {
-		case http::ERR_NONE: return "ERR_NONE";
-		case http::ERR_BAD_REQUEST: return "ERR_BAD_REQUEST";
-		case http::ERR_UNSUPPORTED_HTTP_VERSION:
-			return "ERR_UNSUPPORTED_HTTP_VERSION";
-		case http::ERR_MISSING_HOST: return "ERR_MISSING_HOST";
-		case http::ERR_DUPLICATE_HEADER: return "ERR_DUPLICATE_HEADER";
-		case http::ERR_INVALID_CONTENT_LENGTH:
-			return "ERR_INVALID_CONTENT_LENGTH";
-		case http::ERR_TE_UNSUPPORTED: return "ERR_TE_UNSUPPORTED";
-		case http::ERR_CONFLICTING_BODY_HEADERS:
-			return "ERR_CONFLICTING_BODY_HEADERS";
-		case http::ERR_HEADER_TOO_LARGE: return "ERR_HEADER_TOO_LARGE";
-		case http::ERR_BODY_TOO_LARGE: return "ERR_BODY_TOO_LARGE";
-		case http::ERR_REQUEST_TIMEOUT: return "ERR_REQUEST_TIMEOUT";
-		case http::ERR_NOT_FOUND: return "ERR_NOT_FOUND";
-		case http::ERR_FORBIDDEN: return "ERR_FORBIDDEN";
-		case http::ERR_METHOD_NOT_ALLOWED: return "ERR_METHOD_NOT_ALLOWED";
-		case http::ERR_LENGTH_REQUIRED: return "ERR_LENGTH_REQUIRED";
-		case http::ERR_CGI_FAILED: return "ERR_CGI_FAILED";
-		case http::ERR_CGI_TIMEOUT: return "ERR_CGI_TIMEOUT";
-		case http::ERR_INTERNAL: return "ERR_INTERNAL";
-	}
-	return "UNKNOWN_ERROR";
+namespace {
+
+static void testPartialRequestLine(TestState& state) {
+	http::Parser parser;
+	http::Context context;
+	const std::string request = "GET /partial";
+	usize consumed;
+	http::Error err = feed(parser, context, request, consumed);
+
+	expectError(state, "partial_request_line", err, http::ERR_NONE);
+	expectConsumed(state, "partial_request_line", consumed, request.size());
+	expectAction(state, "partial_request_line", context.nextAction(),
+		http::AC_READ);
+}
+
+static void testCompleteGetHeaders(TestState& state) {
+	http::Parser parser;
+	http::Context context;
+	const std::string request =
+		"GET /hello?x=1 HTTP/1.1\r\n"
+		"Host: localhost\r\n"
+		"Connection: close\r\n"
+		"\r\n";
+	usize consumed;
+	http::Error err = feed(parser, context, request, consumed);
+
+	expectError(state, "complete_get_headers", err, http::ERR_NONE);
+	expectConsumed(state, "complete_get_headers", consumed, request.size());
+	err = feed(parser, context, "", consumed);
+	expectError(state, "complete_get_headers", err, http::ERR_NONE);
+	expectState(state, "complete_get_headers", context.state_,
+		http::PROCESSING);
+}
+
+static void testMissingHost(TestState& state) {
+	http::Parser parser;
+	http::Context context;
+	const std::string request =
+		"GET / HTTP/1.1\r\n"
+		"\r\n";
+	usize consumed;
+	http::Error err = feed(parser, context, request, consumed);
+
+	expectError(state, "missing_host_request_line", err, http::ERR_NONE);
+	expectConsumed(state, "missing_host", consumed, request.size());
+	err = feed(parser, context, "", consumed);
+	expectError(state, "missing_host", err, http::ERR_MISSING_HOST);
+}
+
+static void testDuplicateContentLength(TestState& state) {
+	http::Parser parser;
+	http::Context context;
+	const std::string request =
+		"POST /upload HTTP/1.1\r\n"
+		"Host: localhost\r\n"
+		"Content-Length: 1\r\n"
+		"Content-Length: 2\r\n"
+		"\r\n";
+	usize consumed;
+	http::Error err = feed(parser, context, request, consumed);
+
+	expectError(state, "duplicate_content_length_request_line", err,
+		http::ERR_NONE);
+	expectConsumed(state, "duplicate_content_length", consumed,
+		request.size());
+	err = feed(parser, context, "", consumed);
+	expectError(state, "duplicate_content_length", err,
+		http::ERR_DUPLICATE_HEADER);
+}
+
 }
 
 int main(void) {
-	http::Parser parser;
-	std::string line;
-	bool found;
-	http::Error err;
-	usize index;
+	TestState state;
 
-	parser.phase = http::PARSING_HEADERS;
-	parser.raw_buffer = complex_headers;
-	index = 0;
-	while (true) {
-		err = parser.getChunk(line, found);
-		std::cout << "chunk[" << index << "]" << std::endl;
-		std::cout << "error=" << errorName(err) << std::endl;
-		std::cout << "found=" << (found ? "true" : "false") << std::endl;
-		std::cout << "content=\"" << line << "\"" << std::endl;
-		std::cout << "remaining_size=" << parser.raw_buffer.size()
-			<< std::endl << std::endl;
-		if (err != http::ERR_NONE || !found || line.empty())
-			break;
-		++index;
-	}
-	return err == http::ERR_NONE ? 0 : 1;
+	testPartialRequestLine(state);
+	testCompleteGetHeaders(state);
+	testMissingHost(state);
+	testDuplicateContentLength(state);
+	if (state.failures != 0)
+		return 1;
+	std::cout << "Parser progress tests passed" << std::endl;
+	return 0;
 }

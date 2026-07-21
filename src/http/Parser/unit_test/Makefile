@@ -1,9 +1,14 @@
 CXX := c++
-CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -I../../..
+CXXFLAGS := -Wall -Wextra -Werror -std=c++98 \
+	-I. \
+	-I../../.. \
+	-I../../../foundation
 NAME := parser_test
 
 SOURCES := \
 	main.cpp \
+	TestSupport.cpp \
+	RequestStub.cpp \
 	../Parser.cpp \
 	../request_line.cpp \
 	../headers/header_rules.cpp \

@@ -19,9 +19,8 @@ Error fsBuildPath(const config::ServerConfig& server,
 Error fsInspectPath(const std::string& root,
 	const std::string& path,
 	PathType& type);
-Error findLocation(const std::string& path,
-	const config::ServerConfig& server,
-	const config::LocationConfig*& out);
+Error findLocation( DispatchInfo& decision,
+					const config::ServerConfig& server );
 
 Error checkMethodSupported(Method method);
 Error checkMethodAllowed(Method method, const config::LocationConfig& location);
@@ -31,18 +30,11 @@ usize bodyLimit(const config::ServerConfig& server);
 Error checkBodySize(const Request& request, usize max_body_size);
 
 bool hasRedirect(const config::LocationConfig& location);
-bool isCGIRequest(
-		const std::string& path,
-		const config::LocationConfig& location,
-		const std::string** cgi_path );
 Error checkUploadAllowed(const config::LocationConfig& location);
 Error checkUploadFraming(const Request& request);
-RequestType getRequestType(
+Error setRequestType(
 		const Request& request,
-		const std::string& path,
-		const config::LocationConfig& location,
-		PathType path_type,
-		const std::string** cgi_path );
+		DispatchInfo& decision );
 
 }
 }

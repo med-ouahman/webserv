@@ -6,6 +6,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <cerrno>
+#include <cstdio>
+
 namespace http {
 
 namespace {
@@ -67,6 +70,16 @@ static Error copyBody(base::io::Reader& reader, const std::string& path) {
 	return ERR_NONE;
 }
 
+static Error putBody(base::io::Reader& reader, const std::string& path) {
+	if (reader.type() == base::io::Reader::FILE) {
+		if (std::rename(reader.path().c_str(), path.c_str()) == 0)
+				return ERR_NONE;
+		if (errno != EXDEV)
+				return ERR_INTERNAL;
+	}
+	return copyBody(reader, path);
+}
+
 }
 
 UploadHandler::UploadHandler(Context& context)
@@ -85,13 +98,14 @@ Error UploadHandler::handle() {
 	path = pathJoin(*decision().upload_path, filename);
 	if (pathExists(path))
 		return ERR_METHOD_NOT_ALLOWED;
-	TRY(copyBody(request().body, path), err);
+	TRY(putBody(request().body, path), err);
 	setStatus(CREATED);
 	setBodyFixed("");
 	setHeader("Location", path);
 	setContentLength();
 	setConnection();
 	setDate();
+	done_ = true;
 	return ERR_NONE;
 }
 

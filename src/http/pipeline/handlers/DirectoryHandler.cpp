@@ -121,6 +121,7 @@ Error DirectoryHandler::handle() {
 			setContentLength();
 			setConnection();
 			setDate();
+			done_ = true;
 			return ERR_NONE;
 		}
 		i++;
@@ -135,6 +136,7 @@ Error DirectoryHandler::handle() {
 	setContentLength();
 	setConnection();
 	setDate();
+	done_ = true;
 	return ERR_NONE;
 }
 

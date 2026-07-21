@@ -18,22 +18,21 @@ static bool matchPath(const std::string& path,
 		|| path[location.size()] == '/';
 }
 
-Error findLocation(const std::string& path,
-		const config::ServerConfig& server,
-		const config::LocationConfig*& out) {
+Error findLocation( DispatchInfo& decision,
+					const config::ServerConfig& server ) {
 	const config::LocationConfig* best = NULL;
 	usize i = 0;
 
 	while (i < server.locations.size()) {
 		const config::LocationConfig& location = server.locations[i];
-		if (matchPath(path, location.path)
+		if (matchPath(decision.normalized_path, location.path)
 			&& (best == NULL || location.path.size() > best->path.size()))
 			best = &location;
 		++i;
 	}
 	if (best == NULL)
 		return ERR_NOT_FOUND;
-	out = best;
+	decision.location = best;
 	return ERR_NONE;
 }
 

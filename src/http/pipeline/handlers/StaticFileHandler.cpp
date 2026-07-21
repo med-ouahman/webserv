@@ -81,6 +81,7 @@ Error StaticFileHandler::handle() {
 	setContentLength(static_cast<usize>(info.st_size));
 	setConnection();
 	setDate();
+	done_ = true;
 	return ERR_NONE;
 }
 

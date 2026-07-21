@@ -76,12 +76,10 @@ Error ErrorHandler::handle() {
 	}
 	setContentType("text/html");
 	setContentLength();
-	setConnection();
-	if (error_ == ERR_REQUEST_TIMEOUT)
-		setHeader("Connection", "close");
+	setHeader("Connection", "close");
 	setDate();
 
-	context_.responseReady();
+	done_ = true;
 
 	return ERR_NONE;
 }

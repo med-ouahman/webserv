@@ -72,7 +72,7 @@ Error Parser::parseHeaders(Context& ctx) {
 				return err;
 			header_bytes = 0;
 			ctx.state_ = PROCESSING;
-			ctx.action_ = AC_WRITE;
+			ctx.action_ = AC_NONE;
 			return ERR_NONE;
 		}
 		err = parseHeaderLine(ctx.actor.request, line);

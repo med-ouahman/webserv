@@ -48,21 +48,22 @@ private:
 	Error	chunkTrailerState(Context& ctx);
 	Error	finishBody(Context& ctx);
 	Error	bodyWrite(usize size);
+
 	bool	canProgress(const Request& request) const;
-	bool	progressBody(const Request& request) const;
-	bool	progressParsing() const;
+	bool	hasBody(const Request& request) const;
+
+	void incrementBuffer(const char* data, usize size, usize& consumed);
 
 	static usize minSize(usize a, usize b);
 	static bool parseChunkSize(const std::string& line, usize& size);
 
 public:
 	Parser();
-	Parser(const std::string& body_path);
 
-	Error progress(Context& ctx);
+		Error progress(Context& ctx, const char* data, usize size,
+			usize& consumed);
 
 	void reset();
-	void incrementBuffer(const char* data, usize size);
 	bool timedOut() const;
 	void startBody();
 };

@@ -12,7 +12,7 @@ Error Parser::parseFixedBody(Context& ctx) {
 		return ERR_BAD_REQUEST;
 
 	expected = ctx.actor.request.content_length.value;
-	if (body_received >= expected)
+	if (body_received == expected)
 		return finishBody(ctx);
 
 	take = minSize(expected - body_received, raw_buffer.size());

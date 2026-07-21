@@ -77,17 +77,25 @@ Error Parser::chunkTrailerState(Context& ctx) {
 }
 
 Error Parser::parseChunkedBody(Context& ctx) {
-	switch (chunk_state) {
-		case CHUNK_SIZE:
-			return chunkSizeState();
-		case CHUNK_DATA:
-			return chunkDataState();
-		case CHUNK_CRLF:
-			return chunkCrlfState();
-		case CHUNK_TRAILER:
-			return chunkTrailerState(ctx);
+	Error err;
+
+	while (canProgress(ctx.actor.request) && ctx.state_ == PARSING) {
+		switch (chunk_state) {
+			case CHUNK_SIZE:
+					err = chunkSizeState();
+					break;
+			case CHUNK_DATA:
+					err = chunkDataState();
+					break;
+			case CHUNK_CRLF:
+					err = chunkCrlfState();
+					break;
+			case CHUNK_TRAILER:
+					err = chunkTrailerState(ctx);
+					break;
+		}
+		if (err != ERR_NONE)
+			return err;
 	}
 	return ERR_NONE;
-}
-
 }

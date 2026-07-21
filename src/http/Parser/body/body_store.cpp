@@ -13,7 +13,7 @@ Error Parser::finishBody(Context& ctx) {
 	}
 	body_received = 0;
 	ctx.state_ = PROCESSING;
-	ctx.action_ = AC_WRITE;
+	ctx.action_ = AC_NONE;
 	return ERR_NONE;
 }
 

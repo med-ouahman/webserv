@@ -8,9 +8,17 @@
 namespace http {
 
 ARequestHandler::ARequestHandler(Context& context)
-	: context_(context) {}
+	: context_(context), done_(false) {}
 
 ARequestHandler::~ARequestHandler() {}
+
+bool ARequestHandler::done() const {
+	return done_;
+}
+
+Error ARequestHandler::timeout() {
+	return ERR_NONE;
+}
 
 void ARequestHandler::setStatus(StatusCode status) {
 	context_.actor.response.status = status;
@@ -102,12 +110,8 @@ const DispatchInfo& ARequestHandler::decision() const {
 	return context_.info.dispatch.value;
 }
 
-Request& ARequestHandler::request() {
-	return context_.actor.request;
-}
+Request& ARequestHandler::request() { return context_.actor.request; }
 
-Response& ARequestHandler::response() {
-	return context_.actor.response;
-}
+Response& ARequestHandler::response() { return context_.actor.response; }
 
 }

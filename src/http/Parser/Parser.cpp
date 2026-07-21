@@ -1,7 +1,6 @@
 
 #include "http/Parser/Parser.hpp"
 #include "http/Context.hpp"
-#include ""
 
 #include <cstdio>
 
@@ -39,20 +38,6 @@ Parser::Parser()
 	  timer(),
 	  body_buffer(),
 	  bodyWriter(std::string(), body_buffer, limits::BODY_BUFFER_SIZE),
-	  leading_crlf(false) {}
-
-Parser::Parser(const std::string& body_path)
-	: raw_buffer(),
-	  header_bytes(0),
-	  body_received(0),
-	  chunk_size(0),
-	  chunk_received(0),
-	  max_body_size(limits::BODY_MAX_SIZE),
-	  phase(PARSING_REQUEST_LINE),
-	  chunk_state(CHUNK_SIZE),
-	  timer(),
-	  body_buffer(),
-	  bodyWriter(body_path, body_buffer, limits::BODY_BUFFER_SIZE),
 	  leading_crlf(false) {}
 
 void Parser::reset() {
@@ -96,8 +81,13 @@ Error Parser::getChunk(std::string& out, bool& found) {
 	return parser::checkSize(phase, consumed);
 }
 
-	Error Parser::progress(	Context& ctx, char* data, usize size, usize consumed) {
+Error Parser::progress(Context& ctx, const char* data, usize size,
+		usize& consumed) {
 	Error err;
+
+	incrementBuffer(data, size, consumed);
+	if (!canProgress(ctx.actor.request))
+		return ERR_NONE;
 
 	switch (phase) {
 		case PARSING_REQUEST_LINE:
@@ -112,8 +102,6 @@ Error Parser::getChunk(std::string& out, bool& found) {
 		default:
 			return ERR_INTERNAL;
 	}
-	if (err == ERR_NONE && ctx.state_ == PARSING)
-		ctx.action_ = canProgress(ctx.actor.request) ? AC_WRITE : AC_READ;
 	return err;
 }
 
@@ -134,15 +122,20 @@ void Parser::startBody() {
 	timer.update();
 }
 
-void Parser::incrementBuffer(const char* data, usize size) {
+void Parser::incrementBuffer(const char* data, usize size, usize& consumed) {
 	raw_buffer.reserve(raw_buffer.size() + size);
 	raw_buffer.append(data, size);
+	consumed = size;
 }
 
 bool Parser::canProgress(const Request& request) const {
+	bool res = false;
+
+	if (phase == PARSING_REQUEST_LINE  or phase == PARSING_HEADERS)
+			res = raw_buffer.find(CRLF) != std::string::npos;
 	if (phase == PARSING_BODY)
-		return progressBody(request);
-	return phase != PARSING_BODY && raw_buffer.find(CLRF) != std::string::npos;
+		res = hasBody(request);
+	return res;
 }
 
-	}
+}

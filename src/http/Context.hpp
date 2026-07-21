@@ -63,9 +63,9 @@ class Context {
 
 private:
 
-	Actor actor_;
-	Info info_;
-	Error error_;
+	Actor actor;
+	Info info;
+	Error error;
 
 	ContextState	state_;
 

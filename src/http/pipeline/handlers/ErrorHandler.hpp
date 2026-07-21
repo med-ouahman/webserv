@@ -17,7 +17,7 @@ private:
 
 public:
 	ErrorHandler(Context& context, Error error);
-	virtual Error handle();
+	Error handle();
 };
 
 }

@@ -13,7 +13,7 @@ DispatchInfo::DispatchInfo()
 	  path_type(not_found),
 	  max_body_size(0),
 	  cgi_timeout(0),
-	  handlerType(STATIC_FILE),
+	  handler_type(STATIC_FILE),
 	  read_body(false) {}
 
 static base::Expected<DispatchInfo, Error> routeSelectedServer(const Request& request,
@@ -26,8 +26,7 @@ static base::Expected<DispatchInfo, Error> routeSelectedServer(const Request& re
 
 	TRY(routing::checkMethodSupported(request.method), err);
 	TRY(routing::pathNormalize(request.path, decision.normalized_path), err);
-	TRY(routing::findLocation(decision.normalized_path,
-		server, decision.location), err);
+	TRY(routing::findLocation(decision, server), err);
 	decision.cgi_timeout = decision.location->cgi_timeout;
 	if (partial != NULL)
 		*partial = decision;
@@ -37,7 +36,7 @@ static base::Expected<DispatchInfo, Error> routeSelectedServer(const Request& re
 
 	decision.read_body = routing::hasBody(request);
 	if (routing::hasRedirect(*decision.location)) {
-		decision.handlerType = REDIRECT;
+		decision.handler_type = REDIRECT;
 		return decision;
 	}
 
@@ -46,11 +45,8 @@ static base::Expected<DispatchInfo, Error> routeSelectedServer(const Request& re
 	TRY(routing::fsInspectPath(decision.location->root.empty()
 		? server.root : decision.location->root,
 		decision.filesystem_path, decision.path_type), err);
-	decision.handlerType = routing::getRequestType(request,
-		decision.normalized_path, *decision.location,
-		decision.path_type,
-		&decision.cgi_path);
-	if (decision.handlerType == UPLOAD) {
+	TRY(routing::setRequestType(request, decision), err);
+	if (decision.handler_type == UPLOAD) {
 		TRY(routing::checkUploadAllowed(*decision.location), err);
 		TRY(routing::checkUploadFraming(request), err);
 		decision.upload_path = &decision.location->upload_path;

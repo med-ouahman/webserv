@@ -43,6 +43,7 @@ Error DeleteHandler::handle() {
 	setContentLength();
 	setConnection();
 	setDate();
+	done_ = true;
 	return ERR_NONE;
 }
 

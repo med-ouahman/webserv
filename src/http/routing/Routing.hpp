@@ -29,7 +29,7 @@ struct DispatchInfo {
 	usize max_body_size;
 	size_t cgi_timeout;
 
-	RequestType handlerType;
+	RequestType handler_type;
 	bool read_body;
 
 	DispatchInfo();
