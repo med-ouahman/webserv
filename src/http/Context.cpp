@@ -216,10 +216,28 @@ void Context::process() {
 
 ContextAction Context::nextAction() const { return action_; }
 
+<<<<<<< HEAD
 void Context::timeout() {
 	if (state_ == PARSING and actor.parser.timedOut()) {
 		setError(ERR_REQUEST_TIMEOUT);
 		return ;
+=======
+bool Context::reconcile() {
+	
+	/* need a way to know if the current request is CGI TO call handler->monitor which is a cgi special case */
+	if (info.dispatch.has_value() && info.dispatch.value.handlerType == CGI && actor.handler) {
+		CgiHandler* h = static_cast<CgiHandler*>(actor.handler);
+		http::Error err;
+		h->monitor();
+		TRY(actor.handler->handle(), (setError(err), false));
+		
+		if (h->done()) responseReady();
+
+		if (h->can_close()) {
+			delete h;
+			h = NULL;
+		}
+>>>>>>> 31065a6de101d3f46f44397e26e96f6dd5dc9cbb
 	}
 
 	if (state_ == PROCESSING and actor.handler != NULL) {

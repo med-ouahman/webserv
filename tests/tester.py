@@ -7,42 +7,102 @@ connections = []
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
 
-def print_help():
+def print_help(command=None):
+    commands = {
+        "connect": """
+connect <count> [HOST] [PORT]
+
+Open <count> new TCP connections with HOST (default 0.0.0.0) and PORT (default 8080).
+
+Example:
+    connect 1000
+""",
+        "send": """
+send <start> <end> <bytes>
+
+Send <bytes> bytes on every connection in the range.
+
+Example:
+    send 0 999 4096
+""",
+        "recv": """
+recv <start> <end> [bytes]
+
+Receive up to <bytes> bytes (default 4096) from each connection.
+
+Examples:
+    recv 0 99
+    recv 0 99 1024
+""",
+        "close": """
+close <start> <end>
+
+Close all connections in the range.
+
+Example:
+    close 500 999
+""",
+        "list": """
+list
+
+Show the number of currently open connections.
+""",
+        "clear": """
+clear
+
+Clear the screen.
+""",
+        "quit": """
+quit | exit
+
+Close all remaining connections and exit.
+"""
+    }
+
+    if command:
+        command = command.lower()
+
+        if command in commands:
+            print(commands[command])
+        elif command == "?" or command == "help":
+            print_help()
+        else:
+            print(f"Unknown command: {command}")
+            print("Type 'help' to see available commands.")
+        return
+
     print("""
 Available commands:
 
   connect <count> [HOST] [PORT]
-      Open <count> new TCP connections with HOST (default 0.0.0.0) PORT (default 3000).
-      Example:
-          connect 1000
+      Open new TCP connections.
 
   send <start> <end> <bytes>
-      Send <bytes> bytes on every connection in the range.
-      Example:
-          send 0 999 4096
+      Send bytes on connections in the range.
 
   recv <start> <end> [bytes]
-      Receive up to <bytes> bytes (default 4096) from each connection.
-      Examples:
-          recv 0 99
-          recv 0 99 1024
+      Receive bytes from connections in the range.
 
   close <start> <end>
-      Close all connections in the range.
-      Example:
-          close 500 999
+      Close connections in the range.
 
   list
       Show the number of currently open connections.
 
-  help | ?
-      Display this help message.
+  clear
+      Clear the screen.
+
+  help [command] | ?
+      Display help, optionally for a single command.
+      Example:
+          help connect
 
   quit | exit
       Close all remaining connections and exit.
 """)
 
-def connect(count, HOST="0.0.0.0", PORT=3000):
+
+def connect(count, HOST="0.0.0.0", PORT=8080):
     for _ in range(count):
         try:
             s = socket.create_connection((HOST, PORT))
@@ -145,7 +205,7 @@ while True:
             case "quit" | "exit":
                 break
             case "help" | "?":
-                print_help()
+               print_help(cmd[1] if len(cmd) > 1 else None)
 
             case "clear":
                 clear()

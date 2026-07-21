@@ -236,6 +236,8 @@ bool CgiHandler::done() const {
     return response_state == Finished || response_state == Error;
 }
 
+bool CgiHandler::can_close() const { return state_ == Done; }
+
 bool CgiHandler::timedout() {
     bool out = spawn_time.elapsed() > timeout_seconds;
 

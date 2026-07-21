@@ -10,7 +10,7 @@ namespace epoll {
 
 int EventLoop::poll() {
 
-    int nfds = ::epoll_wait(epoll_fd, events, MaxEvents, EpollMaxTimeoutMs);
+    int nfds = ::epoll_wait(epoll_fd.get(), events, MaxEvents, EpollMaxTimeoutMs);
 
     if (nfds < 0) {
         LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::run()"));

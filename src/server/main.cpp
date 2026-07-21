@@ -203,14 +203,15 @@ int main(int argc, const char* argv[]) {
     sys::handle_signals();
 
     std::string configfile = argv[1] != NULL ? argv[1]: "config/default.conf";
-    
+    config::ConfigParser parser;
+    config::Config conf;
+
     try {
-        config::ConfigParser parser;
-        config::Config conf = parser.parse(configfile.c_str());
-        Server webserv(conf);
-        return webserv.start();
+       conf = parser.parse(configfile.c_str());
     } catch (std::runtime_error& error) {
         std::cerr << error.what() << "\n";
     }
     
+    Server server(conf);
+    return server.start();
 }

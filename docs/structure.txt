@@ -75,8 +75,8 @@
 │       │   │   ├── connection_events.o
 │       │   │   ├── connection_io.o
 │       │   │   └── Connection.o
-│       │   └── listener
-│       │       └── Listener.o
+│       │   └── Socket
+│       │       └── Socket.o
 │       ├── runtime
 │       │   └── epoll
 │       │       ├── EventLoop.o
@@ -216,9 +216,9 @@
 │   │   │   ├── connection_events.cpp
 │   │   │   ├── Connection.hpp
 │   │   │   └── connection_io.cpp
-│   │   └── listener
-│   │       ├── Listener.cpp
-│   │       └── Listener.hpp
+│   │   └── Socket
+│   │       ├── Socket.cpp
+│   │       └── Socket.hpp
 │   ├── runtime
 │   │   ├── AEventHandler.hpp
 │   │   ├── epoll

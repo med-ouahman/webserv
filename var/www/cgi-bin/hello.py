@@ -3,10 +3,10 @@
 import os
 import time
 import sys
-
-data = sys.stdin.read()
-
-print("""Content-Type: text/html\r\n\r\n""", end="")
+while True:
+    pass
+    
+print("""Server: VilgaX\r\nContent-Type: text/html\r\n\r\n""", end="")
 print("""
 <!DOCTYPE html>
 <html lang="en">
@@ -18,25 +18,12 @@ print("""
 <body>
     <div class="name">
         <div id="h-dvi">div</div>buttom
-
-
-
-
-
-
-
-
-
-
-
-
-        
     </div>
     <script>
         const div = document.getElementById("h-div");
         if (div === null) return;
 
-        div.addEventListener("click", addElements);
+        div.addEventSocket("click", addElements);
 
         function addElements() {
             const div = this;

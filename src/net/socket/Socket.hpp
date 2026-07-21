@@ -4,6 +4,7 @@
 #include "Result.hpp"
 #include <vector>
 #include "Config.hpp"
+#include "UniqueFd.hpp"
 
 class Server;
 
@@ -19,12 +20,12 @@ namespace net {
 typedef uint32_t IpAddress;
 typedef uint16_t Port;
 
-class Listener: public io::AEventHandler {
+class Socket: public io::AEventHandler {
 private:
 
-	enum ListenerState {
+	enum SocketState {
 		Listening,
-		ListenerError
+		SocketError
 	} state_;
 
 	Server& server_;
@@ -35,15 +36,16 @@ private:
 	const config::ListenEndPoint& endpoint_;
 	std::vector<const config::ServerConfig*> servers_;
 	
-	Listener(const Listener& socket);
-	Listener& operator=(const Listener& socket);
+	Socket(const Socket& socket);
+	Socket& operator=(const Socket& socket);
 
 	bool accept_clients();
 	bool on_error();
 
 public:
-	explicit Listener(int fd, io::Event mask, Server& server, const config::ListenEndPoint& ep);
-	~Listener();
+	explicit Socket(UniqueFd& uniq, io::Event mask, Server& server, const config::ListenEndPoint& ep);
+
+	~Socket();
 	void on_event(io::Event event);
 	bool error() const;
 	const config::ListenEndPoint& endpoint() const;
@@ -52,7 +54,7 @@ public:
 	const std::vector<const config::ServerConfig*>& servers() const;
 };
 
-base::Result<Listener*>
+base::Result<Socket*>
 create_listening_socket(
 	const config::ListenEndPoint& endpoints, Server& s);
 

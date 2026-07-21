@@ -105,32 +105,40 @@ bool ResponseParser::finished() const {
 }
 
 ResponseParser::ParseResult ResponseParser::parse_header(std::string const& line) {
+    std::cout << "|" << line << "|\n";
 
-    std::cout << "|" <<  line << "|\n";
-
-    size_t colon = line.find(":");
-    if (std::string::npos == colon) return ParseError;
+    size_t colon = line.find(':');
+    if (colon == std::string::npos)
+        return ParseError;
 
     std::string name = line.substr(0, colon);
-    
-    for ( size_t i(0); i < name.size(); i++) {
-        if (::isspace(name[i])) return ParseError;
+
+    for (size_t i = 0; i < name.size(); ++i) {
+        if (::isspace(static_cast<unsigned char>(name[i])))
+            return ParseError;
     }
 
     size_t start = colon + 1;
-    
-    while (::isspace(line[start]) && start < line.size()) ++start;
-    
-    size_t end = line.size() - 1;
 
-    while (end > start && ::isspace(line[end])) --end;
-    
+    while (start < line.size() &&
+           ::isspace(static_cast<unsigned char>(line[start]))) {
+        ++start;
+    }
+
+    size_t end = line.size();
+
+    while (end > start &&
+           ::isspace(static_cast<unsigned char>(line[end - 1]))) {
+        --end;
+    }
+
     std::string value = line.substr(start, end - start);
 
-    if (name == "status" || name == "Status") return sanitize_status_header(value);
+    if (name == "status" || name == "Status")
+        return sanitize_status_header(value);
 
     headers_.add(name, value);
-    
+
     return Success;
 }
 
@@ -160,9 +168,9 @@ ResponseParser::ParseResult ResponseParser::read_body(BufferView& reader) {
     }
 
     if (body_fd < 0) {
+
         body_filename = "/tmp/" + base::random_string(10);
         body_fd = ::open(body_filename.c_str(), O_WRONLY | O_CREAT, 0600);
-        std::cout << "Cgi body fd: (" << body_fd << ")\n";
         if (body_fd < 0) {
             state_ = Error;
             return ParseError;
@@ -188,9 +196,6 @@ ResponseParser::ParseResult ResponseParser::read_body(BufferView& reader) {
 CGIResult ResponseParser::result() const {
 
     if (body_mode_ == Mem) return CGIResult(body_, code, headers_);
-
-
-    std::cout << "Will be printed only if the body is bigger than whateven??\n";
     
     if (body_fd >= 0) {
         ::close(body_fd);

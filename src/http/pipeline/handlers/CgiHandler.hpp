@@ -131,9 +131,9 @@ public:
 
 	~CgiHandler();
 
-	bool done() const; // FOR RESPONSE, INHERITED FROM AREQUEST_HANDLER
+	bool done() const;
 
-	bool tobenamedlater(); // INDICATES RESOURCES ARE CLEANED AND SAFE TO delete;
+	bool can_close() const;
 
 	size_t on_writable(Buffer& writer, Channel& channel);
 	size_t on_readable(Channel& channel);	

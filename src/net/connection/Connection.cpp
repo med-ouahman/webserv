@@ -7,13 +7,13 @@
 
 namespace net {
 
-Connection::Connection(int _fd, io::Event events, RuntimeServices& services, const ConnectionInfo& info)
-    : AEventHandler(_fd, events),
+Connection::Connection(UniqueFd& uniq, io::Event events, RuntimeServices& services, const ConnectionInfo& info)
+    : AEventHandler(uniq.release(), events),
     state_(Reading),
     close_after_write(false),
     last_activity_(),
     lifetime_(),
-    ctx(info.servers, _fd, _fd, services),
+    ctx(info.servers, fd(), fd(), services),
     reader_(in),
     writer_(out),
     info_(info) {
@@ -26,7 +26,7 @@ bool Connection::closing() const { return state_ == Closing; }
 void Connection::update(http::ContextAction action) {
 
     if (action == http::AC_CLOSE && !writer_.empty()) {
-        return ;
+        return;
     }
 
     if (state_ == Closing && http::AC_CLOSE != action) action = http::AC_CLOSE;
@@ -42,7 +42,7 @@ void Connection::update(http::ContextAction action) {
 
     switch (state_) {
         case Reading: new_events = io::Readable; break;
-        case Writing: new_events = io::Writable; break;
+        case Writing: new_events = (io::Event)(new_events | io::Writable); break;
         case Closing: new_events = io::Close; break;
     }
 
@@ -58,20 +58,17 @@ void Connection::sync() {
     update(action);
 }
 
-
 void Connection::on_event(io::Event events) {
    
     switch (events) {
         case io::Readable:
-            std::cout << "Connection Readable\n";
             on_readable();
             break;
         case io::Writable:
-            std::cout << "Connection Writable\n";
             on_writable();
             break;
         case io::Hup: case io::RHup:
-            std::cout << "Connection Hangup\n";
+
             state_ = Closing;
             break;
         case io::Error:
@@ -86,23 +83,17 @@ void Connection::on_event(io::Event events) {
 }
 
 void Connection::on_readable() {
+    if (state_ == Closing) return;
+
     read();
     size_t n = ctx.consume(reader_.read_ptr(), reader_.bytes_pending());
     reader_.advance_read(n);
 }
 
-void Connection::on_writable() {
-
-    if (state_ == Closing) return;
-
-    write();
-}
-
 void Connection::read() {
-
     reader_.compact();
     ssize_t n = ::recv(fd(), reader_.write_ptr(), reader_.bytes_free(), 0);
-    
+
     if (n <= 0) {
         state_ = Closing;
         return;
@@ -112,10 +103,6 @@ void Connection::read() {
 }
 
 void Connection::write() {
-
-    size_t m = ctx.produce(writer_.write_ptr(), writer_.bytes_free());
-    
-    writer_.advance_write(m);
     
     ssize_t n = ::send(fd(), writer_.read_ptr(), writer_.bytes_pending(), 0);
 
@@ -126,7 +113,15 @@ void Connection::write() {
 
     writer_.advance_read(n);
     writer_.compact();
-    
+}
+
+void Connection::on_writable() {
+    if (state_ == Closing) return;
+
+    size_t m = ctx.produce(writer_.write_ptr(), writer_.bytes_free());
+    writer_.advance_write(m);
+
+    write();
 }
 
 }
