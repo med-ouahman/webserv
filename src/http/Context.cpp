@@ -108,7 +108,8 @@ Error Context::setError(Error error) {
 
 	actor.handler = NULL;
 	actor.response.status = INTERNAL_SERVER_ERROR;
-	actor.response.body = "";
+	actor.response.body = "<!doctype html><html><body> \
+<h1>500 Internal Server Error</h1></body></html>\n";
 	responseReady();
 
 	return error;
