@@ -134,6 +134,40 @@ void Channel::write() {
     buf.compact();
 }
 
+
+
+
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/
+
+
 CgiHandler::CgiHandler(Context& ctx)
     : ARequestHandler(ctx),
     state_(Working),
@@ -148,7 +182,7 @@ CgiHandler::CgiHandler(Context& ctx)
 
     event_loop(ctx.services_.poller) {
     
-    if (!process.running() || state_ != Working) {
+    if (process.error() || state_ != Working) {
         state_ = Cleanup;
         reason_ = Internal;
         return;
@@ -157,12 +191,17 @@ CgiHandler::CgiHandler(Context& ctx)
     cgi::CGIRequestContext request_ctx;
     cgi::ProcessContext process_ctx;
 
+    
 
     http::Error r = cgi::buildCGIContext(ctx, request_ctx, process_ctx);
 
+    log_cgi_request_context(request_ctx);
+    log_process_context(process_ctx);
+    
     if (r != ERR_NONE) {
         state_ = Cleanup;
         reason_ = Internal;
+        
         return ;
     }
 
@@ -326,7 +365,7 @@ void CgiHandler::close_channel(Channel& ch) {
 void CgiHandler::check_process() {
 
     process.reap();
-
+    
     switch (shutdown_state) {
         case SigTerm:
             sigterm_sent_at.update();

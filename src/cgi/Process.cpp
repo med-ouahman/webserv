@@ -9,7 +9,7 @@
 namespace cgi {
 
 Process::Process()
-    : state_(Spawn),
+    : state_(Setup),
     pid_(-1),
     status_(0),
     stdin_pipe_(),
@@ -21,7 +21,7 @@ Process::Process()
         return;
     }
 
-    state_ = Running;
+    state_ = Spawn;
 }
 
 Process::~Process() {}
@@ -34,6 +34,8 @@ Pipe& Process::stderr_pipe() { return stderr_pipe_; }
 
 bool Process::running() const { return state_ == Running; }
 
+bool Process::error() const { return state_ == Error; }
+
 bool Process::want_stdin() { return stdin_pipe_.write_end() >= 0; }
 
 bool Process::reaped() const {
@@ -45,10 +47,12 @@ pid_t Process::pid() const { return pid_; }
 int   Process::status() const { return status_; }
 
 void Process::kill() {
+    if (state_ != Running) return;
     ::kill(pid_, SIGKILL);
 }
 
 void Process::terminate() {
+    if (state_ != Running) return;
     ::kill(pid_, SIGTERM);
 }
 
@@ -58,7 +62,11 @@ void Process::reap() {
     
     pid_t p = ::waitpid(pid_, &status_, WNOHANG);
 
-    if (p == pid_) state_ = Terminated;
+    if (p == pid_) {
+        state_ = Terminated;
+        pid_ = -1;
+    }
+    
 }
 
 ProcessResult Process::result() const {
@@ -88,15 +96,13 @@ int Process::status_code(const ProcessResult& result) {
 
 bool Process::start(const ProcessContext& context) {
 
-    state_ = Running;
+    if (state_ != Spawn) return true;
 
     if (context.stdin_fd.get() != STDIN_FILENO) stdin_pipe_.close_write_end();
 
     pid_ = ::fork();
 
     if (pid_ == 0) {
-
-        std::cout << "Forked\n";
         if (context.stdin_fd.get() != STDIN_FILENO) {
             ::dup2(context.stdin_fd.get(), STDIN_FILENO);
             ::close(context.stdin_fd.release());
@@ -123,6 +129,8 @@ bool Process::start(const ProcessContext& context) {
         state_ = Error;
         return false;
     }
+
+    state_ = Running;
 
     return true;
 }

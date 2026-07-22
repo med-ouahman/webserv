@@ -25,12 +25,14 @@ struct ProcessResult {
 
 class Process {
 private:
-    enum ProcessState {
-        Spawn,
-        Running,
-        Terminated,
-        Error
-    } state_;
+
+enum ProcessState {
+    Setup,
+    Spawn,
+    Running,
+    Terminated,
+    Error
+} state_;
 
     pid_t     pid_;
     int       status_;
@@ -43,26 +45,26 @@ private:
     Process& operator=(const Process&);
 
 public:
-    bool running() const;
     Process();
     ~Process();
 
-    Pipe& stdin_pipe();
-    Pipe& stdout_pipe();
-    Pipe& stderr_pipe();
-    bool want_stdin();
+    Pipe&   stdin_pipe();
+    Pipe&   stdout_pipe();
+    Pipe&   stderr_pipe();
+    bool    want_stdin();
 
-    pid_t pid() const;
-    int   status() const;
-    bool reaped() const;
+    bool    running() const;
+    pid_t   pid() const;
+    int     status() const;
+    bool    reaped() const;
+    bool    error() const;
+    void    kill();
+    void    terminate();
+    void    reap();
 
-    void kill();
-    void terminate();
-    void reap();
-
-    ProcessResult result() const;
-    static int status_code(const ProcessResult& result);
-    bool start(const ProcessContext& ctx);
+    ProcessResult   result() const;
+    static int      status_code(const ProcessResult& result);
+    bool            start(const ProcessContext& ctx);
 };
 
 }
