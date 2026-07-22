@@ -79,7 +79,7 @@ Error ErrorHandler::handle() {
 	setHeader("Connection", "close");
 	setDate();
 
-	done_ = true;
+	responseReady();
 
 	return ERR_NONE;
 }

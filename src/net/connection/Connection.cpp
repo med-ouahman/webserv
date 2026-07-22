@@ -51,7 +51,9 @@ void Connection::update(http::ContextAction action) {
 
 void Connection::sync() {
     
-    ctx.reconcile();
+    ctx.timeout();
+	if (ctx.nextAction() == AC_NONE)
+		ctx.process();
 
     http::ContextAction action = ctx.nextAction();
 

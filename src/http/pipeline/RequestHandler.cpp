@@ -8,13 +8,9 @@
 namespace http {
 
 ARequestHandler::ARequestHandler(Context& context)
-	: context_(context), done_(false) {}
+	: context_(context) {}
 
 ARequestHandler::~ARequestHandler() {}
-
-bool ARequestHandler::done() const {
-	return done_;
-}
 
 Error ARequestHandler::timeout() {
 	return ERR_NONE;
@@ -104,6 +100,10 @@ void ARequestHandler::setDate() {
 		"%a, %d %b %Y %H:%M:%S GMT", time_info) == 0)
 		return ;
 	setHeader("Date", buffer);
+}
+
+void ARequestHandler::responseReady() {
+	context_.responseReady();
 }
 
 const DispatchInfo& ARequestHandler::decision() const {

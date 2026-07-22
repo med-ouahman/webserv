@@ -67,7 +67,8 @@ private:
 	Info info;
 	Error error;
 
-	ContextState	state_;
+	ContextAction action_;
+	ContextState state_;
 
 	static usize active_cgi;
 	usize active_requests;
@@ -100,7 +101,6 @@ private:
 
 public:
 	RuntimeServices& services_;
-	ContextAction action_;
 	
 	Context(const std::vector<const config::ServerConfig*>& servers,
 		usize conn_id, usize request_id, RuntimeServices& services);

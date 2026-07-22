@@ -16,7 +16,6 @@ class ARequestHandler {
 
 protected:
 	Context& context_;
-	bool done_;
 
 	void setStatus(StatusCode status);
 	void setHeader(const std::string& key, const std::string& value);
@@ -30,6 +29,7 @@ protected:
 	void setContentLength(usize size);
 	void setConnection();
 	void setDate();
+	void responseReady();
 	const DispatchInfo& decision() const;
 	Request& request();
 	Response& response();
@@ -38,7 +38,6 @@ public:
 	explicit ARequestHandler(Context& context);
 	virtual Error handle() = 0;
 	virtual Error timeout();
-	virtual bool done() const;
 	virtual ~ARequestHandler();
 };
 

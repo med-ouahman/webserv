@@ -105,7 +105,7 @@ Error UploadHandler::handle() {
 	setContentLength();
 	setConnection();
 	setDate();
-	done_ = true;
+	responseReady();
 	return ERR_NONE;
 }
 

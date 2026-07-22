@@ -212,7 +212,6 @@ void Context::process() {
 
 	if (state_ != PROCESSING or action_ != AC_NONE) return ;
 	TRY(actor.handler->handle(), (setError(err), void()));
-	if (actor.handler->done()) responseReady();
 }
 
 ContextAction Context::nextAction() const { return action_; }
