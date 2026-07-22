@@ -19,12 +19,6 @@ Info::Info(const std::vector<const config::ServerConfig*>& srvs,
 	  request_id(req),
 	  dispatch() {}
 
-RequestCount::RequestCount()
-	: active_cgi(0),
-	  active_requests(0) {}
-
-RequestCount Context::request_count;
-
 Actor::Actor()
 	: parser(),
 	  request(),
@@ -73,17 +67,13 @@ Context::Context(const std::vector<const config::ServerConfig*>& servers,
 	: actor(),
 	  info(servers, conn_id, request_id),
 	  error(ERR_NONE),
-	  state_(PARSING),
-	  action_(AC_READ),
+	  active_requests(0),
 	  services_(services) {
 	resetCycle();
-	++request_count.active_requests;
 }
 
 Context::~Context() {
 	actor.reset();
-	if (request_count.active_requests > 0)
-		--request_count.active_requests;
 }
 
 void Context::responseReady() {
@@ -121,6 +111,9 @@ void Context::resetCycle() {
 	error = ERR_NONE;
 	state_ = PARSING;
 	action_ = AC_READ;
+	if (active_requests > limits::MAX_REQUESTS_PER_CONN)
+		setError(ERR_TOO_MANY_REQUESTS);
+	++active_requests;
 }
 
 Error Context::resolveDispatch() {
@@ -139,22 +132,15 @@ Error Context::resolveDispatch() {
 }
 
 Error Context::prepareBodyStorage() {
-	actor.parser.max_body_size = info.dispatch.value.max_body_size;
 	if (info.dispatch.value.read_body
-		&& actor.request.body.type() == base::io::Reader::NONE) {
+		and actor.request.body.type() == base::io::Reader::NONE) {
 		const std::string& root = info.dispatch.value.location->root.empty()
 			? info.dispatch.value.server->root
 			: info.dispatch.value.location->root;
 
-		if (!parser::prepareTempStorage(root)
-			|| !actor.parser.bodyWriter.reset(parser::tempBodyPath(root,
-				info.conn_id, info.request_id), actor.parser.body_buffer,
-				limits::BODY_BUFFER_SIZE))
-				return setError(ERR_INTERNAL);
-			actor.parser.startBody();
-			if (!actor.parser.progressBody(actor.request))
-				action_ = AC_READ;
-		}
+		return actor.parser.prepareBodyStorage(root, info.conn_id,
+			info.request_id, info.dispatch.value.max_body_size);
+	}
 	return ERR_NONE;
 }
 

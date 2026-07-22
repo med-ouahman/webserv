@@ -26,6 +26,7 @@ static const char* statusMsg(StatusCode code) {
 		case CONFLICT: return "Conflict";
 		case LENGTH_REQUIRED: return "Length Required";
 		case PAYLOAD_TOO_LARGE: return "Payload Too Large";
+		case TOO_MANY_REQUESTS: return "Too Many Requests";
 		case INTERNAL_SERVER_ERROR: return "Internal Server Error";
 		case NOT_IMPLEMENTED: return "Not Implemented";
 		case BAD_GATEWAY: return "Bad Gateway";

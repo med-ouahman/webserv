@@ -112,7 +112,7 @@ public:
 
 	ContextAction nextAction() const;
 
-	bool timeout();
+	void timeout();
 };
 
 }

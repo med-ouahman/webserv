@@ -1,5 +1,6 @@
 
 #include "http/Parser/Parser.hpp"
+#include "http/Parser/body/temp_storage.hpp"
 #include "http/Context.hpp"
 
 #include <cstdio>
@@ -120,6 +121,17 @@ bool Parser::timedOut() const {
 void Parser::startBody() {
 	phase = PARSING_BODY;
 	timer.update();
+}
+
+Error Parser::prepareBodyStorage(const std::string& root, usize conn_id,
+		usize request_id, usize max_size) {
+	max_body_size = max_size;
+	if (!parser::prepareTempStorage(root)
+		|| !bodyWriter.reset(parser::tempBodyPath(root, conn_id, request_id),
+			body_buffer, limits::BODY_BUFFER_SIZE))
+		return ERR_INTERNAL;
+	startBody();
+	return ERR_NONE;
 }
 
 void Parser::incrementBuffer(const char* data, usize size, usize& consumed) {

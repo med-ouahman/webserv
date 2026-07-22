@@ -66,6 +66,8 @@ public:
 	void reset();
 	bool timedOut() const;
 	void startBody();
+	Error prepareBodyStorage(const std::string& root, usize conn_id,
+		usize request_id, usize max_size);
 };
 
 }
