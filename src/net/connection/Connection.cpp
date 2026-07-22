@@ -54,10 +54,8 @@ void Connection::sync() {
     ctx.timeout();
 	if (ctx.nextAction() == http::AC_NONE)
 		ctx.process();
-
-    http::ContextAction action = ctx.nextAction();
-
-    update(action);
+    
+    update(ctx.nextAction());
 }
 
 void Connection::on_event(io::Event events) {

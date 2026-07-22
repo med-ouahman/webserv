@@ -42,7 +42,7 @@ public:
     void abort();
     void add_connection(UniqueFd& uniq, const net::ConnectionInfo& info);
     void close_connection(net::Connection* conn);
-    void close_Socket(net::Socket* Socket);
+    void close_socket(net::Socket* Socket);
     
     net::Socket* find_listener(const config::ListenEndPoint& endpoint);
     size_t num_connections() const;

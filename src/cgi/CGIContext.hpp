@@ -1,5 +1,6 @@
 #pragma once
 
+#include "UniqueFd.hpp"
 #include <unistd.h>
 #include "config/Config.hpp"
 #include "http/Error.hpp"
@@ -28,7 +29,7 @@ struct CGIRequestContext {
 
 struct ProcessContext {
 	std::string working_dir;
-	int         stdin_fd;
+	mutable UniqueFd	stdin_fd;
 
 	CStringArray argv;
 	CStringArray envp;
@@ -36,18 +37,10 @@ struct ProcessContext {
 	~ProcessContext() {
 		argv.clear();
 		envp.clear();
-		
-		if (stdin_fd > 0) {
-			::close(stdin_fd);
-			stdin_fd = -1;
-		}
 	}
 
 	ProcessContext()
-	:
-	stdin_fd(-1) {
-
-	}
+	: stdin_fd(-1) {}
 };
 
 http::Error buildCGIContext(const http::Request& request,

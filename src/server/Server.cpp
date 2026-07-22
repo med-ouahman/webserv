@@ -55,7 +55,7 @@ void Server::close_connection(net::Connection* conn) {
     delete conn;
 }
 
-void Server::close_Socket(net::Socket* Socket) {
+void Server::close_socket(net::Socket* Socket) {
     listeners.erase(
         std::remove(listeners.begin(), listeners.end(), Socket),
         listeners.end()
@@ -126,6 +126,7 @@ void Server::add_connection(UniqueFd& conn_fd, const net::ConnectionInfo& info) 
 
 void Server::sweep() {
     
+    std::cout << "Event loop\n";
     for (size_t i(0); i < connections.size();) {
         net::Connection* conn = connections.at(i);
 
@@ -143,7 +144,7 @@ void Server::sweep() {
         poller.sync(Socket);
         if (Socket->error()) {
 
-            close_Socket(Socket);
+            close_socket(Socket);
         } else {
             ++i;
         }

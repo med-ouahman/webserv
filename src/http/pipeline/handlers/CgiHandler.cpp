@@ -5,14 +5,49 @@
 #include "runtime/epoll/EventLoop.hpp"
 #include "Context.hpp"
 
-/*
-    TODO:
-    while parsing CGI Headers, the last character doesn't get included in the header
-    example:
-    Content-Length: 506
-    expected: 506
-    got: 50
-*/
+
+#include <iostream>
+
+void log_cgi_request_context(const cgi::CGIRequestContext& ctx)
+{
+    std::cout
+        << "===== CGI Request Context =====\n"
+        << "REQUEST_METHOD : " << ctx.request_method   << '\n'
+        << "MIME_TYPE      : " << ctx.mime_type        << '\n'
+        << "INTERPRETER    : " << ctx.interpreter      << '\n'
+        << "SCRIPT_NAME    : " << ctx.script_name      << '\n'
+        << "QUERY_STRING   : " << ctx.query_string     << '\n'
+        << "CONTENT_LENGTH : " << ctx.content_length   << '\n'
+        << "PATH_INFO      : " << ctx.path_info        << '\n'
+        << "SERVER_NAME    : " << ctx.server_name      << '\n'
+        << "SERVER_PROTOCOL: " << ctx.server_protocol  << '\n'
+        << "SERVER_PORT    : " << ctx.server_port      << '\n'
+        << "TIMEOUT        : " << ctx.timeout << " s\n"
+        << "===============================\n";
+}
+
+void log_process_context(const cgi::ProcessContext& ctx)
+{
+    std::cout
+        << "======== Process Context ========\n"
+        << "WORKING_DIR : " << ctx.working_dir << '\n'
+        << "STDIN_FD    : " << ctx.stdin_fd.get() << '\n';
+
+    std::cout << "ARGV (" << ctx.argv.size() << ")\n";
+    for (std::size_t i = 0; i < ctx.argv.size(); ++i)
+    {
+        std::cout << "  [" << i << "] " << ctx.argv.data()[i] << '\n';
+    }
+
+    std::cout << "ENVP (" << ctx.envp.size() << ")\n";
+    for (std::size_t i = 0; i < ctx.envp.size(); ++i)
+    {
+        std::cout << "  [" << i << "] " << ctx.envp.data()[i] << '\n';
+    }
+
+    std::cout
+        << "=================================\n";
+}
 
 namespace http {
 
@@ -122,6 +157,7 @@ CgiHandler::CgiHandler(Context& ctx)
     cgi::CGIRequestContext request_ctx;
     cgi::ProcessContext process_ctx;
 
+
     http::Error r = cgi::buildCGIContext(ctx, request_ctx, process_ctx);
 
     if (r != ERR_NONE) {
@@ -129,6 +165,10 @@ CgiHandler::CgiHandler(Context& ctx)
         reason_ = Internal;
         return ;
     }
+
+    log_cgi_request_context(request_ctx);
+
+    log_process_context(process_ctx);
 
     timeout_seconds = request_ctx.timeout;
     if (!process.start(process_ctx)) {
@@ -153,14 +193,14 @@ CgiHandler::~CgiHandler() {
 
 size_t CgiHandler::on_readable(Channel& channel) {
 
+    std::cerr << "Nigga\n";
     channel.read();
 
-    BufferView reader = channel.view();
-
-    if (channel.stream() == Channel::Stderr) {
+    if (channel.state() == Channel::Closing) {
         channel.mark_closing();
-        return reader.cursor();
     }
+
+    BufferView reader = channel.view();
 
     if (channel.state() == Channel::Error) {
         state_ = Cleanup;
@@ -169,9 +209,12 @@ size_t CgiHandler::on_readable(Channel& channel) {
         return reader.cursor();
     }
 
-    if (channel.state() == Channel::Closing) {
-        channel.mark_closing();
+    if (channel.stream() == Channel::Stderr) {
+        std::cerr.write(reader.data(), reader.remaining());
+        reader.advance(reader.remaining());
+        return reader.cursor();
     }
+
 
     ResponseParser::ParseResult r = builder.parse(reader);
     
@@ -191,14 +234,26 @@ size_t CgiHandler::on_readable(Channel& channel) {
 }
 
 size_t CgiHandler::on_writable(Buffer& writer, Channel& channel) {
+
     base::io::Reader& body = request().body;
-    size_t n = body.read(writer.write_ptr(), writer.bytes_free());
+    usize n = 0;
+
+    base::Expected<usize, base::io::Error> result = body.read(writer.write_ptr(), writer.bytes_free());
+    
+    if (result.has_value()) {
+        n = result.value();
+        std::cout << "n: " << n <<  " body[0]: " << int(writer.read_ptr()[0]) << "\n";
+    }
+
     writer.advance_write(n);
+    
     if (writer.size() == 0) {
         channel.mark_closing();
         return 0;
     }
+    
     channel.write();
+
     return n;
 }
 
@@ -221,6 +276,8 @@ http::Error CgiHandler::handle() {
             setBodyFile(result.body_filename);
         }
     }
+
+    if (reason_ == None) return ERR_NONE;
 
     switch (reason_) {
         case None: break;
@@ -292,6 +349,7 @@ void CgiHandler::check_process() {
 
 void CgiHandler::monitor() {
 
+    std::cout << "MONITORING THE CGI HANDLER IN \n";
     if ((response_state == Finished
         || response_state == Error) || timedout()) state_ = Cleanup;
 

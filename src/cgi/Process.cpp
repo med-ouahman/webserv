@@ -90,15 +90,16 @@ bool Process::start(const ProcessContext& context) {
 
     state_ = Running;
 
-    if (context.stdin_fd != STDIN_FILENO) stdin_pipe_.close_write_end();
+    if (context.stdin_fd.get() != STDIN_FILENO) stdin_pipe_.close_write_end();
 
     pid_ = ::fork();
 
     if (pid_ == 0) {
-        
-        if (context.stdin_fd != STDIN_FILENO) {
-            ::dup2(context.stdin_fd, STDIN_FILENO);
-            ::close(context.stdin_fd);
+
+        std::cout << "Forked\n";
+        if (context.stdin_fd.get() != STDIN_FILENO) {
+            ::dup2(context.stdin_fd.get(), STDIN_FILENO);
+            ::close(context.stdin_fd.release());
         } else {
             ::dup2(stdin_pipe_.read_end(), STDIN_FILENO);
         }

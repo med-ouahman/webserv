@@ -3,7 +3,7 @@
 #include <cstring>
 #include <fcntl.h>
 #include <unistd.h>
-
+#include"iostream"
 namespace base {
 namespace io {
 
@@ -88,13 +88,19 @@ bool Reader::reset(const char* buffer, usize size) {
 }
 
 base::Expected<usize, Error> Reader::read(char* buff, usize max_size) {
+	
+	if (type_ == NONE) { 
+		std::cout << "THERE IS SOMETHING IN THE SKY\n";
+		return 0;
+	}
+
 	if (max_size == 0)
 		return base::Expected<usize, Error>(static_cast<usize>(0));
 	if (type_ == BUFFER) {
 		usize available = offset_ < size_ ? size_ - offset_ : 0;
 		usize n = std::min(max_size, available);
 		if (n > 0)
-			::memcpy(buff, buffer_ + offset_, n);
+			::memcpy(buff, buffer_ + offset_, n); 
 		offset_ += n;
 		return base::Expected<usize, Error>(n);
 	}

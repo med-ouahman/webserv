@@ -9,6 +9,7 @@
 #include "http/routing/Routing.hpp"
 #include "http/Error.hpp"
 #include <cstdio>
+#include "CgiHandler.hpp"
 
 namespace http {
 
@@ -203,14 +204,18 @@ void Context::process() {
 ContextAction Context::nextAction() const { return action_; }
 
 void Context::timeout() {
+	std::cout << "I'm being patient\n";
+	goto f;
 	if (state_ == PARSING and actor.parser.timedOut()) {
 		setError(ERR_REQUEST_TIMEOUT);
 		return ;
 	}
 
+	f:
 	if (state_ == PROCESSING and actor.handler != NULL) {
-		Error err = actor.handler->timeout();
-		if (err != ERR_NONE) setError(err);
+		if (info.dispatch.value.handler_type == CGI) {
+			static_cast<CgiHandler*>(actor.handler)->monitor();
+		}
 	}
 }
 

@@ -173,19 +173,19 @@ http::Error buildCGIContext(const http::Request& request,
 		&& !decision.location->cgi_dir.empty()
 		? decision.location->cgi_dir : dirnameOf(decision.filesystem_path);
 	
-	if (base::io::Reader::BUFFER == request.body.type()) {
-		exec_ctx.stdin_fd = 0;
-	}
-
-	else if (base::io::Reader::FILE == request.body.type()) {		
-		exec_ctx.stdin_fd = ::open(request.body.path().c_str(), O_RDONLY);
-		if (exec_ctx.stdin_fd < 0) return http::ERR_INTERNAL;
+	
+	if (base::io::Reader::FILE == request.body.type()) {
+		exec_ctx.stdin_fd.reset(::open(request.body.path().c_str(), O_RDONLY));
+		if (!exec_ctx.stdin_fd.valid()) return http::ERR_INTERNAL;
+	} else {
+		exec_ctx.stdin_fd.reset(0);
 	}
 
 	fillRequestContext(request, decision, request_ctx);
 	exec_ctx.argv.push(request_ctx.interpreter);
 	exec_ctx.argv.push(decision.filesystem_path);
 	fillEnv(request, request_ctx, exec_ctx);
+
 	return http::ERR_NONE;
 }
 

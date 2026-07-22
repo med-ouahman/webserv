@@ -105,7 +105,6 @@ private:
 	
 	ShutdownState	shutdown_state;
 	
-	cgi::CGIRequestContext request_ctx;
 	ResponseParser builder;
 	
 	Storage<StdinWriteSize> stdin_wbuf;
