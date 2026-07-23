@@ -52,6 +52,7 @@ ResponseParser::ParseResult ResponseParser::parse(BufferView& reader) {
         }
         
         if (parse_ctx.line_reader.line().empty()) {
+            if (!validate_headers()) return ParseError;
             std::cout << "Begin body reading\n";
             state_ = Body;
             continue;
@@ -134,17 +135,19 @@ ResponseParser::ParseResult ResponseParser::parse_header(std::string const& line
 
     std::string value = line.substr(start, end - start);
 
-    if (name == "status" || name == "Status")
+    if ("status" == base::toLowerCase(name))
         return sanitize_status_header(value);
 
     headers_.add(name, value);
 
     return Success;
 }
-
 ResponseParser::ParseResult ResponseParser::read_body(BufferView& reader) {
-    
-    if (reader.remaining() == 0) {
+
+    std::cout.write(reader.data(), reader.remaining());
+
+    if (reader.empty()) {
+        std::cout << "Body Done\n";
         state_ = Done;
         return Success;
     }
@@ -157,7 +160,6 @@ ResponseParser::ParseResult ResponseParser::read_body(BufferView& reader) {
             } else {
                 size_t prev = body_.size();
                 body_.append(reader.data(), reader.remaining());
-                
                 reader.advance(body_.size() - prev);
                 return Continue;
             }
@@ -168,20 +170,24 @@ ResponseParser::ParseResult ResponseParser::read_body(BufferView& reader) {
     }
 
     if (body_fd < 0) {
-
         body_filename = "/tmp/" + base::random_string(10);
-        body_fd = ::open(body_filename.c_str(), O_WRONLY | O_CREAT, 0600);
+        body_fd = ::open(body_filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
         if (body_fd < 0) {
             state_ = Error;
             return ParseError;
         }
-        
-        ::write(body_fd, body_.c_str(), body_.size());
-        body_.clear();
+        if (!body_.empty()) {
+            ssize_t w = ::write(body_fd, body_.c_str(), body_.size());
+            if (w < 0) {
+                state_ = Error;
+                return ParseError;
+            }
+            body_content_length += w;
+            body_.clear();
+        }
     }
 
     ssize_t w = ::write(body_fd, reader.data(), reader.remaining());
-    
     if (w < 0) {
         state_ = Error;
         return ParseError;
@@ -189,6 +195,7 @@ ResponseParser::ParseResult ResponseParser::read_body(BufferView& reader) {
 
     body_content_length += w;
     reader.advance(w);
+
     return Continue;
 }
 
@@ -209,6 +216,13 @@ CGIResult ResponseParser::result() const {
         body_content_length,
         code,
         headers_);
+}
+
+bool ResponseParser::validate_headers() const {
+
+    if (headers_.get("content-type").empty() && headers_.get("location").empty()) return false;
+
+    return true;
 }
 
 }

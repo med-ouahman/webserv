@@ -10,7 +10,7 @@
 namespace cgi {
 
 Process::Process()
-    : state_(Spawn),
+    : state_(Setup),
     pid_(-1),
     status_(0),
     stdin_pipe_(),
@@ -22,7 +22,7 @@ Process::Process()
         return;
     }
 
-    state_ = Running;
+    state_ = Spawn;
 }
 
 Process::~Process() {}
@@ -35,6 +35,8 @@ Pipe& Process::stderr_pipe() { return stderr_pipe_; }
 
 bool Process::running() const { return state_ == Running; }
 
+bool Process::error() const { return state_ == Error; }
+
 bool Process::want_stdin() { return stdin_pipe_.write_end() >= 0; }
 
 bool Process::reaped() const {
@@ -46,11 +48,19 @@ pid_t Process::pid() const { return pid_; }
 int   Process::status() const { return status_; }
 
 void Process::kill() {
-	if (pid_ > 0) ::kill(pid_, SIGKILL);
+    if (state_ != Running) return;
+	::kill(pid_, SIGKILL);
 }
 
 void Process::terminate() {
-	if (pid_ > 0) ::kill(pid_, SIGTERM);
+    if (state_ != Running) return;
+    ::kill(pid_, SIGTERM);
+}
+
+void Process::terminate() {
+    if (state_ != Running) return;
+    ::kill(pid_, SIGTERM);
+>>>>>>> dff5ad9bc2df20c1c185f6e3466281349dbbb544
 }
 
 void Process::reap() {
@@ -59,7 +69,11 @@ void Process::reap() {
     
     pid_t p = ::waitpid(pid_, &status_, WNOHANG);
 
-    if (p == pid_) state_ = Terminated;
+    if (p == pid_) {
+        state_ = Terminated;
+        pid_ = -1;
+    }
+    
 }
 
 ProcessResult Process::result() const {
@@ -89,6 +103,9 @@ int Process::status_code(const ProcessResult& result) {
 
 bool Process::start(const ProcessContext& context) {
     state_ = Running;
+
+    if (state_ != Spawn) return true;
+
     if (context.stdin_fd.get() != STDIN_FILENO) stdin_pipe_.close_write_end();
 
     pid_ = ::fork();
@@ -120,6 +137,8 @@ bool Process::start(const ProcessContext& context) {
         state_ = Error;
         return false;
     }
+
+    state_ = Running;
 
     return true;
 }
