@@ -204,7 +204,6 @@ void Context::process() {
 ContextAction Context::nextAction() const { return action_; }
 
 void Context::timeout() {
-	std::cout << "I'm being patient\n";
 	goto f;
 	if (state_ == PARSING and actor.parser.timedOut()) {
 		setError(ERR_REQUEST_TIMEOUT);

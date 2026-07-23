@@ -126,7 +126,6 @@ void Server::add_connection(UniqueFd& conn_fd, const net::ConnectionInfo& info) 
 
 void Server::sweep() {
     
-    std::cout << "Event loop\n";
     for (size_t i(0); i < connections.size();) {
         net::Connection* conn = connections.at(i);
 

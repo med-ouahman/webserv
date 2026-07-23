@@ -54,6 +54,7 @@ SRCS = src/server/main.cpp \
 	src/cgi/Process.cpp \
 	src/cgi/ResponseParser.cpp \
 	src/cgi/CGIContext.cpp \
+	src/cgi/Channel.cpp \
 	src/http/Context.cpp \
 	src/http/Response.cpp \
 	src/http/common/LineReader.cpp \
@@ -90,6 +91,7 @@ SRCS = src/server/main.cpp \
 	src/base/io/Reader.cpp \
 	src/base/file.cpp \
 	src/base/random.cpp \
+	src/base/string.cpp \
 
 OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 

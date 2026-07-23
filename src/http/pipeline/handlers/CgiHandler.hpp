@@ -2,59 +2,16 @@
 
 #include "runtime/AEventHandler.hpp"
 
+#include "cgi/Channel.hpp"
 #include "cgi/Process.hpp"
 #include "cgi/ResponseParser.hpp"
-#include "Buffer.hpp"
-#include "RequestHandler.hpp"
 #include "cgi/CGIContext.hpp"
+
+#include "RequestHandler.hpp"
 
 namespace runtime { namespace epoll { class EventLoop; } }
 
 namespace http {
-
-class CgiHandler;
-
-class Channel: public io::AEventHandler {
-public:
-enum Stream {
-	Stdin,
-	Stdout,
-	Stderr
-};
-
-enum State {
-	Open,
-	Closing,
-	Closed,
-	Error
-};
-
-private:
-	Stream stream_;
-	State state_;
-	CgiHandler& handler_;
-	Buffer buf;
-
-public:
-	template <size_t N>
-	Channel(Storage<N>& storage,
-		Stream s,
-		int fd,
-		io::Event events,
-		CgiHandler& handler);
-	~Channel();
-	
-	void on_event(io::Event ev);
-
-	void read();
-	void write();
-
-	Stream stream() const;
-	State state() const;
-	void shutdown();
-	void mark_closing();
-	BufferView view() const;
-};
 
 class CgiHandler: public ARequestHandler {
 public:
@@ -111,10 +68,12 @@ private:
 	Storage<StdoutReadSize> stdout_rdbuf;
 	Storage<StderrReadSize> stderr_rdbuf;
 	
-	Channel stdin_ch;
-	Channel stdout_ch;
-	Channel stderr_ch;
+	cgi::Channel stdin_ch;
+	cgi::Channel stdout_ch;
+	cgi::Channel stderr_ch;
 	
+	std::vector<cgi::Channel*> channels;
+
 	runtime::epoll::EventLoop& event_loop;
 	time_t timeout_seconds;
 	
@@ -134,9 +93,9 @@ public:
 
 	bool can_close() const;
 
-	size_t on_writable(Buffer& writer, Channel& channel);
-	size_t on_readable(Channel& channel);	
-	void close_channel(Channel& channel);
+	size_t on_writable(Buffer& writer, cgi::Channel& channel);
+	size_t on_readable(cgi::Channel& channel);
+	void close_channel(cgi::Channel& channel);
 
  	http::Error handle();
 	

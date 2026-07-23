@@ -45,7 +45,7 @@ struct CGIResult {
 
 
 struct CGIParseContext {
-	static const std::size_t MaxHeaderBlockLen = 4096;
+	static const std::size_t MaxHeaderBlockLen = 2048;
 
 	LineReader 		line_reader;
 	size_t			header_bytes;
@@ -74,7 +74,7 @@ enum ParseResult {
 };
 
 private:
-	static const std::size_t MaxBodyMemSize = 1024; /* Maximum in-memory body size */
+	static const std::size_t MaxBodyMemSize = 1024;
 	OutputState state_;
 
 	http::StatusCode	code;
@@ -85,14 +85,15 @@ private:
 	mutable int	body_fd;
 	mutable std::string body_filename;
 	size_t		body_content_length;
-	
+
 	std::string body_;
 	BodyMode body_mode_;
 
 	ParseResult parse_header(std::string const& line);
 	ParseResult sanitize_status_header(std::string const& header);
-	ParseResult	read_body(BufferView& reader);
-
+	ParseResult	read_body(BufferView& view);
+	bool		validate_headers() const;
+	
 public:
 	ResponseParser();
 	~ResponseParser();

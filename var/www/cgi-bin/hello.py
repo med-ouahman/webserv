@@ -3,8 +3,6 @@
 import os
 import time
 import sys
-while True:
-    pass
     
 print("""Server: VilgaX\r\nContent-Type: text/html\r\n\r\n""", end="")
 print("""
