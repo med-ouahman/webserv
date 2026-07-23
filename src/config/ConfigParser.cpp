@@ -325,19 +325,19 @@ void ConfigParser::parseLocationDirective(LocationConfig& loc)
         loc.cgi_pass[extension] = executable;
     }
 
-    else if (key == "cgi_extension")
-    {
-        loc.cgi_extension = expect(WORD).value;
-        if (!loc.cgi_path.empty())
-            loc.cgi_pass[loc.cgi_extension] = loc.cgi_path;
-    }
+    // else if (key == "cgi_extension")
+    // {
+    //     loc.cgi_extension = expect(WORD).value;
+    //     if (!loc.cgi_path.empty())
+    //         loc.cgi_pass[loc.cgi_extension] = loc.cgi_path;
+    // }
 
-    else if (key == "cgi_path")
-    {
-        loc.cgi_path = expect(WORD).value;
-        if (!loc.cgi_extension.empty())
-            loc.cgi_pass[loc.cgi_extension] = loc.cgi_path;
-    }
+    // else if (key == "cgi_path")
+    // {
+    //     loc.cgi_path = expect(WORD).value;
+    //     if (!loc.cgi_extension.empty())
+    //         loc.cgi_pass[loc.cgi_extension] = loc.cgi_path;
+    // }
 
     else if (key == "cgi_dir")
     {

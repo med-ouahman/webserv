@@ -163,13 +163,13 @@ void printConfig(const Config& config) {
                       << loc.redirect.return_target
                       << "\n";
 
-            std::cout << indent(2)
-                      << "CGI Extension   : "
-                      << loc.cgi_extension << "\n";
+            // std::cout << indent(2)
+            //           << "CGI Extension   : "
+            //           << loc.cgi_extension << "\n";
 
-            std::cout << indent(2)
-                      << "CGI Path        : "
-                      << loc.cgi_path << "\n";
+            // std::cout << indent(2)
+            //           << "CGI Path        : "
+            //           << loc.cgi_path << "\n";
 
             std::cout << indent(2)
                       << "CGI Directory   : "
