@@ -205,6 +205,7 @@ http::Error CgiHandler::handle() {
     if (response_state == Finished) {
         std::cout << "DONE\n";
         CGIResult result = builder.result();
+        std::cout << result.status_code << "\n";
         setStatus(result.status_code);
 
         const Headers& headers = result.headers;

@@ -101,11 +101,11 @@ bool Process::start(const ProcessContext& context) {
 
     if (context.stdin_fd.get() != STDIN_FILENO) stdin_pipe_.close_write_end();
 
+    std::cout << "path: " << context.argv.data()[0] << "\n";
     pid_ = ::fork();
 
     if (pid_ == 0) {
 
-        std::cerr << "RUNNING\n";
         if (context.stdin_fd.get() != STDIN_FILENO)
         {
             if (::dup2(context.stdin_fd.get(), STDIN_FILENO) == -1) {

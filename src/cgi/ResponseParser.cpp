@@ -75,6 +75,7 @@ ResponseParser::ParseResult ResponseParser::parse(BufferView& reader) {
 
 ResponseParser::ParseResult ResponseParser::sanitize_status_header(std::string const& value) {
 
+    std::cout << "Saniting status header\n";
     size_t space_pos = value.find(' ');
 
     if (space_pos == std::string::npos) {
@@ -96,14 +97,16 @@ ResponseParser::ParseResult ResponseParser::sanitize_status_header(std::string c
 
     char* end = NULL;
 
-    int code = std::strtol(code_str.c_str(), &end, 10);
+    int parsed_code = std::strtol(code_str.c_str(), &end, 10);
 
-    if ((end && *end != '\0') || code < 200 or code > 599) {
+    if ((end && *end != '\0') || parsed_code < 200 or parsed_code > 599) {
         code = INTERNAL_SERVER_ERROR;
         std::cout << "Or here?\n";
         return ParseError;
     }
 
+
+    code = static_cast<http::StatusCode>(parsed_code);
     return Success;
 }
 
