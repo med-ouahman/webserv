@@ -65,20 +65,6 @@ private:
 	ResponseParser builder;
 	
 	Storage<StdinWriteSize> stdin_wbuf;
-<<<<<<< HEAD
-		Storage<StdoutReadSize> stdout_rdbuf;
-		Storage<StderrReadSize> stderr_rdbuf;
-		
-		Channel stdin_ch;
-		Channel stdout_ch;
-		Channel stderr_ch;
-		bool stdin_added;
-		bool stdout_added;
-		bool stderr_added;
-		
-		runtime::epoll::EventLoop& event_loop;
-		time_t timeout_seconds;
-=======
 	Storage<StdoutReadSize> stdout_rdbuf;
 	Storage<StderrReadSize> stderr_rdbuf;
 	
@@ -90,15 +76,13 @@ private:
 
 	runtime::epoll::EventLoop& event_loop;
 	time_t timeout_seconds;
->>>>>>> dff5ad9bc2df20c1c185f6e3466281349dbbb544
 	
 	CgiHandler(const CgiHandler&);
 	CgiHandler& operator=(const CgiHandler&);
 
-		bool timedout();
-		void check_process();
-		void check_channels();
-		bool* added_flag(Channel& channel);
+	bool timedout();
+	void check_process();
+	void check_channels();
 	
 public:
 	CgiHandler(Context& ctx);

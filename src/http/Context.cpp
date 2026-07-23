@@ -218,10 +218,6 @@ void Context::process() {
 ContextAction Context::nextAction() const { return action_; }
 
 void Context::timeout() {
-<<<<<<< HEAD
-=======
-	goto f;
->>>>>>> dff5ad9bc2df20c1c185f6e3466281349dbbb544
 	if (state_ == PARSING and actor.parser.timedOut()) {
 		setError(ERR_REQUEST_TIMEOUT);
 		return ;

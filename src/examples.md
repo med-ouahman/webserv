@@ -18,6 +18,7 @@ Connection: keep-alive
 
 GET / HTTP/1.1
 Host: ss
+COnnection: close
 
 GET / HTTP/1.0
 Host: ss
@@ -92,5 +93,9 @@ Connection: keep-alive
 GET / HTTP/1.0
 Host: ss
 Connection: close
-
 ```
+
+## CGI TESTS:
+
+POST /cgi-bin/hello.py HTTP/1.1
+Host: ss
