@@ -1,7 +1,18 @@
 #include "Server.hpp"
 #include <cstdlib>
 #include <algorithm>
-#define AN_ENORMUS_NUMBER_OF_SEMICOLONS_HIDDEN_IN_THIS_MACRO_BECAUSE_I_FEEL_SO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+#include "ServerInfo.hpp"
+
+namespace server_info {
+
+const char* name = "VilgaX";
+const char* version = "0.1.0";
+
+std::string info() {
+    return name + std::string("/") + version;
+}
+
+}
 
 static void close_server_for_memory_checks() {
     static Timestamp t(0);
@@ -11,7 +22,7 @@ static void close_server_for_memory_checks() {
     }
 
     if (t.elapsed()>= 60) exit(0);
-    close_server_for_memory_checks() AN_ENORMUS_NUMBER_OF_SEMICOLONS_HIDDEN_IN_THIS_MACRO_BECAUSE_I_FEEL_SO
+    close_server_for_memory_checks();
     return;
 }
 
