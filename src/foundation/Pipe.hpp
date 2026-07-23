@@ -23,14 +23,8 @@ static bool create(Pipe& out) {
 
 void close() {
     
-    if (read_end_ >= 0) {
-        ::close(read_end_);
-        read_end_ = -1;
-    }
-    if (write_end_ >= 0) {
-        ::close(write_end_);
-        write_end_ = -1;
-    }
+   close_write_end();
+   close_read_end();
 }
 
 int read_end() const {
@@ -49,7 +43,7 @@ Pipe(): created_(create(*this)) {}
 
 void close_write_end() {
     
-    if (read_end_ < 0) return;
+    if (write_end_ < 0) return;
     ::close(write_end_);
     write_end_ = -1;
 }

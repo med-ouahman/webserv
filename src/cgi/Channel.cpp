@@ -6,17 +6,29 @@ namespace cgi {
 
 Channel::~Channel() {}
 
+std::string channel_type(Channel::Stream s) {
+
+    if (s == Channel::Stdin) {
+        return "Stdin";
+    }
+
+    if (s == Channel::Stdout) return "Stdout";
+
+    return "Stderr";
+}
+
 void Channel::on_event(io::Event event) {
 
     size_t w = 0;
+    std::string s = channel_type(stream_);
     switch (event) {
         case io::Readable: case io::Hup:
-            std::cout << "Channel Readable\n";
+            std::cout << "Channel Readable: " << s << "\n";
             w = handler_.on_readable(*this);
             buf.advance_read(w);
             break;
         case io::Writable:
-            std::cout << "Channel Writable\n";
+            std::cout << "Channel Writable" << s <<"\n";
             w = handler_.on_writable(buf, *this);
             buf.advance_write(w);
             break;

@@ -218,11 +218,12 @@ void Context::process() {
 ContextAction Context::nextAction() const { return action_; }
 
 void Context::timeout() {
+	goto f;
 	if (state_ == PARSING and actor.parser.timedOut()) {
 		setError(ERR_REQUEST_TIMEOUT);
 		return ;
 	}
-
+	f:
 	if (state_ == PROCESSING and actor.handler != NULL) {
 		if (info.dispatch.value.handler_type == CGI) {
 			static_cast<CgiHandler*>(actor.handler)->monitor();

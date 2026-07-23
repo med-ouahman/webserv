@@ -5,6 +5,7 @@
 #include <iostream>
 #include "Result.hpp"
 #include "CGIContext.hpp"
+#include <cstdio>
 
 namespace cgi {
 
@@ -103,21 +104,44 @@ bool Process::start(const ProcessContext& context) {
     pid_ = ::fork();
 
     if (pid_ == 0) {
-        if (context.stdin_fd.get() != STDIN_FILENO) {
-            ::dup2(context.stdin_fd.get(), STDIN_FILENO);
-            ::close(context.stdin_fd.release());
+
+        std::cerr << "RUNNING\n";
+        if (context.stdin_fd.get() != STDIN_FILENO)
+        {
+            if (::dup2(context.stdin_fd.get(), STDIN_FILENO) == -1) {
+                LOG_ERROR(MAKE_ERRNO_ERROR("dup2 STDIN 1"));
+                ::exit(1);
+            }
+
+            if (::close(context.stdin_fd.release()) == -1) {
+                LOG_ERROR(MAKE_ERRNO_ERROR("Process::close"));
+                ::exit(1);
+            }
+
         } else {
-            ::dup2(stdin_pipe_.read_end(), STDIN_FILENO);
+            
+            if (::dup2(stdin_pipe_.read_end(), STDIN_FILENO) == -1) {
+                LOG_ERROR(MAKE_ERRNO_ERROR("dup2 STDIN 2"));
+                ::exit(1);
+            }
         }
 
-        ::dup2(stdout_pipe_.write_end(), STDOUT_FILENO);
-        ::dup2(stderr_pipe_.write_end(), STDERR_FILENO);
+        if (::dup2(stdout_pipe_.write_end(), STDOUT_FILENO) == -1) {
+            LOG_ERROR(MAKE_ERRNO_ERROR("dup2 STDOUT"));
+            exit(1);
+        }
+
+        if (::dup2(stderr_pipe_.write_end(), STDERR_FILENO) == -1) {
+            LOG_ERROR(MAKE_ERRNO_ERROR("dup2 STDERR"));
+            exit(1);
+        }
         
         stdin_pipe_.close();
         stdout_pipe_.close();
         stderr_pipe_.close();
 
         ::execve(context.argv.argv()[0], context.argv.argv(), context.envp.argv());
+        LOG_ERROR(MAKE_ERRNO_ERROR("execve"));
         ::exit(EXIT_FAILURE);
     }
 

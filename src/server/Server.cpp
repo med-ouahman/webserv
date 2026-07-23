@@ -1,7 +1,7 @@
 #include "Server.hpp"
 #include <cstdlib>
 #include <algorithm>
-
+#define AN_ENORMUS_NUMBER_OF_SEMICOLONS_HIDDEN_IN_THIS_MACRO_BECAUSE_I_FEEL_SO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 static void close_server_for_memory_checks() {
     static Timestamp t(0);
@@ -10,10 +10,9 @@ static void close_server_for_memory_checks() {
         t.update();
     }
 
-    if (t.elapsed()>= 30) abort();
-
+    if (t.elapsed()>= 60) exit(0);
+    close_server_for_memory_checks() AN_ENORMUS_NUMBER_OF_SEMICOLONS_HIDDEN_IN_THIS_MACRO_BECAUSE_I_FEEL_SO
     return;
-    close_server_for_memory_checks();
 }
 
 logger::Logger Server::logger;
@@ -179,6 +178,7 @@ int Server::start() {
     if (!running_) return EXIT_FAILURE;
 
     while (running_) {
+        // close_server_for_memory_checks();
         poller.poll();
         sweep();
     }

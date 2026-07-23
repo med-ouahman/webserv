@@ -158,46 +158,18 @@ static void fillEnv(const http::Request& request,
 	}
 }
 
-static http::Error setBufferStdin(const base::io::Reader& body,
-		ProcessContext& exec_ctx) {
-	int fds[2];
-	usize written = 0;
-
-	if (::pipe(fds) != 0)
-		return http::ERR_INTERNAL;
-	while (written < body.size()) {
-		ssize_t n = ::write(fds[1], body.data() + written,
-			body.size() - written);
-		if (n <= 0) {
-			::close(fds[0]);
-			::close(fds[1]);
-			return http::ERR_INTERNAL;
-		}
-		written += static_cast<usize>(n);
-	}
-	::close(fds[1]);
-	exec_ctx.stdin_fd.reset(fds[0]);
-	return http::ERR_NONE;
-}
-
 static http::Error setStdin(const http::Request& request,
 		ProcessContext& exec_ctx) {
-	http::Error err;
 
 	if (base::io::Reader::FILE == request.body.type()) {
 		exec_ctx.stdin_fd.reset(::open(request.body.path().c_str(), O_RDONLY));
+		
 		if (!exec_ctx.stdin_fd.valid()) return http::ERR_INTERNAL;
+
+	} else {
+		exec_ctx.stdin_fd.reset(STDIN_FILENO);
 	}
-	else if (base::io::Reader::BUFFER == request.body.type()) {
-		err = setBufferStdin(request.body, exec_ctx);
-		if (err != http::ERR_NONE)
-			return err;
-	}
-	else {
-		exec_ctx.stdin_fd.reset(::open("/dev/null", O_RDONLY));
-		if (!exec_ctx.stdin_fd.valid())
-			return http::ERR_INTERNAL;
-	}
+	
 	return http::ERR_NONE;
 }
 

@@ -68,6 +68,7 @@ CgiHandler::CgiHandler(Context& ctx)
 state_(Working),
 response_state(Processing),
 reason_(None),
+process(),
 spawn_time(),
 sigterm_sent_at(0),
 shutdown_state(SigTerm),
@@ -75,9 +76,9 @@ stdin_ch(stdin_wbuf, cgi::Channel::Stdin, process.stdin_pipe().write_end(), io::
 stdout_ch(stdout_rdbuf, cgi::Channel::Stdout, process.stdout_pipe().read_end(), io::Readable, *this),
 stderr_ch(stderr_rdbuf, cgi::Channel::Stderr, process.stderr_pipe().read_end(),io::Readable, *this),
 
-event_loop(ctx.services_.poller) {
+event_loop(ctx.services_.poller),
+timeout_seconds(0) {
     
-
     if (process.error() || state_ != Working)
     {
         state_ = Cleanup;
@@ -89,13 +90,14 @@ event_loop(ctx.services_.poller) {
     cgi::ProcessContext process_ctx;
 
     http::Error r = cgi::buildCGIContext(ctx, request_ctx, process_ctx);
+
+    timeout_seconds = request_ctx.timeout;
+
     if (r != ERR_NONE) {
         state_ = Cleanup;
         reason_ = Internal;
         return ;
     }
-
-    timeout_seconds = request_ctx.timeout;
 
     if (!process.start(process_ctx)) {
         state_ = Cleanup;
@@ -120,10 +122,14 @@ CgiHandler::~CgiHandler() {
 
     for ( size_t i(0); i < channels.size(); ++i ) {
         cgi::Channel* ch = channels[i];
-        if (ch->state() != cgi::Channel::Closed) event_loop.del(ch);
+        
+        if (ch->state() != cgi::Channel::Closed) {
+            event_loop.del(ch);
+            close_channel(*ch);
+        }
+
         ch->shutdown();
     }
-
 }
 
 size_t CgiHandler::on_readable(cgi::Channel& channel) {
@@ -145,8 +151,10 @@ size_t CgiHandler::on_readable(cgi::Channel& channel) {
     }
 
     if (channel.stream() == cgi::Channel::Stderr) {
-        std::cerr.write(view.data(), view.remaining());
+        std::cout << "Size: " <<  view.remaining() << "\n"; 
+        std::cout.write(view.data(), view.remaining());
         view.advance(view.remaining());
+        channel.mark_closing();
         return view.cursor();
     }
 
@@ -157,11 +165,13 @@ size_t CgiHandler::on_readable(cgi::Channel& channel) {
     if (r == ResponseParser::ParseError) {
         reason_ = ParseError;
         response_state = Error;
-        std::cout << "Error\n";
+        std::cout << "hERE?? Error\n";
         return view.cursor();
     }
 
     std::cout << "CGI REQUEST DONE\n";
+    
+    channel.mark_closing();
     response_state = Finished;
     return view.cursor();
 }
@@ -192,7 +202,6 @@ size_t CgiHandler::on_writable(Buffer& writer, cgi::Channel& channel) {
 
 http::Error CgiHandler::handle() {
 
-    std::cout << "CGI HANDLER\n";
     if (response_state == Finished) {
         std::cout << "DONE\n";
         CGIResult result = builder.result();
@@ -205,6 +214,9 @@ http::Error CgiHandler::handle() {
             setHeader(it->name, it->value);
         }
     
+        setConnection();
+        setDate();
+
         if (result.mem_) {
             setBodyFixed(result.body_);
         } else {
@@ -245,7 +257,9 @@ void CgiHandler::check_channels() {
     for (size_t i = 0; i < channels.size(); ++i) {
         cgi::Channel& ch = *channels[i];
 
-        if (state_ == Cleanup) ch.mark_closing();
+        if (state_ == Cleanup) {
+            ch.mark_closing();
+        }
 
         if (ch.state() == cgi::Channel::Closing) {
             close_channel(ch);
@@ -264,8 +278,7 @@ void CgiHandler::check_process() {
     process.reap();
 	if (process.reaped()) {
 		shutdown_state = Reaped;
-		return;
-	}
+    }
 
     switch (shutdown_state) {
         case SigTerm:
@@ -293,8 +306,6 @@ void CgiHandler::monitor() {
 
     if (state_ == Cleanup
         && shutdown_state != Reaped) check_process();
-
-    if (process.reaped()) shutdown_state = Reaped;
 
     check_channels();
 

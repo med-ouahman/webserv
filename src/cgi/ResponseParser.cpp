@@ -61,7 +61,10 @@ ResponseParser::ParseResult ResponseParser::parse(BufferView& reader) {
         parse_ctx.header_bytes += parse_ctx.line_reader.line().size();
         
         ParseResult res = parse_header(parse_ctx.line_reader.line());
-        if (res != Success) return res;
+        if (res != Success) {
+            if (res == ParseError) std::cout << "stupid nigga\n";
+            return res;
+        }
 
         parse_ctx.line_reader.reset();
     }
@@ -76,6 +79,7 @@ ResponseParser::ParseResult ResponseParser::sanitize_status_header(std::string c
 
     if (space_pos == std::string::npos) {
         code = INTERNAL_SERVER_ERROR;
+        std::cout << "Here\n";
         return ParseError;
     }
 
@@ -84,6 +88,7 @@ ResponseParser::ParseResult ResponseParser::sanitize_status_header(std::string c
 
     for (size_t i = 0; i < code_str.size(); ++i) {
         if (!std::isdigit(code_str[i])) {
+            std::cout << "may be here??\n";
             code = INTERNAL_SERVER_ERROR;
             return ParseError;
         }
@@ -95,6 +100,7 @@ ResponseParser::ParseResult ResponseParser::sanitize_status_header(std::string c
 
     if ((end && *end != '\0') || code < 200 or code > 599) {
         code = INTERNAL_SERVER_ERROR;
+        std::cout << "Or here?\n";
         return ParseError;
     }
 
@@ -112,7 +118,7 @@ ResponseParser::ParseResult ResponseParser::parse_header(std::string const& line
     if (colon == std::string::npos)
         return ParseError;
 
-    std::string name = line.substr(0, colon);
+    std::string name = base::toLowerCase(line.substr(0, colon));
 
     for (size_t i = 0; i < name.size(); ++i) {
         if (::isspace(static_cast<unsigned char>(name[i])))
@@ -135,7 +141,7 @@ ResponseParser::ParseResult ResponseParser::parse_header(std::string const& line
 
     std::string value = line.substr(start, end - start);
 
-    if ("status" == base::toLowerCase(name))
+    if ("status" == name)
         return sanitize_status_header(value);
 
     headers_.add(name, value);
@@ -174,11 +180,13 @@ ResponseParser::ParseResult ResponseParser::read_body(BufferView& reader) {
         body_fd = ::open(body_filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
         if (body_fd < 0) {
             state_ = Error;
+            std::cout << "File error\n";
             return ParseError;
         }
         if (!body_.empty()) {
             ssize_t w = ::write(body_fd, body_.c_str(), body_.size());
             if (w < 0) {
+                std::cout << "write error\n";
                 state_ = Error;
                 return ParseError;
             }
@@ -189,6 +197,7 @@ ResponseParser::ParseResult ResponseParser::read_body(BufferView& reader) {
 
     ssize_t w = ::write(body_fd, reader.data(), reader.remaining());
     if (w < 0) {
+        std::cout << "antoher write error\n";
         state_ = Error;
         return ParseError;
     }
