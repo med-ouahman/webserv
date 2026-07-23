@@ -22,7 +22,7 @@ static const MimeEntry g_mime_types[] = {
 	{ ".svg", "image/svg+xml" },
 	{ ".txt", "text/plain" },
 	{ ".ico", "image/x-icon" },
-	{".glb", "model/gltf-binary"} // example mime
+	{ ".glb", "model/gltf-binary"} // example mime
 };
 
 static std::string extensionOf(const std::string& path) {

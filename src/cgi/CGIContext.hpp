@@ -4,8 +4,6 @@
 #include <unistd.h>
 #include "config/Config.hpp"
 #include "http/Error.hpp"
-#include "http/Request.hpp"
-#include "http/routing/Routing.hpp"
 #include "CStringArray.hpp"
 #include <iostream>
 #include <string>
@@ -43,13 +41,7 @@ struct ProcessContext {
 	: stdin_fd(-1) {}
 };
 
-http::Error buildCGIContext(const http::Request& request,
-	const http::DispatchInfo& decision,
-	CGIRequestContext& request_ctx,
-	ProcessContext& exec_ctx);
-
 http::Error buildCGIContext(const http::Context& context,
-
 	CGIRequestContext& request_ctx,
 	ProcessContext& exec_ctx);
 

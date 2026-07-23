@@ -58,13 +58,15 @@ private:
 	static bool parseChunkSize(const std::string& line, usize& size);
 
 public:
-	Parser();
+		Parser();
 
 		Error progress(Context& ctx, const char* data, usize size,
 			usize& consumed);
 
-	void reset();
-	bool timedOut() const;
+		void reset();
+		void resetCycle();
+		bool hasBufferedInput() const;
+		bool timedOut() const;
 	void startBody();
 	Error prepareBodyStorage(const std::string& root, usize conn_id,
 		usize request_id, usize max_size);

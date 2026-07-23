@@ -25,9 +25,7 @@ bool Connection::closing() const { return state_ == Closing; }
 
 void Connection::update(http::ContextAction action) {
 
-    if (action == http::AC_CLOSE && !writer_.empty()) {
-        return;
-    }
+    if (action == http::AC_CLOSE && !writer_.empty()) return ;
 
     if (state_ == Closing && http::AC_CLOSE != action) action = http::AC_CLOSE;
 
@@ -59,28 +57,41 @@ void Connection::sync() {
 }
 
 void Connection::on_event(io::Event events) {
-   
-    switch (events) {
-        case io::Readable:
-            on_readable();
-            break;
-        case io::Writable:
-            on_writable();
-            break;
-        case io::Hup: case io::RHup:
-
-            state_ = Closing;
-            break;
-        case io::Error:
-            std::cout << "Channel Error\n";
-            /* need log */
-            state_ = Closing;
-            break;
-        default:
-            break;
-    }
-    
+	if (events & io::Error) {
+			state_ = Closing;
+			return;
+	}
+	if (events & (io::Hup | io::RHup)) {
+			state_ = Closing;
+			return;
+	}
+	if (events & io::Writable)
+			on_writable();
+	if (events & io::Readable)
+			on_readable();
 }
+
+
+// void Connection::on_event(io::Event events) {
+   // 
+    // switch (events) {
+        // case io::Readable:
+            // on_readable();
+            // break;
+        // case io::Writable:
+            // on_writable();
+            // break;
+        // case io::Hup: case io::RHup:
+            // state_ = Closing;
+            // break;
+        // case io::Error:
+            // state_ = Closing;
+            // break;
+        // default:
+            // break;
+    // }
+    // 
+// }
 
 void Connection::on_readable() {
     if (state_ == Closing) return;

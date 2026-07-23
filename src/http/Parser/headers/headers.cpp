@@ -70,6 +70,9 @@ Error Parser::parseHeaders(Context& ctx) {
 			err = parser::endHeaders(ctx.actor.request);
 			if (err != ERR_NONE)
 				return err;
+			ctx.actor.request.has_body = ctx.actor.request.chunked
+				|| (ctx.actor.request.content_length.has_value()
+					&& ctx.actor.request.content_length.value > 0);
 			header_bytes = 0;
 			ctx.state_ = PROCESSING;
 			ctx.action_ = AC_NONE;

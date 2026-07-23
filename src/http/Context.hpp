@@ -45,9 +45,10 @@ struct Actor {
 	Response response;
 	ARequestHandler* handler;
 
-	Actor();
-	void reset();
-};
+		Actor();
+		void reset();
+		void resetCycle();
+	};
 
 struct Info {
 	const std::vector<const config::ServerConfig*>& servers;

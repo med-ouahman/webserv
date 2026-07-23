@@ -28,26 +28,35 @@ Actor::Actor()
 	reset();
 }
 
-void Actor::reset() {
-	delete handler;
-	handler = NULL;
-	parser.reset();
-	request.reset();
-	response.reset();
-}
+	void Actor::reset() {
+		delete handler;
+		handler = NULL;
+		parser.reset();
+		request.reset();
+		response.reset();
+	}
+
+	void Actor::resetCycle() {
+		delete handler;
+		handler = NULL;
+		parser.resetCycle();
+		request.reset();
+		response.reset();
+	}
 
 Request::Request()
 	: url(),
 	  path(),
-	  query(),
 	  headers(),
+	  query(),
 	  host(),
 	  content_length(),
 	  body(),
 	  method(UNKNOWN),
 	  version(HTTP_UNKNOWN),
 	  connection(CONNECTION_DEFAULT),
-	  chunked(false) {}
+	  chunked(false),
+	  has_body(false) {}
 
 void Request::reset() {
 	url.clear();
@@ -61,6 +70,7 @@ void Request::reset() {
 	version = HTTP_UNKNOWN;
 	connection = CONNECTION_DEFAULT;
 	chunked = false;
+	has_body = false;
 }
 
 Context::Context(const std::vector<const config::ServerConfig*>& servers,
@@ -106,16 +116,20 @@ Error Context::setError(Error error) {
 	return error;
 }
 
-void Context::resetCycle() {
-	actor.reset();
-	info.dispatch = base::Optional<DispatchInfo>();
-	error = ERR_NONE;
-	state_ = PARSING;
-	action_ = AC_READ;
-	if (active_requests > limits::MAX_REQUESTS_PER_CONN)
-		setError(ERR_TOO_MANY_REQUESTS);
-	++active_requests;
-}
+	void Context::resetCycle() {
+		bool has_buffered_input = actor.parser.hasBufferedInput();
+
+		actor.resetCycle();
+		info.dispatch = base::Optional<DispatchInfo>();
+		error = ERR_NONE;
+		state_ = PARSING;
+		action_ = AC_READ;
+		if (active_requests > limits::MAX_REQUESTS_PER_CONN)
+			setError(ERR_TOO_MANY_REQUESTS);
+		++active_requests;
+		if (has_buffered_input && action_ == AC_READ)
+			consume(NULL, 0);
+	}
 
 Error Context::resolveDispatch() {
 	if (info.servers.empty())
@@ -204,14 +218,11 @@ void Context::process() {
 ContextAction Context::nextAction() const { return action_; }
 
 void Context::timeout() {
-	std::cout << "I'm being patient\n";
-	goto f;
 	if (state_ == PARSING and actor.parser.timedOut()) {
 		setError(ERR_REQUEST_TIMEOUT);
 		return ;
 	}
 
-	f:
 	if (state_ == PROCESSING and actor.handler != NULL) {
 		if (info.dispatch.value.handler_type == CGI) {
 			static_cast<CgiHandler*>(actor.handler)->monitor();

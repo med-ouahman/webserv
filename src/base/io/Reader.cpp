@@ -119,6 +119,14 @@ Reader::Type Reader::type() const {
 const std::string& Reader::path() const {
 	return path_;
 }
+
+const char* Reader::data() const {
+	return buffer_;
+}
+
+usize Reader::size() const {
+	return size_;
+}
 }
 
 }

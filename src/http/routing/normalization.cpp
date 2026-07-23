@@ -89,7 +89,7 @@ static std::string pathJoin(const std::string& root,
 		return path;
 	if (root[root.size() - 1] == '/')
 		return path == "/" ? root : root + path.substr(1);
-	return root + path;
+	return root + "/" + path.substr(1);
 }
 
 static std::string applyPathLocation(const std::string& path,

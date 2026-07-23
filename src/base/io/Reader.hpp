@@ -49,6 +49,8 @@ public:
 
 	Type type() const;
 	const std::string& path() const;
+	const char* data() const;
+	usize size() const;
 };
 
 }

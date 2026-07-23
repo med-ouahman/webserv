@@ -1,7 +1,16 @@
 
 #include "http/routing/RoutingInternal.hpp"
+#include <iostream>
 
 namespace http {
+
+namespace {
+
+static bool handlerReadsBody(RequestType type) {
+	return type == CGI || type == UPLOAD;
+}
+
+}
 
 DispatchInfo::DispatchInfo()
 	: server(NULL),
@@ -34,7 +43,6 @@ static base::Expected<DispatchInfo, Error> routeSelectedServer(const Request& re
 	TRY(routing::checkBodyPolicy(request), err);
 	TRY(routing::checkBodySize(request, decision.max_body_size), err);
 
-	decision.read_body = routing::hasBody(request);
 	if (routing::hasRedirect(*decision.location)) {
 		decision.handler_type = REDIRECT;
 		return decision;
@@ -46,11 +54,15 @@ static base::Expected<DispatchInfo, Error> routeSelectedServer(const Request& re
 		? server.root : decision.location->root,
 		decision.filesystem_path, decision.path_type), err);
 	TRY(routing::setRequestType(request, decision), err);
+	decision.read_body = routing::hasBody(request)
+		&& handlerReadsBody(decision.handler_type);
+	std::cout << "Routing: request type set!\n";
 	if (decision.handler_type == UPLOAD) {
 		TRY(routing::checkUploadAllowed(*decision.location), err);
 		TRY(routing::checkUploadFraming(request), err);
 		decision.upload_path = &decision.location->upload_path;
 	}
+	std::cout << "Routing: finished!\n";
 	return decision;
 }
 

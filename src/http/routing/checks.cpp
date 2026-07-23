@@ -25,9 +25,7 @@ Error checkMethodAllowed(Method method,
 }
 
 bool hasBody(const Request& request) {
-	return request.chunked
-		|| (request.content_length.has_value()
-			&& request.content_length.value > 0);
+	return request.has_body;
 }
 
 Error checkBodyPolicy(const Request& request) {

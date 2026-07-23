@@ -49,26 +49,26 @@ enum ConnectionType { CONNECTION_DEFAULT, CONNECTION_CLOSE, CONNECTION_KEEP_ALIV
  *		Authorization
  *		Proxy-Authorization
  */
-struct Header {
-	std::string key;
-	std::string value;
-};
+struct Header { std::string key; std::string value; };
 
 struct Request {
 
-	std::string					url;
-	std::string					path;
-	base::Optional<std::string>	query;
-	std::vector<Header>			headers;
+	std::string url;
+	std::string path;
+	std::vector<Header> headers;
 
-	base::Optional<std::string>	host;
-	base::Optional<usize>		content_length;
-	base::io::Reader			body;
+	base::Optional<std::string> query;
+	base::Optional<std::string> host;
+	base::Optional<usize> content_length;
 
-	Method						method;
-	Version						version;
-	ConnectionType				connection;
-	bool						chunked;
+	base::io::Reader body;
+
+	Method method;
+	Version version;
+	ConnectionType connection;
+
+	bool chunked;
+	bool has_body;
 
 	Request();
 	void reset();

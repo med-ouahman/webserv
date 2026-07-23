@@ -1,3 +1,4 @@
+
 #include "Process.hpp"
 #include <csignal>
 #include <sys/wait.h>
@@ -45,11 +46,11 @@ pid_t Process::pid() const { return pid_; }
 int   Process::status() const { return status_; }
 
 void Process::kill() {
-    ::kill(pid_, SIGKILL);
+	if (pid_ > 0) ::kill(pid_, SIGKILL);
 }
 
 void Process::terminate() {
-    ::kill(pid_, SIGTERM);
+	if (pid_ > 0) ::kill(pid_, SIGTERM);
 }
 
 void Process::reap() {
@@ -87,15 +88,11 @@ int Process::status_code(const ProcessResult& result) {
 }
 
 bool Process::start(const ProcessContext& context) {
-
     state_ = Running;
-
     if (context.stdin_fd.get() != STDIN_FILENO) stdin_pipe_.close_write_end();
 
     pid_ = ::fork();
-
     if (pid_ == 0) {
-
         std::cout << "Forked\n";
         if (context.stdin_fd.get() != STDIN_FILENO) {
             ::dup2(context.stdin_fd.get(), STDIN_FILENO);

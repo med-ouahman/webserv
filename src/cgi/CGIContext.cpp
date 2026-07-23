@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <cctype>
 #include <sstream>
+#include <unistd.h>
 
 namespace cgi {
 
@@ -107,7 +108,8 @@ static std::string serverName(const http::Request& request,
 		return server.server_names[0];
 	return "localhost";
 }
-static std::string serverPort(const config::ServerConfig& server) { if (server.listens.empty())
+static std::string serverPort(const config::ServerConfig& server) {
+	if (server.listens.empty())
 		return "";
 	return toString(server.listens[0].port);
 }
@@ -136,16 +138,16 @@ static void fillEnv(const http::Request& request,
 		ProcessContext& exec_ctx) {
 	usize i = 0;
 
-	exec_ctx.envp.push("REQUEST_METHOD""="+request_ctx.request_method);
-	exec_ctx.envp.push("SERVER_PROTOCOL""="+request_ctx.server_protocol);
-	exec_ctx.envp.push("QUERY_STRING""="+request_ctx.query_string);
-	exec_ctx.envp.push("CONTENT_TYPE""="+request_ctx.mime_type);
-	exec_ctx.envp.push("CONTENT_LENGTH""="+request_ctx.content_length);
-	exec_ctx.envp.push("GATEWAY_INTERFACE""="+std::string("CGI/1.1"));
-	exec_ctx.envp.push("SCRIPT_NAME""="+request_ctx.script_name);
-	exec_ctx.envp.push("PATH_INFO""="+request_ctx.path_info);
-	exec_ctx.envp.push("SERVER_NAME""="+request_ctx.server_name);
-	exec_ctx.envp.push("SERVER_PORT""="+request_ctx.server_port);
+	exec_ctx.envp.push("REQUEST_METHOD""=" + request_ctx.request_method);
+	exec_ctx.envp.push("SERVER_PROTOCOL""=" + request_ctx.server_protocol);
+	exec_ctx.envp.push("QUERY_STRING""=" + request_ctx.query_string);
+	exec_ctx.envp.push("CONTENT_TYPE""=" + request_ctx.mime_type);
+	exec_ctx.envp.push("CONTENT_LENGTH""=" + request_ctx.content_length);
+	exec_ctx.envp.push("GATEWAY_INTERFACE""=" + std::string("CGI/1.1"));
+	exec_ctx.envp.push("SCRIPT_NAME""=" + request_ctx.script_name);
+	exec_ctx.envp.push("PATH_INFO""=" + request_ctx.path_info);
+	exec_ctx.envp.push("SERVER_NAME""=" + request_ctx.server_name);
+	exec_ctx.envp.push("SERVER_PORT""=" + request_ctx.server_port);
 	while (i < request.headers.size()) {
 		std::string normalized = lowerName(request.headers[i].key);
 
@@ -156,47 +158,86 @@ static void fillEnv(const http::Request& request,
 	}
 }
 
-}
-
-http::Error buildCGIContext(const http::Request& request,
-		const http::DispatchInfo& decision,
-		CGIRequestContext& request_ctx,
+static http::Error setBufferStdin(const base::io::Reader& body,
 		ProcessContext& exec_ctx) {
-	if (decision.server == NULL)
+	int fds[2];
+	usize written = 0;
+
+	if (::pipe(fds) != 0)
 		return http::ERR_INTERNAL;
-	if (decision.cgi_path == NULL || decision.cgi_path->empty())
-		return http::ERR_INTERNAL;
-	if (decision.filesystem_path.empty())
-		return http::ERR_NOT_FOUND;
-	request_ctx = CGIRequestContext();
-	exec_ctx.working_dir = decision.location != NULL
-		&& !decision.location->cgi_dir.empty()
-		? decision.location->cgi_dir : dirnameOf(decision.filesystem_path);
-	
-	
-	if (base::io::Reader::FILE == request.body.type()) {
-		exec_ctx.stdin_fd.reset(::open(request.body.path().c_str(), O_RDONLY));
-		if (!exec_ctx.stdin_fd.valid()) return http::ERR_INTERNAL;
-	} else {
-		exec_ctx.stdin_fd.reset(0);
+	while (written < body.size()) {
+		ssize_t n = ::write(fds[1], body.data() + written,
+			body.size() - written);
+		if (n <= 0) {
+			::close(fds[0]);
+			::close(fds[1]);
+			return http::ERR_INTERNAL;
+		}
+		written += static_cast<usize>(n);
 	}
-
-	fillRequestContext(request, decision, request_ctx);
-	exec_ctx.argv.push(request_ctx.interpreter);
-	exec_ctx.argv.push(decision.filesystem_path);
-	fillEnv(request, request_ctx, exec_ctx);
-
+	::close(fds[1]);
+	exec_ctx.stdin_fd.reset(fds[0]);
 	return http::ERR_NONE;
 }
 
-http::Error buildCGIContext(const http::Context& context,
-		CGIRequestContext& request_ctx,
+static http::Error setStdin(const http::Request& request,
 		ProcessContext& exec_ctx) {
+	http::Error err;
 
-	if (!context.info.dispatch.has_value())
-		return http::ERR_INTERNAL;
-	return buildCGIContext(context.actor.request, context.info.dispatch.value,
-		request_ctx, exec_ctx);
+	if (base::io::Reader::FILE == request.body.type()) {
+		exec_ctx.stdin_fd.reset(::open(request.body.path().c_str(), O_RDONLY));
+		if (!exec_ctx.stdin_fd.valid()) return http::ERR_INTERNAL;
+	}
+	else if (base::io::Reader::BUFFER == request.body.type()) {
+		err = setBufferStdin(request.body, exec_ctx);
+		if (err != http::ERR_NONE)
+			return err;
+	}
+	else {
+		exec_ctx.stdin_fd.reset(::open("/dev/null", O_RDONLY));
+		if (!exec_ctx.stdin_fd.valid())
+			return http::ERR_INTERNAL;
+	}
+	return http::ERR_NONE;
 }
+
+static void setArgv(const http::DispatchInfo& decision,
+		const CGIRequestContext& request_ctx,
+		ProcessContext& exec_ctx) {
+	if (decision.cgi_path != NULL && !decision.cgi_path->empty()) {
+		exec_ctx.argv.push(request_ctx.interpreter);
+		exec_ctx.argv.push(decision.filesystem_path);
+	}
+	else exec_ctx.argv.push(decision.filesystem_path);
+}
+
+static http::Error buildProcessContext(const http::Request& request,
+		const http::DispatchInfo& decision,
+		const CGIRequestContext& request_ctx,
+		ProcessContext& exec_ctx) {
+	http::Error err;
+
+	exec_ctx.working_dir = dirnameOf(decision.filesystem_path);
+	TRY(setStdin(request, exec_ctx), err);
+	setArgv(decision, request_ctx, exec_ctx);
+	fillEnv(request, request_ctx, exec_ctx);
+	return http::ERR_NONE;
+}
+
+}
+
+http::Error buildCGIContext(const http::Context& context,
+			CGIRequestContext& request_ctx,
+			ProcessContext& exec_ctx) {
+	const http::Request& request = context.actor.request;
+	const http::DispatchInfo& decision = context.info.dispatch.value;
+	http::Error err;
+
+	request_ctx = CGIRequestContext();
+	fillRequestContext(request, decision, request_ctx);
+	TRY(buildProcessContext(request, decision, request_ctx, exec_ctx), err);
+	return http::ERR_NONE;
+}
+
 
 }
