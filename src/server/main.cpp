@@ -208,8 +208,10 @@ int main(int argc, const char* argv[]) {
 
     try {
        conf = parser.parse(configfile.c_str());
+        config::printConfig(conf);
     } catch (std::runtime_error& error) {
         std::cerr << error.what() << "\n";
+        return 0x1;
     }
     
     Server server(conf);

@@ -102,3 +102,13 @@ POST /cgi-bin/hello.py HTTP/1.1
 Host: ss
 ```
 ```
+
+
+## POST
+- POST doesn't require a body, it just accepts one if present
+
+## routing erros
+
+- when indexing, allowed methods probably aren't checked or checked in the wrong location conf
+```
+POST /post_body 

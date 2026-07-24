@@ -16,6 +16,7 @@ Error checkMethodAllowed(Method method,
 	if (location.allowed_methods.empty())
 		return ERR_NONE;
 	it = location.allowed_methods.begin();
+	
 	while (it != location.allowed_methods.end()) {
 		if (methodOf(*it) == method)
 			return ERR_NONE;
