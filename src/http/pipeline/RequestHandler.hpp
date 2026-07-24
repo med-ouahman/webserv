@@ -39,6 +39,7 @@ public:
 	explicit ARequestHandler(Context& context);
 	virtual Error handle() = 0;
 	virtual Error timeout();
+	virtual void monitor();
 	virtual ~ARequestHandler();
 };
 

@@ -83,9 +83,7 @@ Context::Context(const std::vector<const config::ServerConfig*>& servers,
 	resetCycle();
 }
 
-Context::~Context() {
-	actor.reset();
-}
+Context::~Context() { actor.reset(); }
 
 void Context::responseReady() {
 	actor.response.resetWriteState();
@@ -116,20 +114,20 @@ Error Context::setError(Error error) {
 	return error;
 }
 
-	void Context::resetCycle() {
-		bool has_buffered_input = actor.parser.hasBufferedInput();
+void Context::resetCycle() {
+	bool has_buffered_input = actor.parser.hasBufferedInput();
 
-		actor.resetCycle();
-		info.dispatch = base::Optional<DispatchInfo>();
-		error = ERR_NONE;
-		state_ = PARSING;
-		action_ = AC_READ;
-		if (active_requests > limits::MAX_REQUESTS_PER_CONN)
-			setError(ERR_TOO_MANY_REQUESTS);
-		++active_requests;
-		if (has_buffered_input && action_ == AC_READ)
-			consume(NULL, 0);
-	}
+	actor.resetCycle();
+	info.dispatch = base::Optional<DispatchInfo>();
+	error = ERR_NONE;
+	state_ = PARSING;
+	action_ = AC_READ;
+	if (active_requests > limits::MAX_REQUESTS_PER_CONN)
+		setError(ERR_TOO_MANY_REQUESTS);
+	++active_requests;
+	if (has_buffered_input && action_ == AC_READ)
+		consume(NULL, 0);
+}
 
 Error Context::resolveDispatch() {
 	if (info.servers.empty())
@@ -224,11 +222,8 @@ void Context::timeout() {
 		return ;
 	}
 	
-	if (state_ == PROCESSING and actor.handler != NULL) {
-		if (info.dispatch.value.handler_type == CGI) {
-			static_cast<CgiHandler*>(actor.handler)->monitor();
-		}
-	}
+	if (state_ == PROCESSING and actor.handler != NULL)
+		actor.handler->monitor();
 }
 
 usize Context::handleResponseFailure(Error err) {
