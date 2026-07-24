@@ -30,6 +30,15 @@ static std::string basenameOf(const std::string& path) {
 	return path.substr(slash + 1);
 }
 
+static std::string uploadLocation(const std::string& normalized_path,
+		const std::string& filename) {
+	std::string::size_type slash = normalized_path.find_last_of('/');
+
+	if (slash == std::string::npos)
+		return "/" + filename;
+	return normalized_path.substr(0, slash + 1) + filename;
+}
+
 static bool pathExists(const std::string& path) {
 	struct stat info;
 
@@ -97,11 +106,11 @@ Error UploadHandler::handle() {
 	filename = basenameOf(decision().normalized_path);
 	path = pathJoin(*decision().upload_path, filename);
 	if (pathExists(path))
-		return ERR_METHOD_NOT_ALLOWED;
+		return ERR_CONFLICT;
 	TRY(putBody(request().body, path), err);
 	setStatus(CREATED);
 	setBodyFixed("");
-	setHeader("Location", path);
+	setHeader("Location", uploadLocation(decision().normalized_path, filename));
 	setContentLength();
 	setConnection();
 	setDate();

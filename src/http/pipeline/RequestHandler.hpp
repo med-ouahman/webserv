@@ -25,6 +25,7 @@ protected:
 	Error setBodyFile(const std::string& path);
 
 	void setContentType(const std::string& type);
+	void setContentTypeFromPath(const std::string& path);
 	void setContentLength();
 	void setContentLength(usize size);
 	void setConnection();

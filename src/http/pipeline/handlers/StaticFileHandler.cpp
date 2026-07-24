@@ -9,42 +9,6 @@ namespace http {
 
 namespace {
 
-static const MimeEntry g_mime_types[] = {
-	{ ".html", "text/html" },
-	{ ".htm", "text/html" },
-	{ ".css", "text/css" },
-	{ ".js", "application/javascript" },
-	{ ".json", "application/json" },
-	{ ".png", "image/png" },
-	{ ".jpg", "image/jpeg" },
-	{ ".jpeg", "image/jpeg" },
-	{ ".gif", "image/gif" },
-	{ ".svg", "image/svg+xml" },
-	{ ".txt", "text/plain" },
-	{ ".ico", "image/x-icon" },
-	{ ".glb", "model/gltf-binary"} // example mime
-};
-
-static std::string extensionOf(const std::string& path) {
-	std::string::size_type dot = path.find_last_of('.');
-
-	if (dot == std::string::npos)
-		return "";
-	return path.substr(dot);
-}
-
-static const char* contentType(const std::string& path) {
-	std::string ext = extensionOf(path);
-	usize i = 0;
-
-	while (i < sizeof(g_mime_types) / sizeof(g_mime_types[0])) {
-		if (ext == g_mime_types[i].extension)
-			return g_mime_types[i].type;
-		++i;
-	}
-	return "application/octet-stream";
-}
-
 static std::string httpDate(time_t value) {
 	char buffer[64];
 	struct tm* time_info = gmtime(&value);
@@ -76,7 +40,7 @@ Error StaticFileHandler::handle() {
 		return ERR_NOT_FOUND;
 	TRY(setBodyFile(decision().filesystem_path), err);
 	setStatus(OK);
-	setContentType(contentType(decision().filesystem_path));
+	setContentTypeFromPath(decision().filesystem_path);
 	setHeader("Last-Modified", httpDate(info.st_mtime));
 	setContentLength(static_cast<usize>(info.st_size));
 	setConnection();

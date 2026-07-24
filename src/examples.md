@@ -97,5 +97,8 @@ Connection: close
 
 ## CGI TESTS:
 
+```http
 POST /cgi-bin/hello.py HTTP/1.1
 Host: ss
+```
+```

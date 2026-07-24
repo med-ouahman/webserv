@@ -4,11 +4,6 @@
 
 namespace http {
 
-struct MimeEntry {
-	const char* extension;
-	const char* type;
-};
-
 class Context;
 
 class StaticFileHandler : public ARequestHandler {

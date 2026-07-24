@@ -45,12 +45,10 @@ void ErrorHandler::setAllowedMethods() {
 		return ;
 	it = context_.info.dispatch.value.location->allowed_methods.begin();
 	while (it != context_.info.dispatch.value.location->allowed_methods.end()) {
-		if (methodOf(*it) != context_.actor.request.method) {
-			if (!first)
-				methods << ", ";
-			methods << *it;
-			first = false;
-		}
+		if (!first)
+			methods << ", ";
+		methods << *it;
+		first = false;
 		++it;
 	}
 	setHeader("Allow", methods.str());
@@ -142,6 +140,8 @@ StatusCode ErrorHandler::statusFromError(Error error) {
 			return FORBIDDEN;
 		case ERR_METHOD_NOT_ALLOWED:
 			return METHOD_NOT_ALLOWED;
+		case ERR_CONFLICT:
+			return CONFLICT;
 		case ERR_LENGTH_REQUIRED:
 			return LENGTH_REQUIRED;
 		case ERR_CGI_FAILED: case ERR_BAD_GATEWAY:

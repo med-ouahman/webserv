@@ -37,6 +37,10 @@ static const char* statusMsg(StatusCode code) {
 	return "Internal Server Error";
 }
 
+static bool mayHaveContentLength(StatusCode status) {
+	return status != NO_CONTENT;
+}
+
 static std::string serializeResponseHead(const Response& response,
 		Version ver) {
 	std::ostringstream out;
@@ -57,6 +61,7 @@ static std::string serializeResponseHead(const Response& response,
 		out << it->key << ": " << it->value << "\r\n";
 	}
 	if (!has_content_length
+		&& mayHaveContentLength(response.status)
 		&& response.body_reader.type() == base::io::Reader::NONE)
 		out << "Content-Length: " << response.body.size() << "\r\n";
 	out << "\r\n";

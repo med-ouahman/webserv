@@ -4,7 +4,6 @@
 #include "config/Config.hpp"
 
 #include <dirent.h>
-#include <fstream>
 #include <sstream>
 #include <sys/stat.h>
 
@@ -23,19 +22,6 @@ static bool regularFile(const std::string& path) {
 	struct stat info;
 
 	return stat(path.c_str(), &info) == 0 && S_ISREG(info.st_mode);
-}
-
-static Error readFile(const std::string& path, std::string& out) {
-	std::ifstream file(path.c_str(), std::ios::in | std::ios::binary);
-	std::ostringstream body;
-
-	if (!file)
-		return ERR_NOT_FOUND;
-	body << file.rdbuf();
-	if (file.bad())
-		return ERR_INTERNAL;
-	out = body.str();
-	return ERR_NONE;
 }
 
 static std::string htmlEscape(const std::string& value) {
@@ -114,11 +100,14 @@ Error DirectoryHandler::handle() {
 	while (i < indexes.size()) {
 		std::string path = pathJoin(decision().filesystem_path, indexes[i]);
 		if (regularFile(path)) {
-			TRY(readFile(path, body), err);
+			struct stat info;
+
+			if (stat(path.c_str(), &info) != 0)
+				return ERR_NOT_FOUND;
+			TRY(setBodyFile(path), err);
 			setStatus(OK);
-			setBodyFixed(body);
-			setContentType("text/html");
-			setContentLength();
+			setContentTypeFromPath(path);
+			setContentLength(static_cast<usize>(info.st_size));
 			setConnection();
 			setDate();
 			responseReady();

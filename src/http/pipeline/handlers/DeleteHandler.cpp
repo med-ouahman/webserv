@@ -40,7 +40,6 @@ Error DeleteHandler::handle() {
 	TRY(deleteFile(decision().filesystem_path), err);
 	setStatus(NO_CONTENT);
 	setBodyFixed("");
-	setContentLength();
 	setConnection();
 	setDate();
 	responseReady();

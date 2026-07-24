@@ -7,6 +7,51 @@
 
 namespace http {
 
+namespace {
+
+struct MimeEntry {
+	const char* extension;
+	const char* type;
+};
+
+static const MimeEntry g_mime_types[] = {
+	{ ".html", "text/html" },
+	{ ".htm", "text/html" },
+	{ ".css", "text/css" },
+	{ ".js", "application/javascript" },
+	{ ".json", "application/json" },
+	{ ".png", "image/png" },
+	{ ".jpg", "image/jpeg" },
+	{ ".jpeg", "image/jpeg" },
+	{ ".gif", "image/gif" },
+	{ ".svg", "image/svg+xml" },
+	{ ".txt", "text/plain" },
+	{ ".ico", "image/x-icon" },
+	{ ".glb", "model/gltf-binary" }
+};
+
+static std::string extensionOf(const std::string& path) {
+	std::string::size_type dot = path.find_last_of('.');
+
+	if (dot == std::string::npos)
+		return "";
+	return path.substr(dot);
+}
+
+static const char* contentTypeFromPath(const std::string& path) {
+	std::string ext = extensionOf(path);
+	usize i = 0;
+
+	while (i < sizeof(g_mime_types) / sizeof(g_mime_types[0])) {
+		if (ext == g_mime_types[i].extension)
+			return g_mime_types[i].type;
+		++i;
+	}
+	return "application/octet-stream";
+}
+
+}
+
 ARequestHandler::ARequestHandler(Context& context)
 	: context_(context) {}
 
@@ -62,6 +107,10 @@ Error ARequestHandler::setBodyFile(const std::string& path) {
 
 void ARequestHandler::setContentType(const std::string& type) {
 	setHeader("Content-Type", type);
+}
+
+void ARequestHandler::setContentTypeFromPath(const std::string& path) {
+	setContentType(contentTypeFromPath(path));
 }
 
 void ARequestHandler::setContentLength() {
