@@ -14,6 +14,7 @@ std::string info() {
 
 }
 
+/*
 static void close_server_for_memory_checks() {
     static Timestamp t(0);
 
@@ -25,7 +26,7 @@ static void close_server_for_memory_checks() {
     close_server_for_memory_checks();
     return;
 }
-
+*/
 logger::Logger Server::logger;
 
 Server::Server(const config::Config& c)
