@@ -41,10 +41,9 @@ Reader::~Reader() {
 }
 
 bool Reader::reset() {
-	if (type_ == FILE && !path_.empty())
-		return reset(path_);
 	close_fd();
 	type_ = NONE;
+	path_.clear();
 	buffer_ = NULL;
 	size_ = 0;
 	offset_ = 0;
