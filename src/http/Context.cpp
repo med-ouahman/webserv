@@ -8,8 +8,10 @@
 #include "http/pipeline/handlers/ErrorHandler.hpp"
 #include "http/routing/Routing.hpp"
 #include "http/Error.hpp"
-#include <cstdio>
 #include "CgiHandler.hpp"
+
+#include <cstdio>
+#include <iostream>
 
 namespace http {
 
@@ -93,7 +95,7 @@ void Context::responseReady() {
 }
 
 Error Context::setError(Error error) {
-	error = error;
+	this->error = error;
 
 	actor.response.reset();
 	delete actor.handler;
@@ -127,6 +129,16 @@ void Context::resetCycle() {
 	++active_requests;
 	if (has_buffered_input && action_ == AC_READ)
 		consume(NULL, 0);
+}
+
+void Context::advanceCycle() {
+	if (!actor.response.finished())
+			return;
+	if (actor.response.shouldClose()) {
+			action_ = AC_CLOSE;
+			return;
+	}
+	resetCycle();
 }
 
 Error Context::resolveDispatch() {
@@ -240,12 +252,8 @@ usize Context::produce(char *buffer, usize size) {
 	if (state_ != DONE || action_ != AC_WRITE) return 0;
 	TRY(actor.response.write(buffer, size, actor.request.version, sent),
 		(handleResponseFailure(err)));
-	if (actor.response.finished()) {
-		if (actor.response.shouldClose())
+	if (actor.response.finished() && actor.response.shouldClose())
 			action_ = AC_CLOSE;
-		else
-			resetCycle();
-	}
 	return sent;
 }
 

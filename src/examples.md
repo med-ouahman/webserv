@@ -18,7 +18,7 @@ Connection: keep-alive
 
 GET / HTTP/1.1
 Host: ss
-COnnection: close
+COnnection: keep-alive 
 
 GET / HTTP/1.0
 Host: ss
@@ -109,6 +109,12 @@ Host: ss
 
 ## routing erros
 
-- when indexing, allowed methods probably aren't checked or checked in the wrong location conf
+### when indexing, allowed methods probably aren't checked or checked in the wrong location conf
+
 ```
-POST /post_body 
+```
+POST /post_body HTTP/1.1
+Host: ss
+Content-Length: 41
+```
+```

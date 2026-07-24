@@ -111,6 +111,8 @@ public:
 	void process();
 	usize produce(char *buffer, usize size);
 
+	void advanceCycle();
+
 	ContextAction nextAction() const;
 
 	void timeout();

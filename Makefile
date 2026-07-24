@@ -97,7 +97,7 @@ OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 
 all: $(NAME)
 
-fast:
+fart:
 	@make fclean
 	@make -j4
 

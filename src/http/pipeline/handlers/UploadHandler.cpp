@@ -101,8 +101,10 @@ Error UploadHandler::handle() {
 	std::string filename;
 	std::string path;
 
-	if (!validUploadDirectory(*decision().upload_path))
+	if (!validUploadDirectory(*decision().upload_path)) {
+		std::cout << "blyaaaaaaaat\n";
 		return ERR_INTERNAL;
+	}
 	filename = basenameOf(decision().normalized_path);
 	path = pathJoin(*decision().upload_path, filename);
 	if (pathExists(path))

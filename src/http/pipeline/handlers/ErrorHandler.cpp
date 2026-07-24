@@ -56,6 +56,7 @@ void ErrorHandler::setAllowedMethods() {
 
 Error ErrorHandler::handle() {
 	std::ostringstream body;
+	std::string page;
 	StatusCode status;
 
 	status = statusFromError(error_);
@@ -65,13 +66,15 @@ Error ErrorHandler::handle() {
 	if (!context_.info.dispatch.has_value()
 		|| context_.info.dispatch.value.server == NULL
 		|| !readErrorPage(*context_.info.dispatch.value.server,
-			status, response().body)) {
+			status, page)) {
 		body << "<!doctype html><html><body><h1>"
 			<< static_cast<int>(status) << " "
 			<< statusMsg(status)
 			<< "</h1></body></html>\n";
 		setBodyFixed(body.str());
 	}
+	else
+		setBodyFixed(page);
 	setContentType("text/html");
 	setContentLength();
 	setHeader("Connection", "close");

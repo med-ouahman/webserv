@@ -49,7 +49,7 @@ void Connection::update(http::ContextAction action) {
 
 void Connection::sync() {
     
-    // ctx.timeout();
+    ctx.timeout();
 
 	if (ctx.nextAction() == http::AC_NONE) ctx.process();
     
@@ -107,8 +107,10 @@ void Connection::on_writable() {
 
     size_t m = ctx.produce(writer_.write_ptr(), writer_.bytes_free());
     writer_.advance_write(m);
-
     write();
+
+	if (writer_.empty() && ctx.nextAction() == http::AC_WRITE)
+		ctx.advanceCycle();
 }
 
 }
