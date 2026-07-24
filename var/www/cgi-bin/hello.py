@@ -24,7 +24,7 @@ print("""
         div.addEventSocket("click", addElements);
 
         function addElements() {
-            const div = this;
+            
             div.innerHTML += "<p>Hello World</p>"
         }
 
