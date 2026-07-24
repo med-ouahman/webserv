@@ -30,7 +30,6 @@ void Channel::on_event(io::Event event) {
         case io::Writable:
             std::cout << "Channel Writable" << s <<"\n";
             w = handler_.on_writable(buf, *this);
-            buf.advance_write(w);
             break;
         case io::RHup:
             std::cout << "Channel ReadEnd hangup\n";

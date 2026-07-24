@@ -132,7 +132,7 @@ Error DirectoryHandler::handle() {
 		decision().normalized_path, body), err);
 	setStatus(OK);
 	setBodyFixed(body);
-	setContentType("text/html");
+	setContentType("text/html"); // wrong, the content of the index can be anything!!!
 	setContentLength();
 	setConnection();
 	setDate();

@@ -143,11 +143,12 @@ static void fillEnv(const http::Request& request,
 	exec_ctx.envp.push("QUERY_STRING""=" + request_ctx.query_string);
 	exec_ctx.envp.push("CONTENT_TYPE""=" + request_ctx.mime_type);
 	exec_ctx.envp.push("CONTENT_LENGTH""=" + request_ctx.content_length);
-	exec_ctx.envp.push("GATEWAY_INTERFACE""=" + std::string("CGI/1.1"));
+	exec_ctx.envp.push("GATEWAY_INTERFACE=" + std::string("CGI/1.1"));
 	exec_ctx.envp.push("SCRIPT_NAME""=" + request_ctx.script_name);
 	exec_ctx.envp.push("PATH_INFO""=" + request_ctx.path_info);
 	exec_ctx.envp.push("SERVER_NAME""=" + request_ctx.server_name);
 	exec_ctx.envp.push("SERVER_PORT""=" + request_ctx.server_port);
+
 	while (i < request.headers.size()) {
 		std::string normalized = lowerName(request.headers[i].key);
 
@@ -156,6 +157,10 @@ static void fillEnv(const http::Request& request,
 				+request.headers[i].value);
 		++i;
 	}
+
+	i = 0;
+	for (; __environ[i]; ++i);
+	exec_ctx.envp.push_array(const_cast<const char**>(__environ), i);
 }
 
 static http::Error setStdin(const http::Request& request,

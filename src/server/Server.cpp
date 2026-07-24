@@ -21,7 +21,7 @@ static void close_server_for_memory_checks() {
         t.update();
     }
 
-    if (t.elapsed()>= 60) exit(0);
+    if (t.elapsed() >= 60) exit(0);
     close_server_for_memory_checks();
     return;
 }

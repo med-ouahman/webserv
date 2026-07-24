@@ -125,6 +125,7 @@ CgiHandler::~CgiHandler() {
         
         if (ch->state() != cgi::Channel::Closed) {
             event_loop.del(ch);
+            std::cout << "Marked\n";
             close_channel(*ch);
         }
 
@@ -137,7 +138,9 @@ size_t CgiHandler::on_readable(cgi::Channel& channel) {
     channel.read();
 
     if (channel.state() == cgi::Channel::Closing) {
-        channel.mark_closing();
+        event_loop.del(&channel);
+        channel.close();
+        channel.shutdown();
         return 0;
     }
 
@@ -154,7 +157,7 @@ size_t CgiHandler::on_readable(cgi::Channel& channel) {
         std::cout << "Size: " <<  view.remaining() << "\n"; 
         std::cout.write(view.data(), view.remaining());
         view.advance(view.remaining());
-        channel.mark_closing();
+        close_channel(channel);
         return view.cursor();
     }
 
@@ -171,7 +174,7 @@ size_t CgiHandler::on_readable(cgi::Channel& channel) {
 
     std::cout << "CGI REQUEST DONE\n";
     
-    channel.mark_closing();
+    close_channel(channel);
     response_state = Finished;
     return view.cursor();
 }
@@ -192,7 +195,9 @@ size_t CgiHandler::on_writable(Buffer& writer, cgi::Channel& channel) {
     writer.advance_write(n);
     
     if (writer.size() == 0) {
-        channel.mark_closing();
+        event_loop.del(&channel);
+        channel.close();
+        channel.shutdown();
         return 0;
     }
 
@@ -264,7 +269,6 @@ void CgiHandler::check_channels() {
 
         if (ch.state() == cgi::Channel::Closing) {
             close_channel(ch);
-            ch.shutdown();
         }
     }
 }
@@ -272,6 +276,7 @@ void CgiHandler::check_channels() {
 void CgiHandler::close_channel(cgi::Channel& ch) {
     event_loop.del(&ch);
     ch.close();
+    ch.shutdown();
 }
 
 void CgiHandler::check_process() {

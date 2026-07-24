@@ -101,9 +101,7 @@ bool Process::start(const ProcessContext& context) {
 
     if (context.stdin_fd.get() != STDIN_FILENO) stdin_pipe_.close_write_end();
 
-    std::cout << "path: " << context.argv.data()[0] << "\n";
     pid_ = ::fork();
-
     if (pid_ == 0) {
 
         if (context.stdin_fd.get() != STDIN_FILENO)

@@ -40,7 +40,7 @@ void Connection::update(http::ContextAction action) {
 
     switch (state_) {
         case Reading: new_events = io::Readable; break;
-        case Writing: new_events = (io::Event)(new_events | io::Writable); break;
+        case Writing: new_events = (io::Event)(io::Readable | io::Writable); break;
         case Closing: new_events = io::Close; break;
     }
 
@@ -49,54 +49,30 @@ void Connection::update(http::ContextAction action) {
 
 void Connection::sync() {
     
-    ctx.timeout();
-	if (ctx.nextAction() == http::AC_NONE)
-		ctx.process();
+    // ctx.timeout();
+
+	if (ctx.nextAction() == http::AC_NONE) ctx.process();
     
     update(ctx.nextAction());
 }
 
 void Connection::on_event(io::Event events) {
-	if (events & io::Error) {
-			state_ = Closing;
-			return;
+	
+	if (events & (io::Hup | io::RHup | io::Error)) {
+        state_ = Closing;
+        return;
 	}
-	if (events & (io::Hup | io::RHup)) {
-			state_ = Closing;
-			return;
-	}
-	if (events & io::Writable)
-			on_writable();
-	if (events & io::Readable)
-			on_readable();
+
+	if (events & io::Writable) on_writable();
+
+	if (events & io::Readable) on_readable();
 }
-
-
-// void Connection::on_event(io::Event events) {
-   // 
-    // switch (events) {
-        // case io::Readable:
-            // on_readable();
-            // break;
-        // case io::Writable:
-            // on_writable();
-            // break;
-        // case io::Hup: case io::RHup:
-            // state_ = Closing;
-            // break;
-        // case io::Error:
-            // state_ = Closing;
-            // break;
-        // default:
-            // break;
-    // }
-    // 
-// }
 
 void Connection::on_readable() {
     if (state_ == Closing) return;
 
     read();
+
     size_t n = ctx.consume(reader_.read_ptr(), reader_.bytes_pending());
     reader_.advance_read(n);
 }
