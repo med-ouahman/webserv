@@ -57,9 +57,9 @@ ARequestHandler::ARequestHandler(Context& context)
 
 ARequestHandler::~ARequestHandler() {}
 
-Error ARequestHandler::timeout() {
-	return ERR_NONE;
-}
+Error ARequestHandler::timeout() { return ERR_NONE; }
+
+void ARequestHandler::monitor() { }
 
 void ARequestHandler::setStatus(StatusCode status) {
 	context_.actor.response.status = status;
