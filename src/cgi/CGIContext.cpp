@@ -5,6 +5,7 @@
 #include <cctype>
 #include <sstream>
 #include <unistd.h>
+#include <cstdlib>
 
 namespace cgi {
 
@@ -15,6 +16,17 @@ static std::string toString(usize value) {
 
 	out << value;
 	return out.str();
+}
+
+static std::string absolute_path(const std::string& path) {
+
+	char* p = ::realpath(path.c_str(), NULL);
+
+	if (!p) return "";
+
+	std::string out = p;
+	::free(p);
+	return out;
 }
 
 static const char* methodName(http::Method method) {
@@ -143,11 +155,15 @@ static void fillEnv(const http::Request& request,
 	exec_ctx.envp.push("QUERY_STRING""=" + request_ctx.query_string);
 	exec_ctx.envp.push("CONTENT_TYPE""=" + request_ctx.mime_type);
 	exec_ctx.envp.push("CONTENT_LENGTH""=" + request_ctx.content_length);
-	exec_ctx.envp.push("GATEWAY_INTERFACE=" + std::string("CGI/1.1"));
+	exec_ctx.envp.push("GATEWAY_INTERFACE=CGI/1.1");
 	exec_ctx.envp.push("SCRIPT_NAME""=" + request_ctx.script_name);
 	exec_ctx.envp.push("PATH_INFO""=" + request_ctx.path_info);
 	exec_ctx.envp.push("SERVER_NAME""=" + request_ctx.server_name);
 	exec_ctx.envp.push("SERVER_PORT""=" + request_ctx.server_port);
+	exec_ctx.envp.push("REDIRECT_STATUS=200");
+	std::string s = absolute_path(exec_ctx.argv.data()[1]);
+	std::cout << "SCRIPT"
+	exec_ctx.envp.push("SCRIPT_FILENAME="+absolute_path(exec_ctx.argv.data()[1]));
 
 	while (i < request.headers.size()) {
 		std::string normalized = lowerName(request.headers[i].key);
@@ -158,9 +174,9 @@ static void fillEnv(const http::Request& request,
 		++i;
 	}
 
-	i = 0;
-	for (; __environ[i]; ++i);
-	exec_ctx.envp.push_array(const_cast<const char**>(__environ), i);
+	usize size = 0;
+	for ( ; __environ[size]; ++size );
+	exec_ctx.envp.push_array(const_cast<const char**>(__environ), size);
 }
 
 static http::Error setStdin(const http::Request& request,

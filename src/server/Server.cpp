@@ -185,12 +185,21 @@ size_t Server::num_connections() const {
     return connections.size();
 }
 
+void leaks(bool & r) {
+
+    static Timestamp x;
+
+    if (x.elapsed() >= 100) r = false;
+
+
+}
+
 int Server::start() {
 
     if (!running_) return EXIT_FAILURE;
 
     while (running_) {
-        // close_server_for_memory_checks();
+        // leaks(running_);
         poller.poll();
         sweep();
     }

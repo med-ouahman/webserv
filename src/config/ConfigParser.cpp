@@ -17,44 +17,6 @@ bool ConfigParser::match(TokenType type)
     return false;
 }
 
-
-#ifdef DEV_MODE
-Config ConfigParser::build_default_config() {
-    Config conf;
-    ServerConfig server;
-    LocationConfig root, images;
-    server.client_max_body_size = 1000000;
-    server.listens.push_back((ListenEndPoint) {
-        0, 3000
-    });
-
-    server.listens.push_back((ListenEndPoint) {
-        0, 3001
-    });
-    
-    
-
-    server.server_names.push_back("localhost");
-    server.error_pages[404] = "./error_pages/404.html";
-    server.error_pages[501] = "./error_pages/501.html";
-    server.index_files.push_back("index.html");
-    server.index_files.push_back("index.htm");
-    root.root = server.root;
-    root.allowed_methods.insert("GET");
-    root.allowed_methods.insert("POST");
-    server.locations.push_back(root);
-
-    images.root = "./images";
-    images.allowed_methods = root.allowed_methods;
-    images.index = server.index_files;
-    server.locations.push_back(images);
-    conf.servers.push_back(server);
-    return conf;
-}
-
-#endif
-
-
 Token ConfigParser::expect(TokenType type)
 {
     if (pos >= tokens.size() || tokens[pos].type != type)
@@ -106,7 +68,7 @@ static size_t parseNumber(const std::string& value)
 {
     char* end = 0;
     unsigned long number = std::strtoul(value.c_str(), &end, 10);
-    if (*end != '\0')
+    if (!end || *end != '\0')
         throw std::runtime_error("Invalid numeric value");
     return static_cast<size_t>(number);
 }
@@ -119,28 +81,35 @@ static uint32_t parseHost(const std::string& value)
     return addr.s_addr;
 }
 
-Config ConfigParser::parse(const char* path)
+ServerErrors ConfigParser::parse(Config& conf, const char* path)
 {
-    Lexer lexer;
-    lexer.tokenize(path);
+    try {
 
-    tokens = lexer.getTokens();
-    pos = 0;
-
-    Config conf;
-
-    while (pos < tokens.size())
-    {
-        if (tokens[pos].type == WORD && tokens[pos].value == "server")
+        Lexer lexer;
+        lexer.tokenize(path);
+        
+        tokens = lexer.getTokens();
+        pos = 0;
+        
+        while (pos < tokens.size())
         {
-            pos++;
-            conf.servers.push_back(parseServer());
-        }
-        else
+            if (tokens[pos].type == WORD && tokens[pos].value == "server")
+            {
+                pos++;
+                conf.servers.push_back(parseServer());
+            }
+            else
             throw std::runtime_error("Expected server block");
+        }
+    } catch (std::runtime_error& error) {
+        std::cerr << error.what() << "\n";
+        return ConfError;
+    } catch (...) {
+        std::cerr << "Config Error\n";
+        return ConfError;
     }
 
-    return conf;
+    return None;
 }
 
 ServerConfig ConfigParser::parseServer()
@@ -155,9 +124,12 @@ ServerConfig ConfigParser::parseServer()
     return server;
 }
 
-LocationConfig ConfigParser::parseLocation()
+LocationConfig ConfigParser::parseLocation(const ServerConfig& server)
 {
     LocationConfig loc;
+
+    loc.client_max_body_size = server.client_max_body_size;
+    loc.root = server.root;
 
     loc.path = expect(WORD).value;
 
@@ -252,7 +224,7 @@ void ConfigParser::parseDirective(ServerConfig& server)
 
     else if (key == "location")
     {
-        server.locations.push_back(parseLocation());
+        server.locations.push_back(parseLocation(server));
         return;
     }
 
@@ -291,6 +263,13 @@ void ConfigParser::parseLocationDirective(LocationConfig& loc)
         loc.redirect.return_target = expect(WORD).value;
     }
 
+    else if (key == "client_max_body_size")
+    {
+        const std::string& value = expect(WORD).value;
+        if (value[0] == '-') throw std::runtime_error("Invalid numeric character");
+        loc.client_max_body_size = parseNumber(value);
+    }
+
     else if (key == "autoindex")
     {
         std::string value = expect(WORD).value;
@@ -324,21 +303,6 @@ void ConfigParser::parseLocationDirective(LocationConfig& loc)
         std::string executable = expect(WORD).value;
         loc.cgi_pass[extension] = executable;
     }
-
-    // else if (key == "cgi_extension")
-    // {
-    //     loc.cgi_extension = expect(WORD).value;
-    //     if (!loc.cgi_path.empty())
-    //         loc.cgi_pass[loc.cgi_extension] = loc.cgi_path;
-    // }
-
-    // else if (key == "cgi_path")
-    // {
-    //     loc.cgi_path = expect(WORD).value;
-    //     if (!loc.cgi_extension.empty())
-    //         loc.cgi_pass[loc.cgi_extension] = loc.cgi_path;
-    // }
-
     else if (key == "cgi_dir")
     {
         loc.cgi_dir = expect(WORD).value;

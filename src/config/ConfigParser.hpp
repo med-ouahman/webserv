@@ -2,6 +2,7 @@
 
 #include "Config.hpp"
 #include "Lexer.hpp"
+#include "ServerErrors.hpp"
 
 namespace config {
 
@@ -16,14 +17,13 @@ private:
     Token expect(TokenType type);
 
     ServerConfig parseServer();
-    LocationConfig parseLocation();
+    LocationConfig parseLocation(const ServerConfig& server);
 
     void parseDirective(ServerConfig& server);
     void parseLocationDirective(LocationConfig& loc);
 
 public:
-    static Config build_default_config(); 
-    Config parse(const char* path);
+    ServerErrors parse(Config& conf, const char* path);
 };
 
 

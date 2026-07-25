@@ -25,15 +25,14 @@ struct ReturnDirective {
 
 struct LocationConfig {
     std::string path;
-    std::string root;
+    std::string root; // inherit by default, override by parser
     std::vector<std::string> index;
     std::set<std::string> allowed_methods;
     ReturnDirective redirect;
     bool autoindex;
     bool upload_enabled;
     std::string upload_path;
-    // std::string cgi_extension; // deprecated
-    // std::string cgi_path; // deprecated
+    size_t client_max_body_size;
     std::map<std::string, std::string> cgi_pass;
     std::string cgi_dir; // where scripts, executables live
     size_t cgi_timeout;
@@ -47,8 +46,7 @@ struct LocationConfig {
           autoindex(false),
           upload_enabled(false),
           upload_path(),
-        //   cgi_extension(),
-        //   cgi_path(),
+          client_max_body_size(0),
           cgi_pass(),
           cgi_dir(),
           cgi_timeout(0)

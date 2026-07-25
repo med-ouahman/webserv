@@ -195,23 +195,16 @@ void printConfig(const Config& config) {
 
 int main(int argc, const char* argv[]) {
 
-    if (argc > 2) {
-        std::cerr << "Usage:\n./webserv [ configuration file ]\n";
-        return 1;
-    }
+    (void)argc;
 
     sys::handle_signals();
 
-    std::string configfile = argv[1] != NULL ? argv[1]: "config/default.conf";
-    config::ConfigParser parser;
     config::Config conf;
+    {
+        config::ConfigParser parser;
+        if (None != parser.parse(conf, argv[1] != NULL ? argv[1]: "config/default.conf")) return 1;
 
-    try {
-       conf = parser.parse(configfile.c_str());
-        config::printConfig(conf);
-    } catch (std::runtime_error& error) {
-        std::cerr << error.what() << "\n";
-        return 0x1;
+        // config::printConfig(conf);
     }
     
     Server server(conf);
