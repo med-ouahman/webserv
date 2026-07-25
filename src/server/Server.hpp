@@ -3,7 +3,7 @@
 #include "RuntimeServices.hpp"
 #include "EventLoop.hpp"
 #include "Connection.hpp"
-#include "Socket.hpp"
+#include "net/socket/Socket.hpp"
 #include "Logger.hpp"
 
 class Server {

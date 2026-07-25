@@ -2,11 +2,12 @@
 #include <cstdlib>
 #include <algorithm>
 #include "ServerInfo.hpp"
+#include <sstream>
 
 namespace server_info {
 
 const char* name = "VilgaX";
-const char* version = "0.1.0";
+const char* version = "1.0";
 
 std::string info() {
     return name + std::string("/") + version;
@@ -14,19 +15,7 @@ std::string info() {
 
 }
 
-/*
-static void close_server_for_memory_checks() {
-    static Timestamp t(0);
 
-    if (t.seconds() == 0) {
-        t.update();
-    }
-
-    if (t.elapsed() >= 60) exit(0);
-    close_server_for_memory_checks();
-    return;
-}
-*/
 logger::Logger Server::logger;
 
 Server::Server(const config::Config& c)
@@ -66,13 +55,13 @@ void Server::close_connection(net::Connection* conn) {
     delete conn;
 }
 
-void Server::close_socket(net::Socket* Socket) {
+void Server::close_socket(net::Socket* sock) {
     listeners.erase(
-        std::remove(listeners.begin(), listeners.end(), Socket),
+        std::remove(listeners.begin(), listeners.end(), sock),
         listeners.end()
     );
     
-    delete Socket;
+    delete sock;
 }
 
 bool Server::start_listeners() {
@@ -83,9 +72,16 @@ bool Server::start_listeners() {
 
         const std::vector<config::ListenEndPoint>& endpoints = servers[i].listens;
 
-        for (size_t j(0); j < endpoints.size(); ++j) {
+        for ( size_t j(0); j < endpoints.size(); ++j ) {
             
             net::Socket* l = find_listener(endpoints[j]);
+
+            if (l) {
+                std::stringstream ss;
+                ss << "Duplicate listen endpoints on "
+                << net::int_to_ip(l->endpoint().host) << ":" << l->endpoint().port;
+                logger.log(logger::Info, ss.str());
+            }
 
             if (!l) {
 
@@ -121,7 +117,12 @@ void Server::add_connection(UniqueFd& conn_fd, const net::ConnectionInfo& info) 
     net::Connection* connection = new (std::nothrow) net::Connection(conn_fd, io::Readable, services_, info);
     
     if (!connection) {
-        logger.log(logger::Error, logger.make_error("Server::add_connection", "allocation failed", __FILE__, __LINE__), true);
+        logger.log(logger::Error,
+            logger.make_error("Server::add_connection",
+                "allocation failed",
+                __FILE__,
+                __LINE__),
+                true);
         return;
     }
 
@@ -137,7 +138,7 @@ void Server::add_connection(UniqueFd& conn_fd, const net::ConnectionInfo& info) 
 
 void Server::sweep() {
     
-    for (size_t i(0); i < connections.size();) {
+    for ( size_t i(0); i < connections.size(); ) {
         net::Connection* conn = connections.at(i);
 
         conn->sync();
@@ -149,20 +150,18 @@ void Server::sweep() {
         else ++i;
     }
 
-    for (size_t i(0); i < listeners.size(); ) {
-        net::Socket* Socket = listeners.at(i);
-        poller.sync(Socket);
-        if (Socket->error()) {
+    for ( size_t i(0); i < listeners.size(); ) {
+        net::Socket* sock = listeners.at(i);
 
-            close_socket(Socket);
-        } else {
-            ++i;
-        }
+        poller.sync(sock);
+
+        if (sock->error()) close_socket(sock);
+        else ++i;
     }
 }
 
 void Server::abort() {
-    std::abort();
+    running_ = false;
 }
 
 net::Socket* Server::find_listener(const config::ListenEndPoint& endpoint) {
@@ -172,10 +171,10 @@ net::Socket* Server::find_listener(const config::ListenEndPoint& endpoint) {
             it != listeners.end();
             ++it
     ) {
-        net::Socket* Socket = *it;
-        const config::ListenEndPoint& e = Socket->endpoint();
+        net::Socket* sock = *it;
+        const config::ListenEndPoint& e = sock->endpoint();
         
-        if (endpoint.host == e.host && endpoint.port == e.port) return Socket;
+        if (endpoint.host == e.host && endpoint.port == e.port) return sock;
     }
 
     return NULL;

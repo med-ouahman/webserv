@@ -14,7 +14,7 @@ bool EventLoop::add(io::AEventHandler* handler) {
 
 	if (monitor_count >= MaxMonitorFds) {
 		std::stringstream ss;
-		ss << "Cannot watch for FD (" << handler->fd() << "), Limit reached";
+		ss << "Cannot watch for FD (" << handler->fd() << "), Watch limit reached";
 
 		logger.log(logger::Warning, ss.str() , true);
 		return false;
@@ -74,7 +74,7 @@ bool EventLoop::del(io::AEventHandler* handler) {
 	}
 
 	std::stringstream ss;
-	ss << "FD (" <<  handler->fd() << ") deleted";
+	ss << "FD (" <<  handler->fd() << ") deleted from epoll";
 	logger.log(logger::Info, ss.str(), true);
 	--monitor_count;
 	return true;

@@ -90,7 +90,7 @@ base::Result<Socket*> create_listening_socket(
 	if (!sock) return MAKE_ERROR(Server::AllocFailed, "net::create_socket", "alloc failed");
 
 	std::stringstream ss;
-	ss << "Server Listening on " << int_to_ip(endpoint.host) << ":" << endpoint.port;
+	ss << "Server liistening on " << int_to_ip(endpoint.host) << ":" << endpoint.port << " FD (" << sock->fd() << ")";
 	Server::logger.log(logger::Info, ss.str(), true);
 
 	return sock;
@@ -103,7 +103,6 @@ bool Socket::error() const {
 void Socket::add_server(const config::ServerConfig* s) {
 	servers_.push_back(s);
 }
-
 
 const config::ListenEndPoint& Socket::endpoint() const {
 	return endpoint_;

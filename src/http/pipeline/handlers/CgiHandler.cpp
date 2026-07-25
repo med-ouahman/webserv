@@ -144,12 +144,10 @@ size_t CgiHandler::on_readable(cgi::Channel& channel) {
 
     BufferView view = channel.view();
 
-    std::cout.write(view.data(), view.remaining());
-    std::cout<< "\n";
     if (channel.state() == cgi::Channel::Error) {
         state_ = Cleanup;
         reason_ = Internal;
-        channel.mark_closing();
+        close_channel(channel);
         return view.cursor();
     }
 
@@ -263,7 +261,7 @@ void CgiHandler::check_channels() {
 
 void CgiHandler::close_channel(cgi::Channel& ch)
 {
-    if (ch.state() == cgi::Channel::Closed) return;
+    if (ch.closed()) return;
 
     event_loop.del(&ch);
     ch.close();

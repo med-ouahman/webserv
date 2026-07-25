@@ -44,6 +44,8 @@ void Channel::on_event(io::Event event) {
 
 Channel::Stream Channel::stream() const { return stream_; }
 
+bool Channel::closed() const { return state_ == Closed; }
+
 Channel::State Channel::state() const { return state_; }
 
 BufferView Channel::view() const {

@@ -1,9 +1,10 @@
 
 #include "Connection.hpp"
-#include "Context.hpp"
+#include "http/Context.hpp"
 #include <iostream>
 #include "Server.hpp"
 #include <sys/socket.h>
+#include <sstream>
 
 namespace net {
 
@@ -19,7 +20,14 @@ Connection::Connection(UniqueFd& uniq, io::Event events, RuntimeServices& servic
     info_(info) {
 }
 
-Connection::~Connection() {}
+Connection::~Connection() {
+
+    std::stringstream ss;
+
+    ss << "Connection closed FD (" << fd() << ")"; 
+
+    Server::logger.log(logger::Info, ss.str());
+}
 
 bool Connection::closing() const { return state_ == Closing; }
 
