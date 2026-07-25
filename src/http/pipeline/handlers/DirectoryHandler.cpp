@@ -18,9 +18,7 @@ static std::string pathJoin(const std::string& left,
 	return left + "/" + right;
 }
 
-static bool regularFile(const std::string& path) {
-	struct stat info;
-
+static bool regularFile(const std::string& path, struct stat& info) {
 	return stat(path.c_str(), &info) == 0 && S_ISREG(info.st_mode);
 }
 
@@ -99,12 +97,9 @@ Error DirectoryHandler::handle() {
 	i = 0;
 	while (i < indexes.size()) {
 		std::string path = pathJoin(decision().filesystem_path, indexes[i]);
-		std::cout << "path: " << path <<"\n";
-		if (regularFile(path)) {
-			struct stat info;
+		struct stat info;
 
-			if (stat(path.c_str(), &info) != 0)
-				return ERR_NOT_FOUND;
+		if (regularFile(path, info)) {
 			TRY(setBodyFile(path), err);
 			setStatus(OK);
 			setContentTypeFromPath(path);

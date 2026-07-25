@@ -86,7 +86,13 @@ static Error putBody(base::io::Reader& reader, const std::string& path) {
 		if (errno != EXDEV)
 				return ERR_INTERNAL;
 	}
-	return copyBody(reader, path);
+	Error err = copyBody(reader, path);
+
+	if (err != ERR_NONE)
+		return err;
+	if (reader.type() == base::io::Reader::FILE && !reader.path().empty())
+		std::remove(reader.path().c_str());
+	return ERR_NONE;
 }
 
 }
@@ -99,20 +105,31 @@ UploadHandler::~UploadHandler() {}
 Error UploadHandler::handle() {
 	Error err;
 	std::string filename;
+	const std::string& dir = decision().upload_path;
 	std::string path;
 
-	if (!validUploadDirectory(*decision().upload_path)) {
-		std::cout << "blyaaaaaaaat\n";
-		return ERR_INTERNAL;
+	if (request().has_body
+			and request().body.type() == base::io::Reader::NONE) {
+		context_.action_ = AC_READ;
+		context_.consume(NULL, 0);
+		if (request().body.type() == base::io::Reader::NONE)
+			return ERR_NONE;
+		context_.action_ = AC_NONE;
 	}
+	if (request().has_body
+		&& request().body.type() == base::io::Reader::NONE) {
+		return ERR_NONE;
+	}
+	if (!validUploadDirectory(dir)) return ERR_INTERNAL;
 	filename = basenameOf(decision().normalized_path);
-	path = pathJoin(*decision().upload_path, filename);
+	path = pathJoin(dir, filename);
 	if (pathExists(path))
 		return ERR_CONFLICT;
 	TRY(putBody(request().body, path), err);
 	setStatus(CREATED);
 	setBodyFixed("");
-	setHeader("Location", uploadLocation(decision().normalized_path, filename));
+	setHeader("Location",
+			uploadLocation(decision().normalized_path, filename));
 	setContentLength();
 	setConnection();
 	setDate();

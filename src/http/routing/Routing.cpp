@@ -15,7 +15,7 @@ static bool handlerReadsBody(RequestType type) {
 DispatchInfo::DispatchInfo()
 	: server(NULL),
 	  location(NULL),
-	  upload_path(NULL),
+	  upload_path(),
 	  cgi_path(NULL),
 	  normalized_path(),
 	  filesystem_path(),
@@ -54,13 +54,14 @@ static base::Expected<DispatchInfo, Error> routeSelectedServer(const Request& re
 		? server.root : decision.location->root,
 		decision.filesystem_path, decision.path_type), err);
 	TRY(routing::setRequestType(request, decision), err);
+	TRY(routing::pathTypeCheck(decision), err);
 	decision.read_body = routing::hasBody(request)
 		&& handlerReadsBody(decision.handler_type);
 	std::cout << "Routing: request type set!\n";
 	if (decision.handler_type == UPLOAD) {
 		TRY(routing::checkUploadAllowed(*decision.location), err);
 		TRY(routing::checkUploadFraming(request), err);
-		decision.upload_path = &decision.location->upload_path;
+		TRY(routing::resolveUploadPath(decision), err);
 	}
 	std::cout << "Routing: finished!\n";
 	return decision;

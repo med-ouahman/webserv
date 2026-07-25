@@ -147,7 +147,7 @@ Error fsBuildPath(const config::ServerConfig& server,
 
 Error fsInspectPath(const std::string& root,
 		const std::string& path,
-		PathType& type) {
+		PathType& path_type) {
 	struct stat info;
 	Error err;
 
@@ -156,19 +156,19 @@ Error fsInspectPath(const std::string& root,
 		return err;
 	if (stat(path.c_str(), &info) != 0) {
 		if (errno == ENOENT || errno == ENOTDIR) {
-			type = not_found;
+			path_type = not_found;
 			return ERR_NONE;
 		}
 		return ERR_FORBIDDEN;
 	}
 	if (S_ISDIR(info.st_mode))
-		type = directory;
+		path_type = directory;
 	else if (S_ISREG(info.st_mode) && access(path.c_str(), X_OK) == 0)
-		type = executable;
+		path_type = executable;
 	else if (S_ISREG(info.st_mode))
-		type = file;
+		path_type = file;
 	else
-		type = not_found;
+		path_type = not_found;
 	return ERR_NONE;
 }
 

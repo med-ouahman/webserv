@@ -209,8 +209,11 @@ usize Context::consume(const char* data, usize size) {
 	}
 
 	if (state_ == PROCESSING) {
-		TRY(actor.parser.progress(*this, data, size, consumed),
-				(setError(err), consumed));
+		if (actor.parser.parsingBody()) {
+			TRY(actor.parser.progress(*this, data, size, consumed),
+					(setError(err), consumed));
+		} else
+			consumed = 0;
 		action_ = AC_NONE;
 		return consumed;
 	}
@@ -221,7 +224,7 @@ usize Context::consume(const char* data, usize size) {
 void Context::process() {
 	Error err;
 
-	if (state_ != PROCESSING or action_ != AC_NONE) return ;
+	if (state_ != PROCESSING or action_ != AC_NONE) return;
 	TRY(actor.handler->handle(), (setError(err), void()));
 }
 
