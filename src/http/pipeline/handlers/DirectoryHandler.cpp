@@ -99,6 +99,7 @@ Error DirectoryHandler::handle() {
 	i = 0;
 	while (i < indexes.size()) {
 		std::string path = pathJoin(decision().filesystem_path, indexes[i]);
+		std::cout << "path: " << path <<"\n";
 		if (regularFile(path)) {
 			struct stat info;
 
