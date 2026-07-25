@@ -8,6 +8,8 @@
 
 namespace http {
 
+enum PathType { file, directory, executable, not_found };
+
 enum RequestType {
 	STATIC_FILE,
 	DIRECTORY,
@@ -21,7 +23,7 @@ enum RequestType {
 struct DispatchInfo {
 	const config::ServerConfig* server;
 	const config::LocationConfig* location;
-	const std::string* upload_path;
+	std::string upload_path;
 	const std::string* cgi_path;
 	std::string normalized_path;
 	std::string filesystem_path;

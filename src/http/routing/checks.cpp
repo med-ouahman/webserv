@@ -1,6 +1,7 @@
 
 #include "http/routing/RoutingInternal.hpp"
 #include "http/Context.hpp"
+#include "http/Error.hpp"
 
 namespace http {
 namespace routing {
@@ -47,6 +48,15 @@ Error checkBodySize(const Request& request, usize max_body_size) {
 	if (request.content_length.has_value()
 		&& request.content_length.value > max_body_size)
 		return ERR_BODY_TOO_LARGE;
+	return ERR_NONE;
+}
+
+Error pathTypeCheck(const DispatchInfo& decision) {
+	RequestType type = decision.handler_type;
+
+	if (decision.path_type != not_found) return ERR_NONE;
+	if (type == DIRECTORY or type == STATIC_FILE or type == CGI)
+		return ERR_NOT_FOUND;
 	return ERR_NONE;
 }
 

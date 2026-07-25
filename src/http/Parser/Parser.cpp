@@ -86,32 +86,36 @@ Error Parser::getChunk(std::string& out, bool& found) {
 	return parser::checkSize(phase, consumed);
 }
 
-	Error Parser::progress(Context& ctx, const char* data, usize size,
-			usize& consumed) {
-		Error err;
+Error Parser::progress(Context& ctx, const char* data, usize size,
+		usize& consumed) {
+	Error err;
 
-		consumed = 0;
-		if (size != 0)
-			incrementBuffer(data, size, consumed);
-		while (ctx.state_ == PARSING && canProgress(ctx.actor.request)) {
-			switch (phase) {
-				case PARSING_REQUEST_LINE:
-					err = parseRequestLine(ctx);
-					break;
-				case PARSING_HEADERS:
-					err = parseHeaders(ctx);
-					break;
-				case PARSING_BODY:
-					err = parseBody(ctx);
-					break;
-				default:
-					return ERR_INTERNAL;
-			}
-			if (err != ERR_NONE)
-				return err;
+	consumed = 0;
+	if (size != 0)
+		incrementBuffer(data, size, consumed);
+	while (canProgress(ctx.actor.request)) {
+		switch (phase) {
+			case PARSING_REQUEST_LINE:
+				err = parseRequestLine(ctx);
+				break;
+			case PARSING_HEADERS:
+				err = parseHeaders(ctx);
+				break;
+			case PARSING_BODY:
+				err = parseBody(ctx);
+				break;
+			default:
+				return ERR_INTERNAL;
 		}
-		return ERR_NONE;
+		if (err != ERR_NONE)
+			return err;
 	}
+	return ERR_NONE;
+}
+
+bool Parser::parsingBody() const {
+	return phase == PARSING_BODY;
+}
 
 bool Parser::timedOut() const {
 	switch (phase) {
@@ -159,7 +163,7 @@ bool Parser::canProgress(const Request& request) const {
 	bool res = false;
 
 	if (phase == PARSING_REQUEST_LINE  or phase == PARSING_HEADERS)
-			res = raw_buffer.find(CRLF) != std::string::npos;
+		res = raw_buffer.find(CRLF) != std::string::npos;
 	if (phase == PARSING_BODY)
 		res = hasBody(request);
 	return res;

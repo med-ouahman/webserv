@@ -22,6 +22,7 @@ namespace http {
 class Context;
 class ErrorHandler;
 class ARequestHandler;
+class UploadHandler;
 struct CGIRequestContext;
 struct CGIExecContext;
 
@@ -94,6 +95,7 @@ private:
 	friend class ARequestHandler;
 	friend class ErrorHandler;
 	friend class CgiHandler;
+	friend class UploadHandler;
 
 	friend Error cgi::buildCGIContext(const Context& context,
 		cgi::CGIRequestContext& request_ctx,

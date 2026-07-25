@@ -1,6 +1,7 @@
 
 #include "http/routing/RoutingInternal.hpp"
 #include <iostream>
+#include <sys/stat.h>
 
 namespace http {
 namespace routing {
@@ -26,6 +27,44 @@ static bool pathStartsWith(const std::string& path, const std::string& dir) {
 	if (path.compare(0, len, dir) != 0)
 			return false;
 	return path.size() == len || path[len] == '/';
+}
+
+static std::string pathJoin(const std::string& left,
+		const std::string& right) {
+	if (left.empty() || left[left.size() - 1] == '/')
+		return left + right;
+	return left + "/" + right;
+}
+
+static std::string effectiveRoot(const DispatchInfo& decision) {
+	if (!decision.location->root.empty())
+		return decision.location->root;
+	return decision.server->root;
+}
+
+static bool pathExists(const std::string& path) {
+	struct stat info;
+
+	return stat(path.c_str(), &info) == 0;
+}
+
+static bool rootPrefixed(const std::string& root,
+		const std::string& configured) {
+	if (root.empty())
+		return false;
+	if (configured.compare(0, root.size(), root) == 0)
+		return true;
+	if (configured.size() > 2 && configured[0] == '.' && configured[1] == '/'
+		&& root.size() > 2 && root[0] == '.' && root[1] == '/'
+		&& configured.compare(2, root.size() - 2, root.substr(2)) == 0)
+		return true;
+	return false;
+}
+
+static std::string relativeUploadPath(const std::string& configured) {
+	if (configured.size() > 2 && configured[0] == '.' && configured[1] == '/')
+		return configured.substr(2);
+	return configured;
 }
 
 static bool isInsideCgiDir(const DispatchInfo& decision) {
@@ -67,6 +106,21 @@ Error checkUploadAllowed(const config::LocationConfig& location) {
 Error checkUploadFraming(const Request& request) {
 	if (!request.chunked and !request.content_length.has_value())
 		return ERR_LENGTH_REQUIRED;
+	return ERR_NONE;
+}
+
+Error resolveUploadPath(DispatchInfo& decision) {
+	const std::string& configured = decision.location->upload_path;
+
+	if (configured.empty())
+		return ERR_FORBIDDEN;
+	if (configured[0] == '/' || pathExists(configured)
+		|| rootPrefixed(effectiveRoot(decision), configured)) {
+		decision.upload_path = configured;
+		return ERR_NONE;
+	}
+	decision.upload_path = pathJoin(effectiveRoot(decision),
+		relativeUploadPath(configured));
 	return ERR_NONE;
 }
 

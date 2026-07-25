@@ -62,6 +62,7 @@ public:
 
 		Error progress(Context& ctx, const char* data, usize size,
 			usize& consumed);
+		bool parsingBody() const;
 
 		void reset();
 		void resetCycle();

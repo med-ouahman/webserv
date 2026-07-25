@@ -21,17 +21,7 @@ inline Method methodOf(const std::string& value) {
 	return UNKNOWN;
 }
 
-/**
-	* This classification is produced after routing and file inspection and
-	* is used to select the response path.
-*/
-enum PathType { file, directory, executable, not_found };
 
-/**
-	* @HTTP_1_0: version with non-persistent connections unless explicitly requested
-	* @HTTP_1_1: version with persistent connections unless explicitly closed
-	* @HTTP_UNKNOWN: parsed version token is not supported by the server
-*/
 enum Version { HTTP_1_0, HTTP_1_1, HTTP_UNKNOWN };
 
 enum ConnectionType { CONNECTION_DEFAULT, CONNECTION_CLOSE, CONNECTION_KEEP_ALIVE };

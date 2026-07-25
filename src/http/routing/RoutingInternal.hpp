@@ -28,6 +28,8 @@ bool hasBody(const Request& request);
 Error checkBodyPolicy(const Request& request);
 usize bodyLimit(const config::ServerConfig& server);
 Error checkBodySize(const Request& request, usize max_body_size);
+Error pathTypeCheck(const DispatchInfo& decision);
+Error resolveUploadPath(DispatchInfo& decision);
 
 bool hasRedirect(const config::LocationConfig& location);
 Error checkUploadAllowed(const config::LocationConfig& location);
