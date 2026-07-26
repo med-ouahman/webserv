@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <arpa/inet.h>
+#include "Server.hpp"
 
 namespace config {
 
@@ -102,10 +103,10 @@ ServerErrors ConfigParser::parse(Config& conf, const char* path)
             throw std::runtime_error("Expected server block");
         }
     } catch (std::runtime_error& error) {
-        std::cerr << error.what() << "\n";
+        Server::logger.log(logger::Error, error.what());
         return ConfError;
     } catch (...) {
-        std::cerr << "Config Error\n";
+        Server::logger.log(logger::Error, "Configuration error");
         return ConfError;
     }
 

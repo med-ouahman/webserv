@@ -194,9 +194,9 @@ void leaks(bool & r) {
 
 }
 
-int Server::start() {
+ServerErrors Server::start() {
 
-    if (!running_) return EXIT_FAILURE;
+    if (!running_) return IOError;
 
     while (running_) {
         // leaks(running_);
@@ -204,5 +204,5 @@ int Server::start() {
         sweep();
     }
     
-    return 0;
+    return None;
 }

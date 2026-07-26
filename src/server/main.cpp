@@ -200,13 +200,11 @@ int main(int argc, const char* argv[]) {
     sys::handle_signals();
 
     config::Config conf;
+    
     {
         config::ConfigParser parser;
-        if (None != parser.parse(conf, argv[1] != NULL ? argv[1]: "config/default.conf")) return 1;
-
-        // config::printConfig(conf);
+        if (None != parser.parse(conf, argv[1] != NULL ? argv[1]: "config/default.conf")) return ConfError;
     }
-    
-    Server server(conf);
-    return server.start();
+
+    return Server(conf).start();
 }

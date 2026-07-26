@@ -82,8 +82,7 @@ Error Parser::chunkTrailerState(Context& ctx) {
 Error Parser::parseChunkedBody(Context& ctx) {
 	Error err;
 
-	std::cout << "Parse chunked\n";
-	while (canProgress(ctx.actor.request) && ctx.state_ == PARSING) {
+	while (canProgress(ctx.actor.request)) {
 		switch (chunk_state) {
 			case CHUNK_SIZE:
 					err = chunkSizeState();

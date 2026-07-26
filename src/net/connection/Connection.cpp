@@ -95,10 +95,17 @@ void Connection::read() {
     ssize_t n = ::recv(fd(), reader_.write_ptr(), reader_.bytes_free(), 0);
 
     if (n <= 0) {
+        std::stringstream ss;
+        ss << "connection closed by client FD (" << fd() << ")";
+        Server::logger.log(logger::Info, ss.str());
         state_ = Closing;
         return;
     }
 
+    std::stringstream ss; 
+
+    ss << "Connection received " << n << " bytes";
+    Server::logger.log(logger::Info, ss.str());
     reader_.advance_write(n);
 }
 

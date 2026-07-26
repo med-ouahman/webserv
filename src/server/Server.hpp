@@ -5,19 +5,11 @@
 #include "Connection.hpp"
 #include "net/socket/Socket.hpp"
 #include "Logger.hpp"
+#include "ServerErrors.hpp"
 
 class Server {
 
 public:
-enum ServerErrors {
-AllocFailed,
-SockFailed,
-ConfError,
-IOError,
-ConnError,
-
-};
-
 static const std::size_t MaxConnections = 1000;
 static const std::size_t MaxListens = 10;
 
@@ -37,13 +29,15 @@ private:
 public:
     Server(const config::Config& conf);
     ~Server();
-    int start();
-    void sweep();
-    void abort();
-    void add_connection(UniqueFd& uniq, const net::ConnectionInfo& info);
-    void close_connection(net::Connection* conn);
-    void close_socket(net::Socket* Socket);
     
-    net::Socket* find_listener(const config::ListenEndPoint& endpoint);
-    size_t num_connections() const;
+    ServerErrors    start();
+    void            sweep();
+    void            abort();
+
+    void    add_connection(UniqueFd& uniq, const net::ConnectionInfo& info);
+    void    close_connection(net::Connection* conn);
+    size_t  num_connections() const;
+    
+    void            close_socket(net::Socket* Socket);
+    net::Socket*    find_listener(const config::ListenEndPoint& endpoint);
 };

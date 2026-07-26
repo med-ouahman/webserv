@@ -158,8 +158,11 @@ static void fillEnv(const http::Request& request,
 	exec_ctx.envp.push("CONTENT_LENGTH""=" + request_ctx.content_length);
 	exec_ctx.envp.push("GATEWAY_INTERFACE=CGI/1.1");
 	exec_ctx.envp.push("SCRIPT_NAME""=" + request_ctx.script_name);
-	exec_ctx.envp.push("PATH_INFO""=" + request_ctx.path_info);
+
+	exec_ctx.envp.push("PATH_INFO=" + request_ctx.path_info);
+	
 	exec_ctx.envp.push("SERVER_NAME""=" + request_ctx.server_name);
+	std::cout << "PATH: "<< request_ctx.path_info << "\n";
 	exec_ctx.envp.push("SERVER_PORT""=" + request_ctx.server_port);
 	exec_ctx.envp.push("REDIRECT_STATUS=200");
 	std::string s = absolute_path(exec_ctx.argv.data().size() > 1 ? exec_ctx.argv.data()[1]: "");

@@ -34,7 +34,7 @@ struct LocationConfig {
     std::string upload_path;
     size_t client_max_body_size;
     std::map<std::string, std::string> cgi_pass;
-    std::string cgi_dir; // where scripts, executables live
+    std::string cgi_dir; // where cgi scripts, executables live
     size_t cgi_timeout;
 
     LocationConfig()

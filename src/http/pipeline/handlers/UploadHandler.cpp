@@ -108,23 +108,18 @@ Error UploadHandler::handle() {
 	const std::string& dir = decision().upload_path;
 	std::string path;
 
-	if (request().has_body
-			and request().body.type() == base::io::Reader::NONE) {
-		context_.action_ = AC_READ;
-		context_.consume(NULL, 0);
-		if (request().body.type() == base::io::Reader::NONE)
-			return ERR_NONE;
-		context_.action_ = AC_NONE;
-	}
-	if (request().has_body
-		&& request().body.type() == base::io::Reader::NONE) {
-		return ERR_NONE;
-	}
+	
 	if (!validUploadDirectory(dir)) return ERR_INTERNAL;
 	filename = basenameOf(decision().normalized_path);
 	path = pathJoin(dir, filename);
 	if (pathExists(path))
 		return ERR_CONFLICT;
+		
+	if (request().has_body
+		&& request().body.type() == base::io::Reader::NONE) {
+		return ERR_NONE;
+	}
+
 	TRY(putBody(request().body, path), err);
 	setStatus(CREATED);
 	setBodyFixed("");

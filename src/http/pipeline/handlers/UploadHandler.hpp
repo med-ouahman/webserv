@@ -10,8 +10,8 @@ class Context;
 class UploadHandler : public ARequestHandler {
 public:
 	explicit UploadHandler(Context& context);
-	virtual ~UploadHandler();
-	virtual Error handle();
+	~UploadHandler();
+	Error handle();
 };
 
 }

@@ -28,15 +28,11 @@ void Socket::on_event(io::Event event) {
 		case io::Readable:
 			accept_clients();
 			break;
-		case io::Hup: case io::RHup:
-			/*
-				let's see what to do here and defer this thing for later
-			*/
-			break;
+		case io::Hup:
+		case io::RHup:
 		case io::Error:
 			on_error();
-		default:
-			break;
+		default: break;
 	}
 }
 
@@ -56,7 +52,6 @@ bool Socket::accept_clients() {
 	ConnectionInfo info(host_, port_, client_addr.sin_addr.s_addr, client_addr.sin_port, servers_);
 
 	server_.add_connection(client, info);
-	
 	return true;
 }
 
@@ -67,27 +62,28 @@ bool Socket::on_error() {
 
 base::Result<Socket*> create_listening_socket(
 	const config::ListenEndPoint& endpoint,
-	Server& server
-	) {
+	Server& server) {
 
 	sockaddr_in server_addr;
 	::memset(&server_addr, 0, sizeof server_addr);
 	server_addr.sin_family = AF_INET;
 		
 	if (!::inet_pton(AF_INET, int_to_ip(endpoint.host).c_str(), &server_addr.sin_addr)) return MAKE_ERRNO_ERROR("Socket::inet_pton()");
+	
 	server_addr.sin_port = ::htons(endpoint.port);
 
 	UniqueFd socket_fd(::socket(AF_INET, SOCK_STREAM | O_NONBLOCK | SOCK_CLOEXEC, 0));
+
 	if (!socket_fd.valid()) return MAKE_ERRNO_ERROR("Socket::socket()");
 
 	int x = 1;
-	if (::setsockopt(socket_fd.get(), SOL_SOCKET, SO_REUSEADDR, &x, sizeof x))
-		return MAKE_ERRNO_ERROR("Socket::setsocketopt()");
+	if (::setsockopt(socket_fd.get(), SOL_SOCKET, SO_REUSEADDR, &x, sizeof x)) return MAKE_ERRNO_ERROR("Socket::setsocketopt()");
 	if (::bind(socket_fd.get(), (struct sockaddr *)&server_addr, sizeof server_addr)) return MAKE_ERRNO_ERROR("Socket::bind()");
+
 	if (::listen(socket_fd.get(), BACKLOG) < 0) return MAKE_ERRNO_ERROR("Socket::listen()");
 
 	net::Socket* sock = new (std::nothrow) Socket(socket_fd, io::Readable, server, endpoint);
-	if (!sock) return MAKE_ERROR(Server::AllocFailed, "net::create_socket", "alloc failed");
+	if (!sock) return MAKE_ERROR(AllocFailed, "net::create_socket", "alloc failed");
 
 	std::stringstream ss;
 	ss << "Server liistening on " << int_to_ip(endpoint.host) << ":" << endpoint.port << " FD (" << sock->fd() << ")";
