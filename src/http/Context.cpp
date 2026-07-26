@@ -195,6 +195,7 @@ usize Context::consume(const char* data, usize size) {
 		setError(ERR_BAD_REQUEST);
 		return consumed;
 	}
+
 	if (action_ != AC_READ) return consumed;
 
 	if (state_ == PARSING) {

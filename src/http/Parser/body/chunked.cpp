@@ -10,6 +10,7 @@ Error Parser::chunkSizeState() {
 	Error err;
 	usize end;
 
+	std::cout << "Fishy???|\n";
 	end = raw_buffer.find(CRLF);
 	if ((end == std::string::npos
 		&& raw_buffer.size() > limits::CHUNK_SIZE_LINE_MAX)
@@ -17,8 +18,10 @@ Error Parser::chunkSizeState() {
 			&& end > limits::CHUNK_SIZE_LINE_MAX))
 		return ERR_BAD_REQUEST;
 	err = getChunk(line, found);
-	if (err != ERR_NONE || !found)
+	if (err != ERR_NONE || !found) {
+		std::cout << "Chunk not found\n";
 		return err;
+	}
 	if (!parseChunkSize(line, chunk_size))
 		return ERR_BAD_REQUEST;
 	if (body_received > max_body_size
@@ -79,6 +82,7 @@ Error Parser::chunkTrailerState(Context& ctx) {
 Error Parser::parseChunkedBody(Context& ctx) {
 	Error err;
 
+	std::cout << "Parse chunked\n";
 	while (canProgress(ctx.actor.request) && ctx.state_ == PARSING) {
 		switch (chunk_state) {
 			case CHUNK_SIZE:

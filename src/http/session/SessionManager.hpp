@@ -4,6 +4,8 @@
 #include <map>
 #include <ctime>
 
+namespace http {
+
 class SessionManager {
 public:
     static SessionManager& instance();
@@ -31,3 +33,4 @@ private:
     
 };
 
+}

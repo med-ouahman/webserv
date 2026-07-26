@@ -139,6 +139,7 @@ void Server::add_connection(UniqueFd& conn_fd, const net::ConnectionInfo& info) 
 void Server::sweep() {
     
     for ( size_t i(0); i < connections.size(); ) {
+        
         net::Connection* conn = connections.at(i);
 
         conn->sync();

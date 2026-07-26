@@ -29,6 +29,7 @@ bool Parser::hasBody(const Request& request) const {
 		case CHUNK_CRLF:
 			return raw_buffer.size() >= 2;
 	}
+	
 	return res;
 }
 

@@ -36,6 +36,17 @@ static base::Expected<DispatchInfo, Error> routeSelectedServer(const Request& re
 	TRY(routing::checkMethodSupported(request.method), err);
 	TRY(routing::pathNormalize(request.path, decision.normalized_path), err);
 	TRY(routing::findLocation(decision, server), err);
+	std::cout << "LOCATION: " << decision.location->path << "\n";
+	std::cout << "ALLOWED METHODS: \n";
+
+	std::set<std::string>::iterator it = decision.location->allowed_methods.begin();
+
+	for (; it != decision.location->allowed_methods.end(); it++) {
+		std::cout << "Method: " << *it << "\n";
+	}
+	
+
+
 	decision.cgi_timeout = decision.location->cgi_timeout;
 	if (partial != NULL)
 		*partial = decision;

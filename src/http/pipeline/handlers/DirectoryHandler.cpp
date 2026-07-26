@@ -18,8 +18,13 @@ static std::string pathJoin(const std::string& left,
 	return left + "/" + right;
 }
 
-static bool regularFile(const std::string& path, struct stat& info) {
-	return stat(path.c_str(), &info) == 0 && S_ISREG(info.st_mode);
+static bool regularFile(struct stat& info) {
+	return S_ISREG(info.st_mode);
+}
+
+static bool exists(const std::string& path, struct stat& info) {
+
+	return stat(path.c_str(), &info) == 0;
 }
 
 static std::string htmlEscape(const std::string& value) {
@@ -98,8 +103,15 @@ Error DirectoryHandler::handle() {
 	while (i < indexes.size()) {
 		std::string path = pathJoin(decision().filesystem_path, indexes[i]);
 		struct stat info;
+		std::cout << "THE PATH: " << path << "\n";
 
-		if (regularFile(path, info)) {
+		/*
+			IF EXISTS 
+		*/
+
+		if (!exists(path, info)) return ERR_NOT_FOUND;
+
+		if (regularFile(info)) {
 			TRY(setBodyFile(path), err);
 			setStatus(OK);
 			setContentTypeFromPath(path);
@@ -112,7 +124,10 @@ Error DirectoryHandler::handle() {
 		i++;
 	}
 	if (!decision().location->autoindex)
+	{
+		std::cout << "WHEN THE SUN RISES, YOU WILL SEE THE TRUTH IN THE EYES OF PEOPLE WHOM YOU WRONGED\n";
 		return ERR_FORBIDDEN;
+	}
 	TRY(buildAutoindex(decision().filesystem_path,
 		decision().normalized_path, body), err);
 	setStatus(OK);

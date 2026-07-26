@@ -25,7 +25,6 @@ Connection::~Connection() {
     std::stringstream ss;
 
     ss << "Connection closed FD (" << fd() << ")"; 
-
     Server::logger.log(logger::Info, ss.str());
 }
 
@@ -48,7 +47,7 @@ void Connection::update(http::ContextAction action) {
 
     switch (state_) {
         case Reading: new_events = io::Readable; break;
-        case Writing: new_events = (io::Event)(io::Readable | io::Writable); break;
+        case Writing: new_events = (io::Event)(io::Writable); break;
         case Closing: new_events = io::Close; break;
     }
 
@@ -56,7 +55,8 @@ void Connection::update(http::ContextAction action) {
 }
 
 void Connection::sync() {
-    
+
+
     ctx.timeout();
 
 	if (ctx.nextAction() == http::AC_NONE) ctx.process();
@@ -77,16 +77,21 @@ void Connection::on_event(io::Event events) {
 }
 
 void Connection::on_readable() {
+    
     if (state_ == Closing) return;
 
     read();
+    
+    if (state_ == Closing) return;
 
     size_t n = ctx.consume(reader_.read_ptr(), reader_.bytes_pending());
+    
     reader_.advance_read(n);
 }
 
 void Connection::read() {
     reader_.compact();
+ 
     ssize_t n = ::recv(fd(), reader_.write_ptr(), reader_.bytes_free(), 0);
 
     if (n <= 0) {

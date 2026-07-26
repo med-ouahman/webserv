@@ -7,9 +7,9 @@
 
 namespace logger {
 
-Logger::Logger(): out(&std::cout) {}
+Logger::Logger(): loggin_enabled(true), out(&std::cout) {}
 
-Logger::Logger(std::ostream& s): out(&s) {}
+Logger::Logger(std::ostream& s): loggin_enabled(true), out(&s) {}
 
 Logger::~Logger() {}
 
@@ -37,6 +37,8 @@ const char* level_color(LogLevel level) {
 
 void Logger::log(LogLevel level, const std::string& message, bool timestamp)
 {
+    if (!loggin_enabled) return;
+
     const std::string ts =
         timestamp ? format_date(Timestamp::now().seconds()) : "";
 
@@ -92,6 +94,14 @@ std::string Logger::make_error(std::string const& context, std::string const& me
     << file << ":" << line;
 
     return ss.str();
+}
+
+void Logger::disable() {
+    loggin_enabled = false;
+}
+
+void Logger::enable() {
+    loggin_enabled = true;
 }
 
 }

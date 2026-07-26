@@ -90,9 +90,9 @@ Error Parser::progress(Context& ctx, const char* data, usize size,
 		usize& consumed) {
 	Error err;
 
+	
 	consumed = 0;
-	if (size != 0)
-		incrementBuffer(data, size, consumed);
+	if (size != 0) incrementBuffer(data, size, consumed);
 	while (canProgress(ctx.actor.request)) {
 		switch (phase) {
 			case PARSING_REQUEST_LINE:
@@ -118,6 +118,7 @@ bool Parser::parsingBody() const {
 }
 
 bool Parser::timedOut() const {
+	return false;
 	switch (phase) {
 		case PARSING_REQUEST_LINE:
 			return timer.elapsed() >= timeout::REQUEST_LINE_SECONDS;
@@ -150,6 +151,7 @@ Error Parser::prepareBodyStorage(const std::string& root, usize conn_id,
 			consumed = 0;
 			return;
 		}
+
 		raw_buffer.reserve(raw_buffer.size() + size);
 		raw_buffer.append(data, size);
 		consumed = size;
@@ -162,7 +164,7 @@ Error Parser::prepareBodyStorage(const std::string& root, usize conn_id,
 bool Parser::canProgress(const Request& request) const {
 	bool res = false;
 
-	if (phase == PARSING_REQUEST_LINE  or phase == PARSING_HEADERS)
+	if (phase == PARSING_REQUEST_LINE or phase == PARSING_HEADERS)
 		res = raw_buffer.find(CRLF) != std::string::npos;
 	if (phase == PARSING_BODY)
 		res = hasBody(request);

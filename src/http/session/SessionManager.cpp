@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 
-namespace core {
+namespace http {
 
 SessionManager& SessionManager::instance() {
     static SessionManager inst;

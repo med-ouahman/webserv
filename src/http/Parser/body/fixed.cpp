@@ -8,10 +8,12 @@ Error Parser::parseFixedBody(Context& ctx) {
 	usize take;
 	Error err;
 
+	std::cout << "Body is chunked\n";
 	if (!ctx.actor.request.content_length.has_value())
 		return ERR_BAD_REQUEST;
 
 	expected = ctx.actor.request.content_length.value;
+	std::cout << "content-length: " << expected << "\n";
 	if (body_received == expected)
 		return finishBody(ctx);
 
