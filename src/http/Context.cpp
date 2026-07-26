@@ -195,8 +195,7 @@ usize Context::consume(const char* data, usize size) {
 		setError(ERR_BAD_REQUEST);
 		return consumed;
 	}
-
-	std::cout << "bytes received: " << size << "\n";
+	
 	if (state_ == PARSING) {
 		TRY(actor.parser.progress(*this, data, size, consumed),
 				(setError(err), consumed));
