@@ -104,6 +104,7 @@ UploadHandler::~UploadHandler() {}
 
 Error UploadHandler::handle() {
 	Error err;
+
 	std::string filename;
 	const std::string& dir = decision().upload_path;
 	std::string path;

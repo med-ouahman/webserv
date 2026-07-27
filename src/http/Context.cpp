@@ -170,6 +170,8 @@ Error Context::prepareBodyStorage() {
 }
 
 Error Context::createHandler() {
+	/* don't create the handle yet if the request hasn't be full read */
+
 	base::Expected<ARequestHandler*, Error> created =
 		http::createHandler(info.dispatch.value.handler_type, *this);
 

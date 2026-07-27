@@ -52,6 +52,8 @@ public:
     bool closing() const;
     void sync();
 
+   
+
 private:
     ConnectionState state_;
     bool            close_after_write;

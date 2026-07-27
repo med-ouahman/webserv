@@ -5,6 +5,7 @@
 #include "Server.hpp"
 #include <sys/socket.h>
 #include <sstream>
+#include <fcntl.h>
 
 namespace net {
 
@@ -77,24 +78,20 @@ void Connection::on_event(io::Event events) {
 }
 
 void Connection::on_readable() {
-    
-    if (state_ == Closing) return;
-
     read();
-    
     if (state_ == Closing) return;
-
-    size_t n = ctx.consume(reader_.read_ptr(), reader_.bytes_pending());
-    
+    size_t n = ctx.consume(reader_.read_ptr(), reader_.bytes_pending());    
     reader_.advance_read(n);
 }
 
 void Connection::read() {
+
+    if (state_ == Closing) return;
     reader_.compact();
- 
     ssize_t n = ::recv(fd(), reader_.write_ptr(), reader_.bytes_free(), 0);
 
-    if (n <= 0) {
+    if (n <= 0)
+    {
         std::stringstream ss;
         ss << "connection closed by client FD (" << fd() << ")";
         Server::logger.log(logger::Info, ss.str());
@@ -103,7 +100,6 @@ void Connection::read() {
     }
 
     std::stringstream ss; 
-
     ss << "Connection received " << n << " bytes";
     Server::logger.log(logger::Info, ss.str());
     reader_.advance_write(n);

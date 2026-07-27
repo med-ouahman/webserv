@@ -50,6 +50,7 @@ void log_process_context(const cgi::ProcessContext& ctx)
 }
 
 namespace cgi {
+    
 template <size_t N>
 Channel::Channel(Storage<N>& storage,
 Stream s, int fd, io::Event events, http::CgiHandler& h)

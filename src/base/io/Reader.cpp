@@ -88,10 +88,7 @@ bool Reader::reset(const char* buffer, usize size) {
 
 base::Expected<usize, Error> Reader::read(char* buff, usize max_size) {
 	
-	if (type_ == NONE) { 
-		std::cout << "THERE IS SOMETHING IN THE SKY\n";
-		return 0;
-	}
+	if (type_ == NONE) return 0;
 
 	if (max_size == 0)
 		return base::Expected<usize, Error>(static_cast<usize>(0));
