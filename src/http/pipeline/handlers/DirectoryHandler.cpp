@@ -1,8 +1,8 @@
 
 #include "http/pipeline/handlers/DirectoryHandler.hpp"
+#include "http/pipeline/handlers/RedirectHandler.hpp"
 #include "http/Context.hpp"
 #include "config/Config.hpp"
-
 #include <dirent.h>
 #include <sstream>
 #include <sys/stat.h>
@@ -100,11 +100,12 @@ Error DirectoryHandler::handle() {
 	usize i;
 
 	i = 0;
+	bool indexNotFound = false;
 	while (i < indexes.size()) {
 		std::string path = pathJoin(decision().filesystem_path, indexes[i]);
 		struct stat info;
-
-		if (exists(path) && regularFile(info)) {
+		
+		if (exists(path, info) && regularFile(info)) {
 			TRY(setBodyFile(path), err);
 			setStatus(OK);
 			setContentTypeFromPath(path);
@@ -114,9 +115,14 @@ Error DirectoryHandler::handle() {
 			responseReady();
 			return ERR_NONE;
 		}
+		
+		indexNotFound = true;
 		i++;
 	}
+
+	if (indexNotFound && !decision().location->autoindex) return ERR_NOT_FOUND;
 	if (!decision().location->autoindex) return ERR_FORBIDDEN;
+	
 	TRY(buildAutoindex(decision().filesystem_path,
 		decision().normalized_path, body), err);
 	setStatus(OK);

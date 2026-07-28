@@ -1,5 +1,5 @@
 #pragma once
-
+#include <fcntl.h>
 #include "runtime/AEventHandler.hpp"
 
 #include "cgi/Channel.hpp"
@@ -45,7 +45,6 @@ enum ShutdownState {
 };
 
 private:
-
 	const static std::size_t StdinWriteSize = 4096;
 	const static std::size_t StdoutReadSize = 4096;
 	const static std::size_t StderrReadSize = 1024;
@@ -100,6 +99,7 @@ public:
  	http::Error handle();
 	
 	void monitor();
+
 };
 
 }
