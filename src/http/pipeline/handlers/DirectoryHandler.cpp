@@ -103,15 +103,8 @@ Error DirectoryHandler::handle() {
 	while (i < indexes.size()) {
 		std::string path = pathJoin(decision().filesystem_path, indexes[i]);
 		struct stat info;
-		std::cout << "THE PATH: " << path << "\n";
 
-		/*
-			IF EXISTS 
-		*/
-
-		if (!exists(path, info)) return ERR_NOT_FOUND;
-
-		if (regularFile(info)) {
+		if (exists(path) && regularFile(info)) {
 			TRY(setBodyFile(path), err);
 			setStatus(OK);
 			setContentTypeFromPath(path);
@@ -123,11 +116,7 @@ Error DirectoryHandler::handle() {
 		}
 		i++;
 	}
-	if (!decision().location->autoindex)
-	{
-		std::cout << "WHEN THE SUN RISES, YOU WILL SEE THE TRUTH IN THE EYES OF PEOPLE WHOM YOU WRONGED\n";
-		return ERR_FORBIDDEN;
-	}
+	if (!decision().location->autoindex) return ERR_FORBIDDEN;
 	TRY(buildAutoindex(decision().filesystem_path,
 		decision().normalized_path, body), err);
 	setStatus(OK);
