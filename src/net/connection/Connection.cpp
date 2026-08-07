@@ -73,7 +73,8 @@ void Connection::on_readable() {
 
     read();
 
-    size_t n = ctx.consume(reader_.read_ptr(), reader_.bytes_pending());
+    BufferView view(reader_.read_ptr(), reader_.bytes_pending());
+    size_t n = ctx.consume(view);
     reader_.advance_read(n);
 }
 
@@ -105,11 +106,13 @@ void Connection::write() {
 void Connection::on_writable() {
     if (state_ == Closing) return;
 
-    size_t m = ctx.produce(writer_.write_ptr(), writer_.bytes_free());
-    writer_.advance_write(m);
-    write();
+	usize produced = ctx.produce(writer_.write_ptr(), writer_.bytes_free());
+	writer_.advance_write(produced);
+	write();
 
-	if (writer_.empty() && ctx.nextAction() == http::AC_WRITE)
+	if (writer_.empty()
+		&& ctx.nextAction() == http::AC_WRITE
+		&& produced == 0)
 		ctx.advanceCycle();
 }
 

@@ -162,7 +162,7 @@ static void fillEnv(const http::Request& request,
 	exec_ctx.envp.push("SERVER_PORT""=" + request_ctx.server_port);
 	exec_ctx.envp.push("REDIRECT_STATUS=200");
 	std::string s = absolute_path(exec_ctx.argv.data()[1]);
-	std::cout << "SCRIPT"
+	std::cout << "SCRIPT";
 	exec_ctx.envp.push("SCRIPT_FILENAME="+absolute_path(exec_ctx.argv.data()[1]));
 
 	while (i < request.headers.size()) {

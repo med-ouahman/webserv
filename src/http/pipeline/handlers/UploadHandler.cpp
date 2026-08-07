@@ -2,12 +2,14 @@
 #include "http/pipeline/handlers/UploadHandler.hpp"
 #include "http/Context.hpp"
 #include "http/limits.hpp"
+#include "Logger.hpp"
 
 #include <sys/stat.h>
 #include <unistd.h>
 
 #include <cerrno>
 #include <cstdio>
+#include <sstream>
 
 namespace http {
 
@@ -108,16 +110,10 @@ Error UploadHandler::handle() {
 	const std::string& dir = decision().upload_path;
 	std::string path;
 
-	if (request().has_body
-			and request().body.type() == base::io::Reader::NONE) {
+	if (request().has_body and request().body.type() == base::io::Reader::NONE) {
 		context_.action_ = AC_READ;
-		context_.consume(NULL, 0);
-		if (request().body.type() == base::io::Reader::NONE)
-			return ERR_NONE;
-		context_.action_ = AC_NONE;
-	}
-	if (request().has_body
-		&& request().body.type() == base::io::Reader::NONE) {
+		context_.services_.logger.log(logger::Debug,
+			"http: upload waiting for more body", false);
 		return ERR_NONE;
 	}
 	if (!validUploadDirectory(dir)) return ERR_INTERNAL;
@@ -128,11 +124,16 @@ Error UploadHandler::handle() {
 	TRY(putBody(request().body, path), err);
 	setStatus(CREATED);
 	setBodyFixed("");
-	setHeader("Location",
-			uploadLocation(decision().normalized_path, filename));
+	setHeader("Location", uploadLocation(decision().normalized_path, filename));
 	setContentLength();
 	setConnection();
 	setDate();
+	{
+		std::ostringstream ss;
+
+		ss << "http: upload completed -> " << path;
+		context_.services_.logger.log(logger::Debug, ss.str(), false);
+	}
 	responseReady();
 	return ERR_NONE;
 }

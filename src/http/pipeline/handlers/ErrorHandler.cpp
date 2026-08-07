@@ -1,7 +1,7 @@
 
 #include "http/pipeline/handlers/ErrorHandler.hpp"
 #include "http/Context.hpp"
-#include "http/pipeline/RequestHandler.hpp"
+#include "http/pipeline/ARequestHandler.hpp"
 
 #include <cstddef>
 #include <fstream>

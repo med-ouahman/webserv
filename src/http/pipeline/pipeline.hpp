@@ -3,7 +3,7 @@
 
 #include "base/base.hpp"
 #include "http/Error.hpp"
-#include "http/pipeline/RequestHandler.hpp"
+#include "http/pipeline/ARequestHandler.hpp"
 #include "http/routing/Routing.hpp"
 
 namespace http {

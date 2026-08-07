@@ -38,9 +38,13 @@ Error checkBodyPolicy(const Request& request) {
 	return ERR_NONE;
 }
 
-usize bodyLimit(const config::ServerConfig& server) {
-	if (server.client_max_body_size > 0)
-		return server.client_max_body_size;
+usize bodyLimit(const DispatchInfo& decision) {
+	if (decision.location != NULL
+		&& decision.location->client_max_body_size > 0)
+		return decision.location->client_max_body_size;
+	if (decision.server != NULL
+		&& decision.server->client_max_body_size > 0)
+		return decision.server->client_max_body_size;
 	return limits::BODY_MAX_SIZE;
 }
 

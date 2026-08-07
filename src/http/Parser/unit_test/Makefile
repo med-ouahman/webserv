@@ -19,6 +19,7 @@ SOURCES := \
 	../body/body_utils.cpp \
 	../body/chunked.cpp \
 	../body/fixed.cpp \
+	../body/temp_storage.cpp \
 	../../../base/io/Reader.cpp \
 	../../../base/io/Writer.cpp
 

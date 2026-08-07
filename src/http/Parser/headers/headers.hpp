@@ -3,7 +3,7 @@
 #include <string>
 
 #include "http/Error.hpp"
-#include "http/Request.hpp"
+#include "http/Request/Request.hpp"
 
 namespace http {
 namespace parser {
@@ -22,7 +22,7 @@ void		trim(std::string& value);
 Header*		findHeader(Request& request, const std::string& normalized);
 Error		storeHeader(Request& request, const std::string& name, const std::string& value);
 bool		isSingleHeader(const std::string& normalized);
-bool		parseContentLength(const std::string& value, usize& out);
+Error		parseContentLength(const std::string& value, usize& out);
 SpecialHeader	specialHeader(const std::string& normalized);
 Error		handleSpecialHeader(Request& request, const std::string& normalized, const std::string& value);
 Error		endHeaders(Request& request);

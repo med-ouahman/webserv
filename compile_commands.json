@@ -33,10 +33,10 @@
       "-Isrc/foundation/",
       "-Isrc/base/",
       "-c",
-      "src/net/connection/Connection.cpp",
+      "src/http/Context.cpp",
       "-o",
-      "obj/src/net/connection/Connection.o"
+      "obj/src/http/Context.o"
     ],
-    "file": "/home/shadow/docs/webserv/src/net/connection/Connection.cpp"
+    "file": "/home/shadow/docs/webserv/src/http/Context.cpp"
   }
 ]

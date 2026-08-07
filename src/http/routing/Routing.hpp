@@ -4,7 +4,7 @@
 #include "base/base.hpp"
 #include "config/Config.hpp"
 #include "http/Error.hpp"
-#include "http/Request.hpp"
+#include "http/Request/Request.hpp"
 
 namespace http {
 

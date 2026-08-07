@@ -6,9 +6,7 @@
 namespace http {
 namespace parser {
 
-static bool	isSpace(char c) {
-	return c == ' ' || c == '\t';
-}
+static bool	isSpace(char c) { return c == ' ' || c == '\t'; }
 
 static char	toLower(char c) {
 	return static_cast<char>(std::tolower(static_cast<unsigned char>(c)));

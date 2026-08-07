@@ -7,7 +7,7 @@
 #include "base/base.hpp"
 #include "base/io/Reader.hpp"
 #include "http/Error.hpp"
-#include "http/Request.hpp"
+#include "http/Request/Request.hpp"
 
 namespace http {
 

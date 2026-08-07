@@ -26,7 +26,7 @@ Error checkMethodSupported(Method method);
 Error checkMethodAllowed(Method method, const config::LocationConfig& location);
 bool hasBody(const Request& request);
 Error checkBodyPolicy(const Request& request);
-usize bodyLimit(const config::ServerConfig& server);
+usize bodyLimit(const DispatchInfo& decision);
 Error checkBodySize(const Request& request, usize max_body_size);
 Error pathTypeCheck(const DispatchInfo& decision);
 Error resolveUploadPath(DispatchInfo& decision);

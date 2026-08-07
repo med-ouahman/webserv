@@ -1,6 +1,5 @@
 
 #include "http/routing/RoutingInternal.hpp"
-#include <iostream>
 
 namespace http {
 
@@ -31,11 +30,11 @@ static base::Expected<DispatchInfo, Error> routeSelectedServer(const Request& re
 	Error err;
 
 	decision.server = &server;
-	decision.max_body_size = routing::bodyLimit(server);
 
 	TRY(routing::checkMethodSupported(request.method), err);
 	TRY(routing::pathNormalize(request.path, decision.normalized_path), err);
 	TRY(routing::findLocation(decision, server), err);
+	decision.max_body_size = routing::bodyLimit(decision);
 	decision.cgi_timeout = decision.location->cgi_timeout;
 	if (partial != NULL)
 		*partial = decision;
@@ -57,13 +56,11 @@ static base::Expected<DispatchInfo, Error> routeSelectedServer(const Request& re
 	TRY(routing::pathTypeCheck(decision), err);
 	decision.read_body = routing::hasBody(request)
 		&& handlerReadsBody(decision.handler_type);
-	std::cout << "Routing: request type set!\n";
 	if (decision.handler_type == UPLOAD) {
 		TRY(routing::checkUploadAllowed(*decision.location), err);
 		TRY(routing::checkUploadFraming(request), err);
 		TRY(routing::resolveUploadPath(decision), err);
 	}
-	std::cout << "Routing: finished!\n";
 	return decision;
 }
 

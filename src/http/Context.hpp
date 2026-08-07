@@ -3,9 +3,10 @@
 
 #include "base/base.hpp"
 #include "config/Config.hpp"
+#include "foundation/BufferView.hpp"
 
-#include "http/Request.hpp"
-#include "http/Response.hpp"
+#include "http/Request/Request.hpp"
+#include "http/Response/Response.hpp"
 #include "http/Parser/Parser.hpp"
 #include "http/routing/Routing.hpp"
 
@@ -48,8 +49,7 @@ struct Actor {
 
 		Actor();
 		void reset();
-		void resetCycle();
-	};
+};
 
 struct Info {
 	const std::vector<const config::ServerConfig*>& servers;
@@ -79,15 +79,11 @@ private:
 	Context& operator=(const Context&);
 
 	void responseReady();
-	void resetCycle();
 
 	Error setError(Error error);
 	Error resolveDispatch();
-	Error prepareBodyStorage();
-	Error readBody();
 
 	Error createHandler();
-	Error handleError();
 
 	usize handleResponseFailure(Error err);
 
@@ -109,7 +105,7 @@ public:
 		usize conn_id, usize request_id, RuntimeServices& services);
 	~Context();
 
-	usize consume(const char* data, usize size);
+	usize consume(BufferView& buff);
 	void process();
 	usize produce(char *buffer, usize size);
 

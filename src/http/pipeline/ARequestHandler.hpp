@@ -2,7 +2,7 @@
 #pragma once
 
 #include "http/Error.hpp"
-#include "http/Response.hpp"
+#include "http/Response/Response.hpp"
 
 #include <string>
 
@@ -22,6 +22,7 @@ protected:
 	void eraseHeader(const std::string& key);
 
 	void setBodyFixed(const std::string& body);
+	Error fileAccessError() const;
 	Error setBodyFile(const std::string& path);
 
 	void setContentType(const std::string& type);

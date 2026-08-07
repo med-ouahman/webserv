@@ -1,6 +1,6 @@
 #pragma once
 
-#include "http/pipeline/RequestHandler.hpp"
+#include "http/pipeline/ARequestHandler.hpp"
 
 namespace http {
 

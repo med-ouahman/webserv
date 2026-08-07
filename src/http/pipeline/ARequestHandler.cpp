@@ -1,7 +1,8 @@
 
-#include "http/pipeline/RequestHandler.hpp"
+#include "http/pipeline/ARequestHandler.hpp"
 #include "http/Context.hpp"
 
+#include <cerrno>
 #include <sstream>
 #include <ctime>
 
@@ -98,10 +99,18 @@ void ARequestHandler::setBodyFixed(const std::string& body) {
 	context_.actor.response.body_reader.reset();
 }
 
+Error ARequestHandler::fileAccessError() const {
+	if (errno == ENOENT || errno == ENOTDIR)
+		return ERR_NOT_FOUND;
+	if (errno == EACCES || errno == EPERM)
+		return ERR_FORBIDDEN;
+	return ERR_INTERNAL;
+}
+
 Error ARequestHandler::setBodyFile(const std::string& path) {
 	context_.actor.response.body.clear();
 	if (!context_.actor.response.body_reader.reset(path))
-		return ERR_NOT_FOUND;
+		return fileAccessError();
 	return ERR_NONE;
 }
 

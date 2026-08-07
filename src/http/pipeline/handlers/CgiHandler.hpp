@@ -7,7 +7,7 @@
 #include "cgi/ResponseParser.hpp"
 #include "cgi/CGIContext.hpp"
 
-#include "RequestHandler.hpp"
+#include "ARequestHandler.hpp"
 
 namespace runtime { namespace epoll { class EventLoop; } }
 

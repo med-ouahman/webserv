@@ -3,7 +3,7 @@
 
 namespace http {
 
-Error Parser::parseFixedBody(Context& ctx) {
+Error Parser::parseFixedBody(Context& ctx, BufferView& buff, usize& processed) {
 	usize expected;
 	usize take;
 	Error err;
@@ -15,13 +15,13 @@ Error Parser::parseFixedBody(Context& ctx) {
 	if (body_received == expected)
 		return finishBody(ctx);
 
-	take = minSize(expected - body_received, raw_buffer.size());
+	take = minSize(expected - body_received, buff.remaining());
 	if (take == 0)
 		return ERR_NONE;
 
-	err = bodyWrite(take);
-	if (err != ERR_NONE)
-		return err;
+	TRY(bodyWrite(buff, take), err);
+	buff.advance(take);
+	processed += take;
 	if (body_received == expected)
 		return finishBody(ctx);
 	return ERR_NONE;

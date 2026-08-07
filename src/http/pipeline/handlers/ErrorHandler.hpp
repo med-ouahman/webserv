@@ -1,7 +1,7 @@
 #pragma once
 
 #include "http/Error.hpp"
-#include "http/pipeline/RequestHandler.hpp"
+#include "http/pipeline/ARequestHandler.hpp"
 
 namespace http {
 

@@ -4,98 +4,87 @@
 
 namespace http {
 
-Error Parser::chunkSizeState() {
+Error Parser::chunkSizeState(BufferView& buff, usize& processed) {
 	std::string line;
 	bool found;
 	Error err;
-	usize end;
 
-	end = raw_buffer.find(CRLF);
-	if ((end == std::string::npos
-		&& raw_buffer.size() > limits::CHUNK_SIZE_LINE_MAX)
-		|| (end != std::string::npos
-			&& end > limits::CHUNK_SIZE_LINE_MAX))
-		return ERR_BAD_REQUEST;
-	err = getChunk(line, found);
-	if (err != ERR_NONE || !found)
-		return err;
-	if (!parseChunkSize(line, chunk_size))
-		return ERR_BAD_REQUEST;
-	if (body_received > max_body_size
-		|| chunk_size > max_body_size - body_received)
-		return ERR_BODY_TOO_LARGE;
-	chunk_received = 0;
-	if (chunk_size == 0) {
-		chunk_state = CHUNK_TRAILER;
+	TRY(getChunk(buff, line, processed, found), err);
+	if (!found) {
+		if (buff.remaining() > limits::CHUNK_SIZE_LINE_MAX)
+			return ERR_BAD_REQUEST;
 		return ERR_NONE;
 	}
-	chunk_state = CHUNK_DATA;
+	if (line.size() > limits::CHUNK_SIZE_LINE_MAX)
+		return ERR_BAD_REQUEST;
+	TRY(parseChunkSize(line, chunk_size), err);
+	chunk_received = 0;
+	chunk_state = (chunk_size == 0) ? CHUNK_TRAILER : CHUNK_DATA;
 	return ERR_NONE;
 }
 
-Error Parser::chunkDataState() {
+Error Parser::chunkDataState(BufferView& buff, usize& processed) {
 	usize take;
 	Error err;
 
 	take = minSize(
 		chunk_size - chunk_received,
-		raw_buffer.size());
+		buff.remaining());
 	if (take == 0)
 		return ERR_NONE;
-	err = bodyWrite(take);
-	if (err != ERR_NONE)
-		return err;
+	TRY(bodyWrite(buff, take), err);
 	chunk_received += take;
+	buff.advance(take);
+	processed += take;
 	if (chunk_received == chunk_size)
 		chunk_state = CHUNK_CRLF;
 	return ERR_NONE;
 }
 
-Error Parser::chunkCrlfState() {
-	if (raw_buffer.size() < 2)
-		return ERR_NONE;
-	if (raw_buffer[0] != '\r' || raw_buffer[1] != '\n')
-		return ERR_BAD_REQUEST;
-	raw_buffer.erase(0, 2);
+Error Parser::chunkCrlfState(BufferView& buff, usize& processed) {
+	if (buff.remaining() < 2)
+			return ERR_NONE;
+	if (buff.data()[0] != '\r' or buff.data()[1] != '\n')
+			return ERR_BAD_REQUEST;
+	buff.advance(2);
+	processed += 2;
 	chunk_size = 0;
 	chunk_received = 0;
 	chunk_state = CHUNK_SIZE;
 	return ERR_NONE;
 }
 
-Error Parser::chunkTrailerState(Context& ctx) {
+Error Parser::chunkTrailerState(Context& ctx, BufferView& buff, usize& processed) {
 	std::string line;
 	bool found;
 	Error err;
 
-	err = getChunk(line, found);
-	if (err != ERR_NONE || !found)
-		return err;
+	TRY(getChunk(buff, line, processed, found), err);
+	if (!found)
+		return ERR_NONE;
 	if (line.empty())
 		return finishBody(ctx);
 	return ERR_NONE;
 }
 
-Error Parser::parseChunkedBody(Context& ctx) {
+Error Parser::parseChunkedBody(Context& ctx, BufferView& buff, usize& processed) {
 	Error err;
 
-	while (canProgress(ctx.actor.request) && ctx.state_ == PARSING) {
-		switch (chunk_state) {
-			case CHUNK_SIZE:
-					err = chunkSizeState();
-					break;
-			case CHUNK_DATA:
-					err = chunkDataState();
-					break;
-			case CHUNK_CRLF:
-					err = chunkCrlfState();
-					break;
-			case CHUNK_TRAILER:
-					err = chunkTrailerState(ctx);
-					break;
-		}
-		if (err != ERR_NONE)
-			return err;
+	while (hasBody(ctx.actor.request, buff)) {
+			switch (chunk_state) {
+					case CHUNK_SIZE:
+							TRY(chunkSizeState(buff, processed), err);
+							break;
+					case CHUNK_DATA:
+							TRY(chunkDataState(buff, processed), err);
+							break;
+					case CHUNK_CRLF:
+							TRY(chunkCrlfState(buff, processed), err);
+							break;
+					case CHUNK_TRAILER:
+							TRY(chunkTrailerState(ctx, buff, processed), err);
+							break;
+			}
 	}
 	return ERR_NONE;
 }
