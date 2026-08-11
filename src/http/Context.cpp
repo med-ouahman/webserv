@@ -62,8 +62,9 @@ usize Context::consume(BufferView& buff) {
 				TRY(actor.parser.progress(*this, buff, processed),
 						(setError(err), processed));
 		}
-		action_ = AC_NONE;
 	}
+	if (state_ == PROCESSING)
+		action_ = AC_NONE;
 
 	return processed;
 }
