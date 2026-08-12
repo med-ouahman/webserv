@@ -112,7 +112,7 @@ Error DirectoryHandler::handle() {
 		i++;
 	}
 	if (!decision().location->autoindex)
-		return ERR_FORBIDDEN;
+		return ERR_NOT_FOUND;
 	TRY(buildAutoindex(decision().filesystem_path,
 		decision().normalized_path, body), err);
 	setStatus(OK);

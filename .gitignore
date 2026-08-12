@@ -44,3 +44,7 @@
 
 .vscode
 webserv
+
+# Runtime/tester artifacts
+/YoupiBanane/.tmp/
+/var/www/uploads/post_body

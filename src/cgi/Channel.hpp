@@ -44,6 +44,7 @@ void read();
 void write();
 Stream stream() const;
 State state() const;
+bool closed() const;
 void shutdown();
 void mark_closing();
 BufferView view() const;

@@ -28,9 +28,18 @@ RedirectHandler::RedirectHandler(Context& context)
 RedirectHandler::~RedirectHandler() {}
 
 Error RedirectHandler::handle() {
-	setStatus(redirectStatus(decision().location->redirect.return_code));
+	int code = decision().location->redirect.return_code;
+	std::string target = decision().location->redirect.return_target;
+
+	if (decision().path_type == directory) {
+		code = 301;
+		target = request().path + "/";
+		if (request().query.has_value())
+			target += "?" + request().query.value;
+	}
+	setStatus(redirectStatus(code));
 	setBodyFixed("");
-	setHeader("Location", decision().location->redirect.return_target);
+	setHeader("Location", target);
 	setContentLength();
 	setConnection();
 	setDate();

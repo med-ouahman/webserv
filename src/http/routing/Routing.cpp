@@ -53,6 +53,12 @@ static base::Expected<DispatchInfo, Error> routeSelectedServer(const Request& re
 		? server.root : decision.location->root,
 		decision.filesystem_path, decision.path_type), err);
 	TRY(routing::setRequestType(request, decision), err);
+	if (decision.handler_type == DIRECTORY
+		&& request.path.size() > 1
+		&& request.path[request.path.size() - 1] != '/') {
+		decision.handler_type = REDIRECT;
+		return decision;
+	}
 	TRY(routing::pathTypeCheck(decision), err);
 	decision.read_body = routing::hasBody(request)
 		&& handlerReadsBody(decision.handler_type);

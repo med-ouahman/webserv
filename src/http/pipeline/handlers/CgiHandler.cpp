@@ -3,13 +3,60 @@
 #include "http/Request/Request.hpp"
 
 #include "runtime/epoll/EventLoop.hpp"
-#include "http/Context.hpp"
-#include "Logger.hpp"
+#include "Context.hpp"
 
 
-#include <sstream>
+#include <iostream>
+
+void log_cgi_request_context(const cgi::CGIRequestContext& ctx)
+{
+    (void)ctx;
+    /*
+    std::cout
+        << "===== CGI Request Context =====\n"
+        << "REQUEST_METHOD : " << ctx.request_method   << '\n'
+        << "MIME_TYPE      : " << ctx.mime_type        << '\n'
+        << "INTERPRETER    : " << ctx.interpreter      << '\n'
+        << "SCRIPT_NAME    : " << ctx.script_name      << '\n'
+        << "QUERY_STRING   : " << ctx.query_string     << '\n'
+        << "CONTENT_LENGTH : " << ctx.content_length   << '\n'
+        << "PATH_INFO      : " << ctx.path_info        << '\n'
+        << "SERVER_NAME    : " << ctx.server_name      << '\n'
+        << "SERVER_PROTOCOL: " << ctx.server_protocol  << '\n'
+        << "SERVER_PORT    : " << ctx.server_port      << '\n'
+        << "TIMEOUT        : " << ctx.timeout << " s\n"
+        << "===============================\n";
+    */
+}
+
+void log_process_context(const cgi::ProcessContext& ctx)
+{
+    (void)ctx;
+    /*
+    std::cout
+        << "======== Process Context ========\n"
+        << "WORKING_DIR : " << ctx.working_dir << '\n'
+        << "STDIN_FD    : " << ctx.stdin_fd.get() << '\n';
+
+    std::cout << "ARGV (" << ctx.argv.size() << ")\n";
+    for (std::size_t i = 0; i < ctx.argv.size(); ++i)
+    {
+        std::cout << "  [" << i << "] " << ctx.argv.data()[i] << '\n';
+    }
+
+    std::cout << "ENVP (" << ctx.envp.size() << ")\n";
+    for (std::size_t i = 0; i < ctx.envp.size(); ++i)
+    {
+        std::cout << "  [" << i << "] " << ctx.envp.data()[i] << '\n';
+    }
+
+    std::cout
+        << "=================================\n";
+    */
+}
 
 namespace cgi {
+    
 template <size_t N>
 Channel::Channel(Storage<N>& storage,
 Stream s, int fd, io::Event events, http::CgiHandler& h)
@@ -28,6 +75,7 @@ CgiHandler::CgiHandler(Context& ctx)
 state_(Working),
 response_state(Processing),
 reason_(None),
+started_(false),
 process(),
 spawn_time(),
 sigterm_sent_at(0),
@@ -45,25 +93,32 @@ timeout_seconds(0) {
         reason_ = Internal;
         return;
     }
+}
+
+http::Error CgiHandler::start() {
+    if (started_) return ERR_NONE;
 
     cgi::CGIRequestContext request_ctx;
     cgi::ProcessContext process_ctx;
 
-    http::Error r = cgi::buildCGIContext(ctx, request_ctx, process_ctx);
+    http::Error r = cgi::buildCGIContext(context_, request_ctx, process_ctx);
 
     timeout_seconds = request_ctx.timeout;
 
     if (r != ERR_NONE) {
         state_ = Cleanup;
         reason_ = Internal;
-        return ;
+        return ERR_INTERNAL;
     }
 
     if (!process.start(process_ctx)) {
         state_ = Cleanup;
         reason_ = Internal;
-        return;
+        return ERR_INTERNAL;
     }
+
+    started_ = true;
+    spawn_time.update();
 
     if (process.want_stdin()) {
         event_loop.add(&stdin_ch);
@@ -76,6 +131,7 @@ timeout_seconds(0) {
     if (event_loop.add(&stdout_ch)) channels.push_back(&stdout_ch);
     if (event_loop.add(&stderr_ch)) channels.push_back(&stderr_ch);
 
+    return ERR_NONE;
 }
 
 CgiHandler::~CgiHandler() {
@@ -107,11 +163,13 @@ size_t CgiHandler::on_readable(cgi::Channel& channel) {
     if (channel.state() == cgi::Channel::Error) {
         state_ = Cleanup;
         reason_ = Internal;
-        channel.mark_closing();
+        close_channel(channel);
         return view.cursor();
     }
 
     if (channel.stream() == cgi::Channel::Stderr) {
+        // std::cout << "Size: " <<  view.remaining() << "\n";
+        // std::cout.write(view.data(), view.remaining());
         view.advance(view.remaining());
         close_channel(channel);
         return view.cursor();
@@ -124,15 +182,14 @@ size_t CgiHandler::on_readable(cgi::Channel& channel) {
     if (r == ResponseParser::ParseError) {
         reason_ = ParseError;
         response_state = Error;
-        context_.services_.logger.log(logger::Debug,
-            "cgi: response parse error", false);
+        // std::cout << "hERE?? Error\n";
         return view.cursor();
     }
+
+    // std::cout << "CGI REQUEST DONE\n";
     
     close_channel(channel);
     response_state = Finished;
-    context_.services_.logger.log(logger::Debug,
-        "cgi: response parsed", false);
     return view.cursor();
 }
 
@@ -162,6 +219,15 @@ size_t CgiHandler::on_writable(Buffer& writer, cgi::Channel& channel) {
 
 http::Error CgiHandler::handle() {
 
+    if (!started_) {
+        if (request().has_body
+            && request().body.type() == base::io::Reader::NONE) {
+            context_.action_ = AC_READ;
+            return ERR_NONE;
+        }
+        return start();
+    }
+
     if (response_state == Finished) {
 
         CGIResult result = builder.result();
@@ -179,8 +245,8 @@ http::Error CgiHandler::handle() {
             setBodyFixed(result.body_);
         else
             setBodyFile(result.body_filename);
-        context_.services_.logger.log(logger::Debug,
-            "cgi: response ready", false);
+        setContentLength(result.mem_
+            ? result.body_.size() : result.body_content_length);
         responseReady();
     }
 
@@ -203,6 +269,8 @@ bool CgiHandler::done() const {
 bool CgiHandler::can_close() const { return state_ == Done; }
 
 bool CgiHandler::timedout() {
+    if (!started_) return false;
+
     bool out = spawn_time.elapsed() > timeout_seconds;
 
     if (out) reason_ = Timeout;
@@ -222,7 +290,7 @@ void CgiHandler::check_channels() {
 
 void CgiHandler::close_channel(cgi::Channel& ch)
 {
-    if (ch.state() == cgi::Channel::Closed) return;
+    if (ch.closed()) return;
 
     event_loop.del(&ch);
     ch.close();
@@ -255,6 +323,8 @@ void CgiHandler::check_process() {
 }
 
 void CgiHandler::monitor() {
+
+    if (!started_) return;
 
     if ((response_state == Finished
         || response_state == Error) || timedout()) state_ = Cleanup;

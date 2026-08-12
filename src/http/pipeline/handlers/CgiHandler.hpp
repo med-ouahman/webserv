@@ -1,5 +1,5 @@
 #pragma once
-
+#include <fcntl.h>
 #include "runtime/AEventHandler.hpp"
 
 #include "cgi/Channel.hpp"
@@ -45,7 +45,6 @@ enum ShutdownState {
 };
 
 private:
-
 	const static std::size_t StdinWriteSize = 4096;
 	const static std::size_t StdoutReadSize = 4096;
 	const static std::size_t StderrReadSize = 1024;
@@ -55,6 +54,7 @@ private:
 	State state_;
 	ResponseState response_state;
 	FailureReason reason_;
+	bool started_;
 	
 	cgi::Process 	process;
     Timestamp		spawn_time;
@@ -81,6 +81,7 @@ private:
 	CgiHandler& operator=(const CgiHandler&);
 
 	bool timedout();
+	http::Error start();
 	void check_process();
 	void check_channels();
 	
@@ -100,6 +101,7 @@ public:
  	http::Error handle();
 	
 	void monitor();
+
 };
 
 }

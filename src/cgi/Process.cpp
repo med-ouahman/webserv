@@ -138,6 +138,11 @@ bool Process::start(const ProcessContext& context) {
         stdout_pipe_.close();
         stderr_pipe_.close();
 
+        if (::chdir(context.working_dir.c_str()) == -1) {
+            LOG_ERROR(MAKE_ERRNO_ERROR("Process::chdir"));
+            exit (1);
+        }
+
         ::execve(context.argv.argv()[0], context.argv.argv(), context.envp.argv());
         LOG_ERROR(MAKE_ERRNO_ERROR("execve"));
         ::exit(EXIT_FAILURE);

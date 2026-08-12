@@ -59,7 +59,7 @@ Error pathTypeCheck(const DispatchInfo& decision) {
 	RequestType type = decision.handler_type;
 
 	if (decision.path_type != not_found) return ERR_NONE;
-	if (type == DIRECTORY or type == STATIC_FILE or type == CGI)
+	if (type == DIRECTORY or type == STATIC_FILE)
 		return ERR_NOT_FOUND;
 	return ERR_NONE;
 }

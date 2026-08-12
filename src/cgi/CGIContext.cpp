@@ -25,6 +25,7 @@ static std::string absolute_path(const std::string& path) {
 	if (!p) return "";
 
 	std::string out = p;
+
 	::free(p);
 	return out;
 }
@@ -143,6 +144,7 @@ static void fillRequestContext(const http::Request& request,
 	out.server_protocol = versionName(request.version);
 	out.server_port = serverPort(*decision.server);
 	out.timeout = decision.cgi_timeout;
+	out.script_filename = absolute_path(decision.filesystem_path);
 }
 
 static void fillEnv(const http::Request& request,
@@ -150,20 +152,20 @@ static void fillEnv(const http::Request& request,
 		ProcessContext& exec_ctx) {
 	usize i = 0;
 
-	exec_ctx.envp.push("REQUEST_METHOD""=" + request_ctx.request_method);
-	exec_ctx.envp.push("SERVER_PROTOCOL""=" + request_ctx.server_protocol);
-	exec_ctx.envp.push("QUERY_STRING""=" + request_ctx.query_string);
-	exec_ctx.envp.push("CONTENT_TYPE""=" + request_ctx.mime_type);
-	exec_ctx.envp.push("CONTENT_LENGTH""=" + request_ctx.content_length);
+	exec_ctx.envp.push("REQUEST_METHOD=" + request_ctx.request_method);
+	exec_ctx.envp.push("REQUEST_URI=" + request.url);
+	exec_ctx.envp.push("SERVER_PROTOCOL=" + request_ctx.server_protocol);
 	exec_ctx.envp.push("GATEWAY_INTERFACE=CGI/1.1");
-	exec_ctx.envp.push("SCRIPT_NAME""=" + request_ctx.script_name);
-	exec_ctx.envp.push("PATH_INFO""=" + request_ctx.path_info);
-	exec_ctx.envp.push("SERVER_NAME""=" + request_ctx.server_name);
-	exec_ctx.envp.push("SERVER_PORT""=" + request_ctx.server_port);
+	exec_ctx.envp.push("QUERY_STRING=" + request_ctx.query_string);
+	exec_ctx.envp.push("CONTENT_TYPE=" + request_ctx.mime_type);
+	exec_ctx.envp.push("CONTENT_LENGTH=" + request_ctx.content_length);
+	
+	exec_ctx.envp.push("SERVER_NAME=" + request_ctx.server_name);
+	exec_ctx.envp.push("SERVER_PORT=" + request_ctx.server_port);
 	exec_ctx.envp.push("REDIRECT_STATUS=200");
-	std::string s = absolute_path(exec_ctx.argv.data()[1]);
-	std::cout << "SCRIPT";
-	exec_ctx.envp.push("SCRIPT_FILENAME="+absolute_path(exec_ctx.argv.data()[1]));
+
+	exec_ctx.envp.push("SCRIPT_FILENAME="+request_ctx.script_filename);
+	exec_ctx.envp.push("PATH_INFO="+request_ctx.script_name);
 
 	while (i < request.headers.size()) {
 		std::string normalized = lowerName(request.headers[i].key);
@@ -176,7 +178,9 @@ static void fillEnv(const http::Request& request,
 
 	usize size = 0;
 	for ( ; __environ[size]; ++size );
+	
 	exec_ctx.envp.push_array(const_cast<const char**>(__environ), size);
+	(void)request;
 }
 
 static http::Error setStdin(const http::Request& request,
@@ -198,7 +202,7 @@ static void setArgv(const http::DispatchInfo& decision,
 		const CGIRequestContext& request_ctx,
 		ProcessContext& exec_ctx) {
 	if (decision.cgi_path != NULL && !decision.cgi_path->empty()) {
-		exec_ctx.argv.push(request_ctx.interpreter);
+		exec_ctx.argv.push(absolute_path(request_ctx.interpreter));
 		exec_ctx.argv.push(decision.filesystem_path);
 	}
 	else exec_ctx.argv.push(decision.filesystem_path);
@@ -210,7 +214,7 @@ static http::Error buildProcessContext(const http::Request& request,
 		ProcessContext& exec_ctx) {
 	http::Error err;
 
-	exec_ctx.working_dir = dirnameOf(decision.filesystem_path);
+	exec_ctx.working_dir = absolute_path(dirnameOf(decision.filesystem_path));
 	TRY(setStdin(request, exec_ctx), err);
 	setArgv(decision, request_ctx, exec_ctx);
 	fillEnv(request, request_ctx, exec_ctx);

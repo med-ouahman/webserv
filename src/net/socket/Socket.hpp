@@ -12,7 +12,7 @@ class Server;
 #define NDEBUG 4
 #endif
 #include <cassert>
-#define BACKLOG 5
+#define BACKLOG 512
 
 
 namespace net {

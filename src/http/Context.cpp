@@ -35,8 +35,10 @@ void Context::advanceCycle() {
 	error = ERR_NONE;
 	state_ = PARSING;
 	action_ = AC_READ;
-	if (active_requests > limits::MAX_REQUESTS_PER_CONN)
-		setError(ERR_TOO_MANY_REQUESTS);
+	if (active_requests >= limits::MAX_REQUESTS_PER_CONN) {
+		action_ = AC_CLOSE;
+		return;
+	}
 	++active_requests;
 }
 
