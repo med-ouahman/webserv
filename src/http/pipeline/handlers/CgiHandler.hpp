@@ -45,8 +45,8 @@ enum ShutdownState {
 };
 
 private:
-	const static std::size_t StdinWriteSize = 4096;
-	const static std::size_t StdoutReadSize = 4096;
+	const static std::size_t StdinWriteSize = 1024 * 16;
+	const static std::size_t StdoutReadSize = 1024 * 16;
 	const static std::size_t StderrReadSize = 1024;
 
 	const static time_t SigTermWaitSeconds = 3;

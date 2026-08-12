@@ -43,8 +43,8 @@ servers(srvs) {}
 
 class Connection: public io::AEventHandler {  
 public:
-    const static std::size_t ReadbufSize    = 1024 * 4;
-    const static std::size_t WritebufSize   = 1024 * 4;
+    const static std::size_t ReadbufSize    = 1024 * 16;
+    const static std::size_t WritebufSize   = 1024 * 16;
 
     Connection(UniqueFd& fd, io::Event events, RuntimeServices& ctx, const ConnectionInfo& info);
     ~Connection();

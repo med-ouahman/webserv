@@ -5,6 +5,7 @@
 #include "Logger.hpp"
 
 #include <sys/stat.h>
+#include <fcntl.h>
 #include <unistd.h>
 
 #include <cerrno>
@@ -41,12 +42,6 @@ static std::string uploadLocation(const std::string& normalized_path,
 	return normalized_path.substr(0, slash + 1) + filename;
 }
 
-static bool pathExists(const std::string& path) {
-	struct stat info;
-
-	return stat(path.c_str(), &info) == 0;
-}
-
 static bool validUploadDirectory(const std::string& path) {
 	struct stat info;
 
@@ -55,15 +50,42 @@ static bool validUploadDirectory(const std::string& path) {
 		&& access(path.c_str(), W_OK) == 0;
 }
 
+static Error inspectUploadTarget(const std::string& path, bool& exists) {
+	struct stat info;
+
+	exists = false;
+	if (stat(path.c_str(), &info) == 0) {
+		if (S_ISDIR(info.st_mode))
+			return ERR_CONFLICT;
+		exists = true;
+		return ERR_NONE;
+	}
+	if (errno == ENOENT || errno == ENOTDIR)
+		return ERR_NONE;
+	if (errno == EACCES || errno == EPERM)
+		return ERR_FORBIDDEN;
+	return ERR_INTERNAL;
+}
+
+static Error putEmptyBody(const std::string& path) {
+	int fd = ::open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
+
+	if (fd < 0)
+		return ERR_INTERNAL;
+	if (::close(fd) != 0)
+		return ERR_INTERNAL;
+	return ERR_NONE;
+}
+
 static Error copyBody(base::io::Reader& reader, const std::string& path) {
 	char read_buffer[limits::BODY_BUFFER_SIZE];
 	char write_buffer[limits::BODY_BUFFER_SIZE];
 	base::io::Writer writer;
 
+	if (reader.type() == base::io::Reader::NONE)
+		return putEmptyBody(path);
 	if (!writer.reset(path, write_buffer, limits::BODY_BUFFER_SIZE))
 		return ERR_INTERNAL;
-	if (reader.type() == base::io::Reader::NONE)
-		return ERR_NONE;
 	while (true) {
 		base::Expected<usize, base::io::Error> chunk =
 			reader.read(read_buffer, limits::BODY_BUFFER_SIZE);
@@ -109,6 +131,7 @@ Error UploadHandler::handle() {
 	std::string filename;
 	const std::string& dir = decision().upload_path;
 	std::string path;
+	bool existed;
 
 	if (request().has_body and request().body.type() == base::io::Reader::NONE) {
 		context_.action_ = AC_READ;
@@ -119,13 +142,17 @@ Error UploadHandler::handle() {
 	if (!validUploadDirectory(dir)) return ERR_INTERNAL;
 	filename = basenameOf(decision().normalized_path);
 	path = pathJoin(dir, filename);
-	if (pathExists(path))
-		return ERR_CONFLICT;
+	TRY(inspectUploadTarget(path, existed), err);
 	TRY(putBody(request().body, path), err);
-	setStatus(CREATED);
 	setBodyFixed("");
-	setHeader("Location", uploadLocation(decision().normalized_path, filename));
-	setContentLength();
+	if (existed) {
+		setStatus(NO_CONTENT);
+	} else {
+		setStatus(CREATED);
+		setHeader("Location",
+			uploadLocation(decision().normalized_path, filename));
+		setContentLength();
+	}
 	setConnection();
 	setDate();
 	{
