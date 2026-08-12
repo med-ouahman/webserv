@@ -17,6 +17,7 @@ DispatchInfo::DispatchInfo()
 	  upload_path(),
 	  cgi_path(NULL),
 	  normalized_path(),
+	  normalized_uri(),
 	  filesystem_path(),
 	  path_type(not_found),
 	  max_body_size(0),
@@ -33,6 +34,9 @@ static base::Expected<DispatchInfo, Error> routeSelectedServer(const Request& re
 
 	TRY(routing::checkMethodSupported(request.method), err);
 	TRY(routing::pathNormalize(request.path, decision.normalized_path), err);
+	decision.normalized_uri = decision.normalized_path;
+	if (request.query.has_value())
+		decision.normalized_uri += "?" + request.query.value;
 	TRY(routing::findLocation(decision, server), err);
 	decision.max_body_size = routing::bodyLimit(decision);
 	decision.cgi_timeout = decision.location->cgi_timeout;

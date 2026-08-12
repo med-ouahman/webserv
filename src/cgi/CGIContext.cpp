@@ -136,6 +136,7 @@ static void fillRequestContext(const http::Request& request,
 	out.mime_type = content_type == NULL ? "" : content_type->value;
 	out.interpreter = decision.cgi_path == NULL ? "" : *decision.cgi_path;
 	out.script_name = decision.normalized_path;
+	out.request_uri = decision.normalized_uri;
 	out.query_string = request.query.has_value() ? request.query.value : "";
 	out.content_length = request.content_length.has_value()
 		? toString(request.content_length.value) : "";
@@ -153,7 +154,7 @@ static void fillEnv(const http::Request& request,
 	usize i = 0;
 
 	exec_ctx.envp.push("REQUEST_METHOD=" + request_ctx.request_method);
-	exec_ctx.envp.push("REQUEST_URI=" + request.url);
+	exec_ctx.envp.push("REQUEST_URI=" + request_ctx.request_uri);
 	exec_ctx.envp.push("SERVER_PROTOCOL=" + request_ctx.server_protocol);
 	exec_ctx.envp.push("GATEWAY_INTERFACE=CGI/1.1");
 	exec_ctx.envp.push("QUERY_STRING=" + request_ctx.query_string);

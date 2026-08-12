@@ -32,10 +32,12 @@ Error RedirectHandler::handle() {
 	std::string target = decision().location->redirect.return_target;
 
 	if (decision().path_type == directory) {
+		std::string::size_type query = decision().normalized_uri.find('?');
+
 		code = 301;
-		target = request().path + "/";
-		if (request().query.has_value())
-			target += "?" + request().query.value;
+		target = decision().normalized_path + "/";
+		if (query != std::string::npos)
+			target += decision().normalized_uri.substr(query);
 	}
 	setStatus(redirectStatus(code));
 	setBodyFixed("");

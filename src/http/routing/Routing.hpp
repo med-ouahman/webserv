@@ -26,6 +26,7 @@ struct DispatchInfo {
 	std::string upload_path;
 	const std::string* cgi_path;
 	std::string normalized_path;
+	std::string normalized_uri;
 	std::string filesystem_path;
 	PathType path_type;
 	usize max_body_size;
