@@ -1,5 +1,4 @@
 #include "ResponseParser.hpp"
-#include <iostream>
 #include "http/Parser/Parser.hpp"
 #include <cstdlib>
 #include <fcntl.h>
@@ -30,8 +29,6 @@ ResponseParser::~ResponseParser() {
 }
 
 ResponseParser::ParseResult ResponseParser::parse(BufferView& reader) {
-    // std::cout << "Start CGI header parsing...\n";
-
     if (reader.empty() && state_ == Headers) {        
         return ParseError;
     }
@@ -53,7 +50,6 @@ ResponseParser::ParseResult ResponseParser::parse(BufferView& reader) {
         
         if (parse_ctx.line_reader.line().empty()) {
             if (!validate_headers()) return ParseError;
-            // std::cout << "Begin body reading\n";
             state_ = Body;
             continue;
         }
@@ -62,25 +58,21 @@ ResponseParser::ParseResult ResponseParser::parse(BufferView& reader) {
         
         ParseResult res = parse_header(parse_ctx.line_reader.line());
         if (res != Success) {
-            // if (res == ParseError) std::cout << "CGI parse error\n";
             return res;
         }
 
         parse_ctx.line_reader.reset();
     }
 
-    // std::cout << "finish CGI\n";
     return Success;
 }
 
 ResponseParser::ParseResult ResponseParser::sanitize_status_header(std::string const& value) {
 
-    // std::cout << "Sanitizing status header\n";
     size_t space_pos = value.find(' ');
 
     if (space_pos == std::string::npos) {
         code = INTERNAL_SERVER_ERROR;
-        // std::cout << "Invalid status header\n";
         return ParseError;
     }
 
@@ -89,7 +81,6 @@ ResponseParser::ParseResult ResponseParser::sanitize_status_header(std::string c
 
     for (size_t i = 0; i < code_str.size(); ++i) {
         if (!std::isdigit(code_str[i])) {
-            // std::cout << "Invalid status code\n";
             code = INTERNAL_SERVER_ERROR;
             return ParseError;
         }
@@ -101,7 +92,6 @@ ResponseParser::ParseResult ResponseParser::sanitize_status_header(std::string c
 
     if ((end && *end != '\0') || parsed_code < 200 or parsed_code > 599) {
         code = INTERNAL_SERVER_ERROR;
-        // std::cout << "Status code out of range\n";
         return ParseError;
     }
 
@@ -115,8 +105,6 @@ bool ResponseParser::finished() const {
 }
 
 ResponseParser::ParseResult ResponseParser::parse_header(std::string const& line) {
-    // std::cout << "|" << line << "|\n";
-
     size_t colon = line.find(':');
     if (colon == std::string::npos)
         return ParseError;
@@ -153,10 +141,7 @@ ResponseParser::ParseResult ResponseParser::parse_header(std::string const& line
 }
 ResponseParser::ParseResult ResponseParser::read_body(BufferView& reader) {
 
-    // std::cout.write(reader.data(), reader.remaining());
-
     if (reader.empty()) {
-        // std::cout << "Body Done\n";
         state_ = Done;
         return Success;
     }
@@ -183,13 +168,11 @@ ResponseParser::ParseResult ResponseParser::read_body(BufferView& reader) {
         body_fd = ::open(body_filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
         if (body_fd < 0) {
             state_ = Error;
-            // std::cout << "File error\n";
             return ParseError;
         }
         if (!body_.empty()) {
             ssize_t w = ::write(body_fd, body_.c_str(), body_.size());
             if (w < 0) {
-                // std::cout << "write error\n";
                 state_ = Error;
                 return ParseError;
             }
@@ -200,7 +183,6 @@ ResponseParser::ParseResult ResponseParser::read_body(BufferView& reader) {
 
     ssize_t w = ::write(body_fd, reader.data(), reader.remaining());
     if (w < 0) {
-        // std::cout << "Another write error\n";
         state_ = Error;
         return ParseError;
     }

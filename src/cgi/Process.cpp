@@ -2,7 +2,6 @@
 #include <csignal>
 #include <sys/wait.h>
 #include <cstdlib>
-#include <iostream>
 #include "Result.hpp"
 #include "CGIContext.hpp"
 #include <cstdio>
@@ -99,7 +98,8 @@ bool Process::start(const ProcessContext& context) {
 
     if (state_ != Spawn) return true;
 
-    if (context.stdin_fd.get() != STDIN_FILENO) stdin_pipe_.close_write_end();
+    if (context.stdin_fd.get() != STDIN_FILENO)
+        stdin_pipe_.close_write_end();
 
     pid_ = ::fork();
     if (pid_ == 0) {

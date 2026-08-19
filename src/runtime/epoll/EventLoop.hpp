@@ -14,7 +14,7 @@ typedef uint32_t EpollEvent;
 class EventLoop {
 private:
 	static const std::size_t	EpollMaxTimeoutMs = 1000;
-	static const std::size_t	MaxMonitorFds = 1000;
+	static const std::size_t	MaxMonitorFds = 4096; 
 	static const std::size_t	MaxEvents = 128;
 
 	UniqueFd 		epoll_fd;

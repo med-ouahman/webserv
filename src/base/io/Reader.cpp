@@ -3,7 +3,6 @@
 #include <cstring>
 #include <fcntl.h>
 #include <unistd.h>
-#include"iostream"
 namespace base {
 namespace io {
 
@@ -88,8 +87,7 @@ bool Reader::reset(const char* buffer, usize size) {
 
 base::Expected<usize, Error> Reader::read(char* buff, usize max_size) {
 	
-	if (type_ == NONE) { 
-		std::cout << "THERE IS SOMETHING IN THE SKY\n";
+	if (type_ == NONE) {
 		return 0;
 	}
 

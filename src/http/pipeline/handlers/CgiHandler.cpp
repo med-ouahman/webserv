@@ -4,57 +4,6 @@
 
 #include "runtime/epoll/EventLoop.hpp"
 #include "Context.hpp"
-
-
-#include <iostream>
-
-void log_cgi_request_context(const cgi::CGIRequestContext& ctx)
-{
-    (void)ctx;
-    /*
-    std::cout
-        << "===== CGI Request Context =====\n"
-        << "REQUEST_METHOD : " << ctx.request_method   << '\n'
-        << "MIME_TYPE      : " << ctx.mime_type        << '\n'
-        << "INTERPRETER    : " << ctx.interpreter      << '\n'
-        << "SCRIPT_NAME    : " << ctx.script_name      << '\n'
-        << "QUERY_STRING   : " << ctx.query_string     << '\n'
-        << "CONTENT_LENGTH : " << ctx.content_length   << '\n'
-        << "PATH_INFO      : " << ctx.path_info        << '\n'
-        << "SERVER_NAME    : " << ctx.server_name      << '\n'
-        << "SERVER_PROTOCOL: " << ctx.server_protocol  << '\n'
-        << "SERVER_PORT    : " << ctx.server_port      << '\n'
-        << "TIMEOUT        : " << ctx.timeout << " s\n"
-        << "===============================\n";
-    */
-}
-
-void log_process_context(const cgi::ProcessContext& ctx)
-{
-    (void)ctx;
-    /*
-    std::cout
-        << "======== Process Context ========\n"
-        << "WORKING_DIR : " << ctx.working_dir << '\n'
-        << "STDIN_FD    : " << ctx.stdin_fd.get() << '\n';
-
-    std::cout << "ARGV (" << ctx.argv.size() << ")\n";
-    for (std::size_t i = 0; i < ctx.argv.size(); ++i)
-    {
-        std::cout << "  [" << i << "] " << ctx.argv.data()[i] << '\n';
-    }
-
-    std::cout << "ENVP (" << ctx.envp.size() << ")\n";
-    for (std::size_t i = 0; i < ctx.envp.size(); ++i)
-    {
-        std::cout << "  [" << i << "] " << ctx.envp.data()[i] << '\n';
-    }
-
-    std::cout
-        << "=================================\n";
-    */
-}
-
 namespace cgi {
     
 template <size_t N>
@@ -168,8 +117,6 @@ size_t CgiHandler::on_readable(cgi::Channel& channel) {
     }
 
     if (channel.stream() == cgi::Channel::Stderr) {
-        // std::cout << "Size: " <<  view.remaining() << "\n";
-        // std::cout.write(view.data(), view.remaining());
         view.advance(view.remaining());
         close_channel(channel);
         return view.cursor();
@@ -182,11 +129,8 @@ size_t CgiHandler::on_readable(cgi::Channel& channel) {
     if (r == ResponseParser::ParseError) {
         reason_ = ParseError;
         response_state = Error;
-        // std::cout << "hERE?? Error\n";
         return view.cursor();
     }
-
-    // std::cout << "CGI REQUEST DONE\n";
     
     close_channel(channel);
     response_state = Finished;
