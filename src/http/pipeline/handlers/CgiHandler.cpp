@@ -49,19 +49,6 @@ void log_process_context(const cgi::ProcessContext& ctx)
         << "=================================\n";
 }
 
-namespace cgi {
-    
-template <size_t N>
-Channel::Channel(Storage<N>& storage,
-Stream s, int fd, io::Event events, http::CgiHandler& h)
-: AEventHandler(fd, events),
-stream_(s),
-state_(Open),
-handler_(h),
-buf(storage) {}
-
-}
-
 namespace http {
 
 CgiHandler::CgiHandler(Context& ctx)

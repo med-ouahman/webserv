@@ -4,8 +4,7 @@
 #include <string>
 #include <cstring>
 
-class CStringArray
-{
+class CStringArray {
 
 private:
 
