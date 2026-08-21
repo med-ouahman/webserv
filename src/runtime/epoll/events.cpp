@@ -54,8 +54,7 @@ bool EventLoop::mod(io::AEventHandler* handler) {
 	event.events = decode_events(handler->events());
 	event.data.ptr = const_cast<io::AEventHandler*>(handler);
 	
-	if (::epoll_ctl(epoll_fd.get(), EPOLL_CTL_MOD, handler->fd(), &event) < 0) {
-		
+	if (::epoll_ctl(epoll_fd.get(), EPOLL_CTL_MOD, handler->fd(), &event) < 0) {		
 		logger.log(logger::Error, logger::Logger::make_errno_error("epoll_ctl(EPOLL_CTL_MOD)", __FILE__, __LINE__), true);
 		return false;
 	}

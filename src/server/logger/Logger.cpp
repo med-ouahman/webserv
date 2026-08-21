@@ -7,9 +7,9 @@
 
 namespace logger {
 
-Logger::Logger(): out(&std::cout) {}
+Logger::Logger(): loggin_enabled(true), out(&std::cout) {}
 
-Logger::Logger(std::ostream& s): out(&s) {}
+Logger::Logger(std::ostream& s): loggin_enabled(true), out(&s) {}
 
 Logger::~Logger() {}
 
@@ -23,6 +23,34 @@ std::string Logger::level_string(LogLevel level) {
     }
 
     return "DEBUG";
+}
+
+const char* level_color(LogLevel level) {
+    switch (level) {
+        case Debug:   return "\033[36m"; // Cyan
+        case Info:    return "\033[32m"; // Green
+        case Warning: return "\033[33m"; // Yellow
+        case Error:   return "\033[31m"; // Red
+        default:      return "\033[0m";  // Reset
+    }
+}
+
+void Logger::log(LogLevel level, const std::string& message, bool timestamp)
+{
+    if (!loggin_enabled) return;
+
+    const std::string ts =
+        timestamp ? format_date(Timestamp::now().seconds()) : "";
+
+    static const char* const reset = "\033[0m";
+
+    (*out)
+    << level_color(level)
+    << std::left << std::setw(8) << level_string(level)
+    << reset << "  "
+    << std::left << std::setw(50) << message
+    << "  " << ts
+    << '\n';
 }
 
 std::string Logger::format_date(time_t raw) {
@@ -39,19 +67,6 @@ std::string Logger::format_date(time_t raw) {
     );
 
     return "[ " + std::string(buffer) + " ]";
-}
-
-void Logger::log(LogLevel level, const std::string& message, bool timestamp) {
-    const std::string ts =
-        timestamp ? format_date(Timestamp::now().seconds()) : "";
-
-    (*out)
-        << std::left
-        << std::setw(10) << level_string(level)
-        << std::setw(30) << message
-        << std::right
-        << std::setw(50) << ts
-        << '\n';
 }
 
 void Logger::setstream(std::ostream& stream) {
@@ -79,6 +94,14 @@ std::string Logger::make_error(std::string const& context, std::string const& me
     << file << ":" << line;
 
     return ss.str();
+}
+
+void Logger::disable() {
+    loggin_enabled = false;
+}
+
+void Logger::enable() {
+    loggin_enabled = true;
 }
 
 }

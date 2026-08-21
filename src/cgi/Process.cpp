@@ -12,15 +12,15 @@ Process::Process()
     : state_(Setup),
     pid_(-1),
     status_(0),
+    want_stdin_(true),
     stdin_pipe_(),
     stdout_pipe_(),
     stderr_pipe_() {
-    
+
     if (!stderr_pipe_ || !stdout_pipe_  || !stdin_pipe_) {
         state_ = Error;
         return;
     }
-
     state_ = Spawn;
 }
 
@@ -36,7 +36,7 @@ bool Process::running() const { return state_ == Running; }
 
 bool Process::error() const { return state_ == Error; }
 
-bool Process::want_stdin() { return stdin_pipe_.write_end() >= 0; }
+bool Process::want_stdin() { return want_stdin_; }
 
 bool Process::reaped() const {
     return state_ == Terminated;
@@ -98,32 +98,31 @@ bool Process::start(const ProcessContext& context) {
 
     if (state_ != Spawn) return true;
 
-    if (context.stdin_fd.get() != STDIN_FILENO)
+    if (context.stdin_fd.get() != STDIN_FILENO) {
+        want_stdin_ = false;
         stdin_pipe_.close_write_end();
-
+    } else {
+        context.stdin_fd.release();
+    }
+    
     pid_ = ::fork();
     if (pid_ == 0) {
 
-        if (context.stdin_fd.get() != STDIN_FILENO)
-        {
-            if (::dup2(context.stdin_fd.get(), STDIN_FILENO) == -1) {
-                LOG_ERROR(MAKE_ERRNO_ERROR("dup2 STDIN 1"));
-                ::exit(1);
-            }
-
-            if (::close(context.stdin_fd.release()) == -1) {
-                LOG_ERROR(MAKE_ERRNO_ERROR("Process::close"));
-                ::exit(1);
-            }
-
-        } else {
-            
+        if (want_stdin_) {
             if (::dup2(stdin_pipe_.read_end(), STDIN_FILENO) == -1) {
                 LOG_ERROR(MAKE_ERRNO_ERROR("dup2 STDIN 2"));
                 ::exit(1);
             }
+        } else {
+            if (::dup2(context.stdin_fd.get(), STDIN_FILENO) == -1) {
+                LOG_ERROR(MAKE_ERRNO_ERROR("dup2 STDIN 1"));
+                ::exit(1);
+            }
+            if (::close(context.stdin_fd.release()) == -1) {
+                LOG_ERROR(MAKE_ERRNO_ERROR("Process::close"));
+                ::exit(1);
+            }
         }
-
         if (::dup2(stdout_pipe_.write_end(), STDOUT_FILENO) == -1) {
             LOG_ERROR(MAKE_ERRNO_ERROR("dup2 STDOUT"));
             exit(1);
@@ -133,14 +132,13 @@ bool Process::start(const ProcessContext& context) {
             LOG_ERROR(MAKE_ERRNO_ERROR("dup2 STDERR"));
             exit(1);
         }
-        
         stdin_pipe_.close();
         stdout_pipe_.close();
         stderr_pipe_.close();
 
         if (::chdir(context.working_dir.c_str()) == -1) {
             LOG_ERROR(MAKE_ERRNO_ERROR("Process::chdir"));
-            exit (1);
+            ::exit(1);
         }
 
         ::execve(context.argv.argv()[0], context.argv.argv(), context.envp.argv());
@@ -156,9 +154,7 @@ bool Process::start(const ProcessContext& context) {
         state_ = Error;
         return false;
     }
-
     state_ = Running;
-
     return true;
 }
 
