@@ -31,7 +31,7 @@ bool EventLoop::add(io::AEventHandler* handler) {
 	}
 	
 	flags = ::fcntl(handler->fd(), F_GETFD);
-	if (flags < 0 || ::fcntl(handler->fd(), F_SETFD, flags | O_CLOEXEC)) {
+	if (flags < 0 || ::fcntl(handler->fd(), F_SETFD, flags | FD_CLOEXEC)) {
 		Server::logger.log(logger::Error, Server::logger.make_errno_error("EventLoop::add::fcntl()", __FILE__, __LINE__), true);
 		return false;
 	}

@@ -215,7 +215,6 @@ static http::Error buildProcessContext(const http::Request& request,
 	http::Error err;
 
 	exec_ctx.working_dir = absolute_path(dirnameOf(decision.filesystem_path));
-	std::cout << exec_ctx.working_dir << "\n";
 	TRY(setStdin(request, exec_ctx), err);
 	setArgv(decision, request_ctx, exec_ctx);
 	fillEnv(request, request_ctx, exec_ctx);

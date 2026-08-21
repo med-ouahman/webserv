@@ -99,6 +99,7 @@ public:
 	~ResponseParser();
 	
 	ParseResult	parse(BufferView& reader);
+	ParseResult	finish();
 	bool		finished() const;
 
 	CGIResult result() const;

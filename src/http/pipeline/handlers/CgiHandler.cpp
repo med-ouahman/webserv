@@ -4,6 +4,7 @@
 
 #include "runtime/epoll/EventLoop.hpp"
 #include "Context.hpp"
+#include <cstdio>
 namespace cgi {
     
 template <size_t N>
@@ -29,9 +30,9 @@ CgiHandler::CgiHandler(Context& ctx)
     spawn_time(),
     sigterm_sent_at(0),
     shutdown_state(SigTerm),
-    stdin_ch(stdin_wbuf, cgi::Channel::Stdin, process.stdin_pipe().write_end(), io::Writable, *this),
-    stdout_ch(stdout_rdbuf, cgi::Channel::Stdout, process.stdout_pipe().read_end(), io::Readable, *this),
-    stderr_ch(stderr_rdbuf, cgi::Channel::Stderr, process.stderr_pipe().read_end(),io::Readable, *this),
+    stdin_ch(stdin_wbuf, cgi::Channel::Stdin, process.stdin_pipe().release_write_end(), io::Writable, *this),
+    stdout_ch(stdout_rdbuf, cgi::Channel::Stdout, process.stdout_pipe().release_read_end(), io::Readable, *this),
+    stderr_ch(stderr_rdbuf, cgi::Channel::Stderr, process.stderr_pipe().release_read_end(),io::Readable, *this),
     event_loop(ctx.services_.poller),
     timeout_seconds(0) {
         
@@ -67,25 +68,31 @@ http::Error CgiHandler::start() {
 
     started_ = true;
 
-    bool ok = true;
     if (process.want_stdin()) {
-        ok = event_loop.add(&stdin_ch);
-        if (ok) channels.push_back(&stdin_ch);
-        
+        if (!event_loop.add(&stdin_ch)) {
+            state_ = Cleanup;
+            reason_ = Internal;
+            return ERR_INTERNAL;
+        }
+        channels.push_back(&stdin_ch);
     } else {
-        close_channel(stdin_ch);
+        stdin_ch.close();
+        stdin_ch.shutdown();
     }
 
-    ok = ok && event_loop.add(&stdout_ch) && event_loop.add(&stderr_ch);
-
-    if (ok) {
-        channels.push_back(&stdout_ch);
-        channels.push_back(&stderr_ch);
-    } else {
+    if (!event_loop.add(&stdout_ch)) {
         state_ = Cleanup;
         reason_ = Internal;
         return ERR_INTERNAL;
     }
+    channels.push_back(&stdout_ch);
+
+    if (!event_loop.add(&stderr_ch)) {
+        state_ = Cleanup;
+        reason_ = Internal;
+        return ERR_INTERNAL;
+    }
+    channels.push_back(&stderr_ch);
     
     return ERR_NONE;
 }
@@ -103,12 +110,6 @@ CgiHandler::~CgiHandler() {
 size_t CgiHandler::on_readable(cgi::Channel& channel) {
 
     channel.read();
-
-    if (channel.state() == cgi::Channel::Closing) {
-        close_channel(channel);
-        return 0;
-    }
-
     BufferView view = channel.view();
 
     if (channel.state() == cgi::Channel::Error) {
@@ -120,17 +121,23 @@ size_t CgiHandler::on_readable(cgi::Channel& channel) {
 
     if (channel.stream() == cgi::Channel::Stderr) {
         view.advance(view.remaining());
-        close_channel(channel);
+		if (channel.state() == cgi::Channel::Closing)
+			close_channel(channel);
         return view.cursor();
     }
 
     ResponseParser::ParseResult r = builder.parse(view);
-    
+
+	if (r == ResponseParser::Continue
+		&& channel.state() == cgi::Channel::Closing)
+		r = builder.finish();
+
     if (r == ResponseParser::Continue) return view.cursor();
 
     if (r == ResponseParser::ParseError) {
         reason_ = ParseError;
         response_state = Error;
+		close_channel(channel);
         return view.cursor();
     }
     
@@ -187,16 +194,20 @@ http::Error CgiHandler::handle() {
         setConnection();
         setDate();
 
-        if (result.mem_)
-            setBodyFixed(result.body_);
-        else
-            setBodyFile(result.body_filename);
+		if (result.mem_)
+			setBodyFixed(result.body_);
+		else {
+			http::Error err = setBodyFile(result.body_filename);
+			std::remove(result.body_filename.c_str());
+			if (err != ERR_NONE)
+				return err;
+		}
         setContentLength(result.mem_
             ? result.body_.size() : result.body_content_length);
         responseReady();
     }
 
-    if (reason_ == None) return ERR_NONE;
+	if (reason_ == None || state_ != Done) return ERR_NONE;
 
     switch (reason_) {
         case None: break;
@@ -215,7 +226,9 @@ bool CgiHandler::done() const {
 bool CgiHandler::can_close() const { return state_ == Done; }
 
 bool CgiHandler::timedout() {
-    if (!started_) return false;
+	if (!started_ || state_ != Working || reason_ != None
+		|| timeout_seconds == 0)
+		return false;
 
     bool out = spawn_time.elapsed() > timeout_seconds;
 
@@ -227,7 +240,13 @@ void CgiHandler::check_channels() {
 
     for (size_t i = 0; i < channels.size(); ++i) {
         cgi::Channel& ch = *channels[i];
-        if (state_ == Cleanup) close_channel(ch);
+		if (ch.state() == cgi::Channel::Error) {
+			if (reason_ == None)
+				reason_ = Internal;
+			state_ = Cleanup;
+		}
+		if (state_ == Cleanup || ch.state() == cgi::Channel::Closing)
+			close_channel(ch);
     }
 }
 
