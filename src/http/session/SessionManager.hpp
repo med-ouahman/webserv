@@ -39,7 +39,7 @@ private:
     SessionManager();
     ~SessionManager();
     SessionManager(const SessionManager&);
-    SessionManager& operator=(const SessionManager&);
+    SessionManager& operator=(const SessionManager&) {};
     
     std::string generate_session_id() const;
     

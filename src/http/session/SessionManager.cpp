@@ -11,7 +11,8 @@ SessionManager& SessionManager::instance() {
     return inst;
 }
 
-SessionManager::SessionManager(): cookie_name("SESSIONID"), timeout(3600), sessions() {
+SessionManager::SessionManager():
+    cookie_name("SESSIONID"), timeout(3600), sessions() {
     std::srand((unsigned)std::time(0));
 }
 
