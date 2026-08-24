@@ -1,3 +1,7 @@
-curl -i -X POST http://127.0.0.1:8080/hello.py \
+
+for i in {0..1000}
+do
+curl -i -X POST http://localhost:8080/directory/youpi/.bla \
      -H "Content-Type: text/plain" \
-     --data "w"
+     --data "w" 
+done
