@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 
-namespace core {
+namespace http {
 
 SessionManager& SessionManager::instance() {
     static SessionManager inst;
@@ -20,6 +20,10 @@ SessionManager::~SessionManager() {}
 void SessionManager::init(const std::string& cookie_name_, size_t timeout_seconds) {
     cookie_name = cookie_name_.empty() ? "SESSIONID" : cookie_name_;
     timeout = timeout_seconds == 0 ? 3600 : timeout_seconds;
+}
+
+bool SessionManager::is_initialized() const {
+
 }
 
 static std::string gen_random_hex(size_t len) {
@@ -40,20 +44,11 @@ std::string SessionManager::create_session() {
     return id;
 }
 
-bool SessionManager::has_session(const std::string& id) {
-    std::map<std::string, SessionData>::iterator it = sessions.find(id);
+bool SessionManager::has_session_data(const std::string& id, const std::string& key) const {
+    std::map<std::string, SessionData>::const_iterator it = sessions.find(id);
     
     if (it == sessions.end()) return false;
     
-    time_t now = std::time(0);
-    
-    if ((size_t)(now - it->second.last_touch) > timeout) {
-        // erase by key for C++98 compatibility
-        sessions.erase(it->first);
-        return false;
-    }
-
-    it->second.last_touch = now;
     return true;
 }
 
@@ -69,4 +64,31 @@ void SessionManager::cleanup() {
         }
     }
 }
+
+std::string SessionManager::generate_session_id() const {
+
+}
+
+void SessionManager::set_session_data(const std::string& id,
+    const std::string& key,
+    const std::string& value) {
+
+}
+
+std::string SessionManager::get_session_data(const std::string& id,
+    const std::string& key) const {
+
+}
+
+bool SessionManager::has_session(const std::string& id) const {
+
+}
+void SessionManager::touch_session(const std::string& id) {
+
+}
+
+void SessionManager::delete_session(const std::string& id) {
+
+}
+
 }
