@@ -99,7 +99,8 @@ bool Parser::timedOut() const {
 		case PARSING_HEADERS:
 			return timer.elapsed() >= timeout::HEADER_SECONDS;
 		case PARSING_BODY:
-			return timer.elapsed() >= timeout::BODY_PROGRESS_SECONDS;
+			return false;
+			//return timer.elapsed() >= timeout::BODY_PROGRESS_SECONDS;
 	}
 	return false;
 }

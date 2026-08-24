@@ -11,9 +11,7 @@
 
 #include "CgiHandler.hpp"
 #include "Logger.hpp"
-
 #include <cstdio>
-#include <sstream>
 
 namespace http {
 
