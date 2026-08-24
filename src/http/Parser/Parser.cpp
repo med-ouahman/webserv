@@ -85,27 +85,7 @@ void Parser::reset() {
 	chunk_received = 0;
 	max_body_size = limits::BODY_MAX_SIZE;
 	phase = PARSING_REQUEST_LINE;
-	chunk_state = CHUNK_SIZE;[INFO]    FD (64) added to epoll                              [ 2026-08-24 08:45:48 ]
-[INFO]    FD (67) added to epoll                              [ 2026-08-24 08:45:48 ]
-[DEBUG]   http: setError(11)                                  
-[INFO]    FD (35) modified                                    [ 2026-08-24 08:45:49 ]
-[INFO]    FD (35) deleted                                     [ 2026-08-24 08:45:49 ]
-[INFO]    FD (67) deleted                                     [ 2026-08-24 08:45:49 ]
-[INFO]    FD (64) deleted                                     [ 2026-08-24 08:45:49 ]
-[INFO]    FD (124) modified                                   [ 2026-08-24 08:45:49 ]
-[INFO]    FD (124) modified                                   [ 2026-08-24 08:45:49 ]
-[DEBUG]   http: setError(11)                                  
-[INFO]    FD (124) modified                                   [ 2026-08-24 08:45:54 ]
-[INFO]    FD (124) deleted                                    [ 2026-08-24 08:45:54 ]
-[INFO]    FD (39) added to epoll                              [ 2026-08-24 08:45:57 ]
-[INFO]    FD (89) added to epoll                              [ 2026-08-24 08:45:57 ]
-[INFO]    FD (89) deleted                                     [ 2026-08-24 08:45:57 ]
-[INFO]    FD (39) deleted                                     [ 2026-08-24 08:45:57 ]
-[INFO]    FD (132) modified                                   [ 2026-08-24 08:45:57 ]
-[INFO]    FD (132) modified                                   [ 2026-08-24 08:45:57 ]
-[DEBUG]   http: setError(11)                                  
-[INFO]    FD (132) modified                                   [ 2026-08-24 08:46:02 ]
-[INFO]    FD (132) deleted      
+	chunk_state = CHUNK_SIZE;
 	leading_crlf = false;
 
 	timer.update();
@@ -119,7 +99,7 @@ bool Parser::timedOut() const {
 		case PARSING_HEADERS:
 			return timer.elapsed() >= timeout::HEADER_SECONDS;
 		case PARSING_BODY:
-			return false;
+			return timer.elapsed() >= timeout::BODY_PROGRESS_SECONDS;
 	}
 	return false;
 }
