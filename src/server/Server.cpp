@@ -138,8 +138,11 @@ void Server::add_connection(UniqueFd& conn_fd, const net::ConnectionInfo& info) 
 }
 
 
-void Server::sweep() {
+void Server::maintenance() {
     
+    /* Session Cleanup */
+    http::SessionManager::instance().cleanup();
+
     for (size_t i(0); i < connections.size();) {
         net::Connection* conn = connections.at(i);
 
@@ -204,7 +207,7 @@ int Server::start() {
     while (running_) {
         // leaks(running_);
         poller.poll();
-        sweep();
+        maintenance();
     }
     
     return 0;

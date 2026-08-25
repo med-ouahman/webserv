@@ -111,6 +111,7 @@ Error Parser::prepareBodyStorage(const std::string& root, usize conn_id,
 		|| !bodyWriter.reset(parser::tempBodyPath(root, conn_id, request_id),
 			body_buffer, limits::BODY_BUFFER_SIZE))
 		return ERR_INTERNAL;
+
 	phase = PARSING_BODY;
 	timer.update();
 	return ERR_NONE;
@@ -126,7 +127,7 @@ Error Parser::prepareBodyStorage(Context& ctx) {
 		const std::string& root = location->root.empty()
 			? server->root
 			: location->root;
-
+			
 		return prepareBodyStorage(root, ctx.info.conn_id,
 			ctx.info.request_id, dispatch.max_body_size);
 	}

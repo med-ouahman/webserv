@@ -1,4 +1,6 @@
+
 #include "CookiesHandlers.hpp"
+#include <cstdlib>
 
 namespace http {
 
@@ -189,8 +191,9 @@ Error LogoutHandler::handle() {
 
     if (!auth)
         return ERR_UNAUTHORIZED;
-
+        
     sessions.delete_session(sid);
+    return ERR_NONE;
 }
 
 }

@@ -20,6 +20,7 @@ static const char* statusMsg(StatusCode code) {
 		case TEMPORARY_REDIRECT: return "Temporary Redirect";
 		case PERMANENT_REDIRECT: return "Permanent Redirect";
 		case BAD_REQUEST: return "Bad Request";
+		case UNAUTHORIZED: return "Unauthorized";
 		case FORBIDDEN: return "Forbidden";
 		case NOT_FOUND: return "Not Found";
 		case METHOD_NOT_ALLOWED: return "Method Not Allowed";

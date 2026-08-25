@@ -17,6 +17,7 @@ enum Error {
 
 	/* parser/request */
 	ERR_BAD_REQUEST,
+	ERR_UNAUTHORIZED,
 	ERR_UNSUPPORTED_HTTP_VERSION,
 	ERR_MISSING_HOST,
 

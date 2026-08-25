@@ -38,7 +38,7 @@ public:
     Server(const config::Config& conf);
     ~Server();
     int start();
-    void sweep();
+    void maintenance();
     void abort();
     void add_connection(UniqueFd& uniq, const net::ConnectionInfo& info);
     void close_connection(net::Connection* conn);

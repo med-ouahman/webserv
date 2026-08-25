@@ -6,7 +6,7 @@ namespace http {
 namespace {
 
 static bool handlerReadsBody(RequestType type) {
-	return type == CGI || type == UPLOAD;
+	return type == CGI || type == UPLOAD || type == LOGIN;
 }
 
 }
