@@ -15,20 +15,6 @@ std::string info() {
 
 }
 
-/*
-static void close_server_for_memory_checks() {
-    static Timestamp t(0);
-
-    if (t.seconds() == 0) {
-        t.update();
-    }
-
-    if (t.elapsed() >= 60) exit(0);
-    close_server_for_memory_checks();
-    return;
-}
-*/
-
 Server::Server(const config::Config& c)
     : running_(false),
     logger_("./var/log/errors.log"),
@@ -160,7 +146,6 @@ void Server::maintenance() {
         net::Socket* Socket = listeners.at(i);
         event_loop.sync(Socket);
         if (Socket->error()) {
-
             close_socket(Socket);
         } else {
             ++i;
@@ -181,10 +166,10 @@ net::Socket* Server::find_listener(const config::ListenEndPoint& endpoint) {
             it != listeners.end();
             ++it
     ) {
-        net::Socket* Socket = *it;
-        const config::ListenEndPoint& e = Socket->endpoint();
+        net::Socket* sock = *it;
+        const config::ListenEndPoint& e = sock->endpoint();
         
-        if (endpoint.host == e.host && endpoint.port == e.port) return Socket;
+        if (endpoint.host == e.host && endpoint.port == e.port) return sock;
     }
 
     return NULL;
@@ -198,7 +183,7 @@ void leaks(bool & r) {
 
     static Timestamp x;
 
-    if (x.elapsed() >= 100) r = false;
+    if (x.elapsed() >= 400) r = false;
 
 }
 
