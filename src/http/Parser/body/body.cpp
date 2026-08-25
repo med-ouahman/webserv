@@ -30,12 +30,13 @@ bool Parser::hasBody(const Request& request, BufferView& buff) const {
 			case CHUNK_DATA: return !buff.empty();
 			case CHUNK_CRLF: return buff.remaining() >= 2;
 	}
+
 	return false;
 }
 
 Error Parser::parseBody(Context& ctx, BufferView& buff, usize& processed) {
 	Request& req = ctx.actor.request;
-
+	
 	if (!hasBody(req, buff))
 		return ERR_NONE;
 	if (req.chunked)

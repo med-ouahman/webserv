@@ -57,6 +57,11 @@ struct Request {
 	Version version;
 	ConnectionType connection;
 
+
+	/* session */
+	std::string currentSessionID;
+	bool currentSessionValid;
+
 	bool chunked;
 	bool has_body;
 

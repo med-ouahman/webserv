@@ -127,6 +127,18 @@ Error resolveUploadPath(DispatchInfo& decision) {
 Error setRequestType(const Request& request,
 		DispatchInfo& decision) {
 	decision.cgi_path = findCgiPath(decision);
+	
+	if (decision.location->path == "/counter") {
+		decision.handler_type = COUNTER;
+		return ERR_NONE;
+	}
+
+	if (decision.location->path == "/login") {
+		decision.handler_type = LOGIN;
+		return ERR_NONE;
+	}
+	/* add logout to flex */
+
 	if (decision.cgi_path != NULL) {
 		decision.handler_type = CGI;
 		return ERR_NONE;

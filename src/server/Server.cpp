@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include "ServerInfo.hpp"
+#include "http/session/SessionManager.hpp"
 
 namespace server_info {
 
@@ -38,6 +39,8 @@ Server::Server(const config::Config& c)
     logger.setstream(std::cout);
     running_ = poller.created();
     running_ = running_ && start_listeners();
+
+    http::SessionManager::instance().init("WEBSERVER_SESSSION", 3600);
 }
 
 Server::~Server() {

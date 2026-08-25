@@ -1,8 +1,8 @@
-#ifndef COOKIE_UTILS_HPP
-#define COOKIE_UTILS_HPP
+#pragma once
 
 #include <string>
 #include <map>
+#include "Request.hpp"
 
 namespace http
 {
@@ -15,9 +15,8 @@ namespace http
  * found. Purely stateless — no dependency on HTTPRequest's concrete type,
  * so it can be reused wherever a raw header map is available.
  */
-std::string extract_cookie_value(const std::map<std::string, std::string>& headers,
-                                  const std::string& cookie_name);
+
+std::string extract_cookie_value(const std::vector<Header>& headers,
+    const std::string& cookie_name);
 
 } // namespace http
-
-#endif // COOKIE_UTILS_HPP

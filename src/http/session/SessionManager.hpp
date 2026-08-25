@@ -1,17 +1,18 @@
-#ifndef SESSION_MANAGER_HPP
-#define SESSION_MANAGER_HPP
+#pragma once
 
 #include <map>
 #include <string>
 #include <ctime>
 #include <cstddef>
 
-namespace http
-{
+namespace http {
 
-class SessionManager
-{
+class SessionManager {
+private:
+	struct SessionData;
+	typedef std::map<std::string, SessionData> SessionStore;
 public:
+
 	static SessionManager& instance();
 
 	// Initialization
@@ -52,19 +53,18 @@ private:
 	std::string generate_session_id();
 	bool is_expired(std::time_t last_touch, std::time_t now) const;
 
-	struct SessionData
-	{
+	struct SessionData {
 		std::time_t                        creation_time;
 		std::time_t                        last_touch;
 		std::map<std::string, std::string> data;
 	};
 
-	std::string                            cookie_name_;
-	std::size_t                            timeout_seconds_;
-	bool                                    initialized_;
-	std::map<std::string, SessionData>     sessions_;
+	/* Global config */
+	std::string cookie_name_;
+	size_t		timeout_seconds_;
+	bool		initialized_;
+	/* Session Storage */
+	SessionStore   	sessions_;
 };
 
-} // namespace http
-
-#endif // SESSION_MANAGER_HPP
+}

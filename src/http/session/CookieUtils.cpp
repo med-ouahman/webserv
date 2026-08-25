@@ -1,38 +1,47 @@
 #include "CookieUtils.hpp"
+#include "Request.hpp" // for std::vector<Header>
+#include <iostream>
 
-namespace http
-{
+namespace http {
 
-std::string extract_cookie_value(const std::map<std::string, std::string>& headers,
-                                  const std::string& cookie_name)
-{
+std::string extract_cookie_value(const std::vector<Header>& headers,
+	const std::string& cookie_name) {
 	// Assumes header names have already been normalized to lowercase
 	// by the parser, per project convention.
-	std::map<std::string, std::string>::const_iterator it = headers.find("cookie");
-	if (it == headers.end())
-		return "";
+	size_t cookie_index = 0;
 
-	const std::string& cookies = it->second;
-	std::string target = cookie_name + "=";
-
-	std::size_t pos = 0;
-	while (pos < cookies.size())
-	{
-		// Skip leading spaces after ';' separators
-		while (pos < cookies.size() && cookies[pos] == ' ')
-			++pos;
-
-		if (cookies.compare(pos, target.size(), target) == 0)
-		{
-			std::size_t start = pos + target.size();
-			std::size_t end = cookies.find(';', start);
-
-			if (end == std::string::npos)
-				return cookies.substr(start);
-			return cookies.substr(start, end - start);
+	if (headers.empty()) return "";
+	
+	while (cookie_index < headers.size()) {
+		if (headers[cookie_index].key == "cookie" || headers[cookie_index].key == "Cookie") {
+			break;
 		}
 
-		pos = cookies.find(';', pos);
+		++cookie_index;
+	}
+
+	if (cookie_index == headers.size()) return "";
+
+	const std::string& cookie_value = headers[cookie_index].value;
+
+	std::string target = cookie_name + "=";
+
+	size_t pos = 0;
+	while (pos < cookie_value.size()) {
+		// Skip leading spaces after ';' separators
+		while (pos < cookie_value.size() && cookie_value[pos] == ' ')
+			++pos;
+
+		if (cookie_value.compare(pos, target.size(), target) == 0) {
+			size_t start = pos + target.size();
+			size_t end = cookie_value.find(';', start);
+
+			if (end == std::string::npos)
+				return cookie_value.substr(start);
+			return cookie_value.substr(start, end - start);
+		}
+
+		pos = cookie_value.find(';', pos);
 		if (pos == std::string::npos)
 			break;
 		++pos; // skip ';'

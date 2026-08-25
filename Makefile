@@ -28,6 +28,9 @@ INCLUDES = -Isrc/ \
 	-Isrc/server/ \
 	-Isrc/server/logger/ \
 	-Isrc/http/ \
+	-Isrc/http/session/ \
+	-Isrc/http/Request/ \
+	-Isrc/http/Response/ \
 	-Isrc/http/Parser/ \
 	-Isrc/http/Parser/body/ \
 	-Isrc/http/Parser/headers/ \
@@ -55,6 +58,8 @@ SRCS = src/server/main.cpp \
 	src/cgi/ResponseParser.cpp \
 	src/cgi/CGIContext.cpp \
 	src/cgi/Channel.cpp \
+	src/http/session/SessionManager.cpp \
+	src/http/session/CookieUtils.cpp \
 	src/http/Context.cpp \
 	src/http/ContextInternal.cpp \
 	src/http/Request/Request.cpp \
@@ -87,6 +92,8 @@ SRCS = src/server/main.cpp \
 	src/http/pipeline/handlers/StaticFileHandler.cpp \
 	src/http/pipeline/handlers/UploadHandler.cpp \
 	src/http/pipeline/handlers/CgiHandler.cpp \
+	src/http/pipeline/handlers/CounterHandler.cpp \
+	src/http/pipeline/handlers/LoginHandler.cpp \
 	src/config/ConfigParser.cpp \
 	src/config/Lexer.cpp \
 	src/base/io/Writer.cpp \

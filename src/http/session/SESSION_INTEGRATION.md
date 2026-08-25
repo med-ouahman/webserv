@@ -184,7 +184,7 @@ void Connection::process_request() {
     std::string sid = http::extract_cookie_value(req, cookie_name);
 
     bool valid = !sid.empty() &&
-                 http::SessionManager::instance().has_session(sid);
+        http::SessionManager::instance().has_session(sid);
 
     if (valid) {
         http::SessionManager::instance().touch_session(sid);

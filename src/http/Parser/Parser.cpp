@@ -134,8 +134,8 @@ Error Parser::prepareBodyStorage(Context& ctx) {
 }
 
 Error Parser::progress(Context& ctx,
-				BufferView& buff,
-				usize& processed) {
+	BufferView& buff,
+	usize& processed) {
 	Error err;
 
 	while (true) {
@@ -147,6 +147,17 @@ Error Parser::progress(Context& ctx,
 				break;
 			case PARSING_HEADERS:
 				TRY(parseHeaders(ctx, buff, processed), err);
+			
+				if (ctx.state_ == PROCESSING) {
+					SessionManager& session = SessionManager::instance();
+					std::string sid
+					= extract_cookie_value(ctx.actor.request.headers,
+						session.get_cookie_name());
+					bool valid = !sid.empty() && session.has_session(sid);
+					
+					ctx.actor.request.currentSessionID = sid;
+					ctx.actor.request.currentSessionValid = valid;	
+				}
 				if (phase == PARSING_HEADERS)
 					return ERR_NONE;
 				break;

@@ -15,6 +15,9 @@
 
 #include "http/Error.hpp"
 
+#include "session/SessionManager.hpp"
+#include "session/CookieUtils.hpp"
+
 #define CRLF "\r\n"
 #define HTTP_SERVER_ROOT "server/root"
 
@@ -24,6 +27,7 @@ class Context;
 class ErrorHandler;
 class ARequestHandler;
 class UploadHandler;
+class LoginHandler;
 struct CGIRequestContext;
 struct CGIExecContext;
 
@@ -64,7 +68,6 @@ struct Info {
 class Context {
 
 private:
-
 	Actor actor;
 	Info info;
 	Error error;
@@ -92,6 +95,7 @@ private:
 	friend class ErrorHandler;
 	friend class CgiHandler;
 	friend class UploadHandler;
+	friend class LoginHandler;
 
 	friend Error cgi::buildCGIContext(const Context& context,
 		cgi::CGIRequestContext& request_ctx,

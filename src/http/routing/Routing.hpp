@@ -17,6 +17,8 @@ enum RequestType {
 	CGI,
 	REDIRECT,
 	DELETE_RESOURCE,
+	COUNTER,
+	LOGIN
 };
 
 
