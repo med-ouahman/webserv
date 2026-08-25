@@ -7,9 +7,13 @@
 
 namespace logger {
 
-Logger::Logger(): loggin_enabled(true), out(&std::cout) {}
+Logger::Logger(const std::string& error_logfile)
+    : loggin_enabled(true),
+    out(&std::cout),
+    error_log_(error_logfile.c_str()) {
 
-Logger::Logger(std::ostream& s): loggin_enabled(true), out(&s) {}
+}
+
 
 Logger::~Logger() {}
 
@@ -44,7 +48,8 @@ void Logger::log(LogLevel level, const std::string& message, bool timestamp)
 
     static const char* const reset = "\033[0m";
 
-    (*out)
+    std::ostream* stream = level == Error ? &error_log_ : out;
+    (*stream)
     << level_color(level)
     << std::left << std::setw(8) << level_string(level)
     << reset << "  "
@@ -69,7 +74,7 @@ std::string Logger::format_date(time_t raw) {
     return "[ " + std::string(buffer) + " ]";
 }
 
-void Logger::setstream(std::ostream& stream) {
+void Logger::setstream(std::ostream& stream) const {
     out = &stream;
 }
 

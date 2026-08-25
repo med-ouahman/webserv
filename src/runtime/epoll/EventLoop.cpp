@@ -9,11 +9,11 @@
 namespace runtime {
 namespace epoll {
 
-EventLoop::EventLoop()
+EventLoop::EventLoop(logger::Logger& log)
     : epoll_fd(epoll_create(MaxMonitorFds)),
     created_(false),
     monitor_count(0),
-    logger(Server::logger) {
+    logger(log) {
 
     if (!epoll_fd.valid()) {
         LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_create()"));

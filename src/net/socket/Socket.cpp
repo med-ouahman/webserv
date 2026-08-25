@@ -16,6 +16,7 @@ Socket::Socket(UniqueFd& uniq, io::Event mask, Server& server, const config::Lis
 	: AEventHandler(uniq.release(), mask),
 	state_(Listening),
 	server_(server),
+	logger_(server.logger()),
 	host_(ep.host),
 	port_(ep.port),
 	endpoint_(ep) {}
@@ -41,9 +42,8 @@ void Socket::on_event(io::Event event) {
 }
 
 bool Socket::accept_clients() {
-
 	if (server_.num_connections() >= Server::MaxConnections) {
-		Server::logger.log(logger::Warning, "Connection Limit reached, try again later", true);
+		logger_.log(logger::Warning, "Connection Limit reached, try again later", true);
 		return false;
 	}
 
@@ -70,6 +70,8 @@ base::Result<Socket*> create_listening_socket(
 	Server& server
 	) {
 
+	logger::Logger& log = server.logger();
+
 	sockaddr_in server_addr;
 	::memset(&server_addr, 0, sizeof server_addr);
 	server_addr.sin_family = AF_INET;
@@ -91,7 +93,7 @@ base::Result<Socket*> create_listening_socket(
 
 	std::stringstream ss;
 	ss << "Server Listening on " << int_to_ip(endpoint.host) << ":" << endpoint.port;
-	Server::logger.log(logger::Info, ss.str(), true);
+	log.log(logger::Info, ss.str(), true);
 
 	return sock;
 }

@@ -5,6 +5,7 @@
 #include <vector>
 #include "Config.hpp"
 #include "UniqueFd.hpp"
+#include "logger/Logger.hpp"
 
 class Server;
 
@@ -22,14 +23,13 @@ typedef uint16_t Port;
 
 class Socket: public io::AEventHandler {
 private:
-
 	enum SocketState {
 		Listening,
 		SocketError
 	} state_;
 
 	Server& server_;
-
+	logger::Logger& logger_;
 	uint32_t	host_;
 	uint16_t	port_;
 

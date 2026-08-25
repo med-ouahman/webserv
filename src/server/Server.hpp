@@ -21,12 +21,12 @@ ConnError,
 static const std::size_t MaxConnections = 1000;
 static const std::size_t MaxListens = 10;
 
-static logger::Logger      logger;
 private:
     bool running_;
     std::vector<net::Connection*> connections;
     std::vector<net::Socket*> listeners;
-    runtime::epoll::EventLoop poller;
+    logger::Logger  logger_;
+    runtime::epoll::EventLoop event_loop;
     RuntimeServices services_;
     const config::Config& conf;
 
@@ -46,4 +46,5 @@ public:
     
     net::Socket* find_listener(const config::ListenEndPoint& endpoint);
     size_t num_connections() const;
+    logger::Logger& logger();
 };

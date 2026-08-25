@@ -30,7 +30,7 @@ private:
 	static EpollEvent decode_events(io::Event event);
 
 public:
-	EventLoop();
+	EventLoop(logger::Logger& log);
 	~EventLoop();
 	int poll();
 	

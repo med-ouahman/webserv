@@ -26,18 +26,18 @@ bool EventLoop::add(io::AEventHandler* handler) {
 	
 	int flags = ::fcntl(handler->fd(), F_GETFL);
 	if (flags < 0 || ::fcntl(handler->fd(), F_SETFL, flags | O_NONBLOCK)) {
-		Server::logger.log(logger::Error, Server::logger.make_errno_error("EventLoop::add::fcntl()", __FILE__, __LINE__), true);
+		logger.log(logger::Error, logger.make_errno_error("EventLoop::add::fcntl()", __FILE__, __LINE__), true);
 		return false;
 	}
 	
 	flags = ::fcntl(handler->fd(), F_GETFD);
 	if (flags < 0 || ::fcntl(handler->fd(), F_SETFD, flags | FD_CLOEXEC)) {
-		Server::logger.log(logger::Error, Server::logger.make_errno_error("EventLoop::add::fcntl()", __FILE__, __LINE__), true);
+		logger.log(logger::Error, logger.make_errno_error("EventLoop::add::fcntl()", __FILE__, __LINE__), true);
 		return false;
 	}
 	
 	if (::epoll_ctl(epoll_fd.get(), EPOLL_CTL_ADD, handler->fd(), &event)) {
-		Server::logger.log(logger::Error, Server::logger.make_errno_error("EventLoop::add::epoll_ctl(EPOLL_CTL_ADD)", __FILE__, __LINE__), true);
+		logger.log(logger::Error, logger.make_errno_error("EventLoop::add::epoll_ctl(EPOLL_CTL_ADD)", __FILE__, __LINE__), true);
 		return false;
 	}
 
@@ -67,8 +67,8 @@ bool EventLoop::mod(io::AEventHandler* handler) {
 
 bool EventLoop::del(io::AEventHandler* handler) {
 	if (::epoll_ctl(epoll_fd.get(), EPOLL_CTL_DEL, handler->fd(), NULL)) {
-		Server::logger.log(logger::Error,
-			Server::logger.make_errno_error("EventLoop::del::epoll_ctl(EPOLL_CTL_DEL)", __FILE__, __LINE__), true);
+		logger.log(logger::Error,
+			logger.make_errno_error("EventLoop::del::epoll_ctl(EPOLL_CTL_DEL)", __FILE__, __LINE__), true);
 		return false;
 	}
 
