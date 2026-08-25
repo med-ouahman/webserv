@@ -85,7 +85,7 @@ Error LoginHandler::handle() {
         if (!auth)
             return ERR_UNAUTHORIZED;
         
-        response().body = sessions.get_session_data("sid", "username") + " Is already logged in";
+        response().body = sessions.get_session_data(sid, "username") + " Is already logged in";
         setContentType("text/html");
         responseReady();
         return ERR_NONE;

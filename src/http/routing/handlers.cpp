@@ -139,6 +139,16 @@ Error setRequestType(const Request& request,
 	}
 	/* add logout to flex */
 
+	if (decision.location->path == "/profile") {
+		decision.handler_type = PROFILE;
+		return ERR_NONE;
+	}
+
+	if (decision.location->path == "/logout") {
+		decision.handler_type = LOGOUT;
+		return ERR_NONE;
+	}
+
 	if (decision.cgi_path != NULL) {
 		decision.handler_type = CGI;
 		return ERR_NONE;
