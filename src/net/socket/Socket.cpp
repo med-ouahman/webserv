@@ -30,9 +30,7 @@ void Socket::on_event(io::Event event) {
 			accept_clients();
 			break;
 		case io::Hup: case io::RHup:
-			/*
-				let's see what to do here and defer this thing for later
-			*/
+			state_ = SocketError;
 			break;
 		case io::Error:
 			on_error();
@@ -73,10 +71,10 @@ base::Result<Socket*> create_listening_socket(
 	logger::Logger& log = server.logger();
 
 	sockaddr_in server_addr;
-
+	
+	::memset(&server_addr, 0, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_addr.s_addr = endpoint.host;
-	inet_pton(AF_INET, "0.0.0.0", &server_addr.sin_addr);
 	// if (!::inet_pton(AF_INET, int_to_ip(endpoint.host).c_str(), &server_addr.sin_addr)) return MAKE_ERRNO_ERROR("Socket::inet_pton()");
 	server_addr.sin_port = ::htons(endpoint.port);
 
@@ -130,6 +128,19 @@ std::string int_to_ip(uint32_t ip_addr)
 
 const std::vector<const config::ServerConfig*>& Socket::servers() const {
 	return servers_;
+}
+
+bool listeners_match(
+    const config::ListenEndPoint& existing,
+    const config::ListenEndPoint& requested
+) {
+    if (existing.port != requested.port) return false;
+
+    if (existing.host == requested.host)  return false;
+
+    if (existing.host == ::htonl(INADDR_ANY)) return true;
+
+    return false;
 }
 
 }

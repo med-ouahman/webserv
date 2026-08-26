@@ -92,18 +92,20 @@ Error LoginHandler::handle() {
     }
 
      std::string newSID = sessions.create_session();
-        setHeader("Set-Cookie", sessions.get_cookie_name()+"="+newSID+"; Path=/");
         
     std::string body = std::string(request().body.data(),
         request().body.size());
 
     std::string username = extract_value(body, "username");
     
-    if (username.empty()) return ERR_BAD_REQUEST;
+    if (username.empty()) {
+	sessions.delete_session(newSID);
+	return ERR_BAD_REQUEST;
+    }
 
     sessions.set_session_data(newSID, "username", username);
     sessions.set_session_data(newSID, "authenticated", "true");
-
+    setHeader("Set-Cookie", sessions.get_cookie_name()+"="+newSID+"; Path=/");
     response().body = "Logged in as " + username;
     setContentType("text/html");
 
@@ -191,8 +193,9 @@ Error LogoutHandler::handle() {
 
     if (!auth)
         return ERR_UNAUTHORIZED;
-        
     sessions.delete_session(sid);
+    setHeader("Set-Cookie", sessions.get_cookie_name()+"=; Path=/; Max-Age=0; HttpOnly");
+    responseReady();
     return ERR_NONE;
 }
 

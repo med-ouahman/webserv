@@ -28,7 +28,7 @@ Server::Server(const config::Config& c)
     std::stringstream ss;
 
     running_ = running_ && start_listeners();
-
+    
     http::SessionManager::instance().init("WEBSERVER_SESSSION", 3600);
 }
 
@@ -78,7 +78,7 @@ bool Server::start_listeners() {
         for (size_t j(0); j < endpoints.size(); ++j) {
             
             net::Socket* l = find_listener(endpoints[j]);
-
+	        if (l) logger_.log(logger::Info, "duplicate ip:port", true);
             if (!l) {
 
                 base::Result<net::Socket*> result = net::create_listening_socket(endpoints[j], *this);
@@ -100,7 +100,7 @@ bool Server::start_listeners() {
 
                 l = sock;
             }
-
+	    
             l->add_server(&servers[i]);
         }
     }
@@ -161,6 +161,7 @@ void Server::abort() {
     std::abort();
 }
 
+
 net::Socket* Server::find_listener(const config::ListenEndPoint& endpoint) {
 
     for (
@@ -169,9 +170,9 @@ net::Socket* Server::find_listener(const config::ListenEndPoint& endpoint) {
             ++it
     ) {
         net::Socket* sock = *it;
-        const config::ListenEndPoint& e = sock->endpoint();
+        const config::ListenEndPoint& ep = sock->endpoint();
         
-        if (endpoint.host == e.host && endpoint.port == e.port) return sock;
+        if (net::listeners_match(ep, endpoint)) return sock;
     }
 
     return NULL;

@@ -52,6 +52,7 @@ public:
 	void add_server(const config::ServerConfig* server);
 
 	const std::vector<const config::ServerConfig*>& servers() const;
+
 };
 
 base::Result<Socket*>
@@ -60,4 +61,5 @@ create_listening_socket(
 
 std::string int_to_ip(uint32_t ip_addr);
 
+bool listeners_match(const config::ListenEndPoint& existing, const config::ListenEndPoint& requested);
 }

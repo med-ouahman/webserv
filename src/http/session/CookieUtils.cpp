@@ -11,9 +11,10 @@ std::string extract_cookie_value(const std::vector<Header>& headers,
 	size_t cookie_index = 0;
 
 	if (headers.empty()) return "";
-	
+
 	while (cookie_index < headers.size()) {
-		if (headers[cookie_index].key == "cookie" || headers[cookie_index].key == "Cookie") {
+		std::string normal_name = base::toLowerCase(headers[cookie_index].key);
+		if ("cookie" == normal_name) {
 			break;
 		}
 
