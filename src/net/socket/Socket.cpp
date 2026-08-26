@@ -73,10 +73,11 @@ base::Result<Socket*> create_listening_socket(
 	logger::Logger& log = server.logger();
 
 	sockaddr_in server_addr;
-	::memset(&server_addr, 0, sizeof server_addr);
+
 	server_addr.sin_family = AF_INET;
-		
-	if (!::inet_pton(AF_INET, int_to_ip(endpoint.host).c_str(), &server_addr.sin_addr)) return MAKE_ERRNO_ERROR("Socket::inet_pton()");
+	server_addr.sin_addr.s_addr = endpoint.host;
+	inet_pton(AF_INET, "0.0.0.0", &server_addr.sin_addr);
+	// if (!::inet_pton(AF_INET, int_to_ip(endpoint.host).c_str(), &server_addr.sin_addr)) return MAKE_ERRNO_ERROR("Socket::inet_pton()");
 	server_addr.sin_port = ::htons(endpoint.port);
 
 	UniqueFd socket_fd(::socket(AF_INET, SOCK_STREAM | O_NONBLOCK | SOCK_CLOEXEC, 0));
@@ -85,7 +86,9 @@ base::Result<Socket*> create_listening_socket(
 	int x = 1;
 	if (::setsockopt(socket_fd.get(), SOL_SOCKET, SO_REUSEADDR, &x, sizeof x))
 		return MAKE_ERRNO_ERROR("Socket::setsocketopt()");
+		
 	if (::bind(socket_fd.get(), (struct sockaddr *)&server_addr, sizeof server_addr)) return MAKE_ERRNO_ERROR("Socket::bind()");
+	
 	if (::listen(socket_fd.get(), BACKLOG) < 0) return MAKE_ERRNO_ERROR("Socket::listen()");
 
 	net::Socket* sock = new (std::nothrow) Socket(socket_fd, io::Readable, server, endpoint);
@@ -111,8 +114,11 @@ const config::ListenEndPoint& Socket::endpoint() const {
 	return endpoint_;
 }
 
-std::string int_to_ip(uint32_t ip_addr) {
-  	std::ostringstream oss;
+std::string int_to_ip(uint32_t ip_addr)
+{
+    ip_addr = ntohl(ip_addr);
+
+    std::ostringstream oss;
 
     oss << ((ip_addr >> 24) & 0xFF) << '.'
         << ((ip_addr >> 16) & 0xFF) << '.'
@@ -121,7 +127,6 @@ std::string int_to_ip(uint32_t ip_addr) {
 
     return oss.str();
 }
-
 
 const std::vector<const config::ServerConfig*>& Socket::servers() const {
 	return servers_;
