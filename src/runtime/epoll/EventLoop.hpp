@@ -23,8 +23,8 @@ private:
 	size_t 			monitor_count;
 	logger::Logger& logger;
 	
-	EventLoop(const EventLoop& other);
-	EventLoop& operator=(const EventLoop& other);
+	EventLoop(const EventLoop&);
+	EventLoop& operator=(const EventLoop&);
 	
 	static io::Event encode_events (EpollEvent ev);
 	static EpollEvent decode_events(io::Event event);

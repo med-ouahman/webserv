@@ -32,6 +32,9 @@ EventLoop::EventLoop(logger::Logger& log)
         return;
     }
     
+    std::stringstream ss;
+    ss << "epoll instance created FD (" << epoll_fd.get() << ")";
+    logger.log(logger::Info, ss.str());
     created_ = true;
 }
 

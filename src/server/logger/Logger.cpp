@@ -48,8 +48,13 @@ void Logger::log(LogLevel level, const std::string& message, bool timestamp)
 
     static const char* const reset = "\033[0m";
 
-    std::ostream* stream = level == Error ? &error_log_ : out;
-    (*stream)
+    if (Error == level) {
+        error_log_ << "Error: "
+        << message << " " << ts << std::endl;
+        return;
+    }
+    
+    (*out)
     << level_color(level)
     << std::left << std::setw(8) << level_string(level)
     << reset << "  "
