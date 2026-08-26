@@ -13,6 +13,8 @@
 #include "Logger.hpp"
 #include <cstdio>
 
+#include "server/Server.hpp"
+
 namespace http {
 
 Context::Context(const std::vector<const config::ServerConfig*>& servers,
@@ -40,6 +42,36 @@ void Context::advanceCycle() {
 	++active_requests;
 }
 
+void Context::sessionConfigure() {
+	
+	Request& request = actor.request;
+	bool sessionsEnabled = info.dispatch.value.server->session_enabled;
+
+	if (!sessionsEnabled) {
+		request.sessionsEnabled = false;
+		request.session = NULL;
+		return;
+	}
+
+	const std::string& cookie_name = info.dispatch.value.server->session_cookie_name;
+	SessionManager* session = Server::find_session(services_.sessions, cookie_name);
+
+	if (!session) {
+		request.sessionsEnabled = false;
+		request.session = NULL;
+	}
+
+	request.sessionsEnabled = true;
+	request.session = session;
+
+	std::string sid = extract_cookie_value(request.headers, session->get_cookie_name());
+
+	bool valid = !sid.empty() && session->has_session(sid);
+
+	request.currentSessionID = sid;
+	request.currentSessionValid = valid;
+}
+
 usize Context::consume(BufferView& buff) {
 	Error err;
 	usize processed = 0;
@@ -57,6 +89,11 @@ usize Context::consume(BufferView& buff) {
 			TRY(resolveDispatch(), (setError(err), processed));
 			TRY(actor.parser.prepareBodyStorage(*this),
 					(setError(err), processed));
+
+			/* sessions setup here */
+			sessionConfigure();
+			/* session setup end */
+
 			TRY(createHandler(), (setError(err), processed));
 			if (!buff.empty())
 				TRY(actor.parser.progress(*this, buff, processed),

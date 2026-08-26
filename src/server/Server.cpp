@@ -19,17 +19,15 @@ Server::Server(const config::Config& c)
     : running_(false),
     logger_("./var/log/errors.log"),
     event_loop(logger_),
-    services_(event_loop, logger_, c),
-    conf(c) {
+    conf(c),
+    services_(event_loop, logger_, c, sessions_) {
 
     logger_.setstream(std::cout);
-    logger_.log(logger::Info, "Errors logs are saved to ./var/log/errors.log", true);
-    running_ = event_loop.created();
-    std::stringstream ss;
 
-    running_ = running_ && start_listeners();
+    logger_.log(logger::Info, "Errors logs are saved to ./var/log/errors.log", true);
     
-    http::SessionManager::instance().init("WEBSERVER_SESSSION", 3600);
+    running_ = event_loop.created() && start_listeners();
+    init_sessions();
 }
 
 Server::~Server() {
@@ -47,6 +45,12 @@ Server::~Server() {
     }
 
     connections.clear();
+
+    for (size_t i = 0; i < sessions_.size(); ++i) {
+        delete sessions_[i];
+    }
+    
+    sessions_.clear();
 }
 
 void Server::close_connection(net::Connection* conn) {
@@ -129,18 +133,14 @@ void Server::add_connection(UniqueFd& conn_fd, const net::ConnectionInfo& info) 
 
 void Server::maintenance() {
     
-    /* Session Cleanup */
-    http::SessionManager::instance().cleanup();
+
+    session_cleanup();
 
     for (size_t i(0); i < connections.size();) {
         net::Connection* conn = connections.at(i);
-
         conn->sync();
-
         event_loop.sync(conn);
-
         if (conn->closing()) close_connection(conn);
-        
         else ++i;
     }
 
@@ -188,6 +188,39 @@ void leaks(bool & r) {
 
     if (x.elapsed() >= 400) r = false;
 
+}
+
+void Server::init_sessions() {
+
+    for ( size_t i = 0; i < conf.servers.size(); ++i ) {
+        
+        const config::ServerConfig& server = conf.servers[i];
+     
+        if (server.session_enabled) {
+            http::SessionManager* session = new (std::nothrow) http::SessionManager(server.session_cookie_name,
+                server.session_timeout,
+                server.session_store);
+            if (session) sessions_.push_back(session);
+        }
+    }
+}
+
+void Server::session_cleanup() {
+	for ( size_t i = 0; i < sessions_.size(); ++i ) {
+		sessions_[i]->cleanup();
+	}
+}
+
+http::SessionManager* Server::find_session(std::vector<http::SessionManager*>& sessions,
+    const std::string& cookie_name) {
+
+    for ( size_t i = 0; i < sessions.size(); i++ ) {
+        if (sessions[i]->get_cookie_name() == cookie_name) {
+            return sessions[i];
+        }
+    } 
+
+    return NULL;
 }
 
 int Server::start() {

@@ -1,46 +1,46 @@
 
-#include "CookiesHandlers.hpp"
+#include "SessionDemoHandlers.hpp"
 #include <cstdlib>
 
 namespace http {
 
 /* Counter */
-CounterHandler::CounterHandler(Context& ctx): ARequestHandler(ctx) {
+CounterHandler::CounterHandler(Context& ctx): ARequestHandler(ctx) {}
 
-
-}
-
-CounterHandler::~CounterHandler() {
-
-}
+CounterHandler::~CounterHandler() {}
 
 Error CounterHandler::handle() {
-    SessionManager& sessions = SessionManager::instance();
+    Request& req = request();
+
+    if (!req.sessionsEnabled) return ERR_UNAUTHORIZED;
     
+    SessionManager& session = *req.session;
+
     const std::string& sid = request().currentSessionID;
     bool valid = request().currentSessionValid;
 
     if (!valid) {
-        std::cout << "Cookie name: " << sessions.get_cookie_name() << "\n";
-        const std::string newSessionID = sessions.create_session();
-        sessions.set_session_data(newSessionID, "counter", "1");
-        std::string cookieHeaderValue = sessions.get_cookie_name()+"="+newSessionID+"; Path=/";
-        setHeader("Set-Cookie", cookieHeaderValue);
+        std::cout << "Cookie name: " << session.get_cookie_name() << "\n";
+        const std::string newSessionID = session.create_session();
+        session.set_session_data(newSessionID, "counter", "1");
+        
+        setCookieHeader(session.get_cookie_name()+"="+newSessionID, "Path=/", "HttpOnly; SameSite=Lax");
+        
         setContentType("text/html");
         response().body = "You have been here for 1 time";
         responseReady();
         return ERR_NONE;
     }
 
-    sessions.touch_session(sid);
+    session.touch_session(sid);
 
-    std::string value = sessions.get_session_data(sid, "counter");
+    std::string value = session.get_session_data(sid, "counter");
     
     char* end = NULL;
     size_t counter = std::strtoul(value.c_str(), &end, 10);
     ++counter;
     value = base::to_string(counter);
-    sessions.set_session_data(sid, "counter", value);
+    session.set_session_data(sid, "counter", value);
     
     response().body = "You have been here for: " + value + " times";
     setContentType("text/html");
@@ -51,11 +51,9 @@ Error CounterHandler::handle() {
 /* Login */
 
 LoginHandler::LoginHandler(Context& ctx): ARequestHandler(ctx) {
-
 }
 
 LoginHandler::~LoginHandler() {
-
 }
 
 Error LoginHandler::handle() {
@@ -65,47 +63,47 @@ Error LoginHandler::handle() {
         Login bodies are usually small so it's guarrented that the maximums \
         size of the body will be less than the limit as enforced in config
     */
+    Request& req = request();
 
-    if (request().has_body
+    if (req.has_body
         && request().body.type() == base::io::Reader::NONE) {
         context_.action_ = AC_READ;
         return ERR_NONE;
     }
 
-    SessionManager& sessions = SessionManager::instance();
+    if (!req.sessionsEnabled) return ERR_UNAUTHORIZED;
 
-    if (request().currentSessionValid) {
+    SessionManager& session = *req.session;
+    if (req.currentSessionValid) {
 
-        const std::string& sid = request().currentSessionID;
+        const std::string& sid = req.currentSessionID;
 
-        bool auth = "true" == sessions.get_session_data(sid, "authenticated");
+        bool auth = "true" == session.get_session_data(sid, "authenticated");
 
-        sessions.touch_session(sid);
+        session.touch_session(sid);
         
         if (!auth)
             return ERR_UNAUTHORIZED;
         
-        response().body = sessions.get_session_data(sid, "username") + " Is already logged in";
+        response().body = session.get_session_data(sid, "username") + " Is already logged in";
         setContentType("text/html");
         responseReady();
         return ERR_NONE;
     }
-
-     std::string newSID = sessions.create_session();
         
-    std::string body = std::string(request().body.data(),
-        request().body.size());
+    std::string body = std::string(req.body.data(), req.body.size());
 
     std::string username = extract_value(body, "username");
     
-    if (username.empty()) {
-	sessions.delete_session(newSID);
-	return ERR_BAD_REQUEST;
-    }
+    if (username.empty()) return ERR_BAD_REQUEST;
 
-    sessions.set_session_data(newSID, "username", username);
-    sessions.set_session_data(newSID, "authenticated", "true");
-    setHeader("Set-Cookie", sessions.get_cookie_name()+"="+newSID+"; Path=/");
+    std::string newSID = session.create_session();
+
+    session.set_session_data(newSID, "username", username);
+    session.set_session_data(newSID, "authenticated", "true");
+
+    setCookieHeader(session.get_cookie_name()+"="+newSID, "Path=/", "HttpOnly; SameSite=Lax");
+
     response().body = "Logged in as " + username;
     setContentType("text/html");
 
@@ -149,23 +147,24 @@ ProfileHandler::~ProfileHandler() {}
 
 Error ProfileHandler::handle() {
 
-    SessionManager& sessions = SessionManager::instance();
+    Request& req = request();
 
-    if (!request().currentSessionValid)
+    if (!req.sessionsEnabled || !request().currentSessionValid)
         return ERR_UNAUTHORIZED;
+    SessionManager& session = *req.session;
 
     const std::string& sid = request().currentSessionID;
 
     bool auth =
-        sessions.get_session_data(sid, "authenticated") == "true";
+        session.get_session_data(sid, "authenticated") == "true";
 
     if (!auth)
         return ERR_UNAUTHORIZED;
 
-    sessions.touch_session(sid);
+    session.touch_session(sid);
 
     std::string username =
-        sessions.get_session_data(sid, "username");
+        session.get_session_data(sid, "username");
 
     response().body = "Welcome " + username;
     setContentType("text/html");
@@ -182,20 +181,28 @@ LogoutHandler::LogoutHandler(Context& ctx)
 LogoutHandler::~LogoutHandler() {}
 
 Error LogoutHandler::handle() {
-    SessionManager& sessions = SessionManager::instance();
 
-    if (!request().currentSessionValid)
-        return ERR_UNAUTHORIZED;
+    Request& req = request();
+
+    if (!req.sessionsEnabled
+        || !request().currentSessionValid) return ERR_UNAUTHORIZED;
+
+    SessionManager& session = *req.session;
 
     const std::string& sid = request().currentSessionID;
+    
     bool auth =
-        sessions.get_session_data(sid, "authenticated") == "true";
+        session.get_session_data(sid, "authenticated") == "true";
 
-    if (!auth)
-        return ERR_UNAUTHORIZED;
-    sessions.delete_session(sid);
-    setHeader("Set-Cookie", sessions.get_cookie_name()+"=; Path=/; Max-Age=0; HttpOnly");
+    if (!auth) return ERR_UNAUTHORIZED;
+
+    session.delete_session(sid);
+
+    setCookieHeader(session.get_cookie_name()+"=", "Path=/", "Max-Age=0; HttpOnly; SameSite=Lax");
+    response().body = "Session Deleted Successfully";
+    setContentType("text/html");
     responseReady();
+    
     return ERR_NONE;
 }
 

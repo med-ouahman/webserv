@@ -32,6 +32,10 @@ protected:
 	void setConnection();
 	void setDate();
 	void responseReady();
+	void setCookieHeader(const std::string& sid,
+		const std::string& path,
+		const std::string& additional);
+	void setServerHeader();
 	const DispatchInfo& decision() const;
 	Request& request();
 	Response& response();

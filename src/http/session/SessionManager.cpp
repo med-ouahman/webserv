@@ -6,28 +6,17 @@
 #include <cassert>
 #include <cstdlib>
 
-namespace http
-{
+namespace http {
 
-/* ------------------------------------------------------------------ */
-/*  Singleton access                                                   */
-/* ------------------------------------------------------------------ */
-
-SessionManager& SessionManager::instance() {
-	static SessionManager instance_;
-	return instance_;
-}
-
-SessionManager::SessionManager()
-	: cookie_name_(""),
-	timeout_seconds_(0),
+SessionManager::SessionManager(const std::string& name,
+	size_t timeout,
+	const std::string& store)
+	: cookie_name_(name),
+	timeout_seconds_(timeout),
+	store_(store),
 	initialized_(false) {}
 
 SessionManager::~SessionManager() {}
-
-/* ------------------------------------------------------------------ */
-/*  Initialization                                                     */
-/* ------------------------------------------------------------------ */
 
 void SessionManager::init(const std::string& cookie_name,
 	std::size_t timeout_seconds) {
@@ -40,10 +29,6 @@ void SessionManager::init(const std::string& cookie_name,
 bool SessionManager::is_initialized() const {
 	return initialized_;
 }
-
-/* ------------------------------------------------------------------ */
-/*  Session lifecycle                                                  */
-/* ------------------------------------------------------------------ */
 
 std::string SessionManager::create_session() {
 	assert(initialized_ && "SessionManager::create_session() called before init()");
@@ -81,9 +66,6 @@ void SessionManager::delete_session(const std::string& id) {
 	sessions_.erase(id);
 }
 
-/* ------------------------------------------------------------------ */
-/*  Session data storage                                               */
-/* ------------------------------------------------------------------ */
 
 void SessionManager::set_session_data(const std::string& id,
 	const std::string& key,
@@ -120,9 +102,6 @@ bool SessionManager::has_session_data(const std::string& id,
 	return it->second.data.find(key) != it->second.data.end();
 }
 
-/* ------------------------------------------------------------------ */
-/*  Maintenance                                                        */
-/* ------------------------------------------------------------------ */
 
 void SessionManager::cleanup() {
 	std::time_t now = std::time(NULL);
@@ -147,28 +126,19 @@ std::size_t SessionManager::get_session_count() const {
 	return sessions_.size();
 }
 
-/* ------------------------------------------------------------------ */
-/*  Config access                                                      */
-/* ------------------------------------------------------------------ */
-
 const std::string& SessionManager::get_cookie_name() const {
 	return cookie_name_;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Internals                                                          */
-/* ------------------------------------------------------------------ */
-
 bool SessionManager::is_expired(std::time_t last_touch, std::time_t now) const {
 	if (now < last_touch)
-		return false; // clock skew guard: never treat as expired
+		return false;
 
 	return static_cast<std::size_t>(now - last_touch) > timeout_seconds_;
 }
 
 std::string SessionManager::generate_session_id() {
-	// Read random bytes from the kernel CSPRNG rather than std::rand(),
-	// which is predictable and unsuitable for session identifiers.
+	
 	unsigned char raw[16];
 
 	std::ifstream urandom("/dev/urandom", std::ios::in | std::ios::binary);
@@ -176,8 +146,6 @@ std::string SessionManager::generate_session_id() {
 		urandom.read(reinterpret_cast<char*>(raw), sizeof(raw));
 		urandom.close();
 	} else {
-		// Fallback if /dev/urandom is unavailable for some reason.
-		// Not cryptographically strong, but keeps the server functional.
 		for (std::size_t i = 0; i < sizeof(raw); ++i)
 			raw[i] = static_cast<unsigned char>(std::rand() % 256);
 	}
@@ -189,8 +157,6 @@ std::string SessionManager::generate_session_id() {
 
 	std::string id = oss.str();
 
-	// Extremely unlikely collision guard: regenerate on the rare chance
-	// the id is already in use.
 	while (sessions_.find(id) != sessions_.end()) {
 		for (std::size_t i = 0; i < sizeof(raw); ++i)
 			raw[i] = static_cast<unsigned char>(std::rand() % 256);

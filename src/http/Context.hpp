@@ -101,6 +101,8 @@ private:
 		cgi::CGIRequestContext& request_ctx,
 		cgi::ProcessContext& exec_ctx);
 
+	void sessionConfigure();
+
 
 public:
 	RuntimeServices& services_;

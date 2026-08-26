@@ -7,7 +7,7 @@ There is no `baselib/` directory in the project, so `src/foundation/` was treate
 ## Definitely unused by the current executable
 
 - The deleted `src/base/memory/` allocator implementation was completely unused and was not compiled. Its deletion is justified.
-- `src/http/pipeline/handlers/CookieHandlers.cpp` is an outdated, uncompiled duplicate of the compiled `CookiesHandlers.cpp`.
+- `src/http/pipeline/handlers/CookieHandlers.cpp` is an outdated, uncompiled duplicate of the compiled `SessionDemoHandlers.cpp`.
 - `src/net/connection/connection_io.cpp` and `src/net/connection/connection_events.cpp` are empty translation units but are still compiled by the Makefile.
 - `src/http/common/Date.hpp` is unused. It would also fail to compile because `Date::format()` declares two variables named `s` in the same scope.
 - `src/http/common/Types.hpp` is unused.

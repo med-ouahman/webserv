@@ -1,7 +1,7 @@
 
 #include "http/pipeline/ARequestHandler.hpp"
 #include "http/Context.hpp"
-
+#include "server/ServerInfo.hpp"
 #include <cerrno>
 #include <sstream>
 #include <ctime>
@@ -160,9 +160,22 @@ void ARequestHandler::setDate() {
 	setHeader("Date", buffer);
 }
 
+void ARequestHandler::setCookieHeader(const std::string& sid,
+	const std::string& path,
+	const std::string& additional) {
+	
+	setHeader("Set-Cookie", sid+"; "+path+"; "+additional);
+}
+
+void ARequestHandler::setServerHeader() {
+	setHeader("Server", server_info::info());	
+}
+
 void ARequestHandler::responseReady() {
+	setServerHeader();
 	context_.responseReady();
 }
+
 
 const DispatchInfo& ARequestHandler::decision() const {
 	return context_.info.dispatch.value;

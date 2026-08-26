@@ -9,6 +9,8 @@
 
 namespace http {
 
+class SessionManager;
+
 enum Method { GET, POST, DELETE, UNKNOWN };
 
 inline Method methodOf(const std::string& value) {
@@ -39,6 +41,7 @@ enum ConnectionType { CONNECTION_DEFAULT, CONNECTION_CLOSE, CONNECTION_KEEP_ALIV
  *		Authorization
  *		Proxy-Authorization
  */
+
 struct Header { std::string key; std::string value; };
 
 struct Request {
@@ -59,6 +62,8 @@ struct Request {
 
 
 	/* session */
+	bool sessionsEnabled;
+	SessionManager* session;
 	std::string currentSessionID;
 	bool currentSessionValid;
 

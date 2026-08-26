@@ -2,7 +2,6 @@
 #include "http/Parser/Parser.hpp"
 #include "http/Parser/body/temp_storage.hpp"
 #include "http/Context.hpp"
-
 #include <cstdio>
 
 namespace http {
@@ -131,6 +130,7 @@ Error Parser::prepareBodyStorage(Context& ctx) {
 		return prepareBodyStorage(root, ctx.info.conn_id,
 			ctx.info.request_id, dispatch.max_body_size);
 	}
+
 	return ERR_NONE;
 }
 
@@ -148,17 +148,6 @@ Error Parser::progress(Context& ctx,
 				break;
 			case PARSING_HEADERS:
 				TRY(parseHeaders(ctx, buff, processed), err);
-			
-				if (ctx.state_ == PROCESSING) {
-					SessionManager& session = SessionManager::instance();
-					std::string sid
-					= extract_cookie_value(ctx.actor.request.headers,
-						session.get_cookie_name());
-					bool valid = !sid.empty() && session.has_session(sid);
-					
-					ctx.actor.request.currentSessionID = sid;
-					ctx.actor.request.currentSessionValid = valid;	
-				}
 				if (phase == PARSING_HEADERS)
 					return ERR_NONE;
 				break;

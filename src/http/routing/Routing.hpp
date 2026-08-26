@@ -5,6 +5,7 @@
 #include "config/Config.hpp"
 #include "http/Error.hpp"
 #include "http/Request/Request.hpp"
+#include "session/SessionManager.hpp"
 
 namespace http {
 

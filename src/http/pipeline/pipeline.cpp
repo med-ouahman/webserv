@@ -7,7 +7,7 @@
 #include "http/pipeline/handlers/StaticFileHandler.hpp"
 #include "http/pipeline/handlers/UploadHandler.hpp"
 #include "http/pipeline/handlers/CgiHandler.hpp"
-#include "http/pipeline/handlers/CookiesHandlers.hpp"
+#include "http/pipeline/handlers/SessionDemoHandlers.hpp"
 
 #include <cstddef>
 #include <new>
