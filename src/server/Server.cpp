@@ -25,6 +25,8 @@ Server::Server(const config::Config& c)
     logger_.setstream(std::cout);
     logger_.log(logger::Info, "Errors logs are saved to ./var/log/errors.log", true);
     running_ = event_loop.created();
+    std::stringstream ss;
+
     running_ = running_ && start_listeners();
 
     http::SessionManager::instance().init("WEBSERVER_SESSSION", 3600);
