@@ -16,19 +16,19 @@ EventLoop::EventLoop(logger::Logger& log)
     logger(log) {
 
     if (!epoll_fd.valid()) {
-        LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_create()"));
+        logger.log(logger::Error, logger.make_errno_error("EventLoop::epoll_create()", __FILE__, __LINE__), true);
         return;
     }
   
     int flags = ::fcntl(epoll_fd.get(), F_GETFD);
     
     if (flags < 0) {
-        LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_create()"));
+        logger.log(logger::Error, logger.make_errno_error("EventLoop::epoll_create()", __FILE__, __LINE__));
         return;
     }
     
     if (::fcntl(epoll_fd.get(), F_SETFD, flags | O_CLOEXEC) < 0) {
-        LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_create()"));
+        logger.log(logger::Error, logger.make_errno_error("EventLoop::epoll_create()", __FILE__, __LINE__));
         return;
     }
     
@@ -66,6 +66,7 @@ io::Event EventLoop::encode_events(EpollEvent epoll_event) {
 
 
 EpollEvent EventLoop::decode_events(io::Event event) {
+
     EpollEvent ev = 0;
 
     if (event & io::Readable) ev |= EPOLLIN;

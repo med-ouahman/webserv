@@ -1,6 +1,5 @@
 
 #include "http/routing/RoutingInternal.hpp"
-#include <iostream>
 #include <sys/stat.h>
 
 namespace http {
@@ -127,7 +126,7 @@ Error resolveUploadPath(DispatchInfo& decision) {
 Error setRequestType(const Request& request,
 		DispatchInfo& decision) {
 	decision.cgi_path = findCgiPath(decision);
-	
+
 	if (decision.location->path == "/counter") {
 		decision.handler_type = COUNTER;
 		return ERR_NONE;

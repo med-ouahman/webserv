@@ -17,36 +17,14 @@ enum ConnectionState {
     Closing,
 };
 
-struct ConnectionInfo {
-uint32_t local_ip;
-uint16_t local_port;
-
-uint32_t remote_ip;
-uint16_t remote_port;
-
-std::vector<const config::ServerConfig*>& servers;
-
-ConnectionInfo(uint32_t local_ip,
-uint16_t local_port,
-uint32_t remote_ip,
-uint16_t remote_port,
-std::vector<const config::ServerConfig*>& srvs
-)
-
-: local_ip(local_ip),
-local_port(local_port),
-remote_ip(remote_ip),
-remote_port(remote_port),
-servers(srvs) {}
-};
-
-
 class Connection: public io::AEventHandler {  
 public:
     const static std::size_t ReadbufSize    = 1024 * 16;
     const static std::size_t WritebufSize   = 1024 * 16;
 
-    Connection(UniqueFd& fd, io::Event events, RuntimeServices& ctx, const ConnectionInfo& info);
+    Connection(UniqueFd& fd, io::Event events,
+        const std::vector<const config::ServerConfig*>& servers,
+        RuntimeServices& services);
     ~Connection();
     void on_event(io::Event events);
     bool closing() const;
@@ -54,10 +32,6 @@ public:
 
 private:
     ConnectionState state_;
-    bool            close_after_write;
-
-    Timestamp       last_activity_;
-    Timestamp       lifetime_;
     
     http::Context   ctx;
 
@@ -66,8 +40,6 @@ private:
 
     Buffer reader_;
     Buffer writer_;
-
-    const ConnectionInfo info_;
 
     void read();
     void write();

@@ -17,8 +17,6 @@ Socket::Socket(UniqueFd& uniq, io::Event mask, Server& server, const config::Lis
 	state_(Listening),
 	server_(server),
 	logger_(server.logger()),
-	host_(ep.host),
-	port_(ep.port),
 	endpoint_(ep) {}
 
 Socket::~Socket() {}
@@ -51,9 +49,7 @@ bool Socket::accept_clients() {
 	
 	if (!client.valid()) return false;
 	
-	ConnectionInfo info(host_, port_, client_addr.sin_addr.s_addr, client_addr.sin_port, servers_);
-
-	server_.add_connection(client, info);
+	server_.add_connection(client, servers_);
 	
 	return true;
 }
@@ -126,9 +122,6 @@ std::string int_to_ip(uint32_t ip_addr)
     return oss.str();
 }
 
-const std::vector<const config::ServerConfig*>& Socket::servers() const {
-	return servers_;
-}
 
 bool listeners_match(
     const config::ListenEndPoint& existing,

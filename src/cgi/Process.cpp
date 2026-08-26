@@ -44,6 +44,7 @@ Process::~Process() {
         return;
 
     ::kill(pid_, SIGKILL);
+
     while (::waitpid(pid_, &status_, 0) < 0 && errno == EINTR) {}
     pid_ = -1;
     state_ = Terminated;
@@ -83,16 +84,13 @@ void Process::reap() {
     
     if (state_ == Terminated) return;
     
-    pid_t p;
-
-    do {
-        p = ::waitpid(pid_, &status_, WNOHANG);
-    } while (p < 0 && errno == EINTR);
-
+    pid_t p = ::waitpid(pid_, &status_, WNOHANG);
+    
     if (p == pid_) {
         state_ = Terminated;
         pid_ = -1;
     }
+
 	else if (p < 0 && errno == ECHILD) {
 		state_ = Terminated;
 		pid_ = -1;
@@ -107,7 +105,6 @@ ProcessResult Process::result() const {
 
     if (WIFEXITED(status_)) r.reason = Exited;
     else if (WIFSIGNALED(status_)) r.reason = Signaled;
-    else if (WIFSTOPPED(status_)) r.reason = Stopped;
     else r.reason = Unknown;
 
     return r;
@@ -118,7 +115,6 @@ int Process::status_code(const ProcessResult& result) {
     switch (result.reason) {
         case Signaled: return WTERMSIG(result.status) + 128;
         case Exited: return WEXITSTATUS(result.status);
-        case Stopped: return W_STOPCODE(result.status);
         default: return 0; 
     }
 
@@ -141,26 +137,26 @@ bool Process::start(const ProcessContext& context) {
 
         if (want_stdin_) {
             if (!duplicateTo(stdin_pipe_.read_end(), STDIN_FILENO)) {
-                LOG_ERROR(MAKE_ERRNO_ERROR("dup2 STDIN 2"));
+                LOG_ERROR(MAKE_ERRNO_ERROR("cgi::Process::dup2()"));
 				::_exit(1);
             }
         } else {
             if (!duplicateTo(context.stdin_fd.get(), STDIN_FILENO)) {
-                LOG_ERROR(MAKE_ERRNO_ERROR("dup2 STDIN 1"));
+                LOG_ERROR(MAKE_ERRNO_ERROR("cgi::Process::dup2()"));
 				::_exit(1);
             }
             if (::close(context.stdin_fd.release()) == -1) {
-                LOG_ERROR(MAKE_ERRNO_ERROR("Process::close"));
+                LOG_ERROR(MAKE_ERRNO_ERROR("cgi::Process::close()"));
 				::_exit(1);
             }
         }
         if (!duplicateTo(stdout_pipe_.write_end(), STDOUT_FILENO)) {
-            LOG_ERROR(MAKE_ERRNO_ERROR("dup2 STDOUT"));
+            LOG_ERROR(MAKE_ERRNO_ERROR("cgi::Process::dup2()"));
 			::_exit(1);
         }
 
         if (!duplicateTo(stderr_pipe_.write_end(), STDERR_FILENO)) {
-            LOG_ERROR(MAKE_ERRNO_ERROR("dup2 STDERR"));
+            LOG_ERROR(MAKE_ERRNO_ERROR("cgi::Process::dup2()"));
 			::_exit(1);
         }
         stdin_pipe_.close();
@@ -168,12 +164,12 @@ bool Process::start(const ProcessContext& context) {
         stderr_pipe_.close();
 
         if (::chdir(context.working_dir.c_str()) == -1) {
-            LOG_ERROR(MAKE_ERRNO_ERROR("Process::chdir"));
+            LOG_ERROR(MAKE_ERRNO_ERROR("cgi::Process::chdir()"));
 			::_exit(1);
         }
 
         ::execve(context.argv.argv()[0], context.argv.argv(), context.envp.argv());
-        LOG_ERROR(MAKE_ERRNO_ERROR("execve"));
+        LOG_ERROR(MAKE_ERRNO_ERROR("cgi::Process::execve()"));
 		::_exit(EXIT_FAILURE);
     }
 

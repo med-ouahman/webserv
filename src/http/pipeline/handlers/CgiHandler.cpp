@@ -226,6 +226,7 @@ bool CgiHandler::done() const {
 bool CgiHandler::can_close() const { return state_ == Done; }
 
 bool CgiHandler::timedout() {
+    
 	if (!started_ || state_ != Working || reason_ != None
 		|| timeout_seconds == 0)
 		return false;

@@ -14,7 +14,7 @@ SessionManager::SessionManager(const std::string& name,
 	: cookie_name_(name),
 	timeout_seconds_(timeout),
 	store_(store),
-	initialized_(false) {}
+	initialized_(true) {}
 
 SessionManager::~SessionManager() {}
 

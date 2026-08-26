@@ -27,7 +27,7 @@ Error CounterHandler::handle() {
         setCookieHeader(session.get_cookie_name()+"="+newSessionID, "Path=/", "HttpOnly; SameSite=Lax");
         
         setContentType("text/html");
-        response().body = "You have been here for 1 time";
+        response().body = "<h1>You have been here for 1 time </h1>";
         responseReady();
         return ERR_NONE;
     }
@@ -42,7 +42,7 @@ Error CounterHandler::handle() {
     value = base::to_string(counter);
     session.set_session_data(sid, "counter", value);
     
-    response().body = "You have been here for: " + value + " times";
+    response().body = "<h1>You have been here for: " + value + " times </h1>";
     setContentType("text/html");
     responseReady();
     return ERR_NONE;
@@ -59,10 +59,11 @@ LoginHandler::~LoginHandler() {
 Error LoginHandler::handle() {
 
     /*
-        Notice
+        Notice:
         Login bodies are usually small so it's guarrented that the maximums \
         size of the body will be less than the limit as enforced in config
     */
+
     Request& req = request();
 
     if (req.has_body
@@ -85,7 +86,7 @@ Error LoginHandler::handle() {
         if (!auth)
             return ERR_UNAUTHORIZED;
         
-        response().body = session.get_session_data(sid, "username") + " Is already logged in";
+        response().body = "<h1>" + session.get_session_data(sid, "username") + " Is already logged in </h1>";
         setContentType("text/html");
         responseReady();
         return ERR_NONE;
@@ -104,7 +105,7 @@ Error LoginHandler::handle() {
 
     setCookieHeader(session.get_cookie_name()+"="+newSID, "Path=/", "HttpOnly; SameSite=Lax");
 
-    response().body = "Logged in as " + username;
+    response().body = "<h1>Logged in as " + username + "</h1>";
     setContentType("text/html");
 
     responseReady();
@@ -163,10 +164,9 @@ Error ProfileHandler::handle() {
 
     session.touch_session(sid);
 
-    std::string username =
-        session.get_session_data(sid, "username");
+    std::string username = session.get_session_data(sid, "username");
 
-    response().body = "Welcome " + username;
+    response().body = "<h1> Welcome " + username + "</h1>";
     setContentType("text/html");
     responseReady();
     return ERR_NONE;
@@ -202,7 +202,6 @@ Error LogoutHandler::handle() {
     response().body = "Session Deleted Successfully";
     setContentType("text/html");
     responseReady();
-    
     return ERR_NONE;
 }
 

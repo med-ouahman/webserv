@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
+#include <iostream>
 
 namespace http {
 namespace routing {

@@ -7,19 +7,20 @@
 
 namespace net {
 
-Connection::Connection(UniqueFd& uniq, io::Event events, RuntimeServices& services, const ConnectionInfo& info)
+Connection::Connection(UniqueFd& uniq,
+    io::Event events,
+    const std::vector<const config::ServerConfig*>& servers,
+    RuntimeServices& services)
     : AEventHandler(uniq.release(), events),
     state_(Reading),
-    close_after_write(false),
-    last_activity_(),
-    lifetime_(),
-    ctx(info.servers, fd(), fd(), services),
+    ctx(servers, fd(), fd(), services),
     reader_(in),
-    writer_(out),
-    info_(info) {
+    writer_(out) {
 }
 
-Connection::~Connection() {}
+Connection::~Connection() {
+
+}
 
 bool Connection::closing() const { return state_ == Closing; }
 

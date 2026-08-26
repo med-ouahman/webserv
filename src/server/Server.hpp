@@ -9,12 +9,13 @@
 class Server {
 
 public:
+
 enum ServerErrors {
-AllocFailed,
-SockFailed,
-ConfError,
-IOError,
-ConnError,
+    AllocFailed,
+    SockFailed,
+    ConfError,
+    IOError,
+    ConnError,
 
 };
 
@@ -23,6 +24,7 @@ static const std::size_t MaxListens = 10;
 
 private:
     bool running_;
+
     std::vector<net::Connection*> connections;
     
     std::vector<net::Socket*> listeners;
@@ -48,8 +50,7 @@ public:
     ~Server();
     int start();
     void maintenance();
-    void abort();
-    void add_connection(UniqueFd& uniq, const net::ConnectionInfo& info);
+    void add_connection(UniqueFd& uniq, const std::vector<const config::ServerConfig*>& info);
     void close_connection(net::Connection* conn);
     void close_socket(net::Socket* Socket);
     

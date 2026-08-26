@@ -49,7 +49,7 @@ private:
 	const static std::size_t StdoutReadSize = 1024 * 16;
 	const static std::size_t StderrReadSize = 1024;
 
-	const static time_t SigTermWaitSeconds = 3;
+	const static time_t SigTermWaitSeconds = 10;
 
 	State state_;
 	ResponseState response_state;

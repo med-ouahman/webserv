@@ -1,4 +1,5 @@
 #include "http/routing/RoutingInternal.hpp"
+#include <iostream>
 
 namespace http {
 namespace routing {
@@ -25,9 +26,12 @@ Error findLocation( DispatchInfo& decision,
 
 	while (i < server.locations.size()) {
 		const config::LocationConfig& location = server.locations[i];
+
 		if (matchPath(decision.normalized_path, location.path)
-			&& (best == NULL || location.path.size() > best->path.size()))
+			&& (best == NULL || location.path.size() > best->path.size())) {
 			best = &location;
+		}
+
 		++i;
 	}
 	if (best == NULL)

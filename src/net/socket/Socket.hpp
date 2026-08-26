@@ -18,8 +18,7 @@ class Server;
 
 namespace net {
 
-typedef uint32_t IpAddress;
-typedef uint16_t Port;
+
 
 class Socket: public io::AEventHandler {
 private:
@@ -30,14 +29,12 @@ private:
 
 	Server& server_;
 	logger::Logger& logger_;
-	uint32_t	host_;
-	uint16_t	port_;
 
 	const config::ListenEndPoint& endpoint_;
 	std::vector<const config::ServerConfig*> servers_;
 	
-	Socket(const Socket& socket);
-	Socket& operator=(const Socket& socket);
+	Socket(const Socket&);
+	Socket& operator=(const Socket&);
 
 	bool accept_clients();
 	bool on_error();
@@ -50,9 +47,6 @@ public:
 	bool error() const;
 	const config::ListenEndPoint& endpoint() const;
 	void add_server(const config::ServerConfig* server);
-
-	const std::vector<const config::ServerConfig*>& servers() const;
-
 };
 
 base::Result<Socket*>
@@ -62,4 +56,5 @@ create_listening_socket(
 std::string int_to_ip(uint32_t ip_addr);
 
 bool listeners_match(const config::ListenEndPoint& existing, const config::ListenEndPoint& requested);
+
 }

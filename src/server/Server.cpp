@@ -20,7 +20,7 @@ Server::Server(const config::Config& c)
     logger_("./var/log/errors.log"),
     event_loop(logger_),
     conf(c),
-    services_(event_loop, logger_, c, sessions_) {
+    services_(event_loop, logger_, sessions_) {
 
     logger_.setstream(std::cout);
 
@@ -82,8 +82,14 @@ bool Server::start_listeners() {
         for (size_t j(0); j < endpoints.size(); ++j) {
             
             net::Socket* l = find_listener(endpoints[j]);
-	        if (l) logger_.log(logger::Info, "duplicate ip:port", true);
+	        
+            if (l) logger_.log(logger::Info, "Duplicate endpoint detected, using the existing one", true);
+
             if (!l) {
+                
+                if (listeners.size() >= MaxListens) {
+                    continue;
+                }
 
                 base::Result<net::Socket*> result = net::create_listening_socket(endpoints[j], *this);
                 
@@ -101,6 +107,10 @@ bool Server::start_listeners() {
 
                 if (!event_loop.add(sock)) return false;
                 listeners.push_back(sock);
+                
+                if (listeners.size() >= MaxListens) {
+                    logger_.log(logger::Warning, "Listening sockets maximum reached\nThe next listening sockets will be ignored", true);
+                }
 
                 l = sock;
             }
@@ -112,9 +122,12 @@ bool Server::start_listeners() {
     return true;
 }
 
-void Server::add_connection(UniqueFd& conn_fd, const net::ConnectionInfo& info) {
+void Server::add_connection(UniqueFd& conn_fd, const std::vector<const config::ServerConfig*>& servers) {
 
-    net::Connection* connection = new (std::nothrow) net::Connection(conn_fd, io::Readable, services_, info);
+    net::Connection* connection = new (std::nothrow) net::Connection(conn_fd,
+        io::Readable,
+        servers,
+        services_);
     
     if (!connection) {
         logger_.log(logger::Error, logger_.make_error("Server::add_connection", "allocation failed", __FILE__, __LINE__), true);
@@ -157,11 +170,6 @@ void Server::maintenance() {
 
 logger::Logger& Server::logger() { return logger_; }
 
-void Server::abort() {
-    std::abort();
-}
-
-
 net::Socket* Server::find_listener(const config::ListenEndPoint& endpoint) {
 
     for (
@@ -186,7 +194,7 @@ void leaks(bool & r) {
 
     static Timestamp x;
 
-    if (x.elapsed() >= 400) r = false;
+    if (x.elapsed() >= 300) r = false;
 
 }
 
