@@ -5,16 +5,17 @@
 #include "runtime/epoll/EventLoop.hpp"
 #include "Context.hpp"
 #include <cstdio>
+
 namespace cgi {
-    
+
 template <size_t N>
 Channel::Channel(Storage<N>& storage,
 Stream s, int fd, io::Event events, http::CgiHandler& h)
-: AEventHandler(fd, events),
-stream_(s),
-state_(Open),
-handler_(h),
-buf(storage) {}
+    : AEventHandler(fd, events),
+    stream_(s),
+    state_(Open),
+    handler_(h),
+    buf(storage) {}
 
 }
 
@@ -119,10 +120,14 @@ size_t CgiHandler::on_readable(cgi::Channel& channel) {
         return view.cursor();
     }
 
+    /* Log CGI diagnosis errors */
     if (channel.stream() == cgi::Channel::Stderr) {
+        context_.services_.logger.log_cstr(logger::Error, view.data(),
+        view.remaining());
+
         view.advance(view.remaining());
-		if (channel.state() == cgi::Channel::Closing)
-			close_channel(channel);
+
+		if (channel.state() == cgi::Channel::Closing) close_channel(channel);
         return view.cursor();
     }
 

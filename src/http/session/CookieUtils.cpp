@@ -6,15 +6,14 @@ namespace http {
 
 std::string extract_cookie_value(const std::vector<Header>& headers,
 	const std::string& cookie_name) {
-	// Assumes header names have already been normalized to lowercase
-	// by the parser, per project convention.
-	size_t cookie_index = 0;
 
+		
 	if (headers.empty()) return "";
-
+		
+	size_t cookie_index = 0;
 	while (cookie_index < headers.size()) {
-		std::string normal_name = base::toLowerCase(headers[cookie_index].key);
-		if ("cookie" == normal_name) {
+		std::string normalized = base::toLowerCase(headers[cookie_index].key);
+		if ("cookie" == normalized) {
 			break;
 		}
 
@@ -29,7 +28,6 @@ std::string extract_cookie_value(const std::vector<Header>& headers,
 
 	size_t pos = 0;
 	while (pos < cookie_value.size()) {
-		// Skip leading spaces after ';' separators
 		while (pos < cookie_value.size() && cookie_value[pos] == ' ')
 			++pos;
 
@@ -51,4 +49,4 @@ std::string extract_cookie_value(const std::vector<Header>& headers,
 	return "";
 }
 
-} // namespace http
+}

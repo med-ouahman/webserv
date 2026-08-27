@@ -127,10 +127,8 @@ void ARequestHandler::setContentLength() {
 }
 
 void ARequestHandler::setContentLength(usize size) {
-	std::ostringstream length;
-
-	length << size;
-	setHeader("Content-Length", length.str());
+	
+	setHeader("Content-Length", base::to_string(size));
 }
 
 void ARequestHandler::setConnection() {
