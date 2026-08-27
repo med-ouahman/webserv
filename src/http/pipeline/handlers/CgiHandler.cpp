@@ -202,7 +202,6 @@ http::Error CgiHandler::handle() {
 			setBodyFixed(result.body_);
 		else {
 			http::Error err = setBodyFile(result.body_filename);
-			std::remove(result.body_filename.c_str());
 			if (err != ERR_NONE)
 				return err;
 		}
@@ -303,7 +302,7 @@ void CgiHandler::monitor() {
     if (shutdown_state != Reaped) return;
     
     cgi::ProcessResult res = process.result();
-    
+
     if (res.reason != cgi::Exited && reason_ == None) reason_ = Internal;
 
     if (state_ == Cleanup) state_ = Done;
