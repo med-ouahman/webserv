@@ -83,7 +83,9 @@ bool Server::start_listeners() {
             
             net::Socket* l = find_listener(endpoints[j]);
 	        
-            if (l) logger_.log(logger::Info, "Duplicate endpoint detected, using the existing one", true);
+            if (l) {
+                logger_.log(logger::Info, "Duplicate listen endpoint detected, using existing one", true);
+            }
 
             if (!l) {
                 
@@ -117,6 +119,11 @@ bool Server::start_listeners() {
 	    
             l->add_server(&servers[i]);
         }
+    }
+
+    if (listeners.empty()) {
+        logger_.log(logger::Error, "No listening endpoints configured", true);
+        return false;
     }
     
     return true;
@@ -178,8 +185,7 @@ net::Socket* Server::find_listener(const config::ListenEndPoint& endpoint) {
             ++it
     ) {
         net::Socket* sock = *it;
-        const config::ListenEndPoint& ep = sock->endpoint();
-        
+        const config::ListenEndPoint& ep = sock->endpoint();        
         if (net::listeners_match(ep, endpoint)) return sock;
     }
 
@@ -223,11 +229,12 @@ http::SessionManager* Server::find_session(std::vector<http::SessionManager*>& s
     const std::string& cookie_name) {
 
     for ( size_t i = 0; i < sessions.size(); i++ ) {
-        if (sessions[i]->get_cookie_name() == cookie_name) {
+        
+        if (sessions[i] != NULL
+            && sessions[i]->get_cookie_name() == cookie_name) {
             return sessions[i];
         }
-    } 
-
+    }
     return NULL;
 }
 

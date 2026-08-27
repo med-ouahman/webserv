@@ -69,12 +69,15 @@ base::Result<Socket*> create_listening_socket(
 	sockaddr_in server_addr;
 	
 	::memset(&server_addr, 0, sizeof(server_addr));
+	
 	server_addr.sin_family = AF_INET;
+	
 	server_addr.sin_addr.s_addr = endpoint.host;
-	// if (!::inet_pton(AF_INET, int_to_ip(endpoint.host).c_str(), &server_addr.sin_addr)) return MAKE_ERRNO_ERROR("Socket::inet_pton()");
+
 	server_addr.sin_port = ::htons(endpoint.port);
 
 	UniqueFd socket_fd(::socket(AF_INET, SOCK_STREAM | O_NONBLOCK | SOCK_CLOEXEC, 0));
+	
 	if (!socket_fd.valid()) return MAKE_ERRNO_ERROR("Socket::socket()");
 
 	int x = 1;
@@ -129,7 +132,7 @@ bool listeners_match(
 ) {
     if (existing.port != requested.port) return false;
 
-    if (existing.host == requested.host)  return false;
+    if (existing.host == requested.host)  return true;
 
     if (existing.host == ::htonl(INADDR_ANY)) return true;
 

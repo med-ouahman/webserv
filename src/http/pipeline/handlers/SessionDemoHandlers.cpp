@@ -42,7 +42,7 @@ Error CounterHandler::handle() {
     value = base::to_string(counter);
     session.set_session_data(sid, "counter", value);
     
-    response().body = "<h1>You have been here for: " + value + " times </h1>";
+    response().body = "<h1>You have been here for " + value + " times </h1>";
     setContentType("text/html");
     responseReady();
     return ERR_NONE;

@@ -107,16 +107,12 @@ void SessionManager::cleanup() {
 	std::time_t now = std::time(NULL);
 
 	SessionStore::iterator it = sessions_.begin();
-	while (it != sessions_.end())
-	{
-		if (is_expired(it->second.last_touch, now))
-		{
+	while (it != sessions_.end()) {
+		if (is_expired(it->second.last_touch, now)) {
 			SessionStore::iterator to_erase = it;
 			++it;
 			sessions_.erase(to_erase);
-		}
-		else
-		{
+		} else {
 			++it;
 		}
 	}

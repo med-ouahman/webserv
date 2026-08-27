@@ -1,7 +1,7 @@
 
 #!/bin/bash
 
-for i in $(seq 1 1000); do
+for i in $(seq 1 10000); do
     echo "Request $i"
     curl -s -i \
         -H "Host: localhost" \
