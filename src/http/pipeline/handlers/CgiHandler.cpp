@@ -104,7 +104,6 @@ CgiHandler::~CgiHandler() {
         if (ch->state() != cgi::Channel::Closed) {
             close_channel(*ch);
         }
-        
     }
 }
 
@@ -120,7 +119,7 @@ size_t CgiHandler::on_readable(cgi::Channel& channel) {
         return view.cursor();
     }
 
-    /* Log CGI diagnosis errors */
+    /* Log CGI error for diagnosis */
     if (channel.stream() == cgi::Channel::Stderr) {
         context_.services_.logger.log_cstr(logger::Error, view.data(),
         view.remaining());
@@ -256,8 +255,7 @@ void CgiHandler::check_channels() {
     }
 }
 
-void CgiHandler::close_channel(cgi::Channel& ch)
-{
+void CgiHandler::close_channel(cgi::Channel& ch) {
     if (ch.closed()) return;
 
     event_loop.del(&ch);
@@ -305,6 +303,7 @@ void CgiHandler::monitor() {
     if (shutdown_state != Reaped) return;
     
     cgi::ProcessResult res = process.result();
+    
     if (res.reason != cgi::Exited && reason_ == None) reason_ = Internal;
 
     if (state_ == Cleanup) state_ = Done;

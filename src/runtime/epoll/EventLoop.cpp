@@ -16,7 +16,7 @@ EventLoop::EventLoop(logger::Logger& log)
     logger(log) {
 
     if (!epoll_fd.valid()) {
-        logger.log(logger::Error, logger.make_errno_error("EventLoop::epoll_create()", __FILE__, __LINE__), true);
+        logger.log(logger::Error, logger.make_errno_error("EventLoop::epoll_create()", __FILE__, __LINE__));
         return;
     }
   
@@ -45,7 +45,6 @@ bool EventLoop::created() const {
 EventLoop::~EventLoop() {
 
 }
-
 
 io::Event EventLoop::encode_events(EpollEvent epoll_event) {
     io::Event event = io::None;

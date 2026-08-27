@@ -153,7 +153,6 @@ void Server::add_connection(UniqueFd& conn_fd, const std::vector<const config::S
 
 void Server::maintenance() {
     
-
     session_cleanup();
 
     for (size_t i(0); i < connections.size();) {
@@ -196,14 +195,6 @@ size_t Server::num_connections() const {
     return connections.size();
 }
 
-void leaks(bool & r) {
-
-    static Timestamp x;
-
-    if (x.elapsed() >= 300) r = false;
-
-}
-
 void Server::init_sessions() {
 
     for ( size_t i = 0; i < conf.servers.size(); ++i ) {
@@ -243,7 +234,6 @@ int Server::start() {
     if (!running_) return EXIT_FAILURE;
 
     while (running_) {
-        // leaks(running_);
         event_loop.poll();
         maintenance();
     }

@@ -20,7 +20,7 @@ Error CounterHandler::handle() {
     bool valid = request().currentSessionValid;
 
     if (!valid) {
-        std::cout << "Cookie name: " << session.get_cookie_name() << "\n";
+        std::cout << "Cookie name: " << session.get_cookie_name() << "\n"; // DELETE ME
         const std::string newSessionID = session.create_session();
         session.set_session_data(newSessionID, "counter", "1");
         

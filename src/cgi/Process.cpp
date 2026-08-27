@@ -10,17 +10,13 @@
 
 namespace cgi {
 
-namespace {
-
 static bool duplicateTo(int source, int destination) {
     if (source != destination)
         return ::dup2(source, destination) >= 0;
 
     int flags = ::fcntl(destination, F_GETFD);
-    return flags >= 0
-        && ::fcntl(destination, F_SETFD, flags & ~FD_CLOEXEC) == 0;
-}
 
+    return flags >= 0 && ::fcntl(destination, F_SETFD, flags & ~FD_CLOEXEC) == 0;
 }
 
 Process::Process()
@@ -138,26 +134,26 @@ bool Process::start(const ProcessContext& context) {
         if (want_stdin_) {
             if (!duplicateTo(stdin_pipe_.read_end(), STDIN_FILENO)) {
                 LOG_ERROR(MAKE_ERRNO_ERROR("cgi::Process::dup2()"));
-				::_exit(1);
+				::exit(1);
             }
         } else {
             if (!duplicateTo(context.stdin_fd.get(), STDIN_FILENO)) {
                 LOG_ERROR(MAKE_ERRNO_ERROR("cgi::Process::dup2()"));
-				::_exit(1);
+				::exit(1);
             }
             if (::close(context.stdin_fd.release()) == -1) {
                 LOG_ERROR(MAKE_ERRNO_ERROR("cgi::Process::close()"));
-				::_exit(1);
+				::exit(1);
             }
         }
         if (!duplicateTo(stdout_pipe_.write_end(), STDOUT_FILENO)) {
             LOG_ERROR(MAKE_ERRNO_ERROR("cgi::Process::dup2()"));
-			::_exit(1);
+			::exit(1);
         }
 
         if (!duplicateTo(stderr_pipe_.write_end(), STDERR_FILENO)) {
             LOG_ERROR(MAKE_ERRNO_ERROR("cgi::Process::dup2()"));
-			::_exit(1);
+			::exit(1);
         }
         stdin_pipe_.close();
         stdout_pipe_.close();
@@ -165,12 +161,12 @@ bool Process::start(const ProcessContext& context) {
 
         if (::chdir(context.working_dir.c_str()) == -1) {
             LOG_ERROR(MAKE_ERRNO_ERROR("cgi::Process::chdir()"));
-			::_exit(1);
+			::exit(1);
         }
 
         ::execve(context.argv.argv()[0], context.argv.argv(), context.envp.argv());
         LOG_ERROR(MAKE_ERRNO_ERROR("cgi::Process::execve()"));
-		::_exit(EXIT_FAILURE);
+		::exit(EXIT_FAILURE);
     }
 
     stdin_pipe_.close_read_end();
@@ -181,6 +177,7 @@ bool Process::start(const ProcessContext& context) {
         state_ = Error;
         return false;
     }
+
     state_ = Running;
     return true;
 }

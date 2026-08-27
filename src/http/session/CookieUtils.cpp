@@ -4,23 +4,32 @@
 
 namespace http {
 
+/*
+* Policy for duplicates in cookie header
+* Last wins
+*/
+
 std::string extract_cookie_value(const std::vector<Header>& headers,
 	const std::string& cookie_name) {
 
 		
 	if (headers.empty()) return "";
-		
-	size_t cookie_index = 0;
-	while (cookie_index < headers.size()) {
-		std::string normalized = base::toLowerCase(headers[cookie_index].key);
+	
+	bool found = false;
+	size_t cookie_index = headers.size();
+
+	while (cookie_index > 0) {
+		std::string normalized = base::toLowerCase(headers[cookie_index - 1].key);
 		if ("cookie" == normalized) {
+			--cookie_index;
+			found = true;
 			break;
 		}
 
-		++cookie_index;
+		--cookie_index;
 	}
 
-	if (cookie_index == headers.size()) return "";
+	if (!found) return "";
 
 	const std::string& cookie_value = headers[cookie_index].value;
 
