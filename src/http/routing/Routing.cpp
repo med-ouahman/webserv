@@ -1,9 +1,6 @@
 
 #include "http/routing/RoutingInternal.hpp"
 
-/* get_sessions() */
-#include "server/Server.hpp"
-
 namespace http {
 
 namespace {

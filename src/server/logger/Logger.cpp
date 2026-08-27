@@ -8,7 +8,7 @@
 namespace logger {
 
 Logger::Logger(const std::string& error_logfile)
-    : out(&std::cout),
+    : out_(&std::cout),
     error_log_(error_logfile.c_str()) {
 }
 
@@ -37,8 +37,7 @@ const char* level_color(LogLevel level) {
     }
 }
 
-void Logger::log(LogLevel level, const std::string& message, bool timestamp)
-{
+void Logger::log(LogLevel level, const std::string& message, bool timestamp) {
 
     const std::string ts =
         timestamp ? format_date(Timestamp::now().seconds()) : "";
@@ -51,7 +50,7 @@ void Logger::log(LogLevel level, const std::string& message, bool timestamp)
         return;
     }
     
-    (*out)
+    (*out_)
     << level_color(level)
     << std::left << std::setw(8) << level_string(level)
     << reset << "  "
@@ -60,8 +59,7 @@ void Logger::log(LogLevel level, const std::string& message, bool timestamp)
     << '\n';
 }
 
-void Logger::log_cstr(LogLevel level, const char* message, size_t size, bool timestamp)
-{
+void Logger::log_cstr(LogLevel level, const char* message, size_t size, bool timestamp) {
 
     if (size == 0) return;
 
@@ -77,7 +75,7 @@ void Logger::log_cstr(LogLevel level, const char* message, size_t size, bool tim
         return;
     }
     
-    (*out)
+    (*out_)
     << level_color(level)
     << std::left << std::setw(8) << level_string(level)
     << reset << "  "
@@ -103,7 +101,7 @@ std::string Logger::format_date(time_t raw) {
 }
 
 void Logger::setstream(std::ostream& stream) const {
-    out = &stream;
+    out_ = &stream;
 }
 
 std::string Logger::make_errno_error(std::string const& ctx,  const char* file, int line) {

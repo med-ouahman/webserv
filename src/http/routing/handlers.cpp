@@ -125,7 +125,6 @@ Error resolveUploadPath(DispatchInfo& decision) {
 
 Error setRequestType(const Request& request,
 		DispatchInfo& decision) {
-	decision.cgi_path = findCgiPath(decision);
 
 	if (decision.location->path == "/counter") {
 		decision.handler_type = COUNTER;
@@ -147,6 +146,8 @@ Error setRequestType(const Request& request,
 		decision.handler_type = LOGOUT;
 		return ERR_NONE;
 	}
+
+	decision.cgi_path = findCgiPath(decision);
 
 	if (decision.cgi_path != NULL) {
 		decision.handler_type = CGI;
