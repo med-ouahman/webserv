@@ -5,6 +5,7 @@
 #include "Connection.hpp"
 #include "Socket.hpp"
 #include "Logger.hpp"
+#include <csignal>
 
 class Server {
 
@@ -16,6 +17,7 @@ enum ServerErrors {
 
 private:
     bool running_;
+    static volatile sig_atomic_t g_running_;
 
     std::vector<net::Connection*> connections;
     
@@ -52,4 +54,5 @@ public:
 
     static http::SessionManager* find_session(std::vector<http::SessionManager*>& sessions,
         const std::string& cookie_name);
+    static void shutdown();
 };

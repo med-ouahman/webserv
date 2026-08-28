@@ -33,7 +33,7 @@ private:
 public:
 	EventLoop(logger::Logger& log);
 	~EventLoop();
-	int poll();
+	bool poll();
 	
 	bool add(io::AEventHandler* handler, bool conf = true);
 	bool mod(io::AEventHandler* handler);

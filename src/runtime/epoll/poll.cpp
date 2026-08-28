@@ -8,13 +8,15 @@
 namespace runtime {
 namespace epoll {
 
-int EventLoop::poll() {
+bool EventLoop::poll() {
 
     int nfds = ::epoll_wait(epoll_fd.get(), events, MaxEvents, EpollMaxTimeoutMs);
 
     if (nfds < 0) {
-        LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::run()"));
-        return 1;
+        
+        if (errno == EINTR) return true;
+        logger.log(logger::Error, "EventLoop::epoll_wait()");
+        return false;
     }
 
     for (int i(0); i < nfds; ++i) {
@@ -22,7 +24,7 @@ int EventLoop::poll() {
         handler->on_event(encode_events(events[i].events));
     }
 
-    return 0;
+    return true;
 }
 
 }

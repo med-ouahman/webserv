@@ -15,6 +15,8 @@ std::string info() {
 
 }
 
+volatile sig_atomic_t Server::g_running_ = 1;
+
 Server::Server(const config::Config& c)
     : running_(false),
     logger_("./var/log/errors.log"),
@@ -51,6 +53,9 @@ Server::~Server() {
     }
     
     sessions_.clear();
+    logger_.log(logger::Info, "Perfoming cleanup...");
+    logger_.log(logger::Info, "Shutting down server...");
+    logger_.log(logger::Info, "Server shutdown successfully");
 }
 
 void Server::close_connection(net::Connection* conn) {
@@ -227,9 +232,16 @@ int Server::start() {
     if (!running_) return EXIT_FAILURE;
 
     while (running_) {
-        event_loop.poll();
+        running_ = event_loop.poll();
         maintenance();
+        running_ = g_running_ ? true: false;
     }
+ 
+    if (!running_) return 1;
     
     return 0;
+}
+
+void Server::shutdown() {
+    g_running_ = 0;
 }
