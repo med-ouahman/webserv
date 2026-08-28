@@ -28,17 +28,18 @@ private:
 	
 	static io::Event encode_events (EpollEvent ev);
 	static EpollEvent decode_events(io::Event event);
+	bool conf_handler_fd(int fd);
 
 public:
 	EventLoop(logger::Logger& log);
 	~EventLoop();
 	int poll();
 	
-	bool add(io::AEventHandler* handler);
+	bool add(io::AEventHandler* handler, bool conf = true);
 	bool mod(io::AEventHandler* handler);
 	bool del(io::AEventHandler* handler);
 	void sync(io::AEventHandler* handler);
-	
+
 	bool created() const;
 };
 

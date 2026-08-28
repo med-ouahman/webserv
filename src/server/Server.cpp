@@ -103,7 +103,8 @@ bool Server::start_listeners() {
                 
                 net::Socket* sock = result.value();
 
-                if (!event_loop.add(sock)) return false;
+                if (!event_loop.add(sock, false)) return false;
+                
                 listeners.push_back(sock);
 
                 l = sock;
@@ -114,7 +115,7 @@ bool Server::start_listeners() {
     }
 
     if (listeners.empty()) {
-        logger_.log(logger::Error, "No listening endpoints configured", true);
+        logger_.log(logger::Error, "No listening endpoints configured");
         return false;
     }
     
@@ -129,7 +130,7 @@ void Server::add_connection(UniqueFd& conn_fd, const std::vector<const config::S
         services_);
     
     if (!connection) {
-        logger_.log(logger::Error, logger_.make_error("Server::add_connection", "allocation failed", __FILE__, __LINE__), true);
+        logger_.log(logger::Error, logger_.make_error("Server::add_connection", "allocation failed", __FILE__, __LINE__));
         return;
     }
 
@@ -139,7 +140,7 @@ void Server::add_connection(UniqueFd& conn_fd, const std::vector<const config::S
     }
 
     connections.push_back(connection);
-    logger_.log(logger::Info, "Connection accepted", true);
+    logger_.log(logger::Info, "Connection accepted");
 }
 
 

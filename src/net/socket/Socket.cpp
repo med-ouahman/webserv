@@ -48,6 +48,8 @@ bool Socket::accept_clients() {
 	if (!client.valid()) {
 		return false;
 	}
+
+	if (!client_fd_conf(client.get())) return false;
 	
 	server_.add_connection(client, servers_);
 	
@@ -89,6 +91,7 @@ base::Result<Socket*> create_listening_socket(
 	if (::listen(socket_fd.get(), BACKLOG) < 0) return MAKE_ERRNO_ERROR("net::Socket::listen()");
 
 	net::Socket* sock = new (std::nothrow) Socket(socket_fd, io::Readable, server, endpoint);
+
 	if (!sock) return MAKE_ERROR(Server::AllocFailed, "net::Socket", "alloc failed");
 
 	std::stringstream ss;
@@ -137,6 +140,20 @@ bool listeners_match(
     if (existing.host == ::htonl(INADDR_ANY)) return true;
 
     return false;
+}
+
+
+bool Socket::client_fd_conf(int fd) {
+
+	int flags = ::fcntl(fd, F_GETFL);
+
+	if (flags < 0 || ::fcntl(fd, F_SETFL, O_NONBLOCK | flags) < 0) return false;
+	
+	flags = ::fcntl(fd, F_GETFD);
+
+	if (flags < 0 || ::fcntl(fd, F_SETFD, flags | FD_CLOEXEC) < 0) return false;
+
+	return true;
 }
 
 }

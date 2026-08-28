@@ -39,6 +39,8 @@ private:
 	bool accept_clients();
 	bool on_error();
 
+	bool client_fd_conf(int fd);
+
 public:
 	explicit Socket(UniqueFd& uniq, io::Event mask, Server& server, const config::ListenEndPoint& ep);
 

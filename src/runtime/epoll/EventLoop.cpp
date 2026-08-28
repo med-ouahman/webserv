@@ -62,7 +62,22 @@ io::Event EventLoop::encode_events(EpollEvent epoll_event) {
     return event;
 }
 
+bool EventLoop::conf_handler_fd(int fd) {
 
+    int flags = ::fcntl(fd, F_GETFL);
+	if (flags < 0 || ::fcntl(fd, F_SETFL, flags | O_NONBLOCK)) {
+		logger.log(logger::Error, logger.make_errno_error("EventLoop::add::fcntl()", __FILE__, __LINE__));
+		return false;
+	}
+	
+	flags = ::fcntl(fd, F_GETFD);
+	if (flags < 0 || ::fcntl(fd, F_SETFD, flags | FD_CLOEXEC)) {
+		logger.log(logger::Error, logger.make_errno_error("EventLoop::add::fcntl()", __FILE__, __LINE__));
+		return false;
+	}
+
+    return true;
+}
 
 EpollEvent EventLoop::decode_events(io::Event event) {
 

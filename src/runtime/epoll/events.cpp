@@ -10,7 +10,7 @@ namespace runtime {
 
 namespace epoll {
 
-bool EventLoop::add(io::AEventHandler* handler) {
+bool EventLoop::add(io::AEventHandler* handler, bool conf) {
 
 	if (monitor_count >= MaxMonitorFds) {
 		std::stringstream ss;
@@ -22,19 +22,10 @@ bool EventLoop::add(io::AEventHandler* handler) {
 	epoll_event event;
 	event.events = decode_events(handler->events());
 	event.data.ptr = handler;
+	
+	if (conf && !conf_handler_fd(handler->fd()))
+		return false;
 
-	int flags = ::fcntl(handler->fd(), F_GETFL);
-	if (flags < 0 || ::fcntl(handler->fd(), F_SETFL, flags | O_NONBLOCK)) {
-		logger.log(logger::Error, logger.make_errno_error("EventLoop::add::fcntl()", __FILE__, __LINE__));
-		return false;
-	}
-	
-	flags = ::fcntl(handler->fd(), F_GETFD);
-	if (flags < 0 || ::fcntl(handler->fd(), F_SETFD, flags | FD_CLOEXEC)) {
-		logger.log(logger::Error, logger.make_errno_error("EventLoop::add::fcntl()", __FILE__, __LINE__));
-		return false;
-	}
-	
 	if (::epoll_ctl(epoll_fd.get(), EPOLL_CTL_ADD, handler->fd(), &event)) {
 		logger.log(logger::Error, logger.make_errno_error("EventLoop::add::epoll_ctl(EPOLL_CTL_ADD)", __FILE__, __LINE__));
 		return false;
