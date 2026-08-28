@@ -4,6 +4,7 @@
 #include "http/pipeline/handlers/ErrorHandler.hpp"
 #include "http/routing/Routing.hpp"
 #include "Logger.hpp"
+#include "server/Server.hpp"
 
 #include <sstream>
 
@@ -34,7 +35,6 @@ void Actor::reset() {
 }
 
 /* Context::consume() utility */
-
 void Context::responseReady() {
 	actor.response.resetWriteState();
 	state_ = DONE;
@@ -66,6 +66,33 @@ Error Context::setError(Error error) {
 	responseReady();
 
 	return error;
+}
+
+void Context::sessionConfigure() {
+	Request& request = actor.request;
+	bool sessionsEnabled = info.dispatch.value.server->session_enabled;
+
+	if (!sessionsEnabled) {
+		request.sessionsEnabled = false;
+		request.session = NULL;
+		return;
+	}
+
+	const std::string& cookie_name = info.dispatch.value.server->session_cookie_name;
+	SessionManager* session = Server::find_session(services_.sessions, cookie_name);
+
+	if (!session) {
+		request.sessionsEnabled = false;
+		request.session = NULL;
+		return;
+	}
+
+	request.sessionsEnabled = true;
+	request.session = session;
+
+	std::string sid = extract_cookie_value(request.headers, session->get_cookie_name());
+	request.currentSessionID = sid;
+	request.currentSessionValid = !sid.empty() && session->has_session(sid);
 }
 
 Error Context::resolveDispatch() {

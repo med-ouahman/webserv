@@ -50,24 +50,10 @@ void push_array(const char** __arr, size_t size) {
     cache_expired_ = true;
 }
 
-size_t size() const {
-    return storage_.size();
-}
-
-const std::vector<std::string>& data() const {
-    return storage_;
-}
-
 char** argv() const {
     if (cache_expired_ || cache_.empty()) rebuild();
 
     return cache_.data();
-}
-
-void clear() {
-    cache_.clear();
-    storage_.clear();
-    cache_expired_ = true;
 }
 
 };

@@ -60,10 +60,6 @@ int release_write_end() {
     return fd;
 }
 
-void reset() {
-    close();
-}
-
 Pipe(): created_(false), read_end_(-1), write_end_(-1) {
     created_ = create(*this);
 }

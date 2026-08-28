@@ -1,8 +1,10 @@
+
 #include "Reader.hpp"
 #include <algorithm>
 #include <cstring>
 #include <fcntl.h>
 #include <unistd.h>
+
 namespace base {
 namespace io {
 
@@ -16,24 +18,6 @@ void Reader::close_fd() {
 Reader::Reader()
 	: type_(NONE), path_(), fd_(-1), buffer_(NULL), size_(0), offset_(0),
 	  owns_fd_(false) {}
-
-Reader::Reader(const std::string& path)
-	: type_(NONE), path_(), fd_(-1), buffer_(NULL), size_(0), offset_(0),
-	  owns_fd_(false) {
-	reset(path);
-}
-
-Reader::Reader(i32 fd, bool owns_fd)
-	: type_(NONE), path_(), fd_(-1), buffer_(NULL), size_(0), offset_(0),
-	  owns_fd_(false) {
-	reset(fd, owns_fd);
-}
-
-Reader::Reader(const char* buffer, usize size)
-	: type_(NONE), path_(), fd_(-1), buffer_(NULL), size_(0), offset_(0),
-	  owns_fd_(false) {
-	reset(buffer, size);
-}
 
 Reader::~Reader() {
 	close_fd();
@@ -60,18 +44,6 @@ bool Reader::reset(const std::string& path) {
 		return true;
 	fd_ = ::open(path_.c_str(), O_RDONLY);
 	owns_fd_ = true;
-	return fd_ >= 0;
-}
-
-bool Reader::reset(i32 fd, bool owns_fd) {
-	close_fd();
-	type_ = FILE;
-	path_.clear();
-	fd_ = fd;
-	owns_fd_ = owns_fd;
-	buffer_ = NULL;
-	size_ = 0;
-	offset_ = 0;
 	return fd_ >= 0;
 }
 

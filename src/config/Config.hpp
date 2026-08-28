@@ -64,7 +64,6 @@ struct ServerConfig {
     bool session_enabled;
     std::string session_cookie_name;
     size_t session_timeout;
-    std::string session_store;
 
     ServerConfig()
         : locations(),
@@ -76,8 +75,7 @@ struct ServerConfig {
           client_max_body_size(0),
           session_enabled(false),
           session_cookie_name(),
-          session_timeout(0),
-          session_store()
+          session_timeout(0)
     {}
 };
 

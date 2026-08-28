@@ -2,6 +2,7 @@
 #include "http/Parser/Parser.hpp"
 #include "http/Parser/headers/headers.hpp"
 #include "http/Context.hpp"
+#include "base/base.hpp"
 
 namespace http {
 
@@ -26,7 +27,7 @@ static http::Error	prepareHeaderLine(const std::string& line, Entity& entity) {
 	if (entity.name.empty() || entity.value.empty())
 		return http::ERR_BAD_REQUEST;
 
-	entity.normalized = parser::lowerName(entity.name);
+	entity.normalized = base::toLowerCase(entity.name);
 	return http::ERR_NONE;
 }
 

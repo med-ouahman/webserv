@@ -18,9 +18,6 @@
 #include "session/SessionManager.hpp"
 #include "session/CookieUtils.hpp"
 
-#define CRLF "\r\n"
-#define HTTP_SERVER_ROOT "server/root"
-
 namespace http {
 
 class Context;
@@ -75,7 +72,6 @@ private:
 	ContextAction action_;
 	ContextState state_;
 
-	static usize active_cgi;
 	usize active_requests;
 
 	Context(const Context&);

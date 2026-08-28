@@ -36,10 +36,6 @@ const char* read_ptr() const {
     return storage_ + r_offset_;
 }
 
-bool full() const {
-    return w_offset_ == capacity_;
-}
-
 bool empty() const {
     return bytes_pending() == 0;
 }
@@ -60,24 +56,8 @@ void advance_write(size_t n__) {
     w_offset_ += n__;
 }
 
-size_t capacity() const {
-    return capacity_;
-}
-
-void reset() {
-    r_offset_ = 0;
-    w_offset_ = 0;
-}
-
 size_t size() const { 
     return w_offset_;
-}
-
-void pop(size_t n) {
-    
-    if (n > w_offset_) n = w_offset_;
-    
-    w_offset_ -= n;
 }
 
 void compact() {

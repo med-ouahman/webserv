@@ -1,4 +1,5 @@
 #include "http/routing/RoutingInternal.hpp"
+#include "http/common/Path.hpp"
 
 #include <cerrno>
 #include <cstdlib>
@@ -11,20 +12,6 @@
 namespace http {
 namespace routing {
 
-static bool isHex(char c) {
-	return (c >= '0' && c <= '9')
-		|| (c >= 'a' && c <= 'f')
-		|| (c >= 'A' && c <= 'F');
-}
-
-static char hexValue(char c) {
-	if (c >= '0' && c <= '9')
-		return c - '0';
-	if (c >= 'a' && c <= 'f')
-		return c - 'a' + 10;
-	return c - 'A' + 10;
-}
-
 static Error decodePercent(const std::string& path, std::string& out) {
 
 	usize i = 0;
@@ -36,10 +23,11 @@ static Error decodePercent(const std::string& path, std::string& out) {
 			out += path[i++];
 			continue;
 		}
-		if (i + 2 >= path.size() || !isHex(path[i + 1])
-			|| !isHex(path[i + 2]))
+		if (i + 2 >= path.size() || !base::isHex(path[i + 1])
+			|| !base::isHex(path[i + 2]))
 			return ERR_BAD_REQUEST;
-		decoded = static_cast<char>((hexValue(path[i + 1]) << 4) | hexValue(path[i + 2]));
+		decoded = static_cast<char>((base::hexValue(path[i + 1]) << 4)
+			| base::hexValue(path[i + 2]));
 		if (decoded == '\0')
 			return ERR_BAD_REQUEST;
 		out += decoded;
@@ -82,15 +70,6 @@ static Error trimPath(const std::string& path, std::string& out) {
 		++i;
 	}
 	return ERR_NONE;
-}
-
-static std::string pathJoin(const std::string& root,
-		const std::string& path) {
-	if (root.empty())
-		return path;
-	if (root[root.size() - 1] == '/')
-		return path == "/" ? root : root + path.substr(1);
-	return root + "/" + path.substr(1);
 }
 
 static std::string applyPathLocation(const std::string& path,
@@ -142,7 +121,7 @@ Error fsBuildPath(const config::ServerConfig& server,
 
 	if (root.empty())
 		return ERR_NOT_FOUND;
-	out = pathJoin(root, applyPathLocation(normalized_path, location.path));
+	out = http::pathJoin(root, applyPathLocation(normalized_path, location.path));
 	return ERR_NONE;
 }
 

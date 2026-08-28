@@ -16,7 +16,6 @@ enum Stream {
 };
 
 enum State {
-	Init,
 	Open,
 	Closing,
 	Closed,
@@ -49,7 +48,6 @@ Channel(Storage<N>& storage,
 	State state() const;
 	bool closed() const;
 	void shutdown();
-	void mark_closing();
 	BufferView view() const;
 
 };

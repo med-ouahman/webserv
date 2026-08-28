@@ -29,11 +29,10 @@ enum ResponseState {
 };
 
 enum FailureReason {
-    None,
-    ParseError,
-    Timeout,
-	ProcessError,
-	Internal
+	    None,
+	    ParseError,
+	    Timeout,
+		Internal
 };
 
 enum ShutdownState {
@@ -89,10 +88,6 @@ public:
 	CgiHandler(Context& ctx);
 
 	~CgiHandler();
-
-	bool done() const;
-
-	bool can_close() const;
 
 	size_t on_writable(Buffer& writer, cgi::Channel& channel);
 	size_t on_readable(cgi::Channel& channel);

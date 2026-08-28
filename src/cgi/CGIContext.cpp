@@ -1,6 +1,7 @@
 
 #include "cgi/CGIContext.hpp"
 #include "http/Context.hpp"
+#include "base/base.hpp"
 #include <fcntl.h>
 #include <cctype>
 #include <sstream>
@@ -56,27 +57,12 @@ static const char* versionName(http::Version version) {
 	return "HTTP/1.1";
 }
 
-static char lowerChar(char c) {
-	return static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-}
-
-static std::string lowerName(const std::string& value) {
-	std::string out = value;
-	usize i = 0;
-
-	while (i < out.size()) {
-		out[i] = lowerChar(out[i]);
-		++i;
-	}
-	return out;
-}
-
 static const http::Header* findHeader(const http::Request& request,
 		const std::string& name) {
 	usize i = 0;
 
 	while (i < request.headers.size()) {
-		if (lowerName(request.headers[i].key) == name)
+		if (base::toLowerCase(request.headers[i].key) == name)
 			return &request.headers[i];
 		++i;
 	}
@@ -169,7 +155,7 @@ static void fillEnv(const http::Request& request,
 	exec_ctx.envp.push("PATH_INFO="+request_ctx.script_name);
 
 	while (i < request.headers.size()) {
-		std::string normalized = lowerName(request.headers[i].key);
+		std::string normalized = base::toLowerCase(request.headers[i].key);
 
 		if (!skipHTTPHeader(normalized))
 			exec_ctx.envp.push(envHeaderName(request.headers[i].key)+"="

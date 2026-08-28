@@ -3,17 +3,14 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-#include <cassert>
 #include <cstdlib>
 
 namespace http {
 
 SessionManager::SessionManager(const std::string& name,
-	size_t timeout,
-	const std::string& store)
+	size_t timeout)
 	: cookie_name_(name),
-	timeout_seconds_(timeout),
-	store_(store) {}
+	timeout_seconds_(timeout) {}
 
 SessionManager::~SessionManager() {}
 
@@ -22,8 +19,7 @@ std::string SessionManager::create_session() {
 	std::string id = generate_session_id();
 
 	SessionData session;
-	session.creation_time = std::time(NULL);
-	session.last_touch    = session.creation_time;
+	session.last_touch = std::time(NULL);
 
 	sessions_[id] = session;
 	return id;
@@ -78,17 +74,6 @@ std::string SessionManager::get_session_data(const std::string& id,
 	return data_it->second;
 }
 
-bool SessionManager::has_session_data(const std::string& id,
-	const std::string& key) const {
-
-	SessionStore::const_iterator it = sessions_.find(id);
-	if (it == sessions_.end())
-		return false;
-
-	return it->second.data.find(key) != it->second.data.end();
-}
-
-
 void SessionManager::cleanup() {
 	std::time_t now = std::time(NULL);
 
@@ -102,10 +87,6 @@ void SessionManager::cleanup() {
 			++it;
 		}
 	}
-}
-
-std::size_t SessionManager::get_session_count() const {
-	return sessions_.size();
 }
 
 const std::string& SessionManager::get_cookie_name() const {

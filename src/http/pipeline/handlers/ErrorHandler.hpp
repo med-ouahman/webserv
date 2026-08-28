@@ -12,7 +12,6 @@ private:
 	Error error_;
 
 	void setAllowedMethods();
-	static const char* statusMsg(StatusCode code);
 	static StatusCode statusFromError(Error error);
 
 public:

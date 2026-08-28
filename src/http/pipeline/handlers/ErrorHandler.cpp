@@ -1,5 +1,6 @@
 
 #include "http/pipeline/handlers/ErrorHandler.hpp"
+#include "http/common/Status.hpp"
 #include "http/Context.hpp"
 #include "http/pipeline/ARequestHandler.hpp"
 
@@ -69,7 +70,7 @@ Error ErrorHandler::handle() {
 			status, page)) {
 		body << "<!doctype html><html><body><h1>"
 			<< static_cast<int>(status) << " "
-			<< statusMsg(status)
+			<< statusMessage(status)
 			<< "</h1></body></html>\n";
 		setBodyFixed(body.str());
 	}
@@ -83,36 +84,6 @@ Error ErrorHandler::handle() {
 	responseReady();
 
 	return ERR_NONE;
-}
-
-const char* ErrorHandler::statusMsg(StatusCode code) {
-	switch (code) {
-		case OK: return "OK";
-		case CREATED: return "Created";
-		case NO_CONTENT: return "No Content";
-		case MOVED_PERMANENTLY: return "Moved Permanently";
-		case FOUND: return "Found";
-		case SEE_OTHER: return "See Other";
-		case TEMPORARY_REDIRECT: return "Temporary Redirect";
-		case PERMANENT_REDIRECT: return "Permanent Redirect";
-		case BAD_REQUEST: return "Bad Request";
-		case UNAUTHORIZED: return "Unauthorized";
-		case FORBIDDEN: return "Forbidden";
-		case NOT_FOUND: return "Not Found";
-		case METHOD_NOT_ALLOWED: return "Method Not Allowed";
-		case REQUEST_TIMEOUT: return "Request Timeout";
-		case CONFLICT: return "Conflict";
-		case LENGTH_REQUIRED: return "Length Required";
-		case PAYLOAD_TOO_LARGE: return "Payload Too Large";
-		case TOO_MANY_REQUESTS: return "Too Many Requests";
-		case INTERNAL_SERVER_ERROR: return "Internal Server Error";
-		case NOT_IMPLEMENTED: return "Not Implemented";
-		case BAD_GATEWAY: return "Bad Gateway";
-		case GATEWAY_TIMEOUT: return "Gateway timeout";
-		case HTTP_VERSION_NOT_SUPPORTED:
-			return "HTTP Version Not Supported";
-	}
-	return "Internal Server Error";
 }
 
 StatusCode ErrorHandler::statusFromError(Error error) {
@@ -134,8 +105,6 @@ StatusCode ErrorHandler::statusFromError(Error error) {
 		case ERR_HEADER_TOO_LARGE:
 		case ERR_BODY_TOO_LARGE:
 			return PAYLOAD_TOO_LARGE;
-		case ERR_TOO_MANY_REQUESTS:
-			return TOO_MANY_REQUESTS;
 		case ERR_REQUEST_TIMEOUT:
 			return REQUEST_TIMEOUT;
 		case ERR_CGI_TIMEOUT:
@@ -150,7 +119,7 @@ StatusCode ErrorHandler::statusFromError(Error error) {
 			return CONFLICT;
 		case ERR_LENGTH_REQUIRED:
 			return LENGTH_REQUIRED;
-		case ERR_CGI_FAILED: case ERR_BAD_GATEWAY:
+		case ERR_BAD_GATEWAY:
 			return BAD_GATEWAY;
 		case ERR_INTERNAL:
 			return INTERNAL_SERVER_ERROR;

@@ -64,6 +64,9 @@ SRCS = src/server/main.cpp \
 	src/http/Response/Response.cpp \
 	src/http/common/LineReader.cpp \
 	src/http/common/Headers.cpp \
+	src/http/common/Path.cpp \
+	src/http/common/Date.cpp \
+	src/http/common/Status.cpp \
 	src/http/Parser/Parser.cpp \
 	src/http/Parser/request_line.cpp \
 	src/http/Parser/headers/headers.cpp \
@@ -95,8 +98,6 @@ SRCS = src/server/main.cpp \
 	src/config/Lexer.cpp \
 	src/base/io/Writer.cpp \
 	src/base/io/Reader.cpp \
-	src/base/file.cpp \
-	src/base/random.cpp \
 	src/base/string.cpp \
 
 OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))

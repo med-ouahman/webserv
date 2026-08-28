@@ -17,11 +17,10 @@ Error CounterHandler::handle() {
     SessionManager& session = *req.session;
 
     const std::string& sid = request().currentSessionID;
-    bool valid = request().currentSessionValid;
+	bool valid = request().currentSessionValid;
 
-    if (!valid) {
-        std::cout << "Cookie name: " << session.get_cookie_name() << "\n"; // DELETE ME
-        const std::string newSessionID = session.create_session();
+	if (!valid) {
+		const std::string newSessionID = session.create_session();
         session.set_session_data(newSessionID, "counter", "1");
         
         setCookieHeader(session.get_cookie_name()+"="+newSessionID, "Path=/", "HttpOnly; SameSite=Lax");

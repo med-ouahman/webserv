@@ -1,5 +1,6 @@
 
 #include "http/routing/RoutingInternal.hpp"
+#include "http/common/Path.hpp"
 #include <sys/stat.h>
 
 namespace http {
@@ -26,13 +27,6 @@ static bool pathStartsWith(const std::string& path, const std::string& dir) {
 	if (path.compare(0, len, dir) != 0)
 			return false;
 	return path.size() == len || path[len] == '/';
-}
-
-static std::string pathJoin(const std::string& left,
-		const std::string& right) {
-	if (left.empty() || left[left.size() - 1] == '/')
-		return left + right;
-	return left + "/" + right;
 }
 
 static std::string effectiveRoot(const DispatchInfo& decision) {
@@ -118,7 +112,7 @@ Error resolveUploadPath(DispatchInfo& decision) {
 		decision.upload_path = configured;
 		return ERR_NONE;
 	}
-	decision.upload_path = pathJoin(effectiveRoot(decision),
+	decision.upload_path = http::pathJoin(effectiveRoot(decision),
 		relativeUploadPath(configured));
 	return ERR_NONE;
 }
