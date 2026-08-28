@@ -2,8 +2,6 @@
 #include "Channel.hpp"
 #include "http/pipeline/handlers/CgiHandler.hpp"
 
-#include <cerrno>
-
 namespace cgi {
 
 Channel::~Channel() {}
