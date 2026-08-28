@@ -1,13 +1,12 @@
 
 #include "http/routing/RoutingInternal.hpp"
-#include <iostream>
 
 namespace http {
 
 namespace {
 
 static bool handlerReadsBody(RequestType type) {
-	return type == CGI || type == UPLOAD;
+	return type == CGI || type == UPLOAD || type == LOGIN;
 }
 
 }
@@ -18,6 +17,7 @@ DispatchInfo::DispatchInfo()
 	  upload_path(),
 	  cgi_path(NULL),
 	  normalized_path(),
+	  normalized_uri(),
 	  filesystem_path(),
 	  path_type(not_found),
 	  max_body_size(0),
@@ -31,22 +31,14 @@ static base::Expected<DispatchInfo, Error> routeSelectedServer(const Request& re
 	Error err;
 
 	decision.server = &server;
-	decision.max_body_size = routing::bodyLimit(server);
 
 	TRY(routing::checkMethodSupported(request.method), err);
 	TRY(routing::pathNormalize(request.path, decision.normalized_path), err);
+	decision.normalized_uri = decision.normalized_path;
+	if (request.query.has_value())
+		decision.normalized_uri += "?" + request.query.value;
 	TRY(routing::findLocation(decision, server), err);
-	std::cout << "LOCATION: " << decision.location->path << "\n";
-	std::cout << "ALLOWED METHODS: \n";
-
-	std::set<std::string>::iterator it = decision.location->allowed_methods.begin();
-
-	for (; it != decision.location->allowed_methods.end(); it++) {
-		std::cout << "Method: " << *it << "\n";
-	}
-	
-
-
+	decision.max_body_size = routing::bodyLimit(decision);
 	decision.cgi_timeout = decision.location->cgi_timeout;
 	if (partial != NULL)
 		*partial = decision;
@@ -65,16 +57,20 @@ static base::Expected<DispatchInfo, Error> routeSelectedServer(const Request& re
 		? server.root : decision.location->root,
 		decision.filesystem_path, decision.path_type), err);
 	TRY(routing::setRequestType(request, decision), err);
+	if (decision.handler_type == DIRECTORY
+		&& request.path.size() > 1
+		&& request.path[request.path.size() - 1] != '/') {
+		decision.handler_type = REDIRECT;
+		return decision;
+	}
 	TRY(routing::pathTypeCheck(decision), err);
 	decision.read_body = routing::hasBody(request)
 		&& handlerReadsBody(decision.handler_type);
-	std::cout << "Routing: request type set!\n";
 	if (decision.handler_type == UPLOAD) {
 		TRY(routing::checkUploadAllowed(*decision.location), err);
 		TRY(routing::checkUploadFraming(request), err);
 		TRY(routing::resolveUploadPath(decision), err);
 	}
-	std::cout << "Routing: finished!\n";
 	return decision;
 }
 

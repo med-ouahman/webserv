@@ -1,11 +1,45 @@
 #include "ResponseParser.hpp"
-#include <iostream>
 #include "http/Parser/Parser.hpp"
+#include <cerrno>
 #include <cstdlib>
 #include <fcntl.h>
 #include <unistd.h>
 
 namespace http {
+
+namespace {
+
+static bool writeAll(int fd, const char* data, size_t size) {
+	size_t total = 0;
+
+	while (total < size) {
+		ssize_t written = ::write(fd, data + total, size - total);
+		if (written < 0 && errno == EINTR)
+			continue;
+		if (written <= 0)
+			return false;
+		total += static_cast<size_t>(written);
+	}
+	return true;
+}
+
+static int createTempFile(std::string& path) {
+	char pattern[] = "/tmp/webserv-cgi-XXXXXX";
+	int fd = ::mkstemp(pattern);
+
+	if (fd < 0)
+		return -1;
+	int flags = ::fcntl(fd, F_GETFD);
+	if (flags < 0 || ::fcntl(fd, F_SETFD, flags | FD_CLOEXEC) < 0) {
+		::close(fd);
+		::unlink(pattern);
+		return -1;
+	}
+	path = pattern;
+	return fd;
+}
+
+}
 
 ResponseParser::ResponseParser()
     : state_(Headers),
@@ -30,12 +64,6 @@ ResponseParser::~ResponseParser() {
 }
 
 ResponseParser::ParseResult ResponseParser::parse(BufferView& reader) {
-    std::cout << "Start CGI header parsing...\n";
-
-    if (reader.empty() && state_ == Headers) {        
-        return ParseError;
-    }
-
     while (state_ != Done) {
 
         if (state_ == Body) return read_body(reader);
@@ -53,7 +81,6 @@ ResponseParser::ParseResult ResponseParser::parse(BufferView& reader) {
         
         if (parse_ctx.line_reader.line().empty()) {
             if (!validate_headers()) return ParseError;
-            std::cout << "Begin body reading\n";
             state_ = Body;
             continue;
         }
@@ -62,25 +89,21 @@ ResponseParser::ParseResult ResponseParser::parse(BufferView& reader) {
         
         ParseResult res = parse_header(parse_ctx.line_reader.line());
         if (res != Success) {
-            if (res == ParseError) std::cout << "stupid nigga\n";
             return res;
         }
 
         parse_ctx.line_reader.reset();
     }
 
-    std::cout << "finish CGI\n";
     return Success;
 }
 
 ResponseParser::ParseResult ResponseParser::sanitize_status_header(std::string const& value) {
 
-    std::cout << "Saniting status header\n";
     size_t space_pos = value.find(' ');
 
     if (space_pos == std::string::npos) {
         code = INTERNAL_SERVER_ERROR;
-        std::cout << "Here\n";
         return ParseError;
     }
 
@@ -89,7 +112,6 @@ ResponseParser::ParseResult ResponseParser::sanitize_status_header(std::string c
 
     for (size_t i = 0; i < code_str.size(); ++i) {
         if (!std::isdigit(code_str[i])) {
-            std::cout << "may be here??\n";
             code = INTERNAL_SERVER_ERROR;
             return ParseError;
         }
@@ -101,7 +123,6 @@ ResponseParser::ParseResult ResponseParser::sanitize_status_header(std::string c
 
     if ((end && *end != '\0') || parsed_code < 200 or parsed_code > 599) {
         code = INTERNAL_SERVER_ERROR;
-        std::cout << "Or here?\n";
         return ParseError;
     }
 
@@ -115,8 +136,6 @@ bool ResponseParser::finished() const {
 }
 
 ResponseParser::ParseResult ResponseParser::parse_header(std::string const& line) {
-    std::cout << "|" << line << "|\n";
-
     size_t colon = line.find(':');
     if (colon == std::string::npos)
         return ParseError;
@@ -144,8 +163,7 @@ ResponseParser::ParseResult ResponseParser::parse_header(std::string const& line
 
     std::string value = line.substr(start, end - start);
 
-    if ("status" == name)
-        return sanitize_status_header(value);
+    if ("status" == name) return sanitize_status_header(value);
 
     headers_.add(name, value);
 
@@ -153,13 +171,8 @@ ResponseParser::ParseResult ResponseParser::parse_header(std::string const& line
 }
 ResponseParser::ParseResult ResponseParser::read_body(BufferView& reader) {
 
-    std::cout.write(reader.data(), reader.remaining());
-
-    if (reader.empty()) {
-        std::cout << "Body Done\n";
-        state_ = Done;
-        return Success;
-    }
+	if (reader.empty())
+		return Continue;
 
     switch (body_mode_) {
         case Mem: {
@@ -179,36 +192,40 @@ ResponseParser::ParseResult ResponseParser::read_body(BufferView& reader) {
     }
 
     if (body_fd < 0) {
-        body_filename = "/tmp/" + base::random_string(10);
-        body_fd = ::open(body_filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
+		body_fd = createTempFile(body_filename);
         if (body_fd < 0) {
             state_ = Error;
-            std::cout << "File error\n";
             return ParseError;
         }
         if (!body_.empty()) {
-            ssize_t w = ::write(body_fd, body_.c_str(), body_.size());
-            if (w < 0) {
-                std::cout << "write error\n";
+            if (!writeAll(body_fd, body_.data(), body_.size())) {
                 state_ = Error;
                 return ParseError;
             }
-            body_content_length += w;
+			body_content_length += body_.size();
             body_.clear();
         }
     }
 
-    ssize_t w = ::write(body_fd, reader.data(), reader.remaining());
-    if (w < 0) {
-        std::cout << "antoher write error\n";
+	size_t size = reader.remaining();
+	if (!writeAll(body_fd, reader.data(), size)) {
         state_ = Error;
         return ParseError;
     }
 
-    body_content_length += w;
-    reader.advance(w);
+	body_content_length += size;
+	reader.advance(size);
 
     return Continue;
+}
+
+ResponseParser::ParseResult ResponseParser::finish() {
+	if (state_ == Done)
+		return Success;
+	if (state_ != Body)
+		return ParseError;
+	state_ = Done;
+	return Success;
 }
 
 
@@ -232,7 +249,8 @@ CGIResult ResponseParser::result() const {
 
 bool ResponseParser::validate_headers() const {
 
-    if (headers_.get("content-type").empty() && headers_.get("location").empty()) return false;
+    if (headers_.get("content-type").empty()
+        && headers_.get("location").empty()) return false;
 
     return true;
 }

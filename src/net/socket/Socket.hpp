@@ -5,6 +5,7 @@
 #include <vector>
 #include "Config.hpp"
 #include "UniqueFd.hpp"
+#include "logger/Logger.hpp"
 
 class Server;
 
@@ -12,32 +13,28 @@ class Server;
 #define NDEBUG 4
 #endif
 #include <cassert>
-#define BACKLOG 5
+#define BACKLOG 512
 
 
 namespace net {
 
-typedef uint32_t IpAddress;
-typedef uint16_t Port;
+
 
 class Socket: public io::AEventHandler {
 private:
-
 	enum SocketState {
 		Listening,
 		SocketError
 	} state_;
 
 	Server& server_;
-
-	uint32_t	host_;
-	uint16_t	port_;
+	logger::Logger& logger_;
 
 	const config::ListenEndPoint& endpoint_;
 	std::vector<const config::ServerConfig*> servers_;
 	
-	Socket(const Socket& socket);
-	Socket& operator=(const Socket& socket);
+	Socket(const Socket&);
+	Socket& operator=(const Socket&);
 
 	bool accept_clients();
 	bool on_error();
@@ -50,8 +47,6 @@ public:
 	bool error() const;
 	const config::ListenEndPoint& endpoint() const;
 	void add_server(const config::ServerConfig* server);
-
-	const std::vector<const config::ServerConfig*>& servers() const;
 };
 
 base::Result<Socket*>
@@ -59,5 +54,7 @@ create_listening_socket(
 	const config::ListenEndPoint& endpoints, Server& s);
 
 std::string int_to_ip(uint32_t ip_addr);
+
+bool listeners_match(const config::ListenEndPoint& existing, const config::ListenEndPoint& requested);
 
 }

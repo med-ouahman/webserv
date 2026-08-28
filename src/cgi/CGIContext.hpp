@@ -16,6 +16,7 @@ struct CGIRequestContext {
 	std::string mime_type;
 	std::string interpreter;
 	std::string script_name;
+	std::string request_uri;
 	std::string script_filename;
 	std::string query_string;
 	std::string content_length;

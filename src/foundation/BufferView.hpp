@@ -24,6 +24,7 @@ void advance(size_t n) {
 	cursor_ += n;
 }
 
+
 const char* data() const {
 	return storage_ + cursor_;
 }

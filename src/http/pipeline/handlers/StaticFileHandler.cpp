@@ -37,7 +37,7 @@ Error StaticFileHandler::handle() {
 	if (decision().path_type != file && decision().path_type != executable)
 		return ERR_FORBIDDEN;
 	if (stat(decision().filesystem_path.c_str(), &info) != 0)
-		return ERR_NOT_FOUND;
+		return fileAccessError();
 	TRY(setBodyFile(decision().filesystem_path), err);
 	setStatus(OK);
 	setContentTypeFromPath(decision().filesystem_path);

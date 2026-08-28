@@ -1,7 +1,7 @@
 
 #include "http/pipeline/handlers/ErrorHandler.hpp"
 #include "http/Context.hpp"
-#include "http/pipeline/RequestHandler.hpp"
+#include "http/pipeline/ARequestHandler.hpp"
 
 #include <cstddef>
 #include <fstream>
@@ -96,6 +96,7 @@ const char* ErrorHandler::statusMsg(StatusCode code) {
 		case TEMPORARY_REDIRECT: return "Temporary Redirect";
 		case PERMANENT_REDIRECT: return "Permanent Redirect";
 		case BAD_REQUEST: return "Bad Request";
+		case UNAUTHORIZED: return "Unauthorized";
 		case FORBIDDEN: return "Forbidden";
 		case NOT_FOUND: return "Not Found";
 		case METHOD_NOT_ALLOWED: return "Method Not Allowed";
@@ -124,6 +125,8 @@ StatusCode ErrorHandler::statusFromError(Error error) {
 		case ERR_INVALID_CONTENT_LENGTH:
 		case ERR_CONFLICTING_BODY_HEADERS:
 			return BAD_REQUEST;
+		case ERR_UNAUTHORIZED:
+			return UNAUTHORIZED;
 		case ERR_UNSUPPORTED_HTTP_VERSION:
 			return HTTP_VERSION_NOT_SUPPORTED;
 		case ERR_TE_UNSUPPORTED:

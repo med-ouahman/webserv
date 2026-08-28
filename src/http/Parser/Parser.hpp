@@ -4,6 +4,7 @@
 #include <string>
 
 #include "base/base.hpp"
+#include "foundation/BufferView.hpp"
 #include "http/Error.hpp"
 #include "http/limits.hpp"
 #include "foundation/Timestamp.hpp"
@@ -19,7 +20,6 @@ enum ParserPhase { PARSING_REQUEST_LINE, PARSING_HEADERS, PARSING_BODY };
 
 class Parser {
 private:
-	std::string	raw_buffer;
 
 	usize header_bytes;
 	usize body_received;
@@ -36,41 +36,42 @@ private:
 
 	bool leading_crlf;
 
-	Error	getChunk(std::string& out, bool& found);
-	Error	parseRequestLine(Context& ctx);
-	Error	parseHeaders(Context& ctx);
-	Error	parseBody(Context& ctx);
-	Error	parseFixedBody(Context& ctx);
-	Error	parseChunkedBody(Context& ctx);
-	Error	chunkSizeState();
-	Error	chunkDataState();
-	Error	chunkCrlfState();
-	Error	chunkTrailerState(Context& ctx);
+	Error getChunk(BufferView& buff, std::string& out,
+			usize& processed, bool& found);
+
+	Error	parseRequestLine(Context& ctx, BufferView& buff,
+			usize& processed);
+	Error	parseHeaders(Context& ctx, BufferView& buff,
+			usize& processed);
+	Error	parseBody(Context& ctx, BufferView& buff,
+			usize& processed);
+	Error	parseFixedBody(Context& ctx, BufferView& buff,
+			usize& processed);
+	Error	parseChunkedBody(Context& ctx, BufferView& buff,
+			usize& processed);
+	Error	chunkSizeState(BufferView& buff, usize& processed);
+	Error	chunkDataState(BufferView& buff, usize& processed);
+	Error	chunkCrlfState(BufferView& buff, usize& processed);
+	Error	chunkTrailerState(Context& ctx, BufferView& buff,
+			usize& processed);
 	Error	finishBody(Context& ctx);
-	Error	bodyWrite(usize size);
+	Error	bodyWrite(BufferView& buff, usize size);
+	Error	prepareBodyStorage(const std::string& root, usize conn_id,
+			usize request_id, usize max_size);
 
-	bool	canProgress(const Request& request) const;
-	bool	hasBody(const Request& request) const;
-
-	void incrementBuffer(const char* data, usize size, usize& consumed);
+	bool	hasBody(const Request& request, BufferView& buff) const;
 
 	static usize minSize(usize a, usize b);
-	static bool parseChunkSize(const std::string& line, usize& size);
+	static Error parseChunkSize(const std::string& line, usize& size);
 
 public:
-		Parser();
+	Parser();
 
-		Error progress(Context& ctx, const char* data, usize size,
-			usize& consumed);
-		bool parsingBody() const;
+	Error progress(Context& ctx, BufferView& buff, usize& processed);
+	Error prepareBodyStorage(Context& ctx);
 
-		void reset();
-		void resetCycle();
-		bool hasBufferedInput() const;
-		bool timedOut() const;
-	void startBody();
-	Error prepareBodyStorage(const std::string& root, usize conn_id,
-		usize request_id, usize max_size);
+	void reset();
+	bool timedOut() const;
 };
 
 }

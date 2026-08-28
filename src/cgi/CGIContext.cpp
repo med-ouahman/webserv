@@ -136,6 +136,7 @@ static void fillRequestContext(const http::Request& request,
 	out.mime_type = content_type == NULL ? "" : content_type->value;
 	out.interpreter = decision.cgi_path == NULL ? "" : *decision.cgi_path;
 	out.script_name = decision.normalized_path;
+	out.request_uri = decision.normalized_uri;
 	out.query_string = request.query.has_value() ? request.query.value : "";
 	out.content_length = request.content_length.has_value()
 		? toString(request.content_length.value) : "";
@@ -153,7 +154,7 @@ static void fillEnv(const http::Request& request,
 	usize i = 0;
 
 	exec_ctx.envp.push("REQUEST_METHOD=" + request_ctx.request_method);
-	exec_ctx.envp.push("REQUEST_URI=" + request.url);
+	exec_ctx.envp.push("REQUEST_URI=" + request_ctx.request_uri);
 	exec_ctx.envp.push("SERVER_PROTOCOL=" + request_ctx.server_protocol);
 	exec_ctx.envp.push("GATEWAY_INTERFACE=CGI/1.1");
 	exec_ctx.envp.push("QUERY_STRING=" + request_ctx.query_string);
@@ -180,7 +181,6 @@ static void fillEnv(const http::Request& request,
 	for ( ; __environ[size]; ++size );
 	
 	exec_ctx.envp.push_array(const_cast<const char**>(__environ), size);
-	(void)request;
 }
 
 static http::Error setStdin(const http::Request& request,
@@ -189,8 +189,8 @@ static http::Error setStdin(const http::Request& request,
 	if (base::io::Reader::FILE == request.body.type()) {
 		exec_ctx.stdin_fd.reset(::open(request.body.path().c_str(), O_RDONLY));
 		
-		if (!exec_ctx.stdin_fd.valid()) return http::ERR_INTERNAL;
-
+		if (!exec_ctx.stdin_fd.valid())
+			return http::ERR_INTERNAL;
 	} else {
 		exec_ctx.stdin_fd.reset(STDIN_FILENO);
 	}
@@ -203,9 +203,9 @@ static void setArgv(const http::DispatchInfo& decision,
 		ProcessContext& exec_ctx) {
 	if (decision.cgi_path != NULL && !decision.cgi_path->empty()) {
 		exec_ctx.argv.push(absolute_path(request_ctx.interpreter));
-		exec_ctx.argv.push(decision.filesystem_path);
+		exec_ctx.argv.push(absolute_path(decision.filesystem_path));
 	}
-	else exec_ctx.argv.push(decision.filesystem_path);
+	else exec_ctx.argv.push(absolute_path(decision.filesystem_path));
 }
 
 static http::Error buildProcessContext(const http::Request& request,

@@ -1,6 +1,5 @@
 
 #include "http/routing/RoutingInternal.hpp"
-#include <iostream>
 #include <sys/stat.h>
 
 namespace http {
@@ -126,7 +125,30 @@ Error resolveUploadPath(DispatchInfo& decision) {
 
 Error setRequestType(const Request& request,
 		DispatchInfo& decision) {
+
+	if (decision.location->path == "/counter") {
+		decision.handler_type = COUNTER;
+		return ERR_NONE;
+	}
+
+	if (decision.location->path == "/login") {
+		decision.handler_type = LOGIN;
+		return ERR_NONE;
+	}
+	/* add logout to flex */
+
+	if (decision.location->path == "/profile") {
+		decision.handler_type = PROFILE;
+		return ERR_NONE;
+	}
+
+	if (decision.location->path == "/logout") {
+		decision.handler_type = LOGOUT;
+		return ERR_NONE;
+	}
+
 	decision.cgi_path = findCgiPath(decision);
+
 	if (decision.cgi_path != NULL) {
 		decision.handler_type = CGI;
 		return ERR_NONE;

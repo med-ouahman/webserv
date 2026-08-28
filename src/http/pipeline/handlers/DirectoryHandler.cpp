@@ -1,8 +1,8 @@
 
 #include "http/pipeline/handlers/DirectoryHandler.hpp"
-#include "http/pipeline/handlers/RedirectHandler.hpp"
 #include "http/Context.hpp"
 #include "config/Config.hpp"
+
 #include <dirent.h>
 #include <sstream>
 #include <sys/stat.h>
@@ -18,13 +18,8 @@ static std::string pathJoin(const std::string& left,
 	return left + "/" + right;
 }
 
-static bool regularFile(struct stat& info) {
-	return S_ISREG(info.st_mode);
-}
-
-static bool exists(const std::string& path, struct stat& info) {
-
-	return stat(path.c_str(), &info) == 0;
+static bool regularFile(const std::string& path, struct stat& info) {
+	return stat(path.c_str(), &info) == 0 && S_ISREG(info.st_mode);
 }
 
 static std::string htmlEscape(const std::string& value) {
@@ -100,12 +95,11 @@ Error DirectoryHandler::handle() {
 	usize i;
 
 	i = 0;
-	bool indexNotFound = false;
 	while (i < indexes.size()) {
 		std::string path = pathJoin(decision().filesystem_path, indexes[i]);
 		struct stat info;
-		
-		if (exists(path, info) && regularFile(info)) {
+
+		if (regularFile(path, info)) {
 			TRY(setBodyFile(path), err);
 			setStatus(OK);
 			setContentTypeFromPath(path);
@@ -115,14 +109,10 @@ Error DirectoryHandler::handle() {
 			responseReady();
 			return ERR_NONE;
 		}
-		
-		indexNotFound = true;
 		i++;
 	}
-
-	if (indexNotFound && !decision().location->autoindex) return ERR_NOT_FOUND;
-	if (!decision().location->autoindex) return ERR_FORBIDDEN;
-	
+	if (!decision().location->autoindex)
+		return ERR_NOT_FOUND;
 	TRY(buildAutoindex(decision().filesystem_path,
 		decision().normalized_path, body), err);
 	setStatus(OK);

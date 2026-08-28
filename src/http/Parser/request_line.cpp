@@ -3,42 +3,36 @@
 #include "http/Context.hpp"
 
 #include <string>
+#include <algorithm>
 
 namespace {
 
-static bool	checkSpaces(const std::string& line, usize& first, usize& second) {
+static void setWords(std::string (&words)[4]) {
+	std::string::size_type first;
+	std::string::size_type second;
 
-	first = line.find(' ');
-	if (first == std::string::npos)
-		return false;
-	second = line.find(' ', first + 1);
-	if (second == std::string::npos)
-		return false;
-	return line.find(' ', second + 1) == std::string::npos;
+	first = words[0].find(' ');
+	second = words[0].find(' ', first + 1);
+	words[1] = words[0].substr(0, first);
+	words[2] = words[0].substr(first + 1, second - first - 1);
+	words[3] = words[0].substr(second + 1);
 }
 
-static http::Error	setVersion(http::Request& request, const std::string& line, usize start) {
-
-	usize len = line.size() - start;
-
-	if (len == 8 && line.compare(start, 8, "HTTP/1.0") == 0)
-		request.version = http::HTTP_1_0;
-	else if (len == 8 && line.compare(start, 8, "HTTP/1.1") == 0)
-		request.version = http::HTTP_1_1;
-	else if (len >= 5 && line.compare(start, 5, "HTTP/") == 0)
-		return http::ERR_UNSUPPORTED_HTTP_VERSION;
-	else
+static http::Error setMethod(http::Request& request, const std::string& word) {
+	if (word.empty())
 		return http::ERR_BAD_REQUEST;
-
+	request.method = http::methodOf(word);
+	if (request.method == http::UNKNOWN)
+		return http::ERR_METHOD_NOT_ALLOWED;
 	return http::ERR_NONE;
 }
 
-static bool	setTarget(http::Request& request, const std::string& target) {
+static http::Error setTarget(http::Request& request, const std::string& target) {
 
 	usize query_pos;
 
-	if (target.empty() || target[0] != '/')
-		return false;
+	if (target.empty() or target[0] != '/')
+		return http::ERR_BAD_REQUEST;
 
 	request.url = target;
 	query_pos = target.find('?');
@@ -49,52 +43,52 @@ static bool	setTarget(http::Request& request, const std::string& target) {
 		request.path = target.substr(0, query_pos);
 		request.query = base::Optional<std::string>(target.substr(query_pos + 1));
 	}
-	return true;
+	return http::ERR_NONE;
 }
+
+static http::Error setVersion(http::Request& request, const std::string& word) {
+
+	const usize len = word.size();
+
+	if (len == 8 and word.compare(0, 8, "HTTP/1.0") == 0)
+		request.version = http::HTTP_1_0;
+	else if (len == 8 and word.compare(0, 8, "HTTP/1.1") == 0)
+		request.version = http::HTTP_1_1;
+	else if (len >= 5 and word.compare(0, 5, "HTTP/") == 0)
+		return http::ERR_UNSUPPORTED_HTTP_VERSION;
+	else
+		return http::ERR_BAD_REQUEST;
+
+	return http::ERR_NONE;
+}
+
 
 }
 
 namespace http {
 
-Error Parser::parseRequestLine(Context& ctx) {
+Error Parser::parseRequestLine(Context& ctx, BufferView& buff, usize& processed) {
 
-	std::string line;
-	std::string target;
-
-	usize first_space;
-	usize second_space;
+	Request& req = ctx.actor.request;
+	std::string words[4];
 	bool found;
 	Error err;
 
-	err = getChunk(line, found);
-	if (err != ERR_NONE)
-		return err;
-	if (!found)
-		return ERR_NONE;
-	if (line.empty()) {
+	TRY(getChunk(buff, words[0] ,processed ,found), err);
+	if (!found) return ERR_NONE;
+	if (words[0].empty()) {
 		if (leading_crlf) return ERR_BAD_REQUEST;
 
 		leading_crlf = true;
 		return ERR_NONE;
 	}
+	size_t sp_count = std::count(words[0].begin(), words[0].end(), ' ');
+	if (sp_count != 2) return ERR_BAD_REQUEST;
 
-	if (!checkSpaces(line, first_space, second_space))
-		return ERR_BAD_REQUEST;
-
-	target = line.substr(first_space + 1, second_space - first_space - 1);
-	if (first_space == 0 || target.empty() || second_space + 1 >= line.size())
-		return ERR_BAD_REQUEST;
-
-	ctx.actor.request.method = methodOf(line.substr(0, first_space));
-	if (ctx.actor.request.method == UNKNOWN)
-		return ERR_METHOD_NOT_ALLOWED;
-
-	err = setVersion(ctx.actor.request, line, second_space + 1);
-	if (err != ERR_NONE)
-		return err;
-	if (!setTarget(ctx.actor.request, target))
-		return ERR_BAD_REQUEST;
-
+	setWords(words);
+	TRY(setMethod(req, words[1]), err);
+	TRY(setTarget(req, words[2]), err);
+	TRY(setVersion(req, words[3]), err);
 	header_bytes = 0;
 	phase = PARSING_HEADERS;
 	timer.update();

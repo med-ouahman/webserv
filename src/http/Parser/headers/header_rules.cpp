@@ -5,7 +5,7 @@
 namespace http {
 namespace parser {
 
-bool	isSingleHeader(const std::string& normalized) {
+bool isSingleHeader(const std::string& normalized) {
 	return normalized == "host"
 		|| normalized == "content-length"
 		|| normalized == "content-type"
@@ -14,25 +14,25 @@ bool	isSingleHeader(const std::string& normalized) {
 		|| normalized == "proxy-authorization";
 }
 
-bool	parseContentLength(const std::string& value, usize& out) {
+Error parseContentLength(const std::string& value, usize& out) {
 	usize i = 0;
 	usize result = 0;
 	usize digit;
 	usize max = std::numeric_limits<usize>::max();
 
 	if (value.empty())
-		return false;
+		return ERR_INVALID_CONTENT_LENGTH;
 	while (i < value.size()) {
 		if (value[i] < '0' || value[i] > '9')
-			return false;
+			return ERR_INVALID_CONTENT_LENGTH;
 		digit = static_cast<usize>(value[i] - '0');
 		if (result > (max - digit) / 10)
-			return false;
+			return ERR_INVALID_CONTENT_LENGTH;
 		result = result * 10 + digit;
 		++i;
 	}
 	out = result;
-	return true;
+	return ERR_NONE;
 }
 
 Error	storeHeader(Request& request, const std::string& name, const std::string& value) {
@@ -66,32 +66,32 @@ SpecialHeader	specialHeader(const std::string& normalized) {
 	return HEADER_NORMAL;
 }
 
-Error	handleSpecialHeader(Request& request, const std::string& normalized, const std::string& value) {
-	usize content_length;
+Error	handleSpecialHeader(Request& req, const std::string& normalized, const std::string& value) {
+	Error err;
 
 	switch (specialHeader(normalized)) {
 		case HEADER_NORMAL:
 			return ERR_NONE;
 		case HEADER_HOST:
-			request.host = base::Optional<std::string>(value);
+			req.host = base::Optional<std::string>(value);
 			return ERR_NONE;
 		case HEADER_CONTENT_LENGTH:
-			if (!parseContentLength(value, content_length))
-				return ERR_INVALID_CONTENT_LENGTH;
-			request.content_length = base::Optional<usize>(content_length);
+			usize content_length;
+			TRY(parseContentLength(value, content_length), err);
+			req.content_length = base::Optional<usize>(content_length);
 			return ERR_NONE;
 		case HEADER_TRANSFER_ENCODING:
 			if (lowerName(value) != "chunked")
 				return ERR_TE_UNSUPPORTED;
-			request.chunked = true;
+			req.chunked = true;
 			return ERR_NONE;
 		case HEADER_CONNECTION:
 			if (lowerName(value) == "close")
-				request.connection = CONNECTION_CLOSE;
+				req.connection = CONNECTION_CLOSE;
 			else if (lowerName(value) == "keep-alive")
-				request.connection = CONNECTION_KEEP_ALIVE;
+				req.connection = CONNECTION_KEEP_ALIVE;
 			else
-				request.connection = CONNECTION_DEFAULT;
+				req.connection = CONNECTION_DEFAULT;
 			return ERR_NONE;
 	}
 	return ERR_NONE;

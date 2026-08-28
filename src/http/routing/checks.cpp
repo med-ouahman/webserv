@@ -38,9 +38,13 @@ Error checkBodyPolicy(const Request& request) {
 	return ERR_NONE;
 }
 
-usize bodyLimit(const config::ServerConfig& server) {
-	if (server.client_max_body_size > 0)
-		return server.client_max_body_size;
+usize bodyLimit(const DispatchInfo& decision) {
+	if (decision.location != NULL
+		&& decision.location->client_max_body_size > 0)
+		return decision.location->client_max_body_size;
+	if (decision.server != NULL
+		&& decision.server->client_max_body_size > 0)
+		return decision.server->client_max_body_size;
 	return limits::BODY_MAX_SIZE;
 }
 
@@ -55,7 +59,7 @@ Error pathTypeCheck(const DispatchInfo& decision) {
 	RequestType type = decision.handler_type;
 
 	if (decision.path_type != not_found) return ERR_NONE;
-	if (type == DIRECTORY or type == STATIC_FILE or type == CGI)
+	if (type == DIRECTORY or type == STATIC_FILE)
 		return ERR_NOT_FOUND;
 	return ERR_NONE;
 }

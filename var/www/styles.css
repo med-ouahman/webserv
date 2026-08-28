@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Intel+One+Mono:ital,wght@0,300..700;1,300..700&display=swap');
 
 h1 {
-    margin-top: 2rem;
-    padding: 1rem;
+    margin-top: 3rem;
+    padding: 1.2rem;
     border: 3px solid #000;
     text-align: center;
     color: aquamarine;
@@ -12,17 +12,12 @@ body {
     color: aquamarine;
     background: #000;
     font-family: "Intel One Mono";
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: start;
-
 }
 
 #vilgax {
-    width: 500px;
-    height: fit-content;
-  display: flex;
+
+    width: 100%;
+    display: flex;
     align-items: center;
     justify-content: center;
 }
@@ -37,12 +32,8 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: inherit;
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    margin-top: .3rem;
-    animation: spin 10s linear infinite;
+    background: #000;
+    gap: .5rem;
 }
 
 .creators a {
@@ -50,7 +41,6 @@ body {
     text-decoration: none;
     font-size: 1.1rem;
     color: aquamarine;
-   
 }
 
 h2 {
@@ -70,56 +60,4 @@ a:visited {
 
 #info {
     text-align: center;
-}
-
-.circle {
-  position: relative;
-}
-
-.item {
-  position: absolute;
-  width: 50px;
-  height: 50px;
-  transform: translate(-50%, -50%);
-}
-
-/* top */
-.item1 {
-  left: 50%;
-  top: 0%;
-}
-
-/* bottom right */
-.item2 {
-  left: 93%;
-  top: 75%;
-}
-
-/* bottom left */
-.item3 {
-  left: 7%;
-  top: 75%;
-}
-
-
-.item {
-  position: absolute;
-  
-  transform:
-    translate(-50%, -50%)
-    rotate(var(--angle))
-    translateY(calc(-1 * var(--radius)));
-}
-
-.item1 { --angle: 0deg; }
-.item2 { --angle: 120deg; }
-.item3 { --angle: 240deg; }
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }

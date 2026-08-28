@@ -9,29 +9,32 @@
 namespace runtime {
 namespace epoll {
 
-EventLoop::EventLoop()
+EventLoop::EventLoop(logger::Logger& log)
     : epoll_fd(epoll_create(MaxMonitorFds)),
     created_(false),
     monitor_count(0),
-    logger(Server::logger) {
+    logger(log) {
 
     if (!epoll_fd.valid()) {
-        LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_create()"));
+        logger.log(logger::Error, logger.make_errno_error("EventLoop::epoll_create()", __FILE__, __LINE__));
         return;
     }
   
     int flags = ::fcntl(epoll_fd.get(), F_GETFD);
     
     if (flags < 0) {
-        LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_create()"));
+        logger.log(logger::Error, logger.make_errno_error("EventLoop::epoll_create()", __FILE__, __LINE__));
         return;
     }
     
     if (::fcntl(epoll_fd.get(), F_SETFD, flags | O_CLOEXEC) < 0) {
-        LOG_ERROR(MAKE_ERRNO_ERROR("EventLoop::epoll_create()"));
+        logger.log(logger::Error, logger.make_errno_error("EventLoop::epoll_create()", __FILE__, __LINE__));
         return;
     }
     
+    std::stringstream ss;
+    ss << "epoll instance created FD (" << epoll_fd.get() << ")";
+    logger.log(logger::Info, ss.str());
     created_ = true;
 }
 
@@ -42,7 +45,6 @@ bool EventLoop::created() const {
 EventLoop::~EventLoop() {
 
 }
-
 
 io::Event EventLoop::encode_events(EpollEvent epoll_event) {
     io::Event event = io::None;
@@ -63,6 +65,7 @@ io::Event EventLoop::encode_events(EpollEvent epoll_event) {
 
 
 EpollEvent EventLoop::decode_events(io::Event event) {
+
     EpollEvent ev = 0;
 
     if (event & io::Readable) ev |= EPOLLIN;

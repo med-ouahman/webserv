@@ -28,6 +28,9 @@ INCLUDES = -Isrc/ \
 	-Isrc/server/ \
 	-Isrc/server/logger/ \
 	-Isrc/http/ \
+	-Isrc/http/session/ \
+	-Isrc/http/Request/ \
+	-Isrc/http/Response/ \
 	-Isrc/http/Parser/ \
 	-Isrc/http/Parser/body/ \
 	-Isrc/http/Parser/headers/ \
@@ -45,8 +48,6 @@ SRCS = src/server/main.cpp \
 	src/server/Server.cpp \
 	src/server/logger/Logger.cpp \
 	src/net/connection/Connection.cpp \
-	src/net/connection/connection_io.cpp \
-	src/net/connection/connection_events.cpp \
 	src/net/socket/Socket.cpp \
 	src/runtime/epoll/EventLoop.cpp \
 	src/runtime/epoll/poll.cpp \
@@ -55,8 +56,12 @@ SRCS = src/server/main.cpp \
 	src/cgi/ResponseParser.cpp \
 	src/cgi/CGIContext.cpp \
 	src/cgi/Channel.cpp \
+	src/http/session/SessionManager.cpp \
+	src/http/session/CookieUtils.cpp \
 	src/http/Context.cpp \
-	src/http/Response.cpp \
+	src/http/ContextInternal.cpp \
+	src/http/Request/Request.cpp \
+	src/http/Response/Response.cpp \
 	src/http/common/LineReader.cpp \
 	src/http/common/Headers.cpp \
 	src/http/Parser/Parser.cpp \
@@ -77,7 +82,7 @@ SRCS = src/server/main.cpp \
 	src/http/routing/normalization.cpp \
 	src/http/routing/path.cpp \
 	src/http/pipeline/pipeline.cpp \
-	src/http/pipeline/RequestHandler.cpp \
+	src/http/pipeline/ARequestHandler.cpp \
 	src/http/pipeline/handlers/DeleteHandler.cpp \
 	src/http/pipeline/handlers/DirectoryHandler.cpp \
 	src/http/pipeline/handlers/ErrorHandler.cpp \
@@ -85,6 +90,7 @@ SRCS = src/server/main.cpp \
 	src/http/pipeline/handlers/StaticFileHandler.cpp \
 	src/http/pipeline/handlers/UploadHandler.cpp \
 	src/http/pipeline/handlers/CgiHandler.cpp \
+	src/http/pipeline/handlers/SessionDemoHandlers.cpp \
 	src/config/ConfigParser.cpp \
 	src/config/Lexer.cpp \
 	src/base/io/Writer.cpp \
@@ -97,7 +103,7 @@ OBJS := $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 
 all: $(NAME)
 
-fart:
+fast:
 	@make fclean
 	@make -j4
 

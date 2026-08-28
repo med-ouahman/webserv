@@ -2,14 +2,12 @@
 #include "http/Parser/Parser.hpp"
 #include "http/Parser/body/temp_storage.hpp"
 #include "http/Context.hpp"
-
 #include <cstdio>
 
 namespace http {
 namespace parser {
 
 static Error checkSize(ParserPhase phase, usize read_bytes) {
-	
 	switch (phase) {
 		case PARSING_REQUEST_LINE:
 			return read_bytes > limits::REQUEST_LINE_MAX_SIZE
@@ -25,11 +23,45 @@ static Error checkSize(ParserPhase phase, usize read_bytes) {
 	}
 }
 
+static usize findCRLF(const char* str, usize size) {
+	usize index = 0;
+
+	while (index + 1 < size) {
+		if (str[index] == '\r' and str[index + 1] == '\n')
+			return index;
+		++index;
+	}
+	return size;
+}
+
+}
+
+Error Parser::getChunk(BufferView& buff, std::string& out,
+			usize& processed, bool& found) {
+	usize consumed;
+	usize end = http::parser::findCRLF(buff.data(), buff.remaining());
+
+	found = false;
+	if (end == buff.remaining()) {
+			if (phase == PARSING_HEADERS)
+					return parser::checkSize(phase, header_bytes + buff.remaining());
+			return parser::checkSize(phase, buff.remaining());
+	}
+
+	out.assign(buff.data(), end);
+	consumed = end + 2;
+	buff.advance(consumed);
+	processed += consumed;
+	if (phase == PARSING_HEADERS)
+			header_bytes += consumed;
+	found = true;
+	if (phase == PARSING_HEADERS)
+			return parser::checkSize(phase, header_bytes);
+	return parser::checkSize(phase, consumed);
 }
 
 Parser::Parser()
-	: raw_buffer(),
-	  header_bytes(0),
+	: header_bytes(0),
 	  body_received(0),
 	  chunk_size(0),
 	  chunk_received(0),
@@ -41,84 +73,25 @@ Parser::Parser()
 	  bodyWriter(std::string(), body_buffer, limits::BODY_BUFFER_SIZE),
 	  leading_crlf(false) {}
 
-	void Parser::resetCycle() {
+void Parser::reset() {
 
-		if (bodyWriter.file_created())
-			std::remove(bodyWriter.path().c_str());
+	if (bodyWriter.file_created())
+		std::remove(bodyWriter.path().c_str());
 
-		header_bytes = 0;
-		body_received = 0;
-		chunk_size = 0;
+	header_bytes = 0;
+	body_received = 0;
+	chunk_size = 0;
 	chunk_received = 0;
 	max_body_size = limits::BODY_MAX_SIZE;
 	phase = PARSING_REQUEST_LINE;
 	chunk_state = CHUNK_SIZE;
 	leading_crlf = false;
 
-		timer.update();
-		bodyWriter.reset();
-	}
-
-	void Parser::reset() {
-		raw_buffer.clear();
-		resetCycle();
-	}
-
-Error Parser::getChunk(std::string& out, bool& found) {
-	usize end = raw_buffer.find(CRLF);
-	usize consumed;
-
-	found = false;
-	if (end == std::string::npos) {
-		if (phase == PARSING_HEADERS)
-			return parser::checkSize(phase,
-				header_bytes + raw_buffer.size());
-		return parser::checkSize(phase, raw_buffer.size());
-	}
-	consumed = end + 2;
-	out = raw_buffer.substr(0, end);
-	raw_buffer.erase(0, consumed);
-	if (phase == PARSING_HEADERS)
-		header_bytes += consumed;
-	found = true;
-	if (phase == PARSING_HEADERS)
-		return parser::checkSize(phase, header_bytes);
-	return parser::checkSize(phase, consumed);
-}
-
-Error Parser::progress(Context& ctx, const char* data, usize size,
-		usize& consumed) {
-	Error err;
-
-	
-	consumed = 0;
-	if (size != 0) incrementBuffer(data, size, consumed);
-	while (canProgress(ctx.actor.request)) {
-		switch (phase) {
-			case PARSING_REQUEST_LINE:
-				err = parseRequestLine(ctx);
-				break;
-			case PARSING_HEADERS:
-				err = parseHeaders(ctx);
-				break;
-			case PARSING_BODY:
-				err = parseBody(ctx);
-				break;
-			default:
-				return ERR_INTERNAL;
-		}
-		if (err != ERR_NONE)
-			return err;
-	}
-	return ERR_NONE;
-}
-
-bool Parser::parsingBody() const {
-	return phase == PARSING_BODY;
+	timer.update();
+	bodyWriter.reset();
 }
 
 bool Parser::timedOut() const {
-	return false;
 	switch (phase) {
 		case PARSING_REQUEST_LINE:
 			return timer.elapsed() >= timeout::REQUEST_LINE_SECONDS;
@@ -130,11 +103,6 @@ bool Parser::timedOut() const {
 	return false;
 }
 
-void Parser::startBody() {
-	phase = PARSING_BODY;
-	timer.update();
-}
-
 Error Parser::prepareBodyStorage(const std::string& root, usize conn_id,
 		usize request_id, usize max_size) {
 	max_body_size = max_size;
@@ -142,33 +110,54 @@ Error Parser::prepareBodyStorage(const std::string& root, usize conn_id,
 		|| !bodyWriter.reset(parser::tempBodyPath(root, conn_id, request_id),
 			body_buffer, limits::BODY_BUFFER_SIZE))
 		return ERR_INTERNAL;
-	startBody();
+
+	phase = PARSING_BODY;
+	timer.update();
 	return ERR_NONE;
 }
 
-	void Parser::incrementBuffer(const char* data, usize size, usize& consumed) {
-		if (data == NULL || size == 0) {
-			consumed = 0;
-			return;
+Error Parser::prepareBodyStorage(Context& ctx) {
+	const DispatchInfo& dispatch = ctx.info.dispatch.value;
+	const config::LocationConfig* location = dispatch.location;
+	const config::ServerConfig* server = dispatch.server;
+
+	if (dispatch.read_body
+		and ctx.actor.request.body.type() == base::io::Reader::NONE) {
+		const std::string& root = location->root.empty()
+			? server->root
+			: location->root;
+			
+		return prepareBodyStorage(root, ctx.info.conn_id,
+			ctx.info.request_id, dispatch.max_body_size);
+	}
+
+	return ERR_NONE;
+}
+
+Error Parser::progress(Context& ctx,
+	BufferView& buff,
+	usize& processed) {
+	Error err;
+
+	while (true) {
+		switch (phase) {
+			case PARSING_REQUEST_LINE:
+				TRY(parseRequestLine(ctx, buff, processed), err);
+				if (phase == PARSING_REQUEST_LINE)
+					return ERR_NONE;
+				break;
+			case PARSING_HEADERS:
+				TRY(parseHeaders(ctx, buff, processed), err);
+				if (phase == PARSING_HEADERS)
+					return ERR_NONE;
+				break;
+			case PARSING_BODY:
+				TRY(parseBody(ctx, buff, processed), err);
+				return ERR_NONE;
+			default:
+				return ERR_INTERNAL;
 		}
-
-		raw_buffer.reserve(raw_buffer.size() + size);
-		raw_buffer.append(data, size);
-		consumed = size;
 	}
-
-	bool Parser::hasBufferedInput() const {
-		return !raw_buffer.empty();
-	}
-
-bool Parser::canProgress(const Request& request) const {
-	bool res = false;
-
-	if (phase == PARSING_REQUEST_LINE or phase == PARSING_HEADERS)
-		res = raw_buffer.find(CRLF) != std::string::npos;
-	if (phase == PARSING_BODY)
-		res = hasBody(request);
-	return res;
 }
 
 }

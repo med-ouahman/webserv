@@ -3,9 +3,10 @@
 
 #include "base/base.hpp"
 #include "config/Config.hpp"
+#include "foundation/BufferView.hpp"
 
-#include "http/Request.hpp"
-#include "http/Response.hpp"
+#include "http/Request/Request.hpp"
+#include "http/Response/Response.hpp"
 #include "http/Parser/Parser.hpp"
 #include "http/routing/Routing.hpp"
 
@@ -13,6 +14,9 @@
 #include "server/RuntimeServices.hpp"
 
 #include "http/Error.hpp"
+
+#include "session/SessionManager.hpp"
+#include "session/CookieUtils.hpp"
 
 #define CRLF "\r\n"
 #define HTTP_SERVER_ROOT "server/root"
@@ -23,6 +27,7 @@ class Context;
 class ErrorHandler;
 class ARequestHandler;
 class UploadHandler;
+class LoginHandler;
 struct CGIRequestContext;
 struct CGIExecContext;
 
@@ -48,8 +53,7 @@ struct Actor {
 
 		Actor();
 		void reset();
-		void resetCycle();
-	};
+};
 
 struct Info {
 	const std::vector<const config::ServerConfig*>& servers;
@@ -64,7 +68,6 @@ struct Info {
 class Context {
 
 private:
-
 	Actor actor;
 	Info info;
 	Error error;
@@ -79,15 +82,11 @@ private:
 	Context& operator=(const Context&);
 
 	void responseReady();
-	void resetCycle();
 
 	Error setError(Error error);
 	Error resolveDispatch();
-	Error prepareBodyStorage();
-	Error readBody();
 
 	Error createHandler();
-	Error handleError();
 
 	usize handleResponseFailure(Error err);
 
@@ -96,10 +95,13 @@ private:
 	friend class ErrorHandler;
 	friend class CgiHandler;
 	friend class UploadHandler;
+	friend class LoginHandler;
 
 	friend Error cgi::buildCGIContext(const Context& context,
 		cgi::CGIRequestContext& request_ctx,
 		cgi::ProcessContext& exec_ctx);
+
+	void sessionConfigure();
 
 
 public:
@@ -109,7 +111,7 @@ public:
 		usize conn_id, usize request_id, RuntimeServices& services);
 	~Context();
 
-	usize consume(const char* data, usize size);
+	usize consume(BufferView& buff);
 	void process();
 	usize produce(char *buffer, usize size);
 

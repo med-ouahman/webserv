@@ -3,41 +3,58 @@
 #include "RuntimeServices.hpp"
 #include "EventLoop.hpp"
 #include "Connection.hpp"
-#include "net/socket/Socket.hpp"
+#include "Socket.hpp"
 #include "Logger.hpp"
-#include "ServerErrors.hpp"
 
 class Server {
 
 public:
-static const std::size_t MaxConnections = 1000;
-static const std::size_t MaxListens = 10;
 
-static logger::Logger      logger;
+enum ServerErrors {
+    AllocFailed,
+    SockFailed,
+    ConfError,
+    IOError,
+    ConnError,
+
+};
+
 private:
     bool running_;
+
     std::vector<net::Connection*> connections;
+    
     std::vector<net::Socket*> listeners;
-    runtime::epoll::EventLoop poller;
-    RuntimeServices services_;
+    
+    logger::Logger  logger_;
+    
+    runtime::epoll::EventLoop event_loop;
+    
+    std::vector<http::SessionManager*> sessions_;
+
     const config::Config& conf;
+
+    RuntimeServices services_;
 
     Server(const Server&);
     Server& operator=(const Server&);
     bool start_listeners();
+    void init_sessions();
+    void session_cleanup();
 
 public:
     Server(const config::Config& conf);
     ~Server();
+    int start();
+    void maintenance();
+    void add_connection(UniqueFd& uniq, const std::vector<const config::ServerConfig*>& info);
+    void close_connection(net::Connection* conn);
+    void close_socket(net::Socket* Socket);
     
-    ServerErrors    start();
-    void            sweep();
-    void            abort();
+    net::Socket* find_listener(const config::ListenEndPoint& endpoint);
+    size_t num_connections() const;
+    logger::Logger& logger();
 
-    void    add_connection(UniqueFd& uniq, const net::ConnectionInfo& info);
-    void    close_connection(net::Connection* conn);
-    size_t  num_connections() const;
-    
-    void            close_socket(net::Socket* Socket);
-    net::Socket*    find_listener(const config::ListenEndPoint& endpoint);
+    static http::SessionManager* find_session(std::vector<http::SessionManager*>& sessions,
+        const std::string& cookie_name);
 };

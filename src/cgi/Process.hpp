@@ -36,7 +36,8 @@ enum ProcessState {
 
     pid_t     pid_;
     int       status_;
-    
+    bool      want_stdin_;
+
     Pipe     stdin_pipe_;
     Pipe     stdout_pipe_;
     Pipe     stderr_pipe_;

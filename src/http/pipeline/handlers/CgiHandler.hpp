@@ -7,7 +7,7 @@
 #include "cgi/ResponseParser.hpp"
 #include "cgi/CGIContext.hpp"
 
-#include "RequestHandler.hpp"
+#include "ARequestHandler.hpp"
 
 namespace runtime { namespace epoll { class EventLoop; } }
 
@@ -45,15 +45,16 @@ enum ShutdownState {
 };
 
 private:
-	const static std::size_t StdinWriteSize = 4096;
-	const static std::size_t StdoutReadSize = 4096;
+	const static std::size_t StdinWriteSize = 1024 * 16;
+	const static std::size_t StdoutReadSize = 1024 * 16;
 	const static std::size_t StderrReadSize = 1024;
 
-	const static time_t SigTermWaitSeconds = 3;
+	const static time_t SigTermWaitSeconds = 10;
 
 	State state_;
 	ResponseState response_state;
 	FailureReason reason_;
+	bool started_;
 	
 	cgi::Process 	process;
     Timestamp		spawn_time;
@@ -80,6 +81,7 @@ private:
 	CgiHandler& operator=(const CgiHandler&);
 
 	bool timedout();
+	http::Error start();
 	void check_process();
 	void check_channels();
 	

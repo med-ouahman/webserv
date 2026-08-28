@@ -2,7 +2,7 @@
 
 #include "http/common/Headers.hpp"
 #include "LineReader.hpp"
-#include "Response.hpp"
+#include "http/Response/Response.hpp"
 
 namespace http {
 
@@ -13,7 +13,7 @@ struct CGIResult {
 	size_t		body_content_length;
 
 	StatusCode	status_code;
-	Headers		headers;
+	const Headers&		headers;
 
 	CGIResult(
 		std::string const& filename,
@@ -99,6 +99,7 @@ public:
 	~ResponseParser();
 	
 	ParseResult	parse(BufferView& reader);
+	ParseResult	finish();
 	bool		finished() const;
 
 	CGIResult result() const;

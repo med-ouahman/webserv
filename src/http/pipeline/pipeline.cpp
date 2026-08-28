@@ -7,6 +7,7 @@
 #include "http/pipeline/handlers/StaticFileHandler.hpp"
 #include "http/pipeline/handlers/UploadHandler.hpp"
 #include "http/pipeline/handlers/CgiHandler.hpp"
+#include "http/pipeline/handlers/SessionDemoHandlers.hpp"
 
 #include <cstddef>
 #include <new>
@@ -35,6 +36,18 @@ base::Expected<ARequestHandler*, Error> createHandler( RequestType type, Context
 			break;
 		case DELETE_RESOURCE:
 			handler = new (std::nothrow) DeleteHandler(context);
+			break;
+		case COUNTER:
+			handler = new (std::nothrow) CounterHandler(context);
+			break;
+		case LOGIN:
+			handler = new (std::nothrow) LoginHandler(context);
+			break;
+		case PROFILE:
+			handler = new (std::nothrow) ProfileHandler(context);
+			break;
+		case LOGOUT:
+			handler = new (std::nothrow) LogoutHandler(context);
 			break;
 		default:
 			return ERR_INTERNAL;

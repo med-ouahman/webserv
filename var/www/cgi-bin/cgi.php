@@ -10,7 +10,11 @@ fwrite(fopen("php://stderr", "w"), "This is stderr\n");
 </head>
 <body>
 <?php
-    $_GET["JELLO"];
+
+echo "Hello from PHP";
+
+echo "script filename: " getenv("SCRIPT_FILENAME");
+echo "redirect status: " getenv("REDIRECT_STATUS");
 ?>
 </body>
 </html>

@@ -4,7 +4,8 @@
 #include "base/base.hpp"
 #include "config/Config.hpp"
 #include "http/Error.hpp"
-#include "http/Request.hpp"
+#include "http/Request/Request.hpp"
+#include "session/SessionManager.hpp"
 
 namespace http {
 
@@ -17,6 +18,11 @@ enum RequestType {
 	CGI,
 	REDIRECT,
 	DELETE_RESOURCE,
+	// cookies / sessions
+	COUNTER,
+	LOGIN,
+	PROFILE,
+	LOGOUT,
 };
 
 
@@ -26,6 +32,7 @@ struct DispatchInfo {
 	std::string upload_path;
 	const std::string* cgi_path;
 	std::string normalized_path;
+	std::string normalized_uri;
 	std::string filesystem_path;
 	PathType path_type;
 	usize max_body_size;

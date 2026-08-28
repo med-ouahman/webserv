@@ -3,15 +3,15 @@
 #include "http/Parser/headers/headers.hpp"
 #include "http/Context.hpp"
 
-namespace {
+namespace http {
 
 struct Entity {
 	usize colon;
 	std::string name;
 	std::string value;
 	std::string normalized;
-	http::Error err;
 };
+
 
 static http::Error	prepareHeaderLine(const std::string& line, Entity& entity) {
 
@@ -21,69 +21,54 @@ static http::Error	prepareHeaderLine(const std::string& line, Entity& entity) {
 
 	entity.name = line.substr(0, entity.colon);
 	entity.value = line.substr(entity.colon + 1);
-	http::parser::trim(entity.name);
-	http::parser::trim(entity.value);
+	parser::trim(entity.name);
+	parser::trim(entity.value);
 	if (entity.name.empty() || entity.value.empty())
 		return http::ERR_BAD_REQUEST;
 
-	entity.normalized = http::parser::lowerName(entity.name);
+	entity.normalized = parser::lowerName(entity.name);
 	return http::ERR_NONE;
 }
 
-static http::Error	storeHeaderLine(http::Request& request, Entity& entity) {
+namespace parser {
 
-	entity.err = http::parser::storeHeader(request, entity.name, entity.value);
-	if (entity.err != http::ERR_NONE)
-		return entity.err;
-
-	return http::parser::handleSpecialHeader(request, entity.normalized, entity.value);
-}
-
-static http::Error	parseHeaderLine(http::Request& request, const std::string& line) {
+static Error parseHeaderLine(http::Request& request, const std::string& line) {
 
 	Entity entity;
 	http::Error err;
 
-	err = prepareHeaderLine(line, entity);
-	if (err != http::ERR_NONE)
-		return err;
-	return storeHeaderLine(request, entity);
+	TRY(prepareHeaderLine(line, entity), err);
+	TRY(storeHeader(request, entity.name, entity.value), err);
+	TRY(handleSpecialHeader(request, entity.normalized, entity.value), err);
+	return ERR_NONE;
 }
 
 }
 
-namespace http {
+Error Parser::parseHeaders(Context& ctx, BufferView& buff, usize& processed) {
 
-Error Parser::parseHeaders(Context& ctx) {
-
+	Request& req = ctx.actor.request;
 	std::string line;
 	Error err;
 	bool found;
 
 	while (true) {
-		err = getChunk(line, found);
-		if (err != ERR_NONE)
-			return err;
-		if (!found)
-			return ERR_NONE;
+		TRY(getChunk(buff, line, processed, found), err);
+		if (!found) return ERR_NONE;
 		if (line.empty()) {
-			err = parser::endHeaders(ctx.actor.request);
-			if (err != ERR_NONE)
-				return err;
-			ctx.actor.request.has_body = ctx.actor.request.chunked
-				|| (ctx.actor.request.content_length.has_value()
-					&& ctx.actor.request.content_length.value > 0);
-			header_bytes = 0;
+			TRY(parser::endHeaders(req), err);
+			req.has_body = false;
+			if (req.chunked) req.has_body = true;
+			else if (req.content_length.has_value() and req.content_length.value > 0)
+				req.has_body = true;
 			ctx.state_ = PROCESSING;
-			ctx.action_ = AC_NONE;
 			return ERR_NONE;
 		}
-		err = parseHeaderLine(ctx.actor.request, line);
-		if (err != ERR_NONE)
-			return err;
+		TRY(parser::parseHeaderLine(req, line), err);
 	}
 
 	return ERR_NONE;
 }
+
 
 }

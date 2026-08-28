@@ -4,16 +4,16 @@
 namespace http {
 
 Error Parser::finishBody(Context& ctx) {
+	Request& req = ctx.actor.request;
+
 	if (bodyWriter.file_created()) {
 		if (!bodyWriter.flush())
 			return ERR_INTERNAL;
-		ctx.actor.request.body.reset(bodyWriter.path());
-	} else {
-		ctx.actor.request.body.reset(bodyWriter.data(), bodyWriter.size());
+		req.body.reset(bodyWriter.path());
 	}
+	else req.body.reset(bodyWriter.data(), bodyWriter.size());
+
 	body_received = 0;
-	ctx.state_ = PROCESSING;
-	ctx.action_ = AC_NONE;
 	return ERR_NONE;
 }
 
