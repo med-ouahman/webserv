@@ -25,7 +25,7 @@ struct ReturnDirective {
 
 struct LocationConfig {
     std::string path;
-    std::string root; // inherit by default, override by parser
+    std::string root;
     std::vector<std::string> index;
     std::set<std::string> allowed_methods;
     ReturnDirective redirect;
@@ -34,7 +34,7 @@ struct LocationConfig {
     std::string upload_path;
     size_t client_max_body_size;
     std::map<std::string, std::string> cgi_pass;
-    std::string cgi_dir; // where scripts, executables live
+    std::string cgi_dir;
     size_t cgi_timeout;
 
     LocationConfig()
