@@ -26,6 +26,7 @@ static Error checkSize(ParserPhase phase, usize read_bytes) {
 static usize findCRLF(const char* str, usize size) {
 	usize index = 0;
 
+
 	while (index + 1 < size) {
 		if (str[index] == '\r' and str[index + 1] == '\n')
 			return index;
