@@ -38,16 +38,16 @@ void Socket::on_event(io::Event event) {
 }
 
 bool Socket::accept_clients() {
-	if (server_.num_connections() >= Server::MaxConnections) {
-		logger_.log(logger::Warning, "Connection Limit reached, try again later", true);
-		return false;
-	}
-
+	
 	struct sockaddr_in client_addr;
+	
 	socklen_t client_addr_len = sizeof(client_addr);
+	
 	UniqueFd client(::accept(fd(), (struct sockaddr*)&client_addr, &client_addr_len));
 	
-	if (!client.valid()) return false;
+	if (!client.valid()) {
+		return false;
+	}
 	
 	server_.add_connection(client, servers_);
 	

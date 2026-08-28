@@ -6,19 +6,6 @@
 #include "Context.hpp"
 #include <cstdio>
 
-namespace cgi {
-
-template <size_t N>
-Channel::Channel(Storage<N>& storage,
-Stream s, int fd, io::Event events, http::CgiHandler& h)
-    : AEventHandler(fd, events),
-    stream_(s),
-    state_(Open),
-    handler_(h),
-    buf(storage) {}
-
-}
-
 namespace http {
 
 CgiHandler::CgiHandler(Context& ctx)
@@ -191,15 +178,15 @@ http::Error CgiHandler::handle() {
         setStatus(result.status_code);
 
         const Headers& headers = result.headers;
-        Headers::const_iterator it = headers.begin();
+      
 
-        for ( ;it != headers.end(); ++it ) setHeader(it->name, it->value);
+        for (Headers::const_iterator it = headers.begin();
+            it != headers.end(); ++it ) setHeader(it->name, it->value);
     
         setConnection();
         setDate();
 
-		if (result.mem_)
-			setBodyFixed(result.body_);
+		if (result.mem_) setBodyFixed(result.body_);
 		else {
 			http::Error err = setBodyFile(result.body_filename);
 			if (err != ERR_NONE)
@@ -245,12 +232,12 @@ void CgiHandler::check_channels() {
     for (size_t i = 0; i < channels.size(); ++i) {
         cgi::Channel& ch = *channels[i];
 		if (ch.state() == cgi::Channel::Error) {
-			if (reason_ == None)
-				reason_ = Internal;
+
+			if (reason_ == None) reason_ = Internal;
 			state_ = Cleanup;
 		}
-		if (state_ == Cleanup || ch.state() == cgi::Channel::Closing)
-			close_channel(ch);
+
+		if (state_ == Cleanup || ch.state() == cgi::Channel::Closing) close_channel(ch);
     }
 }
 

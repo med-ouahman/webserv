@@ -19,9 +19,6 @@ enum ServerErrors {
 
 };
 
-static const std::size_t MaxConnections = 1000;
-static const std::size_t MaxListens = 10;
-
 private:
     bool running_;
 

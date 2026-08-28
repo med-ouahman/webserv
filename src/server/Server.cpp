@@ -88,10 +88,6 @@ bool Server::start_listeners() {
             }
 
             if (!l) {
-                
-                if (listeners.size() >= MaxListens) {
-                    continue;
-                }
 
                 base::Result<net::Socket*> result = net::create_listening_socket(endpoints[j], *this);
                 
@@ -109,10 +105,6 @@ bool Server::start_listeners() {
 
                 if (!event_loop.add(sock)) return false;
                 listeners.push_back(sock);
-                
-                if (listeners.size() >= MaxListens) {
-                    logger_.log(logger::Warning, "Listening sockets maximum reached\nThe next listening sockets will be ignored", true);
-                }
 
                 l = sock;
             }

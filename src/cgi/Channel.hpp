@@ -30,24 +30,27 @@ private:
 	Buffer buf;
 
 public:
+
 template <size_t N>
 Channel(Storage<N>& storage,
-	Stream s,
-	int fd,
-	io::Event events,
-	http::CgiHandler& handler);
+		Stream s, int fd, io::Event events, http::CgiHandler& h)
+    : AEventHandler(fd, events),
+    stream_(s),
+    state_(Open),
+    handler_(h),
+    buf(storage) {}
 
-~Channel();
+	~Channel();
 
-void on_event(io::Event ev);
-void read();
-void write();
-Stream stream() const;
-State state() const;
-bool closed() const;
-void shutdown();
-void mark_closing();
-BufferView view() const;
+	void on_event(io::Event ev);
+	void read();
+	void write();
+	Stream stream() const;
+	State state() const;
+	bool closed() const;
+	void shutdown();
+	void mark_closing();
+	BufferView view() const;
 
 };
 

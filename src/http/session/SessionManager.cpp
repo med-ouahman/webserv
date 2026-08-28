@@ -13,25 +13,11 @@ SessionManager::SessionManager(const std::string& name,
 	const std::string& store)
 	: cookie_name_(name),
 	timeout_seconds_(timeout),
-	store_(store),
-	initialized_(true) {}
+	store_(store) {}
 
 SessionManager::~SessionManager() {}
 
-void SessionManager::init(const std::string& cookie_name,
-	std::size_t timeout_seconds) {
-
-	cookie_name_     = cookie_name;
-	timeout_seconds_ = timeout_seconds;
-	initialized_     = true;
-}
-
-bool SessionManager::is_initialized() const {
-	return initialized_;
-}
-
 std::string SessionManager::create_session() {
-	assert(initialized_ && "SessionManager::create_session() called before init()");
 
 	std::string id = generate_session_id();
 
