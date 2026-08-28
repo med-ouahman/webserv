@@ -73,12 +73,19 @@ Error LoginHandler::handle() {
 
     if (!req.sessionsEnabled) return ERR_UNAUTHORIZED;
 
+    std::string body = std::string(req.body.data(), req.body.size());
     SessionManager& session = *req.session;
+    
+    std::string username = extract_value(body, "username");
+    
+    if (username.empty()) return ERR_BAD_REQUEST;
+
     if (req.currentSessionValid) {
 
         const std::string& sid = req.currentSessionID;
 
-        bool auth = "true" == session.get_session_data(sid, "authenticated");
+        bool auth = "true" == session.get_session_data(sid, "authenticated")
+            && username == session.get_session_data(sid, "username");
 
         session.touch_session(sid);
         
@@ -91,12 +98,6 @@ Error LoginHandler::handle() {
         return ERR_NONE;
     }
         
-    std::string body = std::string(req.body.data(), req.body.size());
-
-    std::string username = extract_value(body, "username");
-    
-    if (username.empty()) return ERR_BAD_REQUEST;
-
     std::string newSID = session.create_session();
 
     session.set_session_data(newSID, "username", username);
@@ -149,8 +150,10 @@ Error ProfileHandler::handle() {
 
     Request& req = request();
 
-    if (!req.sessionsEnabled || !request().currentSessionValid)
+    if (!req.sessionsEnabled || !request().currentSessionValid) {
         return ERR_UNAUTHORIZED;
+    }
+
     SessionManager& session = *req.session;
 
     const std::string& sid = request().currentSessionID;
@@ -198,7 +201,7 @@ Error LogoutHandler::handle() {
     session.delete_session(sid);
 
     setCookieHeader(session.get_cookie_name()+"=", "Path=/", "Max-Age=0; HttpOnly; SameSite=Lax");
-    response().body = "Session Deleted Successfully";
+    response().body = "<h1>Logged out successfully </h1>";
     setContentType("text/html");
     responseReady();
     return ERR_NONE;

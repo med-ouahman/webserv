@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session & Cookies Tester | VilgaX/1.0</title>
+    <link rel="stylesheet" href="login.css">
+    <script src="login.js" defer>
+    
+    </script>
+</head>
+<body>
+    <div id="cookies">
+        <h1>Welcome to VilgaX/1.0</h1>
+        <form id="form" action="/login" method="POST">
+
+            <label for="username">Username</label>
+            <input type="text" name="username" id="username" placeholder="e.g med">
+            <div id="error-username">Username cannot be empty</div>
+
+            <button id="submit">Login</button>
+            
+        </form>
+    </div>
+    <div id="user-data">
+        <div id="data">
+            
+        </div>
+        <button id="go-back">Go back to form</button>
+        <button id="logout">Logout</button>
+    </div>
+</body>
+</html>
