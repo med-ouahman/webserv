@@ -10,7 +10,14 @@ namespace http {
 SessionManager::SessionManager(const std::string& name,
 	size_t timeout)
 	: cookie_name_(name),
-	timeout_seconds_(timeout) {}
+	timeout_seconds_(timeout),
+	store_() {}
+
+SessionManager::SessionManager(const std::string& name,
+	size_t timeout, const std::string& store)
+	: cookie_name_(name),
+	timeout_seconds_(timeout),
+	store_(store) {}
 
 SessionManager::~SessionManager() {}
 

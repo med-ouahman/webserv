@@ -210,6 +210,11 @@ void ConfigParser::parseDirective(ServerConfig& server)
         server.session_timeout = parseSize(expect(WORD).value);
     }
 
+    else if (key == "session_store")
+    {
+        server.session_store = expect(WORD).value;
+    }
+
     else if (key == "error_page")
     {
         int code = atoi(expect(WORD).value.c_str());
