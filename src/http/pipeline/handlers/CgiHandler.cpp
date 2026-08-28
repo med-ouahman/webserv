@@ -189,6 +189,7 @@ http::Error CgiHandler::handle() {
 		if (result.mem_) setBodyFixed(result.body_);
 		else {
 			http::Error err = setBodyFile(result.body_filename);
+            std::remove(result.body_filename.c_str());
 			if (err != ERR_NONE)
 				return err;
 		}

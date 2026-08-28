@@ -163,8 +163,7 @@ ResponseParser::ParseResult ResponseParser::parse_header(std::string const& line
 
     std::string value = line.substr(start, end - start);
 
-    if ("status" == name)
-        return sanitize_status_header(value);
+    if ("status" == name) return sanitize_status_header(value);
 
     headers_.add(name, value);
 
@@ -250,7 +249,8 @@ CGIResult ResponseParser::result() const {
 
 bool ResponseParser::validate_headers() const {
 
-    if (headers_.get("content-type").empty() && headers_.get("location").empty()) return false;
+    if (headers_.get("content-type").empty()
+        && headers_.get("location").empty()) return false;
 
     return true;
 }

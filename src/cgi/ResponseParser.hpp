@@ -13,7 +13,7 @@ struct CGIResult {
 	size_t		body_content_length;
 
 	StatusCode	status_code;
-	Headers		headers;
+	const Headers&		headers;
 
 	CGIResult(
 		std::string const& filename,
