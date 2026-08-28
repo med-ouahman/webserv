@@ -16,7 +16,6 @@ enum Stream {
 };
 
 enum State {
-	Init,
 	Open,
 	Closing,
 	Closed,

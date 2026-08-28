@@ -1,5 +1,6 @@
 
 #include "http/Parser/headers/headers.hpp"
+#include "base/base.hpp"
 #include <limits>
 
 namespace http {
@@ -36,7 +37,7 @@ Error parseContentLength(const std::string& value, usize& out) {
 }
 
 Error	storeHeader(Request& request, const std::string& name, const std::string& value) {
-	std::string normalized = lowerName(name);
+	std::string normalized = base::toLowerCase(name);
 	Header* previous = findHeader(request, normalized);
 	Header header;
 
@@ -81,14 +82,14 @@ Error	handleSpecialHeader(Request& req, const std::string& normalized, const std
 			req.content_length = base::Optional<usize>(content_length);
 			return ERR_NONE;
 		case HEADER_TRANSFER_ENCODING:
-			if (lowerName(value) != "chunked")
+			if (base::toLowerCase(value) != "chunked")
 				return ERR_TE_UNSUPPORTED;
 			req.chunked = true;
 			return ERR_NONE;
 		case HEADER_CONNECTION:
-			if (lowerName(value) == "close")
+			if (base::toLowerCase(value) == "close")
 				req.connection = CONNECTION_CLOSE;
-			else if (lowerName(value) == "keep-alive")
+			else if (base::toLowerCase(value) == "keep-alive")
 				req.connection = CONNECTION_KEEP_ALIVE;
 			else
 				req.connection = CONNECTION_DEFAULT;

@@ -1,27 +1,11 @@
 
 #include "http/pipeline/handlers/StaticFileHandler.hpp"
 #include "http/Context.hpp"
+#include "http/common/Date.hpp"
 
-#include <ctime>
 #include <sys/stat.h>
 
 namespace http {
-
-namespace {
-
-static std::string httpDate(time_t value) {
-	char buffer[64];
-	struct tm* time_info = gmtime(&value);
-
-	if (time_info == NULL)
-		return "";
-	if (strftime(buffer, sizeof(buffer),
-		"%a, %d %b %Y %H:%M:%S GMT", time_info) == 0)
-		return "";
-	return buffer;
-}
-
-}
 
 StaticFileHandler::StaticFileHandler(Context& context)
 	: ARequestHandler(context) {}
@@ -41,7 +25,7 @@ Error StaticFileHandler::handle() {
 	TRY(setBodyFile(decision().filesystem_path), err);
 	setStatus(OK);
 	setContentTypeFromPath(decision().filesystem_path);
-	setHeader("Last-Modified", httpDate(info.st_mtime));
+	setHeader("Last-Modified", formatHttpDate(info.st_mtime));
 	setContentLength(static_cast<usize>(info.st_size));
 	setConnection();
 	setDate();

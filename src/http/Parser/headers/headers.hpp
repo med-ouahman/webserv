@@ -16,7 +16,6 @@ enum SpecialHeader {
 	HEADER_CONNECTION
 };
 
-std::string	lowerName(const std::string& name);
 void		trim(std::string& value);
 
 Header*		findHeader(Request& request, const std::string& normalized);

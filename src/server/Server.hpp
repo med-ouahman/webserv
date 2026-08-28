@@ -12,11 +12,6 @@ public:
 
 enum ServerErrors {
     AllocFailed,
-    SockFailed,
-    ConfError,
-    IOError,
-    ConnError,
-
 };
 
 private:
@@ -49,11 +44,11 @@ public:
     void maintenance();
     void add_connection(UniqueFd& uniq, const std::vector<const config::ServerConfig*>& info);
     void close_connection(net::Connection* conn);
-    void close_socket(net::Socket* Socket);
-    
-    net::Socket* find_listener(const config::ListenEndPoint& endpoint);
-    size_t num_connections() const;
-    logger::Logger& logger();
+	void close_socket(net::Socket* Socket);
+
+	net::Socket* find_listener(const config::ListenEndPoint& endpoint);
+	size_t num_connections() const;
+	logger::Logger& logger();
 
     static http::SessionManager* find_session(std::vector<http::SessionManager*>& sessions,
         const std::string& cookie_name);

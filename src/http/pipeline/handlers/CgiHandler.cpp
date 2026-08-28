@@ -204,17 +204,11 @@ http::Error CgiHandler::handle() {
         case None: break;
         case Timeout: return ERR_CGI_TIMEOUT;
         case ParseError: return ERR_BAD_GATEWAY;
-        case ProcessError: case Internal: return ERR_INTERNAL;
+		case Internal: return ERR_INTERNAL;
     }
 
     return ERR_NONE;
 }
-
-bool CgiHandler::done() const {
-    return response_state == Finished || response_state == Error;
-}
-
-bool CgiHandler::can_close() const { return state_ == Done; }
 
 bool CgiHandler::timedout() {
     

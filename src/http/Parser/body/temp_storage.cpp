@@ -1,4 +1,5 @@
 #include "http/Parser/body/temp_storage.hpp"
+#include "http/common/Path.hpp"
 
 #include <cerrno>
 #include <sstream>
@@ -7,17 +8,8 @@
 namespace http {
 namespace parser {
 
-static std::string pathJoin(const std::string& root,
-		const std::string& path) {
-	if (root.empty())
-		return path;
-	if (root[root.size() - 1] == '/')
-		return root + path;
-	return root + "/" + path;
-}
-
 bool prepareTempStorage(const std::string& root) {
-	std::string path = pathJoin(root, HTTP_TMP_DIR);
+	std::string path = http::pathJoin(root, HTTP_TMP_DIR);
 	struct stat info;
 
 	if (mkdir(path.c_str(), 0700) == 0)
@@ -31,7 +23,7 @@ std::string tempBodyPath(const std::string& root, usize conn_id,
 		usize request_id) {
 	std::ostringstream path;
 
-	path << pathJoin(root, HTTP_TMP_DIR) << "/body_"
+	path << http::pathJoin(root, HTTP_TMP_DIR) << "/body_"
 		<< conn_id << "_" << request_id << ".tmp";
 	return path.str();
 }

@@ -13,7 +13,9 @@ private:
 	typedef std::map<std::string, SessionData> SessionStore;
 	
 public:
-	SessionManager(const std::string& name, size_t timeout, const std::string& store_);
+	SessionManager(const std::string& name, size_t timeout);
+	SessionManager(const std::string& name, size_t timeout,
+		const std::string& store);
 	~SessionManager();
 	std::string create_session();
 	bool has_session(const std::string& id) const;
@@ -25,11 +27,8 @@ public:
 		const std::string& value);
 	std::string get_session_data(const std::string& id,
 		const std::string& key) const;
-	bool has_session_data(const std::string& id,
-		const std::string& key) const;
 
 	void cleanup();
-	std::size_t get_session_count() const;
 
 	const std::string& get_cookie_name() const;
 
@@ -41,8 +40,7 @@ private:
 	bool is_expired(std::time_t last_touch, std::time_t now) const;
 
 	struct SessionData {
-		std::time_t                        creation_time;
-		std::time_t                        last_touch;
+			std::time_t                        last_touch;
 		std::map<std::string, std::string> data;
 	};
 

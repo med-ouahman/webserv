@@ -1,6 +1,7 @@
 
 #include "http/pipeline/handlers/UploadHandler.hpp"
 #include "http/Context.hpp"
+#include "http/common/Path.hpp"
 #include "http/limits.hpp"
 #include "Logger.hpp"
 
@@ -15,13 +16,6 @@
 namespace http {
 
 namespace {
-
-static std::string pathJoin(const std::string& left,
-		const std::string& right) {
-	if (left.empty() || left[left.size() - 1] == '/')
-		return left + right;
-	return left + "/" + right;
-}
 
 static std::string basenameOf(const std::string& path) {
 	std::string::size_type slash = path.find_last_of('/');
@@ -112,8 +106,7 @@ static Error putBody(base::io::Reader& reader, const std::string& path) {
 	}
 	Error err = copyBody(reader, path);
 
-	if (err != ERR_NONE)
-		return err;
+	if (err != ERR_NONE) return err;
 	if (reader.type() == base::io::Reader::FILE && !reader.path().empty())
 		std::remove(reader.path().c_str());
 	return ERR_NONE;
@@ -141,16 +134,14 @@ Error UploadHandler::handle() {
 	}
 	if (!validUploadDirectory(dir)) return ERR_INTERNAL;
 	filename = basenameOf(decision().normalized_path);
-	path = pathJoin(dir, filename);
+	path = http::pathJoin(dir, filename);
 	TRY(inspectUploadTarget(path, existed), err);
 	TRY(putBody(request().body, path), err);
 	setBodyFixed("");
-	if (existed) {
-		setStatus(NO_CONTENT);
-	} else {
+	if (existed) { setStatus(NO_CONTENT); }
+	else {
 		setStatus(CREATED);
-		setHeader("Location",
-			uploadLocation(decision().normalized_path, filename));
+		setHeader("Location", uploadLocation(decision().normalized_path, filename));
 		setContentLength();
 	}
 	setConnection();

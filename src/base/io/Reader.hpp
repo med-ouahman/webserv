@@ -35,14 +35,10 @@ private:
 public:
 
 	Reader();
-	explicit Reader(const std::string& path);
-	Reader(i32 fd, bool owns_fd);
-	Reader(const char* buffer, usize size);
 	~Reader();
 
 	bool reset();
 	bool reset(const std::string& path);
-	bool reset(i32 fd, bool owns_fd);
 	bool reset(const char* buffer, usize size);
 
 	base::Expected<usize, Error> read(char* buff, usize max_size);

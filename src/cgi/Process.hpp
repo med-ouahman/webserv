@@ -13,21 +13,17 @@ struct ProcessContext;
 enum ProcessExitReason {
     Exited,
     Signaled,
-    Stopped,
-    Continued,
     Unknown,
 };
 
 struct ProcessResult {
-	int status; // raw waitpid value
-	ProcessExitReason reason;
+    ProcessExitReason reason;
 };
 
 class Process {
 private:
 
 enum ProcessState {
-    Setup,
     Spawn,
     Running,
     Terminated,
@@ -54,9 +50,6 @@ public:
     Pipe&   stderr_pipe();
     bool    want_stdin();
 
-    bool    running() const;
-    pid_t   pid() const;
-    int     status() const;
     bool    reaped() const;
     bool    error() const;
     void    kill();
@@ -64,7 +57,6 @@ public:
     void    reap();
 
     ProcessResult   result() const;
-    static int      status_code(const ProcessResult& result);
     bool            start(const ProcessContext& ctx);
 };
 

@@ -20,7 +20,7 @@ static bool duplicateTo(int source, int destination) {
 }
 
 Process::Process()
-    : state_(Setup),
+    : state_(Spawn),
     pid_(-1),
     status_(0),
     want_stdin_(true),
@@ -32,7 +32,6 @@ Process::Process()
         state_ = Error;
         return;
     }
-    state_ = Spawn;
 }
 
 Process::~Process() {
@@ -52,8 +51,6 @@ Pipe& Process::stdout_pipe() { return stdout_pipe_; }
 
 Pipe& Process::stderr_pipe() { return stderr_pipe_; }
 
-bool Process::running() const { return state_ == Running; }
-
 bool Process::error() const { return state_ == Error; }
 
 bool Process::want_stdin() { return want_stdin_; }
@@ -61,10 +58,6 @@ bool Process::want_stdin() { return want_stdin_; }
 bool Process::reaped() const {
     return state_ == Terminated;
 }
-
-pid_t Process::pid() const { return pid_; }
-
-int   Process::status() const { return status_; }
 
 void Process::kill() {
     if (state_ != Running) return;
@@ -97,24 +90,12 @@ void Process::reap() {
 ProcessResult Process::result() const {
 
     ProcessResult r;
-    r.status = status_;
 
     if (WIFEXITED(status_)) r.reason = Exited;
     else if (WIFSIGNALED(status_)) r.reason = Signaled;
     else r.reason = Unknown;
 
     return r;
-}
-
-int Process::status_code(const ProcessResult& result) {
-
-    switch (result.reason) {
-        case Signaled: return WTERMSIG(result.status) + 128;
-        case Exited: return WEXITSTATUS(result.status);
-        default: return 0; 
-    }
-
-    return 0;
 }
 
 bool Process::start(const ProcessContext& context) {

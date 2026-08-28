@@ -34,11 +34,6 @@ struct ProcessContext {
 	CStringArray argv;
 	CStringArray envp;
 
-	~ProcessContext() {
-		argv.clear();
-		envp.clear();
-	}
-
 	ProcessContext()
 	: stdin_fd(-1) {}
 };

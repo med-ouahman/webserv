@@ -1,6 +1,7 @@
 
 #include "http/pipeline/handlers/DirectoryHandler.hpp"
 #include "http/Context.hpp"
+#include "http/common/Path.hpp"
 #include "config/Config.hpp"
 
 #include <dirent.h>
@@ -10,13 +11,6 @@
 namespace http {
 
 namespace {
-
-static std::string pathJoin(const std::string& left,
-		const std::string& right) {
-	if (left.empty() || left[left.size() - 1] == '/')
-		return left + right;
-	return left + "/" + right;
-}
 
 static bool regularFile(const std::string& path, struct stat& info) {
 	return stat(path.c_str(), &info) == 0 && S_ISREG(info.st_mode);
@@ -96,7 +90,7 @@ Error DirectoryHandler::handle() {
 
 	i = 0;
 	while (i < indexes.size()) {
-		std::string path = pathJoin(decision().filesystem_path, indexes[i]);
+		std::string path = http::pathJoin(decision().filesystem_path, indexes[i]);
 		struct stat info;
 
 		if (regularFile(path, info)) {

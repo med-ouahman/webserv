@@ -1,5 +1,6 @@
 
 #include "http/pipeline/ARequestHandler.hpp"
+#include "http/common/Date.hpp"
 #include "http/Context.hpp"
 #include "server/ServerInfo.hpp"
 #include <cerrno>
@@ -58,8 +59,6 @@ ARequestHandler::ARequestHandler(Context& context)
 
 ARequestHandler::~ARequestHandler() {}
 
-Error ARequestHandler::timeout() { return ERR_NONE; }
-
 void ARequestHandler::monitor() { }
 
 void ARequestHandler::setStatus(StatusCode status) {
@@ -81,17 +80,6 @@ void ARequestHandler::setHeader(const std::string& key,
 	header.key = key;
 	header.value = value;
 	context_.actor.response.headers.push_back(header);
-}
-
-void ARequestHandler::eraseHeader(const std::string& key) {
-	std::vector<Header>::iterator it = context_.actor.response.headers.begin();
-
-	while (it != context_.actor.response.headers.end()) {
-		if (it->key == key)
-			it = context_.actor.response.headers.erase(it);
-		else
-			++it;
-	}
 }
 
 void ARequestHandler::setBodyFixed(const std::string& body) {
@@ -146,16 +134,9 @@ void ARequestHandler::setConnection() {
 }
 
 void ARequestHandler::setDate() {
-	char buffer[64];
-	time_t now = time(NULL);
-	struct tm* time_info = gmtime(&now);
-
-	if (time_info == NULL)
-		return ;
-	if (strftime(buffer, sizeof(buffer),
-		"%a, %d %b %Y %H:%M:%S GMT", time_info) == 0)
-		return ;
-	setHeader("Date", buffer);
+	std::string date = formatHttpDate(time(NULL));
+	if (!date.empty())
+		setHeader("Date", date);
 }
 
 void ARequestHandler::setCookieHeader(const std::string& sid,
@@ -173,7 +154,6 @@ void ARequestHandler::responseReady() {
 	setServerHeader();
 	context_.responseReady();
 }
-
 
 const DispatchInfo& ARequestHandler::decision() const {
 	return context_.info.dispatch.value;

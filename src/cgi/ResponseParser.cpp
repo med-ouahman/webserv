@@ -131,10 +131,6 @@ ResponseParser::ParseResult ResponseParser::sanitize_status_header(std::string c
     return Success;
 }
 
-bool ResponseParser::finished() const {
-    return state_ == Done;
-}
-
 ResponseParser::ParseResult ResponseParser::parse_header(std::string const& line) {
     size_t colon = line.find(':');
     if (colon == std::string::npos)

@@ -19,7 +19,6 @@ protected:
 
 	void setStatus(StatusCode status);
 	void setHeader(const std::string& key, const std::string& value);
-	void eraseHeader(const std::string& key);
 
 	void setBodyFixed(const std::string& body);
 	Error fileAccessError() const;
@@ -43,7 +42,6 @@ protected:
 public:
 	explicit ARequestHandler(Context& context);
 	virtual Error handle() = 0;
-	virtual Error timeout();
 	virtual void monitor();
 	virtual ~ARequestHandler();
 };

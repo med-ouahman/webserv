@@ -30,29 +30,4 @@ time_t seconds() const {
 	return seconds_;
 };
 
-bool operator<(const Timestamp& ts) const {
-	return seconds_ < ts.seconds_;
-}
-
-bool operator>(const Timestamp& ts) const {
-	return seconds_ > ts.seconds_;
-}
-
-bool operator==(const Timestamp& ts) const {
-	return seconds_ == ts.seconds_;
-}
-
-bool operator>=(const Timestamp& ts) const {
-	return seconds_ >= ts.seconds_;
-}
-
-bool operator<=(const Timestamp& ts) const {
-	return seconds_ <= ts.seconds_;
-}
-
-bool operator !=(const Timestamp& ts) const {
-	return seconds_ != ts.seconds_;
-}
-
 };
-
