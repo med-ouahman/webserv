@@ -53,6 +53,7 @@ Server::~Server() {
     }
     
     sessions_.clear();
+    
     logger_.log(logger::Info, "Perfoming cleanup...");
     logger_.log(logger::Info, "Shutting down server...");
     logger_.log(logger::Info, "Server shutdown successfully");
