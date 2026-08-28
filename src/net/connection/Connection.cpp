@@ -97,6 +97,8 @@ void Connection::write() {
         return;
     }
 
+    if (n == 0) return;
+
     writer_.advance_read(n);
     writer_.compact();
 }

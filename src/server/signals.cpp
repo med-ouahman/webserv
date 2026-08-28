@@ -13,7 +13,6 @@ void handle_signals() {
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGINT, close_server);
 	signal(SIGQUIT, close_server);
-
 }
 
 }
