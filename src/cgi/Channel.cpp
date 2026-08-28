@@ -66,6 +66,8 @@ void Channel::read() {
     ssize_t n = ::read(fd(), buf.write_ptr(), buf.bytes_free());
 
     if (n < 0) {
+		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
+			return;
         state_ = Error;
         return;
     }
@@ -84,6 +86,8 @@ void Channel::write() {
     ssize_t n = ::write(fd(), buf.read_ptr(), buf.bytes_pending());
 
     if (n < 0) {
+		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
+			return;
         state_ = Closing;
         return;
     }
@@ -92,6 +96,7 @@ void Channel::write() {
 
     buf.advance_read(n);
     buf.compact();
+
 }
 
 }
