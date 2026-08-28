@@ -14,6 +14,8 @@ private:
 	
 public:
 	SessionManager(const std::string& name, size_t timeout);
+	SessionManager(const std::string& name, size_t timeout,
+		const std::string& store);
 	~SessionManager();
 	std::string create_session();
 	bool has_session(const std::string& id) const;
@@ -44,6 +46,7 @@ private:
 
 	std::string cookie_name_;
 	size_t		timeout_seconds_;
+	std::string store_;
 	
 	SessionStore   	sessions_;
 };

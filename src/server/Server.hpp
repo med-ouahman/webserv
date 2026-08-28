@@ -47,6 +47,7 @@ public:
 	void close_socket(net::Socket* Socket);
 
 	net::Socket* find_listener(const config::ListenEndPoint& endpoint);
+	size_t num_connections() const;
 	logger::Logger& logger();
 
     static http::SessionManager* find_session(std::vector<http::SessionManager*>& sessions,
