@@ -318,5 +318,4 @@ void ConfigParser::parseLocationDirective(LocationConfig& loc)
 
     expect(SEMICOLON);
 }
-
 }
