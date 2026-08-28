@@ -15,12 +15,9 @@ Connection::Connection(UniqueFd& uniq,
     state_(Reading),
     ctx(servers, fd(), fd(), services),
     reader_(in),
-    writer_(out) {
-}
+    writer_(out) {}
 
-Connection::~Connection() {
-
-}
+Connection::~Connection() {}
 
 bool Connection::closing() const { return state_ == Closing; }
 

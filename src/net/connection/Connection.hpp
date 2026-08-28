@@ -25,6 +25,7 @@ public:
     Connection(UniqueFd& fd, io::Event events,
         const std::vector<const config::ServerConfig*>& servers,
         RuntimeServices& services);
+
     ~Connection();
     void on_event(io::Event events);
     bool closing() const;
@@ -46,7 +47,8 @@ private:
     void on_writable();
     void on_readable();
     void update(http::ContextAction action);
-    
+    Connection(const Connection&);
+    Connection& operator=(const Connection&);
 };
 
 }

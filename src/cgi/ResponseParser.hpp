@@ -37,10 +37,6 @@ struct CGIResult {
 	body_content_length(0),
 	status_code(code),
 	headers(h) {}
-
-	CGIResult(StatusCode code): status_code(code) {}
-
-	CGIResult() {}
 };
 
 
