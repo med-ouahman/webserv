@@ -6,7 +6,7 @@ FT := -pg  -finstrument-functions
 
 DEVELOPMENT = -D DEV_MODE=1 -D DEBUG=1
 
-STD = -std=c++98
+STD = -std=c++23
 
 CXX_FLAGS := -Wall -Wextra -Werror $(STD) $(DEBUG) $(DEVELOPMENT)
 
