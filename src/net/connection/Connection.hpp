@@ -41,7 +41,7 @@ private:
 
     Buffer reader_;
     Buffer writer_;
-
+    logger::Logger& logger_;
     void read();
     void write();
     void on_writable();

@@ -84,33 +84,29 @@ bool Server::start_listeners() {
             net::Socket* l = find_listener(endpoints[j]);
 	        
             if (l) {
-                logger_.log(logger::Info, "Duplicate listen endpoint detected, using existing one", true);
+                logger_.log(logger::Error, "Duplicate listen endpoint detected");
+                return false;
             }
 
-            if (!l) {
+            base::Result<net::Socket*> result = net::create_listening_socket(endpoints[j], *this);
+            
+            if (!result.ok()) {
+                logger_.log(logger::Error,
+                    logger_.make_error(result.error().context,
+                    result.error().message,
+                    result.error().file,
+                    result.error().line), true);
 
-                base::Result<net::Socket*> result = net::create_listening_socket(endpoints[j], *this);
-                
-                if (!result.ok()) {
-                    logger_.log(logger::Error,
-                        logger_.make_error(result.error().context,
-                        result.error().message,
-                        result.error().file,
-                        result.error().line), true);
-
-                    return false;
-                }
-                
-                net::Socket* sock = result.value();
-
-                if (!event_loop.add(sock, false)) return false;
-                
-                listeners.push_back(sock);
-
-                l = sock;
+                return false;
             }
+            
+            net::Socket* sock = result.value();
+
+            if (!event_loop.add(sock, false)) return false;
+            
+            listeners.push_back(sock);
 	    
-            l->add_server(&servers[i]);
+            sock->add_server(&servers[i]);
         }
     }
 

@@ -6,20 +6,17 @@
 namespace io
 {
 
-enum Event
-{
-
-None     = 0,
-Writable = 1 << 0,
-Readable = 1 << 1,
-Hup      = 1 << 2,
-RHup     = 1 << 3,
-Error    = 1 << 4,
-Close    = 1 << 5
+enum Event {
+    None     = 0,
+    Writable = 1 << 0,
+    Readable = 1 << 1,
+    Hup      = 1 << 2,
+    RHup     = 1 << 3,
+    Error    = 1 << 4,
+    Close    = 1 << 5
 };
 
-class AEventHandler
-{
+class AEventHandler {
 
 private:
 

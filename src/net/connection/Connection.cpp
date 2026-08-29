@@ -15,7 +15,8 @@ Connection::Connection(UniqueFd& uniq,
     state_(Reading),
     ctx(servers, fd(), fd(), services),
     reader_(in),
-    writer_(out) {}
+    writer_(out),
+    logger_(services.logger) {}
 
 Connection::~Connection() {}
 
@@ -38,7 +39,7 @@ void Connection::update(http::ContextAction action) {
 
     switch (state_) {
         case Reading: new_events = io::Readable; break;
-        case Writing: new_events = (io::Event)(io::Readable | io::Writable); break;
+        case Writing: new_events = (io::Event)(io::Writable); break;
         case Closing: new_events = io::Close; break;
     }
 
@@ -71,6 +72,8 @@ void Connection::on_readable() {
 
     read();
 
+    if (state_ == Closing) return;
+
     BufferView view(reader_.read_ptr(), reader_.bytes_pending());
     size_t n = ctx.consume(view);
     reader_.advance_read(n);
@@ -82,6 +85,8 @@ void Connection::read() {
 
     if (n <= 0) {
         state_ = Closing;
+        if (n == 0) logger.log(logger::Info, "Connection FD ("+base::to_string(fd())+") close by peer")
+        logger_.log(logger::Error, "net::Connection::recv()"));
         return;
     }
 
@@ -93,9 +98,12 @@ void Connection::write() {
     ssize_t n = ::send(fd(), writer_.read_ptr(), writer_.bytes_pending(), 0);
 
     if (n <  0) {
+        logger_.log(logger::Error, "net::Connection::send() failed");
         state_ = Closing;
         return;
     }
+
+    if (n == 0) return;
 
     writer_.advance_read(n);
     writer_.compact();
@@ -105,8 +113,18 @@ void Connection::on_writable() {
     if (state_ == Closing) return;
 
 	usize produced = ctx.produce(writer_.write_ptr(), writer_.bytes_free());
-	writer_.advance_write(produced);
+	
+    if (ctx.nextAction() == AC_CLOSE) {
+        state_ = Closing;
+        return;
+    }
+
+    writer_.advance_write(produced);
+
+
 	write();
+
+    if (state_ == Closing) return;
 
 	if (writer_.empty()
 		&& ctx.nextAction() == http::AC_WRITE
