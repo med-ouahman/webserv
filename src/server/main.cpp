@@ -5,6 +5,8 @@
 #include "sys.h"
 #include <iostream>
 
+#define DEFAULT_CONFIG "config/vilgax.conf"
+
 int main(int, const char* argv[]) {
 
     sys::handle_signals();
@@ -13,7 +15,7 @@ int main(int, const char* argv[]) {
 
     {
         config::ConfigParser parser;
-        if (None != parser.parse(conf, argv[1] != NULL ? argv[1]: "config/default.conf")) return 1;
+        if (None != parser.parse(conf, argv[1] != NULL ? argv[1]: "config/vilgax.conf")) return 1;
     }
     
     return Server(conf).start();
